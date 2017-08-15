@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<!-- 不识别邮件和不把数字识别为电话号码 -->
+	<meta name="format-detection" content="telephone=no; email=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<script></script>
+	<link rel="stylesheet" type="text/css" href="lib/css/sm.css">
+	<link rel="stylesheet" type="text/css" href="lib/css/main.css">
+	<title>普金资本--城投供应链网贷系统</title>
+</head>
+<body>
+	<div id="App"></div>
+</body>
+	<script type="text/javascript" src="lib/js/vue.min.js" charset='utf-8'></script>
+	<script type="text/javascript" src="lib/js/vue-router.js" charset='utf-8'></script>
+	<script type="text/javascript" src="lib/js/zepto.min.js" charset='utf-8'></script>
+	<script type="text/javascript" src="lib/js/sm.min.js" charset='utf-8'></script>
+	<script src="http://static.geetest.com/static/tools/gt.js" charset='utf-8'></script>
+	<script type="text/javascript" src="lib/js/sea.js" charset='utf-8'></script>
+	<script type="text/javascript" src="lib/js/vconsole.min.js" charset='utf-8'></script>
+	<script type="text/javascript">
+	var Main = {
+		verson:"1.6"
+	};
+	seajs.config({
+		base:"./",
+		charset:"utf-8",
+		map:[[ /^(.*\.(?:css|js|html))(.*)$/i, '$1?version_'+Main.verson]],
+		path:{}
+	});
+	$(function(){
+		seajs.use(['src/app.js']);
+	});
+
+	</script>
+</html>

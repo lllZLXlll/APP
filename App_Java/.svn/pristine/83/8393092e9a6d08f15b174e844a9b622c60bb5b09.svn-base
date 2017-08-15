@@ -1,0 +1,85 @@
+package com.pjzb.service.admin.user;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.UserDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 是否禁用用户
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminIsEnableUserService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+
+	/**
+	 * 
+	 * @describe:分页查询禁用用户列表
+	 * @author: xiaojin
+	 * @param model
+	 * @param userName
+	 * @param realName
+	 * @param beginTime
+	 * @param endTime
+	 * @param pageNum
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 */
+	public String queryIsEnableUserList(Model model, String userName, String realName, String beginTime, String endTime, Long pageNum, Long pageSize, Integer enable,String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = ConvertUtil.convertObjToStr(userName);
+			realName = ConvertUtil.convertObjToStr(realName);
+			beginTime = ConvertUtil.convertObjToStr(beginTime);
+			endTime = ConvertUtil.convertObjToStr(endTime);
+			enable=enable==null?2:enable;
+			List<Map<String, Object>> list = userDao.queryIsEnableUserList(userName, realName, beginTime, endTime, (pageNum - 1) * pageSize, pageSize,enable);
+			long count = userDao.queryIsEnableUserCount(userName, realName, beginTime, endTime,enable);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("beginTime", beginTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("enable", enable);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询禁用用户列表异常**************************");
+		}
+		return "/admin/user/enableuser/list.jsp";
+	}
+
+	public Map<String, Object> updateEnableUserByUserIds(Long[] ids,Integer enable,String msg) {
+		long resut = userDao.updateUserEnableByUserIds(new Date(),enable, ids);
+		if (resut > 0) {
+			return ajaxDoneInfo("200", "用户"+msg+"成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "用户"+msg+"失败", "", "");
+		}
+
+	}
+
+}

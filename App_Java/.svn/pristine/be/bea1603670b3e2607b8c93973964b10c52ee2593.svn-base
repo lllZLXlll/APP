@@ -1,0 +1,325 @@
+package com.pjzb.task;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.OperateReportDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.OperateReport;
+import com.pjzb.util.Constants;
+
+/**
+ * 生成运营数据定时器
+ * 
+ * @author xiaojin
+ * 
+ */
+
+@Service
+public class JobCreateOperateReportService {
+	public static Log log = LogFactory.getLog(JobCreateOperateReportService.class);
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private OperateReportDao operateReportDao;
+
+	/**
+	 * 按月份生成月报数据
+	 * 
+	 * @author xiaojin
+	 */
+	public void createOperateReport() {
+		log.info("--------------生成运营数据任务开始--------------");
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMM");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-01 00:00:00");
+		SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-MM-dd 23:59:59");
+		String startDate = "2016-09-01 00:00:00";
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.add(Calendar.MONTH, -1);
+		calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+		String beginTime = sdf2.format(calendar.getTime());
+		String endTime = sdf3.format(calendar.getTime());
+		log.info(beginTime);
+		log.info(endTime);
+		String month = sdf1.format(calendar.getTime());
+		Long monthCount = operateReportDao.queryOperateReportCountByMonth(month);
+		if (monthCount == 0) {
+			// 平台截止交易总额查询
+			Map<String, Object> totalInvestAmountMap = investDao.queryTotalInvestAmount();
+			// 平台截止交易总额
+			Double totalInvestAmount = Double.parseDouble(String.valueOf(totalInvestAmountMap.get("investAmount")));
+			// 平台截止总收益
+			Double totalIncome = Double.parseDouble(String.valueOf(totalInvestAmountMap.get("hasInterest")));
+			// 月交易总额查询
+			Map<String, BigDecimal> totalInvestAmountMonthMap = investDao.queryMonthTotalInvest(beginTime, endTime);
+
+			// 月交易总额
+			Double totalMonthAmount = totalInvestAmountMonthMap.get("investAmount").doubleValue();
+
+			// 月总收益查询
+			Map<String, BigDecimal> monthIncomeMap = investRepaymentDao.queryMonthTotalIncome(beginTime, endTime);
+
+			// 月总收益
+			Double monthIncome = monthIncomeMap.get("hasInterest").doubleValue();
+
+			// 总注册用户人数查询
+			Map<String, Object> totalUserMap = userDao.queryTotalUser();
+
+			// 总注册用户人数
+			Long totalUser = Long.parseLong(String.valueOf(totalUserMap.get("userTotal")));
+
+			// 月待还款总金额
+			Double monthUnRepayAmount = investRepaymentDao.queryUnRepayAmount().doubleValue();
+
+			// 月总注册用户人数
+			Long monthUser = userDao.queryMonthRegistCount(beginTime, endTime);
+
+			// 截止总投资人数
+			Long totalInvestUser = investDao.queryEndTotalInvestor(startDate, endTime);
+
+			// 月总投资人数
+			Long monthInvestUser = investDao.queryEndTotalInvestor(beginTime, endTime);
+
+			// 月人均投资金额
+			Double monthAvgAmount = getDouble(totalMonthAmount, Double.parseDouble(String.valueOf(monthInvestUser)));
+
+			// 月交易笔数
+			Long dealNum = investDao.findInvestDealNumber(beginTime, endTime);
+
+			// 月笔均投资金额
+			Double penAvgAmount = getDouble(totalMonthAmount, Double.parseDouble(String.valueOf(dealNum)));
+
+			// 截止性别已认证男投资人数
+			Long investManCount = personDao.findUserSexCount("男", startDate, endTime);
+
+			// 截止性别已认证女投资人数
+			Long investWomanCount = personDao.findUserSexCount("女", startDate, endTime);
+
+			Long totalSexCount = investManCount + investWomanCount;
+
+			Double totalSexCountDou = Double.parseDouble(String.valueOf(totalSexCount));
+
+			// 截止男性投资所占性别已认证投资人数的性别比
+			String manProp = getAreaPercentage(Double.parseDouble(String.valueOf(investManCount)), totalSexCountDou);
+
+			// 女性投资所占投性别已认证资人数的性别比
+			String womanProp = getAreaPercentage(Double.parseDouble(String.valueOf(investWomanCount)), totalSexCountDou);
+
+			Long totalInvestor = investDao.queryEndTotalInvestor(startDate, endTime);
+			// 截止投资人小于18岁人数查询
+			String less18 = investDao.queryEndInvestorSexProportByAge(totalInvestor, 18, null, startDate, endTime);
+
+			// 截止投资人18-24岁查询
+			String o1824 = investDao.queryEndInvestorSexProportByAge(totalInvestor, 18, 24, startDate, endTime);
+
+			// 截止投资人25-29岁查询
+			String o2529 = investDao.queryEndInvestorSexProportByAge(totalInvestor, 25, 29, startDate, endTime);
+
+			// 截止投资人30-34岁查询
+			String o3034 = investDao.queryEndInvestorSexProportByAge(totalInvestor, 30, 34, startDate, endTime);
+
+			// 截止投资人35-39岁查询
+			String o3539 = investDao.queryEndInvestorSexProportByAge(totalInvestor, 35, 39, startDate, endTime);
+
+			// 截止投资人40-49岁查询
+			String o4049 = investDao.queryEndInvestorSexProportByAge(totalInvestor, 40, 49, startDate, endTime);
+
+			// 截止投资人大于等于50岁查询
+			String exc50 = investDao.queryEndInvestorSexProportByAge(totalInvestor, null, 50, startDate, endTime);
+
+			Double hjbUnrepay = investRepaymentDao.findUnRepayAmountByBorrowTypeSubId(6).doubleValue();
+
+			Double pjbUnrepay = investRepaymentDao.findUnRepayAmountByBorrowTypeSubId(4).doubleValue();
+
+			Double djbUnrepay = investRepaymentDao.findUnRepayAmountByBorrowTypeSubId(3).doubleValue();
+
+			// 区域投资总人数
+			Long investorAreaCount = investDao.queryEndAreaTotalInvestor(Constants.AREALIST(), startDate, endTime);
+
+			// 投资人北京区域分布查询
+			String beijing = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "北京");
+
+			// 投资人天津区域分布查询
+			String tianjin = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "天津");
+
+			// 投资人河北区域分布查询
+			String hebei = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "河北");
+
+			// 投资人山西区域分布查询
+			String shanxi = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "山西");
+
+			// 投资人内蒙古区域分布查询
+			String neimenggu = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "内蒙");
+
+			// 投资人辽宁区域分布查询
+			String liaoning = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "辽宁");
+
+			// 投资人吉林区域分布查询
+			String jilin = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "吉林");
+
+			// 投资人黑龙江区域分布查询
+			String heilongjiang = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "黑龙");
+
+			// 投资人上海区域分布查询
+			String shanghai = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "上海");
+			// 投资人江苏区域分布查询
+			String jiangsu = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "江苏");
+			// 投资人浙江区域分布查询
+			String zhejiang = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "浙江");
+			// 投资人安徽区域分布查询
+			String anhui = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "安徽");
+			// 投资人江西区域分布查询
+			String jiangxi = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "江西");
+			// 投资人福建区域分布查询
+			String fujian = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "福建");
+			// 投资人山东区域分布查询
+			String shandong = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "山东");
+			// 投资人台湾区域分布查询
+			String taiwan = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "台湾");
+			// 投资人河南区域分布查询
+			String henan = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "河南");
+			// 投资人湖北区域分布查询
+			String hubei = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "湖北");
+			// 投资人湖南区域分布查询
+			String hunan = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "湖南");
+			// 投资人广东区域分布查询
+			String guangdong = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "广东");
+			// 投资人广西区域分布查询
+			String guangxi = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "广西");
+			// 投资人海南区域分布查询
+			String hainan = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "海南");
+			// 投资人香港区域分布查询
+			String hongkong = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "香港");
+			// 投资人澳门区域分布查询
+			String macao = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "澳门");
+			// 投资人重庆区域分布查询
+			String chongqing = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "重庆");
+			// 投资人四川区域分布查询
+			String sichuan = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "四川");
+			// 投资人云南区域分布查询
+			String yunan = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "云南");
+			// 投资人西藏区域分布查询
+			String tibet = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "西藏");
+			// 投资人贵州区域分布查询
+			String guizhou = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "贵州");
+			// 投资人陕西区域分布查询
+			String shaanxi = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "陕西");
+			// 投资人甘肃区域分布查询
+			String gansu = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "甘肃");
+			// 投资人青海区域分布查询
+			String qinghai = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "青海");
+			// 投资人宁夏区域分布查询
+			String ningxia = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "宁夏");
+			// 投资人新疆区域分布查询
+			String xinjiang = investDao.queryEndInvestProportByArea(investorAreaCount, Constants.AREALIST(), startDate, endTime, "新疆");
+
+			OperateReport operateReport = new OperateReport();
+			operateReport.setMonth(month);
+			operateReport.setCreateTime(new Date());
+			operateReport.setTotalInvestAmount(totalInvestAmount);
+			operateReport.setTotalMonthAmount(totalMonthAmount);
+			operateReport.setMonthUnRepayAmount(monthUnRepayAmount);
+			operateReport.setTotalIncome(totalIncome);
+			operateReport.setMonthIncome(monthIncome);
+			operateReport.setTotalUser(totalUser);
+			operateReport.setMonthUser(monthUser);
+			operateReport.setTotalInvestUser(totalInvestUser);
+			operateReport.setMonthInvestUser(monthInvestUser);
+			operateReport.setMonthAvgAmount(monthAvgAmount);
+			operateReport.setPenAvgAmount(penAvgAmount);
+			operateReport.setManProp(manProp);
+			operateReport.setWomanProp(womanProp);
+			operateReport.setHjbUnrepay(hjbUnrepay);
+			operateReport.setPjbUnrepay(pjbUnrepay);
+			operateReport.setDjbUnrepay(djbUnrepay);
+			operateReport.setLess18(less18);
+			operateReport.setO1824(o1824);
+			operateReport.setO2529(o2529);
+			operateReport.setO3034(o3034);
+			operateReport.setO3539(o3539);
+			operateReport.setO4049(o4049);
+			operateReport.setExc50(exc50);
+			operateReport.setBeijing(beijing);
+			operateReport.setTianjin(tianjin);
+			operateReport.setHebei(hebei);
+			operateReport.setShanxi(shanxi);
+			operateReport.setNeimenggu(neimenggu);
+			operateReport.setLiaoning(liaoning);
+			operateReport.setJilin(jilin);
+			operateReport.setHeilongjiang(heilongjiang);
+			operateReport.setShanghai(shanghai);
+			operateReport.setJiangsu(jiangsu);
+			operateReport.setZhejiang(zhejiang);
+			operateReport.setAnhui(anhui);
+			operateReport.setJiangxi(jiangxi);
+			operateReport.setFujian(fujian);
+			operateReport.setShandong(shandong);
+			operateReport.setTaiwan(taiwan);
+			operateReport.setHenan(henan);
+			operateReport.setHubei(hubei);
+			operateReport.setHunan(hunan);
+			operateReport.setGuangdong(guangdong);
+			operateReport.setGuangxi(guangxi);
+			operateReport.setHainan(hainan);
+			operateReport.setHongkong(hongkong);
+			operateReport.setMacao(macao);
+			operateReport.setChongqing(chongqing);
+			operateReport.setSichuan(sichuan);
+			operateReport.setYunan(yunan);
+			operateReport.setTibet(tibet);
+			operateReport.setGuizhou(guizhou);
+			operateReport.setShaanxi(shaanxi);
+			operateReport.setGansu(gansu);
+			operateReport.setQinghai(qinghai);
+			operateReport.setNingxia(ningxia);
+			operateReport.setXinjiang(xinjiang);
+			operateReportDao.insertOperateReport(operateReport);
+		}
+		log.info("--------------生成运营数据任务结束--------------");
+	}
+
+	public Double getDouble(Double d1, Double d2) {
+		if (d2 != 0) {
+			Double result = d1 / d2;
+			BigDecimal bg = new BigDecimal(result);
+			return bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+		} else {
+			return 0d;
+		}
+	}
+
+	public String getAreaPercentage(Double d, Double userSum) {
+		DecimalFormat df = new DecimalFormat("0.00");
+		String area = df.format((d / userSum) * 100);
+		if (userSum != 0) {
+			return area.equals("0.00") ? "0" : area + "%";
+		} else {
+			return "0";
+		}
+	}
+
+}

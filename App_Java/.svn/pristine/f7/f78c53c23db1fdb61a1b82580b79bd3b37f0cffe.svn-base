@@ -1,0 +1,38 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+
+/**
+ * 手工解冻
+ * 
+ * @author zlx
+ * 
+ */
+@Service
+public class AdminManualThawService extends BaseController {
+
+	public Map<String, Object> updateBorrowHandUnfreeze(Long trxId) throws Exception {
+		String bgRetUrl = getBasePath() + "pubCallBack.do";
+		String merPriv1 = "UsrUnFreeze";
+		System.out.println("trxId:" + trxId);
+		JSONObject jsonStr = JSONObject.fromObject(ChinapnrInterface.usrUnFreeze(trxId + "", trxId + "", bgRetUrl, merPriv1));
+		System.out.println("jsonStr:" + jsonStr);
+		if (jsonStr.get("RespCode").equals("000")) {
+			return ajaxDoneInfo("200", "手工解冻成功", "", "");
+		} else if (jsonStr.get("RespCode").equals("107")) {
+			return ajaxDoneInfo("300", "重复操作，该流水号已经解冻过", "", "");
+		} else if (jsonStr.get("RespCode").equals("419")) {
+			return ajaxDoneInfo("300", "可解冻的冻结交易不存在", "", "");
+		} else {
+			return ajaxDoneInfo("300", "解冻失败", "", "");
+		}
+	}
+
+}

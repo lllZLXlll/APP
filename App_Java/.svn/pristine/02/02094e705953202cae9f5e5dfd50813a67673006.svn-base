@@ -1,0 +1,48 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/Banner.html');
+	//首页
+	var VueComponent = Vue.extend({
+		data: function(){
+			return {
+				accountData:[],
+				imgList:[{src:'images/banner/banner_008.png',href:"activity/1101m.html"},
+							{src:'images/banner/banner_002.png',href:""},
+							{src:'images/banner/banner_005.png',href:"introduced"},
+							{src:'images/banner/banner_006.png',href:"introduced"},
+							{src:'images/banner/banner_007.png',href:"introduced"}
+						]
+			}
+		},
+		route:{
+			canReuse:true
+		},
+		ready: function(){
+			this.beginSwiper();
+		},
+		methods: {
+			beginSwiper: function(){
+				$(".swiper-container").swiper({
+			        speed: 400,
+			        spaceBetween:0,
+			        autoplay: 2000
+			    })
+			},
+			toDetail:function(href){
+				if(href){
+					router.go({name:href})
+				}
+			}
+		},
+		filters:{
+			isZero:function(value){
+				if(value){
+					return value;
+				}else{
+					return 0;
+				}
+			},
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

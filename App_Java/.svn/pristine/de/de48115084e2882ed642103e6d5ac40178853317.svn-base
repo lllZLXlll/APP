@@ -1,0 +1,1423 @@
+package com.pjzb.service.chinapnr;
+
+import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import chinapnr.SecureLink;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.FormUtil;
+import com.pjzb.util.HttpUtil;
+import com.shove.Convert;
+
+public class ChinapnrInterface {
+	private static Log log = LogFactory.getLog(ChinapnrInterface.class);
+
+	/**
+	 * 前台 用户注册
+	 * 
+	 * @param cmdId
+	 *            指定接口类型
+	 * @param usrId
+	 *            商户下平台id
+	 * @param usrName
+	 *            用户名
+	 * @param idNo
+	 *            证件号码(默认身份证号)
+	 * @param usrMp
+	 *            手机号
+	 * @param usrEmail
+	 *            邮箱
+	 * @return
+	 */
+	public static String userRegister(String cmdId, String usrId, String usrName, String idNo, String usrMp, String usrEmail, String retUrl, String bgRetUrl, String merPriv,
+			String pageType) {
+		Map<String, String> map = new HashMap<String, String>();
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		String idType = ChinapnrConfig.chinapnr_idType; // 证件类型 '00': 身份证
+		// String merPriv = "UserRegister"; // 商户私有域
+		String charSet = ChinapnrConfig.UTF_8;
+		if (usrEmail == null) {
+			usrEmail = "";
+		}
+		map.put("Version", version);
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("RetUrl", retUrl);
+		map.put("UsrId", usrId);
+		map.put("UsrName", usrName);
+		map.put("IdType", idType);
+		map.put("IdNo", idNo);
+		map.put("UsrMp", usrMp);
+		// map.put("UsrEmail", usrEmail);
+		map.put("MerPriv", merPriv);
+		map.put("CharSet", charSet);
+		map.put("PageType", pageType);
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version);
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(bgRetUrl);
+		plain.append(retUrl);
+		plain.append(usrId);
+		plain.append(usrName);
+		plain.append(idType);
+		plain.append(idNo);
+		plain.append(usrMp);
+		plain.append(merPriv);
+		plain.append(pageType);
+		// email为空则不传值
+		/**
+		 * if(null!=usrEmail && !usrEmail.isEmpty()) { map.put("UsrEmail",
+		 * usrEmail); plain.append(usrEmail); }
+		 */
+
+		SecureLink sl = new SecureLink();
+
+		int ret = 0;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		map.put("ChkValue", sl.getChkValue());
+		System.out.println(sl.getChkValue());
+		return FormUtil.buildHtmlForm1(map, ChinapnrConfig.PNRURL + "", "post");
+	}
+
+	/**
+	 * 企业开户 (注册担保垫付帐户)
+	 * 
+	 * @author CQM
+	 * @since 2016-06-21
+	 * @param request
+	 * @param UsrId
+	 *            用户号
+	 * @param UsrName
+	 *            真实名称
+	 * @param BusiCode
+	 *            营业执照编号
+	 * @param GuarType
+	 *            担保类型
+	 * @param BgRetUrl
+	 *            商户后台应答地址
+	 **/
+	public static String corpRegisterFn(String UsrId, String idNo, String UsrName, String BusiCode, String registeredCapital, String companyPhone, String GuarType, String BgRetUrl)
+			throws Exception {
+		String Version = ChinapnrConfig.CHINAPNR_VERSION;
+		String CmdId = "CorpRegister";
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+
+		String InstuCode = "";
+		String TaxCode = "";
+		// String MerPriv = "";
+		String MerPriv = "";// 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String Charset = "UTF-8";
+		// String BgRetUrl = ChinaPnrConfig.chinapnr_bgRetUrl;
+		String ReqExt = "";
+		// 生成订单
+		StringBuffer plain = new StringBuffer();
+
+		plain.append(Version).append(CmdId).append(MerCustId);
+		plain.append(UsrId).append(UsrName);
+		plain.append(BusiCode).append(GuarType).append(BgRetUrl);
+
+		String plainStr = plain.toString();
+
+		// 汇付托管接口地址
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Version", Version);
+		params.put("CmdId", CmdId);// 异步请求地址都同一个，根据这个类别判断，指定本地是哪个业务路径
+		params.put("MerCustId", MerCustId);
+		params.put("UsrId", UsrId);
+		params.put("UsrName", UsrName);
+		params.put("BusiCode", BusiCode);
+
+		params.put("GuarType", GuarType);
+		params.put("BgRetUrl", BgRetUrl); // 异步请求地址
+
+		SecureLink sl = new SecureLink();
+
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		params.put("ChkValue", sl.getChkValue());
+		System.out.println(sl.getChkValue());
+
+		return FormUtil.buildHtmlForm1(params, ChinapnrConfig.PNRURL + "", "post");
+	}
+
+	/**
+	 * 债权转让 pc
+	 * 
+	 * @OrdId 订单号
+	 * @SellCustId 转让人客户号
+	 * @CreditAmt 债权总额
+	 * @CreditDealAmt 债权转让承接人付给转让人的金额
+	 * @BidDetails 债权转让明细
+	 * @BidOrdId 原投标订单号
+	 * @BidOrdDate 原投标订单日期
+	 * @BidCreditAmt 转出原投标金额
+	 * @Fee 手续费
+	 * @DivDetails 分账账户串
+	 * @BuyCustId 承接人客户号(债权购买人客户号)
+	 */
+	public static String creditAssignTwo(String OrdId, String SellCustId, String CreditAmt, String CreditDealAmt, String BidDetails, String Fee, String BuyCustId, String OrdDate,
+			String MerPriv, String RetUrl, String BgRetUrl, String pageType) {
+		String Version = ChinapnrConfig.CHINAPNR_VERSION;
+		String CmdId = "CreditAssign";
+		String ReqExt = "";
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户id
+		// String RetUrl = ChinaPnrConfig.chinapnr_retUrl;
+		// String BgRetUrl = ChinaPnrConfig.chinapnr_bgRetUrl;
+
+		// 生成订单
+		StringBuffer plain = new StringBuffer();
+		plain.append(Version).append(CmdId).append(MerCustId).append(SellCustId);
+		plain.append(CreditAmt).append(CreditDealAmt).append(BidDetails).append(Fee);
+		plain.append(BuyCustId).append(OrdId).append(OrdDate).append(RetUrl).append(BgRetUrl).append(MerPriv).append(ReqExt);
+
+		if (pageType != null && pageType.equals(Constants.REACTAPP))
+			plain.append("2");
+
+		SecureLink sl = new SecureLink();
+		int ret = 1;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return "发送请求签名错误";
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", Version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", MerCustId);
+		map.put("SellCustId", SellCustId);
+		map.put("CreditAmt", CreditAmt);
+
+		map.put("CreditDealAmt", CreditDealAmt);
+		map.put("BidDetails", BidDetails);
+		map.put("Fee", Fee);
+
+		map.put("BuyCustId", BuyCustId);
+
+		map.put("OrdId", OrdId);
+		map.put("OrdDate", OrdDate);
+		map.put("RetUrl", RetUrl);
+		map.put("BgRetUrl", BgRetUrl);
+		map.put("MerPriv", MerPriv);
+
+		map.put("ReqExt", ReqExt);
+
+		if (pageType != null && pageType.equals(Constants.REACTAPP))
+			map.put("PageType", "2");
+
+		map.put("ChkValue", sl.getChkValue());
+
+		if (pageType != null && pageType.equals(Constants.REACTAPP)) {
+			return FormUtil.buildHtmlForm3(ChinapnrConfig.PNRURL, map);
+		} else {
+			String html = FormUtil.buildHtmlForm(map, ChinapnrConfig.PNRURL, "post");
+
+			html = html.replace("value=\"{\"BidDetails", "value='{\"BidDetails");
+			html = html.replace("}]}]}\"/>", "}]}]}'/>");
+			html = html.replace("DivAmt\":\"" + Fee + "\"}]\"/>", "DivAmt\":\"" + Fee + "\"}]'/>");
+			return html;
+		}
+	}
+
+	/**
+	 * 债权转让 pc
+	 * 
+	 * @OrdId 订单号
+	 * @SellCustId 转让人客户号
+	 * @CreditAmt 债权总额
+	 * @CreditDealAmt 债权转让承接人付给转让人的金额
+	 * @BidDetails 债权转让明细
+	 * @BidOrdId 原投标订单号
+	 * @BidOrdDate 原投标订单日期
+	 * @BidCreditAmt 转出原投标金额
+	 * @Fee 手续费
+	 * @DivDetails 分账账户串
+	 * @BuyCustId 承接人客户号(债权购买人客户号)
+	 */
+	public static String creditAssign(String OrdId, String SellCustId, String CreditAmt, String CreditDealAmt, String BidDetails, String Fee, String DivDetails, String BuyCustId,
+			String OrdDate, String MerPriv, String RetUrl, String BgRetUrl, String pageType) {
+		String Version = ChinapnrConfig.CHINAPNR_VERSION;
+		String CmdId = "CreditAssign";
+		String ReqExt = "";
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户id
+		// String RetUrl = ChinaPnrConfig.chinapnr_retUrl;
+		// String BgRetUrl = ChinaPnrConfig.chinapnr_bgRetUrl;
+
+		// 生成订单
+		StringBuffer plain = new StringBuffer();
+		plain.append(Version).append(CmdId).append(MerCustId).append(SellCustId);
+		plain.append(CreditAmt).append(CreditDealAmt).append(BidDetails).append(Fee).append(DivDetails);
+		plain.append(BuyCustId).append(OrdId).append(OrdDate).append(RetUrl).append(BgRetUrl).append(MerPriv).append(ReqExt);
+		if (pageType != null && pageType.equals(Constants.REACTAPP))
+			plain.append("2");
+
+		SecureLink sl = new SecureLink();
+		int ret = 1;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return "发送请求签名错误";
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", Version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", MerCustId);
+		map.put("SellCustId", SellCustId);
+		map.put("CreditAmt", CreditAmt);
+
+		map.put("CreditDealAmt", CreditDealAmt);
+		map.put("BidDetails", BidDetails);
+		map.put("Fee", Fee);
+		map.put("DivDetails", DivDetails);
+		map.put("BuyCustId", BuyCustId);
+
+		map.put("OrdId", OrdId);
+		map.put("OrdDate", OrdDate);
+		map.put("RetUrl", RetUrl);
+		map.put("BgRetUrl", BgRetUrl);
+		map.put("MerPriv", MerPriv);
+
+		map.put("ReqExt", ReqExt);
+
+		if (pageType != null && pageType.equals(Constants.REACTAPP))
+			map.put("PageType", "2");
+
+		map.put("ChkValue", sl.getChkValue());
+
+		if (pageType != null && pageType.equals(Constants.REACTAPP)) {
+			return FormUtil.buildHtmlForm3(ChinapnrConfig.PNRURL, map);
+		} else {
+			String html = FormUtil.buildHtmlForm(map, ChinapnrConfig.PNRURL, "post");
+			html = html.replace("value=\"{\"BidDetails", "value='{\"BidDetails");
+			html = html.replace("}]}]}\"/>", "}]}]}'/>");
+			html = html.replace("value=\"[{\"DivAcctId", "value='[{\"DivAcctId");
+			html = html.replace("DivAmt\":\"" + Fee + "\"}]\"/>", "DivAmt\":\"" + Fee + "\"}]'/>");
+			return html;
+		}
+	}
+
+	/** 企业开户查询 **/
+	public static String CorpRegisterQuery(String BusiCode) {
+		String Version = ChinapnrConfig.CHINAPNR_VERSION;
+		String CmdId = "CorpRegisterQuery";
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+
+		String ReqExt = "";
+		// 生成订单
+		StringBuffer plain = new StringBuffer();
+		plain.append(Version).append(CmdId).append(MerCustId).append(BusiCode).append(ReqExt);
+
+		SecureLink sl = new SecureLink();
+		int ret = 1;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", Version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", MerCustId);
+		map.put("BusiCode", BusiCode);
+		map.put("ReqExt", ReqExt);
+		map.put("ChkValue", sl.getChkValue());
+
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 前台用户绑卡接口
+	 * 
+	 * @return
+	 */
+	public static String userBindCard(String usrCustId, String merPrivStr, String bgRetUrl, String PageType) {
+		Map<String, String> map = new HashMap<String, String>();
+		String cmdId = "UserBindCard";
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		// String bgRetUrl = ChinaPnrConfig.chinapnr_bgRetUrl;
+		// String merPriv = "userBindCard"; // 商户私有域,自定义字段，
+		String merPriv = merPrivStr;
+		map.put("Version", version);
+		map.put("UsrCustId", usrCustId);
+		map.put("MerCustId", merCustId);
+		map.put("CmdId", cmdId);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+		map.put("PageType", PageType);
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version);
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(usrCustId);
+		plain.append(bgRetUrl);
+		plain.append(merPriv);
+		plain.append(PageType);
+
+		SecureLink sl = new SecureLink();
+
+		int ret = -1;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return "发送请求签名错误";
+		}
+		map.put("ChkValue", sl.getChkValue());
+		return FormUtil.buildHtmlForm1(map, ChinapnrConfig.PNRURL, "post");
+	}
+
+	public static String queryBalanceBg(String UsrCustId) {
+		// String usrCustIds = usrCustId + ""; //商户客户号，汇付生成，用户的唯一性标识
+		// 组装接口参数，并进行加密
+		try {
+			String version = ChinapnrConfig.CHINAPNR_VERSION;
+			String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+
+			String cmdId = "QueryBalanceBg"; // 消息类型 --后台查询余额QueryBalanceBg
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("Version", version);
+			map.put("CmdId", cmdId);
+			map.put("MerCustId", merCustId);
+			map.put("UsrCustId", UsrCustId);
+			// 组织加密明文
+			StringBuffer plain = new StringBuffer();
+			plain.append(version);
+			plain.append(cmdId);
+			plain.append(merCustId);
+			plain.append(UsrCustId);
+
+			SecureLink sl = new SecureLink();
+
+			int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+			if (ret != 0) {
+				return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+			}
+			map.put("ChkValue", sl.getChkValue());
+			return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.info(e);
+			return null;
+		}
+	}
+
+	/** 汇付银行卡查询接口 **/
+	public static String queryCardInfo(String UsrCustId) {
+		String Version = ChinapnrConfig.CHINAPNR_VERSION;
+		String CmdId = ChinapnrConfig.QUERYCARDINFO;
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+
+		String CardId = "";
+		// 生成订单
+		StringBuffer plain = new StringBuffer();
+		plain.append(Version).append(CmdId).append(MerCustId).append(UsrCustId);
+
+		SecureLink sl = new SecureLink();
+		int ret = 1;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+		}
+
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", Version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", MerCustId);
+		map.put("UsrCustId", UsrCustId);
+		map.put("ChkValue", sl.getChkValue());
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 充值
+	 * 
+	 * @param body
+	 * @param nunber
+	 * @param userId
+	 * @param bankCode
+	 * @param tranDateTime
+	 * @param gateBusiId
+	 *            网关的细分业务类型 用户B2C,商户B2B
+	 */
+	public static String netSave(String body, String ordId, String openBankId, String usrCustId, String ordDate, String moneyStr, String gateBusiId, String merPriv,
+			String pageType, String retUrl, String bgRetUrl, String cardDcFlag) {
+		// 组装接口参数，并进行加密
+
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		String usrCustIds = usrCustId; // 商户客户号，汇付生成，用户的唯一性标识
+		String transAmt = moneyStr; // 交易金额
+		String cmdId = ChinapnrConfig.NETSAVE;
+		String dcFlag = cardDcFlag; // 银行卡类型：D借记卡，C信用卡
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", version);
+		map.put("UsrCustId", usrCustId);
+		map.put("GateBusiId", gateBusiId);
+		map.put("TransAmt", transAmt);
+		map.put("MerCustId", merCustId);
+		map.put("CmdId", cmdId);
+		map.put("OrdId", ordId);
+		map.put("DcFlag", dcFlag);
+		map.put("OrdDate", ordDate); // 订单日期
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+		map.put("PageType", pageType);
+
+		if (!"DEFAULT".equals(openBankId)) {// 开户银行代号
+			map.put("OpenBankId", openBankId);
+		} else {
+			map.put("OpenBankId", openBankId);
+		}
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version);
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(usrCustIds);
+		plain.append(ordId);
+		plain.append(ordDate);
+		plain.append(gateBusiId);
+		plain.append(openBankId);
+		plain.append(dcFlag);
+		plain.append(transAmt);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(merPriv);
+		plain.append(pageType);
+
+		SecureLink sl = new SecureLink();
+
+		try {
+			int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+			if (ret != 0) {
+				return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.info(e);
+		}
+		map.put("ChkValue", sl.getChkValue());
+		return FormUtil.buildHtmlForm1(map, ChinapnrConfig.PNRURL, ChinapnrConfig.POST);
+	}
+
+	/**
+	 * 取现
+	 */
+	public static String cash(String ordId, String usrCustId, String transAmt, String openAcctId, String retUrl, String bgRetUrl, String merPriv, String pageType, String page) {
+		Map<String, String> map = new HashMap<String, String>();
+		// 拼接金额小数点
+		double amount = Convert.strToDouble(transAmt, 0);
+		transAmt = new DecimalFormat("0.00").format(amount);
+		String FeeObjFlag = "U";
+		String CashChl = "GENERAL";
+		JSONObject json = new JSONObject();
+		json.put("FeeObjFlag", FeeObjFlag);
+		json.put("CashChl", CashChl);
+		String ReqExt = "[" + json.toString() + "]";
+		// String version = ChinapnrConfig.chinapnr_version;
+		String cmdId = "Cash"; // 消息类型,每一种消息类型代表一种交易-- 冻结
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		// String merPriv = merPriv ; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String remark = "syqcjrCash"; // 取现描述，长度有限（64 个汉字），请简明扼要的说明
+		String charSet = "UTF-8";
+		String ServFeeAcctId = "MDT000001";
+		map.put("Version", "20");
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("OrdId", ordId);
+		map.put("UsrCustId", usrCustId);
+		map.put("TransAmt", transAmt);
+		map.put("ServFeeAcctId", ServFeeAcctId);
+		map.put("OpenAcctId", openAcctId);
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("Remark", remark);
+		map.put("CharSet", charSet);
+		map.put("MerPriv", merPriv);
+		map.put("ReqExt", ReqExt);
+		map.put("PageType", pageType);
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append("20");
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(ordId);
+		plain.append(usrCustId);
+		plain.append(transAmt);
+		plain.append(ServFeeAcctId);
+		plain.append(openAcctId);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(remark);
+		plain.append(merPriv);
+		plain.append(ReqExt);
+		plain.append(pageType);
+		SecureLink sl = new SecureLink();
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString());
+		if (ret != 0) {
+			return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+		}
+		map.put("ChkValue", sl.getChkValue());
+		if (page.equals(Constants.PC) || page.equals(Constants.PHONEPAGE)) {
+			return FormUtil.buildHtmlForm2(map, ChinapnrConfig.PNRURL, ChinapnrConfig.POST);
+		} else {
+			return FormUtil.buildHtmlForm3(ChinapnrConfig.PNRURL, map);
+		}
+	}
+
+	/**
+	 * 取现
+	 */
+	public static String cashD(String ordId, String usrCustId, String sumD, String transAmt, String openAcctId, String retUrl, String bgRetUrl, String merPriv, String pageType,
+			String page) {
+		Map<String, String> map = new HashMap<String, String>();
+		// 拼接金额小数点
+		double amount = Convert.strToDouble(transAmt, 0);
+		transAmt = new DecimalFormat("0.00").format(amount);
+		String FeeObjFlag = "U";
+		String CashChl = "GENERAL";
+		JSONObject json = new JSONObject();
+		json.put("FeeObjFlag", FeeObjFlag);
+		json.put("CashChl", CashChl);
+		String ReqExt = "[" + json.toString() + "]";
+		// String version = ChinapnrConfig.chinapnr_version;
+		String cmdId = "Cash"; // 消息类型,每一种消息类型代表一种交易-- 冻结
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		// String merPriv = withdrawId ; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String remark = "syqcjrCash"; // 取现描述，长度有限（64 个汉字），请简明扼要的说明
+		String charSet = "UTF-8";
+		String ServFeeAcctId = "MDT000001";
+
+		map.put("Version", "20");
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("OrdId", ordId);
+		map.put("UsrCustId", usrCustId);
+		map.put("TransAmt", transAmt);
+		map.put("ServFee", sumD);
+		map.put("ServFeeAcctId", ServFeeAcctId);
+		map.put("OpenAcctId", openAcctId);
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("Remark", remark);
+		map.put("MerPriv", merPriv);
+		map.put("CharSet", charSet);
+		map.put("ReqExt", ReqExt);
+		map.put("PageType", pageType);
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append("20");
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(ordId);
+		plain.append(usrCustId);
+		plain.append(transAmt);
+		plain.append(sumD);
+		plain.append(ServFeeAcctId);
+		plain.append(openAcctId);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(remark);
+		plain.append(merPriv);
+		plain.append(ReqExt);
+		plain.append(pageType);
+
+		SecureLink sl = new SecureLink();
+
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString());
+
+		if (ret != 0) {
+
+			return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+		}
+		map.put("ChkValue", sl.getChkValue());
+
+		if (page.equals(Constants.PC) || page.equals(Constants.PHONEPAGE)) {
+			return FormUtil.buildHtmlForm2(map, ChinapnrConfig.PNRURL, ChinapnrConfig.POST);
+		} else {
+			return FormUtil.buildHtmlForm3(ChinapnrConfig.PNRURL, map);
+		}
+	}
+
+	/**
+	 * 资金（货款）冻结
+	 */
+	public static String usrFreezeBg(String usrCustId, String subAcctType, String subAcctId, String ordId, String transAmt, String bgRetUrl, String merPriv) {
+		System.out.println("usrFreezeBg");
+		Map<String, String> map = new HashMap<String, String>();
+		// 拼接金额小数点
+		double amount = Convert.strToDouble(transAmt, 0);
+		transAmt = new DecimalFormat("0.00").format(amount);
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		String ordDate = ConvertUtil.dateConvert(new Date(), Constants.DATESHORT); // 日期
+		String retUrl = "";
+		// String bgRetUrl = ChinapnrConfig.chinapnr_bgRetUrl;
+		// String merPriv = "UsrFreezeBg"; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String cmdId = "UsrFreezeBg"; // 消息类型,每一种消息类型代表一种交易-- 冻结
+
+		map.put("Version", version);
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("UsrCustId", usrCustId);// 商户客户号，汇付生成，用户的唯一性标识
+		map.put("SubAcctType", subAcctType);// 子账号类型
+		map.put("SubAcctId", subAcctId);// 子账户号
+		map.put("OrdId", ordId);// 订单号
+		map.put("OrdDate", ordDate);
+		map.put("TransAmt", transAmt);
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version);
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(usrCustId);
+		plain.append(subAcctType);
+		plain.append(subAcctId);
+		plain.append(ordId);
+		plain.append(ordDate);
+		plain.append(transAmt);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(merPriv);
+		SecureLink sl = new SecureLink();
+		int ret = 0;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes(ChinapnrConfig.UTF_8));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+		}
+		map.put("ChkValue", sl.getChkValue());
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 资金（货款）解冻
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public static String usrUnFreeze(String ordId, String trxId, String bgRetUrl, String merPriv) {
+		Map<String, String> map = new HashMap<String, String>();
+		ordId = trxId;
+
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		String ordDate = ConvertUtil.dateConvert(new Date(), Constants.DATESHORT); // 日期
+		String retUrl = "";
+		// String bgRetUrl = ChinapnrConfig.chinapnr_bgRetUrl;
+		// String merPriv = "UsrUnFreeze"; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String cmdId = "UsrUnFreeze"; // 消息类型,每一种消息类型代表一种交易-- 解冻
+
+		map.put("Version", version);
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("OrdId", ordId); // 订单号
+		map.put("OrdDate", ordDate);
+		map.put("TrxId", trxId);// 商户专属平台交易唯一标识定长 18 位
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version);
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(ordId);
+		plain.append(ordDate);
+		plain.append(trxId);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(merPriv);
+		SecureLink sl = new SecureLink();
+		try {
+			int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes(ChinapnrConfig.UTF_8));
+			if (ret != 0) {
+				return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		map.put("ChkValue", sl.getChkValue());
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 主动投标
+	 */
+	public static String initiativeTender(String merPriv, String ordId, String usrCustId, String transAmt, String borrowerDetails, String retUrl, String bgRetUrl, String PageType,
+			String ourPageType) {
+		Map<String, String> map = new HashMap<String, String>();
+		String maxTenderRate = ChinapnrConfig.MAXTENDERRATE;// "0.10";
+
+		// String version = ChinapnrConfig.chinapnr_version;
+		String cmdId = "InitiativeTender"; // 消息类型,每一种消息类型代表一种交易-- 冻结
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		// String retUrl = ChinapnrConfig.chinapnr_retUrl;
+		// String bgRetUrl = ChinapnrConfig.chinapnr_bgRetUrl;
+		// String merPriv = merPriv; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String IsFreeze = "N";
+		map.put("Version", "20");
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("OrdId", ordId);
+		map.put("OrdDate", DateUtil.getDate());
+		map.put("TransAmt", transAmt);
+		map.put("UsrCustId", usrCustId);// 投资人客户号
+		map.put("MaxTenderRate", maxTenderRate); // 最大投资手 续费率
+		map.put("BorrowerDetails", borrowerDetails); // 借款人信息 , 变长
+														// ,支持传送多个借款人信息，使用json格式传送
+		map.put("IsFreeze", IsFreeze);
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+		map.put("PageType", PageType);
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append("20");
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(ordId);
+		plain.append(DateUtil.getDate());
+		plain.append(transAmt);
+		plain.append(usrCustId);
+		plain.append(maxTenderRate);
+		plain.append(borrowerDetails);
+		plain.append(IsFreeze);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(merPriv);
+		plain.append(PageType);
+		SecureLink sl = new SecureLink();
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString());
+		if (ret != 0) {
+			return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+		}
+		map.put("ChkValue", sl.getChkValue());
+		if (ourPageType.equals(Constants.REACTAPP)) {
+			return FormUtil.buildHtmlForm3(ChinapnrConfig.PNRURL, map);
+		} else {
+			return FormUtil.buildHtmlForm(map, ChinapnrConfig.PNRURL, ChinapnrConfig.POST);
+		}
+
+	}
+
+	/**
+	 * 主动投标
+	 */
+	public static String initiativeTenderTwo(String merPriv, String ordId, String usrCustId, String transAmt, String borrowerDetails, String retUrl, String bgRetUrl,
+			String vocherAmt, String pageType, String ourPageType) {
+		Map<String, String> map = new HashMap<String, String>();
+		String maxTenderRate = ChinapnrConfig.MAXTENDERRATE;// "0.10";
+
+		// String version = ChinapnrConfig.chinapnr_version;
+		String cmdId = "InitiativeTender"; // 消息类型,每一种消息类型代表一种交易-- 冻结
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		// String retUrl = ChinapnrConfig.chinapnr_retUrl;
+		// String bgRetUrl = ChinapnrConfig.chinapnr_bgRetUrl;
+		// String merPriv = id; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String IsFreeze = "N";
+		String AcctId = "MDT000001";
+		JSONObject json = new JSONObject();
+		json.put("VocherAmt", vocherAmt);
+		json.put("AcctId", AcctId);
+		String ReqExt = "{" + "\"" + "Vocher" + "\"" + ":" + json.toString() + "}";
+		// 汇付主动投标
+		map.put("Version", "20");
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("OrdId", ordId);
+		map.put("OrdDate", DateUtil.getDate());
+		map.put("TransAmt", transAmt);
+		map.put("UsrCustId", usrCustId);
+		map.put("MaxTenderRate", maxTenderRate); // 最大投资手 续费率
+		map.put("BorrowerDetails", borrowerDetails); // 借款人信息 , 变长
+														// ,支持传送多个借款人信息，使用json格式传送
+		map.put("IsFreeze", IsFreeze);
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+		map.put("ReqExt", ReqExt);
+		map.put("PageType", pageType);
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append("20");
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(ordId);
+		plain.append(DateUtil.getDate());
+		plain.append(transAmt);
+		plain.append(usrCustId);
+		plain.append(maxTenderRate);
+		plain.append(borrowerDetails);
+		plain.append(IsFreeze);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(merPriv);
+		plain.append(ReqExt);
+		plain.append(pageType);
+		SecureLink sl = new SecureLink();
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString());
+		if (ret != 0) {
+
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		map.put("ChkValue", sl.getChkValue());
+		if (ourPageType.equals(Constants.REACTAPP)) {
+			return FormUtil.buildHtmlForm3(ChinapnrConfig.PNRURL, map);
+		} else {
+			return FormUtil.buildHtmlForm(map, ChinapnrConfig.PNRURL, ChinapnrConfig.POST);
+		}
+	}
+
+	/**
+	 * 主动投标
+	 */
+	public static String appInitiativeTenderTwo(String merPriv, String ordId, String usrCustId, String transAmt, String borrowerDetails, String retUrl, String bgRetUrl,
+			String vocherAmt) {
+		Map<String, String> map = new HashMap<String, String>();
+		String maxTenderRate = ChinapnrConfig.MAXTENDERRATE;// "0.10";
+
+		// String version = ChinapnrConfig.chinapnr_version;
+		String cmdId = "InitiativeTender"; // 消息类型,每一种消息类型代表一种交易-- 冻结
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		// String retUrl = ChinapnrConfig.chinapnr_retUrl;
+		// String bgRetUrl = ChinapnrConfig.chinapnr_bgRetUrl;
+		// String merPriv = id; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String IsFreeze = "N";
+		String AcctId = "MDT000001";
+		JSONObject json = new JSONObject();
+		json.put("VocherAmt", vocherAmt);
+		json.put("AcctId", AcctId);
+		String ReqExt = "{" + "\"" + "Vocher" + "\"" + ":" + json.toString() + "}";
+		// 汇付主动投标
+		map.put("Version", "20");
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("OrdId", ordId);
+		map.put("OrdDate", DateUtil.getDate());
+		map.put("TransAmt", transAmt);
+		map.put("UsrCustId", usrCustId);
+		map.put("MaxTenderRate", maxTenderRate); // 最大投资手 续费率
+		map.put("BorrowerDetails", borrowerDetails); // 借款人信息 , 变长
+														// ,支持传送多个借款人信息，使用json格式传送
+		map.put("IsFreeze", IsFreeze);
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+		map.put("ReqExt", ReqExt);
+		map.put("PageType", "1");
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append("20");
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(ordId);
+		plain.append(DateUtil.getDate());
+		plain.append(transAmt);
+		plain.append(usrCustId);
+		plain.append(maxTenderRate);
+		plain.append(borrowerDetails);
+		plain.append(IsFreeze);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(merPriv);
+		plain.append(ReqExt);
+		plain.append("1");
+		SecureLink sl = new SecureLink();
+
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString());
+
+		if (ret != 0) {
+
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		map.put("ChkValue", sl.getChkValue());
+		return FormUtil.buildHtmlForm3(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 用户登录接口
+	 */
+	public static String userLogin(String usrCustId, String pageType) throws Exception {
+		Map<String, String> map = new HashMap<String, String>();
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		String cmdId = "UserLogin"; // 消息类型,每一种消息类型代表一种交易-- 账户信息修改
+
+		map.put("Version", version);
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("UsrCustId", usrCustId);
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version);
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(usrCustId);
+
+		SecureLink sl = new SecureLink();
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes(ChinapnrConfig.UTF_8));
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		if (pageType.equals(Constants.REACTAPP))
+			return FormUtil.buildHtmlForm3(ChinapnrConfig.PNRURL, map);
+		else
+			return FormUtil.buildHtmlForm(map, ChinapnrConfig.PNRURL, ChinapnrConfig.POST);
+	}
+
+	/**
+	 * 放还款对账
+	 */
+	public static String reconciliation(String BeginDate, String EndDate, String PageSize, String PageNum, String QueryTransType) {
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String CmdId = "Reconciliation";
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+		SecureLink sl = new SecureLink();
+		StringBuilder sb = new StringBuilder(version).append(CmdId).append(merCustId);
+		sb.append(BeginDate).append(EndDate).append(PageNum).append(PageSize).append(QueryTransType);
+		try {
+			int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, sb.toString().getBytes("UTF-8"));
+			if (ret != 0) {
+				return ChinapnrConfig.ERROR_VERIFYSIGN_MSG;
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", merCustId);
+		map.put("ChkValue", sl.getChkValue());
+		map.put("QueryTransType", QueryTransType);
+		map.put("BeginDate", BeginDate);
+		map.put("EndDate", EndDate);
+		map.put("PageSize", PageSize);
+		map.put("PageNum", PageNum);
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 用户 查询余额 数据流方式
+	 * 
+	 * @param UsrCustId
+	 * @return
+	 * @throws Exception
+	 * @author Li zeyang
+	 */
+	public static String queryBalanceBgs(String UsrCustId) {
+		// String usrCustIds = usrCustId + ""; //商户客户号，汇付生成，用户的唯一性标识
+		// 组装接口参数，并进行加密
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+
+		String cmdId = "QueryBalanceBg"; // 消息类型 --后台查询余额QueryBalanceBg
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", version);
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("UsrCustId", UsrCustId);
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version);
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(UsrCustId);
+
+		SecureLink sl = new SecureLink();
+
+		int ret = 0;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		map.put("ChkValue", sl.getChkValue());
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 商户扣款对账
+	 */
+	public static String trfReconciliation(String BeginDate, String EndDate, String PageSize, String PageNum) throws Exception {
+		String Version = ChinapnrConfig.CHINAPNR_VERSION;
+		String CmdId = "TrfReconciliation";
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+
+		SecureLink sl = new SecureLink();
+
+		StringBuilder sb = new StringBuilder(Version).append(CmdId).append(MerCustId);
+		sb.append(BeginDate).append(EndDate).append(PageNum).append(PageSize);
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, sb.toString().getBytes("UTF-8"));
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", Version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", MerCustId);
+		map.put("ChkValue", sl.getChkValue());
+
+		map.put("BeginDate", BeginDate);
+		map.put("EndDate", EndDate);
+		map.put("PageNum", PageNum);
+		map.put("PageSize", PageSize);
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 取现对账
+	 */
+	public static String cashReconciliation(String beginDate, String endDate, String pageSize, String pageNum) throws Exception {
+		String Version = "20";
+		String CmdId = "CashReconciliation";
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+
+		SecureLink sl = new SecureLink();
+
+		StringBuilder sb = new StringBuilder(Version).append(CmdId).append(MerCustId);
+		sb.append(beginDate).append(endDate).append(pageNum).append(pageSize);
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, sb.toString().getBytes("UTF-8"));
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", Version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", MerCustId);
+		map.put("ChkValue", sl.getChkValue());
+
+		map.put("BeginDate", beginDate);
+		map.put("EndDate", endDate);
+		map.put("PageSize", pageSize);
+		map.put("PageNum", pageNum);
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 自动扣款（放款）(单个标的放款)
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public static String loans(String OrdId, String OrdDate, String OutCustId, String TransAmt, String Fee, String SubOrdId, String SubOrdDate, String InCustId, String DivDetails,
+			String IsDefault, String BgRetUrl, String UnFreezeOrdId, String FreezeTrxId) {
+
+		SecureLink sl = new SecureLink();
+		String FeeObjFlag = "I"; // 续费收取对象标志 : I - 向入款客户号InCustId收取 ,O -
+									// 向出款客户号OutCustId收取
+		String IsUnFreeze = "Y"; // 是否解冻投资人的冻结资金
+		String Version = "20";
+		String CmdId = "Loans"; // 操作类型自动扣款 放款
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户id
+		// String BgRetUrl = ChinaPnrConfig.chinapnr_bgRetUrl;
+		String MerPriv = "Loans"; // 商户私有域,自定义在交易完成后原样返回
+		String ReqExt = "";
+		try {
+			Date da = new SimpleDateFormat("yyyy-MM-dd").parse(SubOrdDate);
+			SubOrdDate = new SimpleDateFormat("yyyyMMdd").format(da);
+			Date da1 = new SimpleDateFormat("yyyy-MM-dd").parse(OrdDate);
+			OrdDate = new SimpleDateFormat("yyyyMMdd").format(da1);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		// 生成订单
+		StringBuffer plain = new StringBuffer();
+		plain.append(Version).append(CmdId).append(MerCustId).append(OrdId).append(OrdDate);
+		plain.append(OutCustId).append(TransAmt).append(Fee).append(SubOrdId).append(SubOrdDate);
+		plain.append(InCustId).append(DivDetails).append(FeeObjFlag).append(IsDefault).append(IsUnFreeze).append(UnFreezeOrdId).append(FreezeTrxId).append(BgRetUrl)
+				.append(MerPriv);
+		plain.append(ReqExt);
+
+		int ret = 0;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", Version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", MerCustId);
+		map.put("OrdId", OrdId);
+		map.put("OrdDate", OrdDate);
+
+		map.put("OutCustId", OutCustId);
+		map.put("TransAmt", TransAmt);
+		map.put("Fee", Fee);
+		map.put("SubOrdId", SubOrdId);
+		map.put("SubOrdDate", SubOrdDate);
+
+		map.put("InCustId", InCustId);
+		map.put("DivDetails", DivDetails);
+		map.put("FeeObjFlag", FeeObjFlag);
+		map.put("IsDefault", IsDefault);
+		map.put("IsUnFreeze", IsUnFreeze);
+		map.put("UnFreezeOrdId", UnFreezeOrdId);
+		map.put("FreezeTrxId", FreezeTrxId);
+		map.put("BgRetUrl", BgRetUrl);
+		map.put("MerPriv", MerPriv);
+		map.put("ReqExt", ReqExt);
+		map.put("ChkValue", sl.getChkValue());
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 自动扣款（放款）(单个标的放款)
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public static String loansRecord(String OrdId, String OrdDate, String OutCustId, String TransAmt, String Fee, String SubOrdId, String SubOrdDate, String InCustId,
+			String DivDetails, String IsDefault, String BgRetUrl, String UnFreezeOrdId, String FreezeTrxId, String ReqExt) {
+
+		SecureLink sl = new SecureLink();
+		String FeeObjFlag = "I"; // 续费收取对象标志 : I - 向入款客户号InCustId收取 ,O -
+									// 向出款客户号OutCustId收取
+		String IsUnFreeze = "Y"; // 是否解冻投资人的冻结资金
+		String Version = "20";
+		String CmdId = "Loans"; // 操作类型自动扣款 放款
+		String MerCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户id
+		// String BgRetUrl = ChinaPnrConfig.chinapnr_bgRetUrl;
+		String MerPriv = "Loans"; // 商户私有域,自定义在交易完成后原样返回
+		// String ReqExt="";
+		try {
+			Date da = new SimpleDateFormat("yyyy-MM-dd").parse(SubOrdDate);
+			SubOrdDate = new SimpleDateFormat("yyyyMMdd").format(da);
+			Date da1 = new SimpleDateFormat("yyyy-MM-dd").parse(OrdDate);
+			OrdDate = new SimpleDateFormat("yyyyMMdd").format(da1);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		// 生成订单
+		StringBuffer plain = new StringBuffer();
+		plain.append(Version).append(CmdId).append(MerCustId).append(OrdId).append(OrdDate);
+		plain.append(OutCustId).append(TransAmt).append(Fee).append(SubOrdId).append(SubOrdDate);
+		plain.append(InCustId).append(DivDetails).append(FeeObjFlag).append(IsDefault).append(IsUnFreeze).append(UnFreezeOrdId).append(FreezeTrxId).append(BgRetUrl)
+				.append(MerPriv);
+		plain.append(ReqExt);
+
+		int ret = 0;
+		try {
+			ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		if (ret != 0) {
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Version", Version);
+		map.put("CmdId", CmdId);
+		map.put("MerCustId", MerCustId);
+		map.put("OrdId", OrdId);
+		map.put("OrdDate", OrdDate);
+
+		map.put("OutCustId", OutCustId);
+		map.put("TransAmt", TransAmt);
+		map.put("Fee", Fee);
+		map.put("SubOrdId", SubOrdId);
+		map.put("SubOrdDate", SubOrdDate);
+
+		map.put("InCustId", InCustId);
+		map.put("DivDetails", DivDetails);
+		map.put("FeeObjFlag", FeeObjFlag);
+		map.put("IsDefault", IsDefault);
+		map.put("IsUnFreeze", IsUnFreeze);
+		map.put("UnFreezeOrdId", UnFreezeOrdId);
+		map.put("FreezeTrxId", FreezeTrxId);
+		map.put("BgRetUrl", BgRetUrl);
+		map.put("MerPriv", MerPriv);
+		map.put("ReqExt", ReqExt);
+		map.put("ChkValue", sl.getChkValue());
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	/**
+	 * 取现复核
+	 */
+	public static String cashAudit(String ordId, String usrCustId, String transAmt, String auditFlag, String bgRetUrl) {
+
+		Map<String, String> map = new HashMap<String, String>();
+
+		String version = ChinapnrConfig.CHINAPNR_VERSION;
+		String cmdId = "CashAudit"; // 消息类型,每一种消息类型代表一种交易-- 冻结
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		String retUrl = "";
+		// String bgRetUrl = ChinapnrConfig.chinapnr_bgRetUrl;
+		String merPriv = "CashAudit"; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		map.put("Version", version);
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("OrdId", ordId);
+		map.put("UsrCustId", usrCustId);
+		map.put("TransAmt", transAmt);
+		map.put("AuditFlag", auditFlag);// AuditFlag 复核标识 定长 1 位 取值范围：{R,S} R：拒绝
+		// S：复核通过
+		map.put("RetUrl", retUrl);
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version);
+		plain.append(cmdId);
+		plain.append(merCustId);
+		plain.append(ordId);
+		plain.append(usrCustId);
+		plain.append(transAmt);
+		plain.append(auditFlag);
+		plain.append(retUrl);
+		plain.append(bgRetUrl);
+		plain.append(merPriv);
+
+		SecureLink sl = new SecureLink();
+
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString());
+
+		if (ret != 0) {
+
+			return "{\"RespCode\":\"-101\",\"RespDesc\":\"发送请求签名错误\"}";
+		}
+		map.put("ChkValue", sl.getChkValue());
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+	public static String repayment2(String version, String ordId, String outCustId, String outAcctId, String transAmt, String inCustId, String inAcctId, String subOrdId,
+			String subOrdDate, String fee, String divDetails, String bgRetUrl) throws Exception {
+		Map<String, String> map = new HashMap<String, String>();
+		// 拼接金额小数点
+		StringBuffer sb = new StringBuffer();
+		if (transAmt != null && transAmt.indexOf(".") == -1) {
+			transAmt = sb.append(transAmt).append(".00").toString();
+		} else {
+			transAmt += "0000";
+			transAmt = transAmt.substring(0, transAmt.indexOf(".") + 3);
+		}
+
+		// 拼接金额小数点
+		double amount = Convert.strToDouble(fee, 0);
+		fee = new DecimalFormat("0.00").format(amount);
+
+		String OrdDate = DateUtil.dateToYMD(new Date());
+		String cmdId = "Repayment"; // 消息类型
+		String merCustId = ChinapnrConfig.CHINAPNR_MERCUSTID; // 商户号
+		// String bgRetUrl = ChinaPnrConfig.chinapnr_bgRetUrl;
+		String merPriv = "Repayment"; // 商户私有域,自定义字段，该字段在交易完成后由商户专属平台原样返回
+		String ReqExt = "";
+		String FeeObjFlag = "";
+		map.put("Version", version);
+		map.put("CmdId", cmdId);
+		map.put("MerCustId", merCustId);
+		map.put("OrdId", ordId);
+		map.put("OrdDate", OrdDate);
+
+		map.put("OutCustId", outCustId);// 出账客户号
+		map.put("SubOrdId", subOrdId);// 订单号 变长 20 位 由商户的系统生成，必须保证唯一。
+		map.put("SubOrdDate", subOrdDate);// 关联投标订单流水日期是
+		map.put("OutAcctId", outAcctId);// 出账子账户
+		map.put("TransAmt", transAmt);// 金额
+
+		map.put("Fee", fee);// Fee 扣款手续费, 放款或扣款的手续费
+		map.put("InCustId", inCustId);// 入账客户号
+		map.put("InAcctId", inAcctId);// 入账子账户
+		map.put("DivDetails", divDetails);// 分账账户串 变长
+		map.put("FeeObjFlag", FeeObjFlag);
+
+		map.put("BgRetUrl", bgRetUrl);
+		map.put("MerPriv", merPriv);
+		map.put("ReqExt", ReqExt);
+
+		// 组织加密明文
+		StringBuffer plain = new StringBuffer();
+		plain.append(version).append(cmdId).append(merCustId).append(ordId).append(OrdDate);
+		plain.append(outCustId).append(subOrdId).append(subOrdDate).append(outAcctId).append(transAmt);
+		plain.append(fee).append(inCustId).append(inAcctId).append(divDetails).append(FeeObjFlag).append(bgRetUrl).append(merPriv).append(ReqExt);
+
+		SecureLink sl = new SecureLink();
+		int ret = sl.SignMsg(ChinapnrConfig.CHINAPNR_MERID, ChinapnrConfig.CHINAPNR_MERKEYFILE, plain.toString().getBytes("UTF-8"));
+		if (ret != 0) {
+			return "签名错误 ret=" + ret;
+		}
+
+		map.put("ChkValue", sl.getChkValue());
+		String html = FormUtil.buildHtmlForm(map, ChinapnrConfig.PNRURL + "", "post");
+		html.length();
+		return HttpUtil.http(ChinapnrConfig.PNRURL, map);
+	}
+
+}

@@ -1,0 +1,147 @@
+package com.pjzb.service.admin.count;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ExcelUtils;
+import com.shove.Convert;
+
+/**
+ * 借款统计
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminBorrowCountService extends BaseController{
+	
+	@Autowired
+	private BorrowDao borrowDao;
+	
+	@Autowired
+	private InvestDao investDao;
+
+	public String queryBorrowStatisInitForPage(Model model, String tabid, Long pageNum, Long pageSize, String beginTime, String endTime, String borrowTitle, String borrower,
+			String borrowWay) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			beginTime = beginTime == null ? "" :beginTime;
+			endTime = endTime == null ? "" :endTime;
+			borrowTitle = borrowTitle == null ? "" :borrowTitle;
+			borrower = borrower == null ? "" :borrower;
+			borrowWay = borrowWay == null ? "" :borrowWay;
+			int borrowWayInt = Convert.strToInt(borrowWay, -1);
+			List<Map<String, Object>> list = borrowDao.queryBorrowStatisInitForPage((pageNum - 1) * pageSize, pageSize,beginTime,endTime,borrowTitle,borrower,borrowWayInt);
+			long count = borrowDao.queryInvestBorrowStatisInitCount(beginTime,endTime,borrowTitle,borrower,borrowWayInt);
+			Map<String, Object> feeMap = borrowDao.queryBorrowStatisAmount(beginTime,endTime, borrowTitle, borrower, borrowWayInt);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("beginTime", beginTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("borrowTitle", borrowTitle);
+			model.addAttribute("borrower", borrower);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("pageCurrent", pageNum);
+			model.addAttribute("pageSize", pageSize);
+			model.addAttribute("feeMap", feeMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询借款统计异常**************************");
+		}
+		return "/admin/count/borrowcount/list.jsp";
+	}
+
+	public void exportBorrowStatis(HttpServletResponse response, Long pageNum, Long pageSize, String beginTime, String endTime, String borrowTitle, String borrower,
+			String borrowWay) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowTitle = borrowTitle == null ? "" :borrowTitle;
+			borrower = borrower == null ? "" :borrower;
+			borrowWay = borrowWay == null ? "" :borrowWay;
+			int borrowWayInt = Convert.strToInt(borrowWay, -1);
+			List<Map<String, Object>> list = borrowDao.queryBorrowStatisInitForPage((pageNum - 1) * pageSize, pageSize,beginTime,endTime,borrowTitle,borrower,borrowWayInt);
+			Map<String, Object> feeMap = borrowDao.queryBorrowStatisAmount(beginTime,endTime, borrowTitle, borrower, borrowWayInt);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("borrower", "符合条件的借款管理费总额：￥ ");
+			map.put("borrowTitle", feeMap.get("amount"));
+			map.put("borrowAmount", "元");
+			list.add(map);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("借款统计表", list, new String[] { "借款用户名","借款标题","借款金额（元）","借款类型", "借款期限", "借款期限单位", "借款管理费", "复审成功时间"}, new String[] {
+					"borrower", "borrowTitle", "borrowAmount", "borrowWayName", "deadline", "unit", "manageFee", "auditTime"});
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出借款统计异常**************************");
+		}
+	}
+
+	public String queryBorrowStatisInterestInitForPage(Model model, String tabid, Long pageNum, Long pageSize, String beginTime, String endTime, String investor) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			beginTime = beginTime == null ? "" :beginTime;
+			endTime = endTime == null ? "" :endTime;
+			investor = investor == null ? "" :investor;
+			List<Map<String, Object>> list = investDao.queryBorrowStatisInterestInitForPage((pageNum - 1) * pageSize, pageSize,beginTime,endTime,investor);
+			long count = investDao.queryInvestBorrowStatisInterestInitCount(beginTime,endTime,investor);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("beginTime", beginTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("investor", investor);
+			model.addAttribute("pageCurrent", pageNum);
+			model.addAttribute("pageSize", pageSize);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询借款统计异常**************************");
+		}
+		return "/admin/count/borrowcount/interestList.jsp";
+	}
+
+	public void exportBorrowStatisInterest(HttpServletResponse response, Long pageNum, Long pageSize, String beginTime, String endTime, String investor) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			beginTime = beginTime == null ? "" :beginTime;
+			endTime = endTime == null ? "" :endTime;
+			investor = investor == null ? "" :investor;
+			List<Map<String, Object>> list = investDao.queryBorrowStatisInterestInitForPage((pageNum - 1) * pageSize, pageSize,beginTime,endTime,investor);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("投资利息管理费统计表", list, new String[] { "用户名","真实姓名","期间净赚利息总额","期间收到还款总额", "已赚利息总额", "利息管理费", "待收利息总额", "待收总额"}, new String[] {
+					"investor", "realName", "manageFI", "hasPI", "hasInterest", "manageFee", "forInterest", "forPI"});
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出投资利息管理费统计异常**************************");
+		}
+	}
+
+}

@@ -1,0 +1,103 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * GesturesPassword entity. @author MyEclipse Persistence Tools
+ */
+
+public class GesturesPassword implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Date insertTime;
+	private Date updateTime;
+	private String password;
+	private Integer status;
+	private Integer verifyErrorCount;
+
+	// Constructors
+
+	/** default constructor */
+	public GesturesPassword() {
+	}
+
+	/** minimal constructor */
+	public GesturesPassword(Long userId) {
+		this.userId = userId;
+	}
+
+	/** full constructor */
+	public GesturesPassword(Long userId, Date insertTime,
+			Date updateTime, String password, Integer status,
+			Integer verifyErrorCount) {
+		this.userId = userId;
+		this.insertTime = insertTime;
+		this.updateTime = updateTime;
+		this.password = password;
+		this.status = status;
+		this.verifyErrorCount = verifyErrorCount;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Date getInsertTime() {
+		return this.insertTime;
+	}
+
+	public void setInsertTime(Date insertTime) {
+		this.insertTime = insertTime;
+	}
+
+	public Date getUpdateTime() {
+		return this.updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Integer getVerifyErrorCount() {
+		return this.verifyErrorCount;
+	}
+
+	public void setVerifyErrorCount(Integer verifyErrorCount) {
+		this.verifyErrorCount = verifyErrorCount;
+	}
+
+}

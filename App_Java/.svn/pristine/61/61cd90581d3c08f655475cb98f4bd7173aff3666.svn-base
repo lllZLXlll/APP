@@ -1,0 +1,12 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface LoginStatisDao {
+
+	List<Map<String, Object>> queryLoginStatisForPage(long l, Long pageSize, String beginTime, String endTime, String userName, String realName, int counts, boolean b);
+
+	long queryLoginStatisCount(String beginTime, String endTime, String userName, String realName, int counts);
+
+}

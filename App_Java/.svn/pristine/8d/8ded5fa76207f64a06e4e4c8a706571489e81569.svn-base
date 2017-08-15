@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.BorrowManageDao">
+
+	<select id="queryInvestByBorrowId" resultType="java.util.Map">
+		SELECT * FROM
+		v_t_full_invest t WHERE t.OrdId = #{0} ORDER BY OrdId
+	</select>
+
+	<select id="queryBorrowByConditionCount" resultType="long">
+		SELECT count(*) count FROM v_t_borrow_all_list a LEFT JOIN (SELECT userid,COUNT(1)
+		AS counts FROM t_materialsauth WHERE auditStatus = 3 GROUP BY userid)
+		b ON a.userid=b.userid WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">
+			AND username LIKE "%"#{0}"%"
+		</if>
+		<if test="param2 != null and param2 != '' and param2 > 0">
+			AND borrowTypeSubId = #{1}
+		</if>
+		
+		<if test="param3 != null and param4 != null ">
+			AND a.auditTime &gt;= #{2} AND a.auditTime &lt;= #{3}
+		</if>
+	</select>
+	
+	<select id="queryBorrowByCondition" resultType="java.util.Map">
+		SELECT * FROM v_t_borrow_all_list a LEFT JOIN (SELECT userid,COUNT(1)
+		AS counts FROM t_materialsauth WHERE auditStatus = 3 GROUP BY userid)
+		b ON a.userid=b.userid WHERE 1 = 1
+		<if test="param1 != null">
+			AND a.username LIKE "%"#{0}"%"
+		</if>
+		<if test="param2 != null and param2 != '' and param2 > 0">
+			AND a.borrowTypeSubId = #{1}
+		</if>
+		
+		<if test="param5 != null and param6 != null ">
+			AND a.auditTime &gt;= #{4} AND a.auditTime &lt;= #{5}
+		</if>
+		ORDER BY a.borrowStatus,id DESC LIMIT #{2}, #{3}
+	</select>
+
+	<select id="queryBorrowTotalAllSum" resultType="java.math.BigDecimal">
+		SELECT sum(a.borrowAmount) as tenderBorrowAmount FROM v_t_borrow_all_list a 
+	</select>
+
+	<select id="queryInvestorPhoneByDeadline" resultType="java.lang.String">
+		SELECT c.mobilePhone FROM t_borrow a,t_invest b,t_user c WHERE a.id=b.borrowId
+		AND b.investor=c.id AND a.deadline=#{deadline} GROUP BY b.investor,a.deadline
+	</select>
+	
+	<select id="queryBorrowManageFeeSum" resultType="java.math.BigDecimal">
+		SELECT SUM(t.manageFee) FROM (
+		SELECT a.manageFee FROM v_t_borrow_all_list a LEFT JOIN (SELECT userid,COUNT(1)
+			AS counts FROM t_materialsauth WHERE auditStatus = 3 GROUP BY userid)
+			b ON a.userid=b.userid WHERE 1 = 1 
+			
+			<if test="param1 != null">
+				AND a.username LIKE "%"#{0}"%"
+			</if>
+			<if test="param2 != null and param2 != '' and param2 > 0">
+				AND a.borrowTypeSubId = #{1}
+			</if>
+			
+			<if test="param5 != null and param6 != null ">
+				AND a.auditTime &gt;= #{4} AND a.auditTime &lt;= #{5}
+			</if>
+			ORDER BY a.borrowStatus,id DESC 
+			
+			<if test="param3 != null and param4 != null and param1 != null and param2 != null and param2 != '' and param2 > 0 and param5 != null and param6 != null  ">
+			LIMIT #{2}, #{3}
+			</if>
+		) t
+	</select>
+
+
+</mapper>
+
+
+
+
+

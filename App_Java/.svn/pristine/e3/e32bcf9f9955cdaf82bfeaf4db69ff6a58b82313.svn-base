@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.BorrowRoleDao">
+
+	<resultMap type="borrowRole" id="borrowRoleResultMap">
+		<id column="id" property="id" />
+		<result column="userId" property="userId" />
+		<result column="applyId" property="applyId" />
+		<result column="borrowId" property="borrowId" />
+		<result column="authStep" property="authStep" />
+		<result column="isFirst" property="isFirst" />
+	</resultMap>
+
+	<select id="queryBorrowRoleByApplyId" resultMap="borrowRoleResultMap">
+		SELECT * FROM t_borrow_role a WHERE a.applyId=#{applyId} LIMIT 0,1
+	</select>
+
+	<select id="queryBorrowRoleByUserId" resultMap="borrowRoleResultMap">
+		SELECT * FROM t_borrow_role a WHERE a.userId =#{userId}
+	</select>
+
+	<insert id="addBorrowRole" parameterType="borrowRole">
+		INSERT INTO t_borrow_role(userId,applyId,borrowId,authStep,isFirst)
+		VALUES(#{userId},#{applyId},#{borrowId},#{authStep},#{isFirst})
+	</insert>
+
+
+
+
+
+</mapper>
+
+
+
+
+

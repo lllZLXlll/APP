@@ -1,0 +1,70 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/index/Detail.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			var id = this.$route.query.id;
+			var type = this.$route.query.type;
+			if(!type){
+				type = Storage.getItem('DetailType');
+			}else{
+				Storage.setItem('DetailType',type);
+			};
+			var link = [{path:{path:'/detail?id='+id+'&type='+type+''},append:true},
+			   {path:{path:'/detail/risk?id='+id+''},append:true},
+			   {path:{path:'/detail/track?id='+id+''},append:true}];
+			this.$set('link',link);
+			this.$set('type',type);
+		},
+		data:function(){
+			return {
+				tagList:[true,false,false],
+				agreement:'',
+				closeAgree:false
+			}
+		},
+		methods:{
+			showFlag:function(){
+				if(this.type == 'tiyan'){
+					return false;
+				}else{
+					return true;
+				}
+			},
+			toDetailList:function(){
+				if(!Storage.getItem('uid')){
+					$.alert('您还未登录，请先登录！',function(){
+						router.go({path:'/login',query:{show:true}});
+					});
+					return;
+				};
+				router.go({path:'/detail/track?id='+this.$route.query.id+''});
+			},
+			AgreeMent:function(val){
+				var id = '31';
+				if(val == 1){
+					id='12'
+				};
+				var _this = this;
+				var param={"info":"{TypeId:'"+id+"'}"};
+				app.ajax({
+		            url:'../front/querytips.do',
+		            data:param,
+		            dataType:'json',
+		            success: function(data){
+		            	if(data.error == '0'){
+		            		_this.$set('agreement',data.content);
+		            		$.popup('.popup');
+		            		_this.$set('closeAgree',true);
+		            	}
+		            }
+		        })
+			},
+			closeAgreement:function(){
+				$.closeModal('.popup');
+				this.$set('closeAgree',false);
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

@@ -1,0 +1,14 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface InvestBorrowDao {
+
+	List<Map<String, Object>> queryBorrowInvestByCondition(int borrowTypeSubId, String title,
+			String publishTimeStart, String publishTimeEnd, Integer[] arrays, long userId, long begin, long end);
+
+	Map<String, Object> queryBorrowInvestByConditionCount(int borrowTypeSubId, String title, String publishTimeStart,
+			String publishTimeEnd, Integer[] array, long userId);
+	
+}

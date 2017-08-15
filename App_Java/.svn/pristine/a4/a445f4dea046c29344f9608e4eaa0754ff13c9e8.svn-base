@@ -1,0 +1,258 @@
+package com.pjzb.controller.app;
+ 
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.service.front.MyAccountService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+
+@Controller
+@RequestMapping(value = "/reactapp")
+public class AppMyAccountController extends BaseController{
+	public static Log log = LogFactory.getLog(AppMyAccountController.class);
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private MyAccountService myAccountService;
+	
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+	
+	/**
+	 * 账户总览（app端）
+	 * @return
+	 */
+	@RequestMapping(value = "/accountOverview")
+	@ResponseBody
+	public Map<String, Object> accountOverview(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));	
+			User user=userService.queryUserById(userId);
+			jsonMap.putAll(myAccountService.checkHome(user,Constants.REACTAPP));
+			if(user.getIpayAccount() != null && !user.getIpayAccount().equals("") ){
+				  chinapnrService.checkCardInfo(userId, user.getIpayAccount(), user.getUsername(),Constants.REACTAPP);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "app账户总览查询异常，请联系客服：400-606-2079");
+		}
+		return jsonMap;
+	}
+	
+	
+	/**
+	 * 查询代金券和现金券记录
+	 * @return
+	 * @throws
+	 */
+	@RequestMapping(value = "/vocherAmts")
+	@ResponseBody
+	public Map<String, Object> vocherAmts(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>(); 
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));	
+			jsonMap.putAll(myAccountService.queryRedmoneyrecord(userId,Constants.REACTAPP));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "查询异常");
+		}
+		return jsonMap;
+		
+	}
+	
+	
+	/**
+	 * 用户资金记录
+	 * @return
+	 */
+	@RequestMapping(value = "/findCapitalRecord")
+	@ResponseBody
+	public Map<String, Object> findCapitalRecord(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));	
+			
+			String startTime= ConvertUtil.objToStrConvert(jsonObject.get("startTime"));
+			String endTime= ConvertUtil.objToStrConvert(jsonObject.get("endTime"));
+			String momeyType= ConvertUtil.objToStrConvert(jsonObject.get("momeyType"));
+			Long curPage =Convert.strToLong(jsonObject.getString(Constants.CURPAGE),Constants.LONG_1);
+			PageBean pageBean=myAccountService.findFundrecordList(startTime, endTime, momeyType,userId, curPage,
+					Constants.PAGE_SIZE_20,Constants.REACTAPP,null);
+			jsonMap.put("pageBean", pageBean);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "资金记录查询异常，"+Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 登录汇付
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/loginChinapnr")
+	@ResponseBody
+	public Map<String, Object> loginChinapnr() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));	
+			User user = userService.queryUserById(userId);
+			String ipayAccount = user.getIpayAccount();
+			if (ipayAccount == null || ipayAccount.length() <= 0) {
+				jsonMap.put("error", "1");
+				jsonMap.put("msg", "您尚未注册汇付天下，请先注册!");
+				return jsonMap;
+			}
+			String html = ChinapnrInterface.userLogin(user.getIpayAccount(), Constants.REACTAPP);
+			jsonMap.put("chinapnrHtml", html);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "登录异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 汇付个人用户注册初始化
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/regIpayPersonal")
+	@ResponseBody
+	public Map<String, Object> regIpayPersonal() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));	
+			jsonMap.putAll(myAccountService.queryUserRegChinapnrInit(userId, Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "汇付个人用户注册初始化异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 前台--汇付开户（个人）
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/createIpsAcctApp")
+	@ResponseBody
+	public Map<String, Object> createIpsAcctApp() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);	
+			jsonMap.putAll(myAccountService.checkCreateIpsAcctApp(jsonObject,getBasePath(), Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "汇付个人开户异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 前台--汇付企业账户查询
+	 */
+	@RequestMapping(value = "/corpRegisterQueryApp")
+	@ResponseBody
+	public Map<String, Object> corpRegisterQueryApp(){ 
+
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);	
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			User user=userService.queryUserById(userId);
+			
+			jsonMap.putAll(myAccountService.checkCorpRegisterQuery(user,jsonObject,session(), chosese()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "汇付企业账户查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 查询APP的最新版本号
+	 */
+	@RequestMapping(value = "/getAppVersion")
+	@ResponseBody
+	public Map<String, Object> getAppVersion() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, Object> androidVersionMap=myAccountService.queryAppVersionByType(1);
+		Map<String, Object> iosVersionMap=myAccountService.queryAppVersionByType(2);
+		jsonMap.put("androidVersion", androidVersionMap);
+		jsonMap.put("iosVersion", iosVersionMap);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+	}
+	
+	
+	/**
+	 * 使用现/代金券
+	 */
+	@RequestMapping(value = "/useXianJinQuan")
+	@ResponseBody
+	public Map<String, Object> useXianJinQuan(){ 
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));	
+			jsonMap.putAll(myAccountService.updateVouchers(jsonObject,userId,Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "使用现/代金券异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+	
+
+	
+}

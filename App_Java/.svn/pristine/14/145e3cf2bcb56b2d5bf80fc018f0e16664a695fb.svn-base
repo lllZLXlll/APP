@@ -1,0 +1,53 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageContent">
+    <form action="updateManagefeeInfo.do" id="j_custom_form" data-toggle="validate" data-alertmsg="false">
+        <input type="hidden" name="id" value="${borrowId }">
+        <input type="hidden" name="tabid" value="${tabid }">
+        <table class="table table-condensed table-hover">
+            <tbody>
+                <tr>
+                    <td align="center">
+                        <label for="j_custom_sale" class="control-label x100">借款标题：</label>
+                       <input type="text" id="j_custom_name" size="18" readonly="readonly" value="${borrowTitle }">
+                    </td>
+                </tr>
+                
+                 <tr>
+                    <td align="center">
+                        <label for="j_custom_sale" class="control-label x100">平台使用费：</label>
+                       <input type="text" id="j_custom_name" data-rule="required" size="18" name="platUseFee" value="${platUseFee }">
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td align="center">
+                        <label for="j_custom_name" class="control-label x100">借款手续费：</label>
+                        <input type="text" id="j_custom_name" data-rule="required" size="18" name="borrowFee" value="${borrowFee }">
+                    </td>
+                </tr>
+                
+                 <tr>
+                    <td align="center">
+                        <label for="j_custom_sale" class="control-label x100">借款管理费：</label>
+                       <input type="text" id="j_custom_name" data-rule="required" size="18" name="borrowManageFee" value="${borrowManageFee }">
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td align="center">
+                        <label for="j_custom_birthday" class="control-label x100">机构担保费：</label>
+                        <input type="text" id="j_custom_name" data-rule="required" size="18" name="instGuaranteeFee" value="${instGuaranteeFee }">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save">保存</button></li>
+    </ul>
+</div>

@@ -1,0 +1,60 @@
+package com.pjzb.controller.admin;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.loan.AdminBorrowMonthInspectRecordService;
+import com.pjzb.service.admin.loan.AdminMonthInspectService;
+import com.pjzb.service.admin.loan.AdminUnDealInspectService;
+
+/**
+ * 贷后管理
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminLoanController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminLoanController.class);
+
+	@Autowired
+	private AdminMonthInspectService adminMonthInspectService;
+
+	@Autowired
+	private AdminUnDealInspectService adminUnDealInspectService;
+	
+	@Autowired
+	private AdminBorrowMonthInspectRecordService adminBorrowMonthInspectRecordService;
+
+	/**
+	 * 所有借款
+	 */
+	@RequestMapping(value = "/loanManageInit")
+	public String loanManageInit(Model model, String tabid, Long pageCurrent, Long pageSize, String userName, String borrowTitle, Long borrowStatus, Long borrowWay) {
+		return adminMonthInspectService.queryloanManageList(model, tabid, pageCurrent, pageSize, userName, borrowTitle, borrowStatus, borrowWay, getSessionAdminInfo());
+	}
+
+	/**
+	 * 待处理的月检
+	 */
+	@RequestMapping(value = "/borrowInspectionInit")
+	public String borrowInspectionInit(Model model, String tabid, Long pageCurrent, Long pageSize, String userName, String borrowTitle) {
+		return adminUnDealInspectService.queryBorrowInspectionList(model, tabid, pageCurrent, pageSize, userName, borrowTitle, getSessionAdminInfo());
+	}
+	
+	/**
+	 * 
+	 * @describe:分页查询贷后月检记录
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/queryBorrowInspectRecord")
+	public String queryBorrowInspectRecord(Model model, String tabid, Long borrowId, String realName, String borrowTitle, Integer status, Long pageCurrent, Long pageSize) {
+		return adminBorrowMonthInspectRecordService.queryBorrowInspectRecord(model, tabid, borrowId, realName, borrowTitle, status, pageCurrent, pageSize,getSessionAdminInfo().getLoanUserId());
+	}
+
+}

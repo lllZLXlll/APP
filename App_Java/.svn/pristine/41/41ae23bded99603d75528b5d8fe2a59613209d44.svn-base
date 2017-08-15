@@ -1,0 +1,62 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script type="text/javascript">
+</script>
+<div class="bjui-pageContent">
+    <form action="updatgeBorrowAmount.do" id="j_custom_form" data-toggle="validate" data-alertmsg="false">
+        <input type="hidden" name="id" value="${paramMap.id }">
+        <input type="hidden" name="tabid" value="${tabid }">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="j_custom_sale" class="control-label x100">借款额度类型：</label>
+                       <input type="text" name="name" id="j_custom_name" size="20" value="${paramMap.name }">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_name" class="control-label x100">标识名：</label>
+                        <input type="text" name="nid" id="j_custom_name"  size="20" value="${paramMap.nid }">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x100">名称：</label>
+                        <input type="text" name="title" id="j_custom_name"  data-rule="required" size="20" value="${paramMap.title }">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x100">初始额度：</label>
+                        <input type="text" name="initCredit" id="j_custom_name"  data-rule="required" size="20" value="${paramMap.init_credit }">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x100">状态：</label>
+                        <input type="radio" name="status" value="1" 
+					   		${paramMap.status == 1 ? 'checked':''}
+					    />开启 
+						<input type="radio" name="status" value="2"
+						    ${paramMap.status == 2 ? 'checked':''}
+						/>隐藏
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x100">描述：</label>
+                        <textarea id="description" name="description" cols="30" rows="5">${paramMap.description }</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save">保存</button></li>
+    </ul>
+</div>

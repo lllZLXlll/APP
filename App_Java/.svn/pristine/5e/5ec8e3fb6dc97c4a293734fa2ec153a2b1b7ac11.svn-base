@@ -1,0 +1,44 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Role;
+import com.pjzb.entity.RoleRights;
+
+public interface MenuDao {
+
+	public List<Map<String, Object>> getMenu(Long roleId);
+
+	public List<Map<String, Object>> getMenuByParentID(Long roleId, Integer id);
+
+	// t_role_rights表 begin
+	public long insertRoleRights(RoleRights roleRights);
+
+	public List<RoleRights> queryRoleRightsByRoleId(Long roleId);
+
+	public long deleteRoleRightsByRoleId(Long roleId);
+
+	// t_role_rights表 end
+
+	// t_role表 begin
+
+	public List<Role> queryRoleList(@Param("index") Long index, @Param("pageSize") Long pageSize, @Param("flag") boolean flag);
+
+	public long queryRoleCount();
+
+	public long insertRole(Role role);
+
+	public Role queryRoleById(long id);
+
+	public long updateRoleById(Role role);
+
+	public long deleteRoleById(long id);
+
+	public Role queruRoleByName(String name);
+
+	// t_role表 end
+
+}

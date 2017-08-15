@@ -1,0 +1,186 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * SiteInformation entity. @author MyEclipse Persistence Tools
+ */
+
+public class SiteInformation implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String siteName;
+	private String companyName;
+	private String postcode;
+	private String address;
+	private String principal;
+	private String contact;
+	private String telephone;
+	private String cellphone;
+	private String fax;
+	private String emial;
+	private String qq;
+	private String servicePhone;
+	private String certificate;
+	private String regionName;
+	private String adminUrl;
+
+	// Constructors
+
+	/** default constructor */
+	public SiteInformation() {
+	}
+
+	/** full constructor */
+	public SiteInformation(String siteName, String companyName, String postcode, String address, String principal, String contact,
+			String telephone, String cellphone, String fax, String emial, String qq, String servicePhone, String certificate, String regionName,
+			String adminUrl) {
+		this.siteName = siteName;
+		this.companyName = companyName;
+		this.postcode = postcode;
+		this.address = address;
+		this.principal = principal;
+		this.contact = contact;
+		this.telephone = telephone;
+		this.cellphone = cellphone;
+		this.fax = fax;
+		this.emial = emial;
+		this.qq = qq;
+		this.servicePhone = servicePhone;
+		this.certificate = certificate;
+		this.regionName = regionName;
+		this.adminUrl = adminUrl;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getSiteName() {
+		return this.siteName;
+	}
+
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+
+	public String getCompanyName() {
+		return this.companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
+	public String getPostcode() {
+		return this.postcode;
+	}
+
+	public void setPostcode(String postcode) {
+		this.postcode = postcode;
+	}
+
+	public String getAddress() {
+		return this.address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getPrincipal() {
+		return this.principal;
+	}
+
+	public void setPrincipal(String principal) {
+		this.principal = principal;
+	}
+
+	public String getContact() {
+		return this.contact;
+	}
+
+	public void setContact(String contact) {
+		this.contact = contact;
+	}
+
+	public String getTelephone() {
+		return this.telephone;
+	}
+
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+	}
+
+	public String getCellphone() {
+		return this.cellphone;
+	}
+
+	public void setCellphone(String cellphone) {
+		this.cellphone = cellphone;
+	}
+
+	public String getFax() {
+		return this.fax;
+	}
+
+	public void setFax(String fax) {
+		this.fax = fax;
+	}
+
+	public String getEmial() {
+		return this.emial;
+	}
+
+	public void setEmial(String emial) {
+		this.emial = emial;
+	}
+
+	public String getQq() {
+		return this.qq;
+	}
+
+	public void setQq(String qq) {
+		this.qq = qq;
+	}
+
+	public String getServicePhone() {
+		return this.servicePhone;
+	}
+
+	public void setServicePhone(String servicePhone) {
+		this.servicePhone = servicePhone;
+	}
+
+	public String getCertificate() {
+		return this.certificate;
+	}
+
+	public void setCertificate(String certificate) {
+		this.certificate = certificate;
+	}
+
+	public String getRegionName() {
+		return this.regionName;
+	}
+
+	public void setRegionName(String regionName) {
+		this.regionName = regionName;
+	}
+
+	public String getAdminUrl() {
+		return this.adminUrl;
+	}
+
+	public void setAdminUrl(String adminUrl) {
+		this.adminUrl = adminUrl;
+	}
+
+}

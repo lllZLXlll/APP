@@ -1,0 +1,127 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * ActivityGrabinvestaward entity. @author MyEclipse Persistence Tools
+ */
+
+public class ActivityGrabinvestaward implements java.io.Serializable {
+
+	// Fields
+
+	private Integer id;
+	private Integer userId;
+	private Integer borrowId;
+	private Double investAmount;
+	private Double money;
+	private Integer awardType;
+	private Integer status;
+	private Date awardTime;
+	private Integer phase;
+	private String investTimeRange;
+
+	// Constructors
+
+	/** default constructor */
+	public ActivityGrabinvestaward() {
+	}
+
+	/** full constructor */
+	public ActivityGrabinvestaward(Integer userId, Integer borrowId, Double investAmount, Double money, Integer awardType, Integer status, Date awardTime, Integer phase,
+			String investTimeRange) {
+		this.userId = userId;
+		this.borrowId = borrowId;
+		this.investAmount = investAmount;
+		this.money = money;
+		this.awardType = awardType;
+		this.status = status;
+		this.awardTime = awardTime;
+		this.phase = phase;
+		this.investTimeRange = investTimeRange;
+	}
+
+	// Property accessors
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public Integer getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Integer borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Double getInvestAmount() {
+		return this.investAmount;
+	}
+
+	public void setInvestAmount(Double investAmount) {
+		this.investAmount = investAmount;
+	}
+
+	public Double getMoney() {
+		return this.money;
+	}
+
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+
+	public Integer getAwardType() {
+		return this.awardType;
+	}
+
+	public void setAwardType(Integer awardType) {
+		this.awardType = awardType;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Date getAwardTime() {
+		return this.awardTime;
+	}
+
+	public void setAwardTime(Date awardTime) {
+		this.awardTime = awardTime;
+	}
+
+	public Integer getPhase() {
+		return this.phase;
+	}
+
+	public void setPhase(Integer phase) {
+		this.phase = phase;
+	}
+
+	public String getInvestTimeRange() {
+		return this.investTimeRange;
+	}
+
+	public void setInvestTimeRange(String investTimeRange) {
+		this.investTimeRange = investTimeRange;
+	}
+
+}

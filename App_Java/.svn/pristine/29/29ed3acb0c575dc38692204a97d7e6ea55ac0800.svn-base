@@ -1,0 +1,26 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Activity;
+
+public interface ActivityDao {
+	
+	public List<Map<String, Object>> queryActivityByEndTimeForPage(long index,long pageSize);
+	
+	public long queryActivityCount();
+
+	public List<Map<String, Object>> queryActivityListForPage(long l, Long pageSize, boolean b);
+
+	public long addActivity(Activity activity);
+
+	public long deleteActivityById(Long id);
+
+	public long deleteActivityByIds(List<Long> list);
+
+	public long updateActivityById(Activity activity);
+
+	public Activity queryActivityById(Long id);
+
+}

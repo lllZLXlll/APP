@@ -1,0 +1,64 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * BillCode entity. @author MyEclipse Persistence Tools
+ */
+
+public class BillCode implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String pmerBillNo;
+	private String pipsBillNo;
+	private String paramMap;
+
+	// Constructors
+
+	/** default constructor */
+	public BillCode() {
+	}
+
+	/** full constructor */
+	public BillCode(String pmerBillNo, String pipsBillNo, String paramMap) {
+		this.pmerBillNo = pmerBillNo;
+		this.pipsBillNo = pipsBillNo;
+		this.paramMap = paramMap;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getPmerBillNo() {
+		return this.pmerBillNo;
+	}
+
+	public void setPmerBillNo(String pmerBillNo) {
+		this.pmerBillNo = pmerBillNo;
+	}
+
+	public String getPipsBillNo() {
+		return this.pipsBillNo;
+	}
+
+	public void setPipsBillNo(String pipsBillNo) {
+		this.pipsBillNo = pipsBillNo;
+	}
+
+	public String getParamMap() {
+		return this.paramMap;
+	}
+
+	public void setParamMap(String paramMap) {
+		this.paramMap = paramMap;
+	}
+
+}

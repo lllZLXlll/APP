@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>债权转让</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#e04c16">
+		<div class="warp-1000 ">
+			<a href="index.html"><img src="img/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">登录</a></li>
+						<li><a href="#"><i class="ico ico-red-package"></i>注册领红包</a></li>
+						<li><a href="#">我要投资</a></li>
+						<li><a href="#">新手指引</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.html" class="logo"><img src="img/logo.png"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li class="hover">
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	
+	<div class="mod-index">
+		<div class="warp-1000">
+			<div class="mod-index-transform mod-transform-list">
+				<div class="tab">
+					<ul>
+						<li class="on"><a href="#">全部</a></li>
+						<li><a href="#">近期转让</a></li>	
+					</ul>
+				</div>
+				<div class="search">
+					<input placeholder="输入关键字搜索">
+					<button class="btn">搜索</button>
+				</div>
+				<div class="table">
+				<table>
+					<tr>
+						<td class="first">
+							<div class="box">
+								<h3>购买装修材料<span class="new">新手</span></h3>
+								<p class="common-data-type">
+									<span class="blue"><i class="ico ico-piao"></i>银客票据</span>|
+									<span class="gray">先西后本</span>
+								</p>
+							</div>
+						</td>
+						<td>
+							<p>3个月</p>
+							<p class="gray">项目期限</p>
+						</td>
+						<td class="red">
+							<p>7.25%</p>
+							<p class="gray">年化收益</p>
+						</td>
+						<td>
+							<p>1,024,470.00元可投</p>
+							<p class="gray">募集总额</p>
+						</td>
+						<td class="last"><a href="#" class="btn">立即认购</a></td>
+					</tr>
+					<tr class="last">
+						<td class="first">
+							<div class="box">
+								<h3>购买装修材料<span class="supply">供应链</span></h3>
+								<p class="common-data-type">
+									<span class="blue"><i class="ico ico-piao"></i>银客票据</span>|
+									<span class="gray">先西后本</span>
+								</p>
+							</div>
+						</td>
+						<td>3个月</td>
+						<td class="red">7.25%</td>
+						<td>1,024,470.00元可投</td>
+						<td class="last"><a href="#" class="btn">立即认购</a></td>
+					</tr>
+				</table>
+				</div>
+			</div>
+		</div>
+		<div class="mod-page white t40">
+			<p>
+				<a href="#">首页</a>
+				<a href="#">上一页</a>
+				<a href="#">1</a>
+				<a href="#">2</a>
+				<a href="#">3</a>
+				<b>......</b>
+				<a href="#">10</a>
+				<a href="#">尾页</a>
+				<input type="text">
+				<a href="#">跳转</a>
+			</p>
+		</div>
+	</div>
+
+	<div class="mod-index-partner">
+		<div class="warp-1000">
+			<h2>合作伙伴</h2>
+			<ul>
+				<li><a href="#"><img src="img/partner_de.png"/></a></li>
+				<li><a href="#"><img src="img/partner_hw.png"/></a></li>
+				<li><a href="#"><img src="img/partner_ibm.png"/></a></li>
+				<li><a href="#"><img src="img/partner_jmyp.png"/></a></li>
+				<li><a href="#"><img src="img/partner_js.png"/></a></li>
+				<li><a href="#"><img src="img/partner_kus.png"/></a></li>
+				<li><a href="#"><img src="img/partner_neu.png"/></a></li>
+				<li><a href="#"><img src="img/partner_phtf.png"></a></li>
+			</ul>
+		</div>
+	</div>
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="img/cpright_001.png"/></a>
+					<a href="#"><img src="img/cpright_002.png"/></a>
+					<a href="#"><img src="img/cpright_003.png"/></a>
+                  <a href="#"><img src="img/cpright_004.png"/></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->
+<div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-qq"></i></p>
+				<p>客服QQ</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-weichet"></i></p>
+				<p>官方微信</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-feedback"></i></p>
+				<p>意见反馈</p>
+			</a>
+		</li>
+	</ul>
+</div>
+</body>
+</html>

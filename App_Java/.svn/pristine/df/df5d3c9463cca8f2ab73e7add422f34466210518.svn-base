@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.RepaymentServiceDao">
+
+	<select id="queryRepaymentService" resultType="map">
+		SELECT id,serviceContent,DATE_FORMAT(serviceTime,'%Y-%m-%d %T') serviceTime
+		FROM t_repayment_service WHERE repayId = #{0} ORDER BY id DESC
+	</select>
+
+</mapper>
+
+
+
+
+

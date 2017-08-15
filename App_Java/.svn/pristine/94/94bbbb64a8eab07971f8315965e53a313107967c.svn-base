@@ -1,0 +1,81 @@
+package com.pjzb.service.admin.count;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.ExcelUtils;
+import com.shove.web.Utility;
+
+@Service
+public class AdminUserGroupCountService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	/**
+	 * 
+	 * @describe:用户组统计
+	 * @author: xiaojin
+	 * @param model
+	 * @param tabid
+	 * @param pageNum
+	 * @param pageSize
+	 * @param groupName
+	 * @return
+	 */
+	public String queryRedBagManageList(Model model, String tabid, Long pageNum, Long pageSize, String groupName) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		groupName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(groupName));
+		List<Map<String, Object>> list = userDao.queryUserGroupList(groupName, (pageNum - 1) * pageSize, pageSize);
+		long count = userDao.queryUserGroupCount(groupName);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("groupName", groupName);
+		return "/admin/count/usergroupcount/list.jsp";
+	}
+
+	public void exportUserGroup(Admin admin, HttpServletResponse response) {
+		List<Map<String, Object>> list = userDao.queryUserGroupList(null, null, null);
+		HSSFWorkbook wb = ExcelUtils.exportExcel("用户组统计", list, new String[] { "序号", "组名", "总金额(元)", "冻结金额(元)", "待收金额(元) ", "借款管理费金额", "待收利息总额(元)", "VIP总金额", "已还款总额", "投资总额" },
+				new String[] { "groupId", "groupName", "totalSum", "freezeSum", "forPI", "manageFee", "forInterest", "vipFee", "hasPI", "realAmount" });
+		try {
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// 添加操作日志
+		OperationLog operationLog = new OperationLog();
+		operationLog.setOperationTable("v_t_group_user_amount");
+		operationLog.setOperationUser(admin.getUserName());
+		operationLog.setOperationIp(getRemortIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("导出用户组统计");
+		operationLog.setUserId(admin.getId());
+		operationLog.setOperationTime(new Date());
+		operationLog.setOperationAround(2);
+		operationLogDao.addOperationLog(operationLog);
+	}
+
+}

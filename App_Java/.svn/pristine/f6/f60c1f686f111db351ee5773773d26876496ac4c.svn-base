@@ -1,0 +1,1398 @@
+package com.pjzb.service.admin.borrow;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.config.fadada.FddClient;
+import com.pjzb.config.fadada.FddConstant;
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.ApplyDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.BorrowRoleDao;
+import com.pjzb.dao.BorrowSubTypeDao;
+import com.pjzb.dao.EnterpriseDao;
+import com.pjzb.dao.FaDaDaDao;
+import com.pjzb.dao.MaterialimagedetalDao;
+import com.pjzb.dao.MaterialsauthDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.PlatFormCostDao;
+import com.pjzb.dao.RongTuWangDao;
+import com.pjzb.dao.SelectDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Apply;
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.BorrowRole;
+import com.pjzb.entity.BorrowSubType;
+import com.pjzb.entity.Enterprise;
+import com.pjzb.entity.FaDaDa;
+import com.pjzb.entity.Materialimagedetal;
+import com.pjzb.entity.Materialsauth;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.PlatFormCost;
+import com.pjzb.entity.Select;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.UploadService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.FreemarkerUtil;
+import com.pjzb.util.GenerateSequenceNo;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.JspToHtml;
+import com.shove.Convert;
+import com.shove.security.Encrypt;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 企业融资
+ * 
+ * 
+ */
+@Service
+public class AdminCompanyFinanceService extends BaseController {
+	public static Log log = LogFactory.getLog(AdminCompanyFinanceService.class);
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private MaterialsauthDao materialsauthDao;
+
+	@Autowired
+	private BorrowRoleDao borrowRoleDao;
+
+	@Autowired
+	private UploadService uploadService;
+
+	@Autowired
+	private MaterialimagedetalDao materialimagedetalDao;
+
+	@Autowired
+	private ApplyDao applyDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private EnterpriseDao enterpriseDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private SelectDao selectDao;
+
+	@Autowired
+	private BorrowSubTypeDao borrowSubTypeDao;
+
+	@Autowired
+	private PlatFormCostDao platFormCostDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private RongTuWangDao rongTuWangDao;
+
+	private Long borrowMaxId = null;
+
+	@Autowired
+	private FaDaDaDao faDaDaDao;
+
+	public String queryEnterpriseApplyList(String name, String telephone, String borrowAmount, Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			name = ConvertUtil.objToStrConvert(name);
+			telephone = ConvertUtil.objToStrConvert(telephone);
+			borrowAmount = ConvertUtil.objToStrConvert(borrowAmount);
+			List<Map<String, Object>> list = borrowDao.queryEnterpriseApplyList(name, telephone, borrowAmount, (pageNum - 1) * pageSize, pageSize);
+			long count = borrowDao.queryEnterpriseApplyCount(name, telephone, borrowAmount);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("name", name);
+			model.addAttribute("telephone", telephone);
+			model.addAttribute("borrowAmount", borrowAmount);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询企业融资异常**************************");
+		}
+		return "/admin/borrow/companyfinance/list.jsp";
+	}
+
+	/**
+	 * 跳转企业上传资料
+	 * 
+	 * @return
+	 */
+	public String queryDataList(Model model, Long userId, Long applyId, String dialogId, String tabid) {
+		try {
+			BorrowRole borrowRole = borrowRoleDao.queryBorrowRoleByApplyId(applyId);
+			List<Map<String, Object>> list2 = materialsauthDao.queryEnterprisePictureGroup(borrowRole.getUserId());
+			model.addAttribute("dataList", list2);
+			model.addAttribute("dialogId", dialogId);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("userId", userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("****************跳转企业上传资料异常********************");
+		}
+		return "/admin/borrow/companyfinance/datalist.jsp";
+	}
+
+	/**
+	 * 企业资料详细列表（法人身份证，营业执照正副本，企业银行账号）
+	 * 
+	 * @return
+	 */
+	public String queryDataDetail(Model model, Long userId, String dialogId, Integer groupId) {
+		try {
+			List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+			Map<String, String> map = new HashMap<String, String>();
+			List<Map<String, Object>> dataList = materialsauthDao.queryEnterpriseDataListByUserId(userId, "", groupId);
+			Map<String, Object> dataNameMap = new HashMap<String, Object>();
+			for (int i = 0; i < dataList.size(); i++) {
+				Long materialsauthid = Long.parseLong(String.valueOf(dataList.get(i).get("tmid")));
+				String tmyId = String.valueOf(dataList.get(i).get("tmyid"));
+				String dataName = String.valueOf(dataList.get(i).get("tmyname"));
+				dataNameMap.put("tmyname_" + tmyId, dataName);
+				dataNameMap.put("tmid_" + tmyId, materialsauthid);
+				dataNameMap.put("tmyid_" + tmyId, tmyId);
+				List<Map<String, Object>> detailList = materialsauthDao.queryEnterpriseDataDetail(materialsauthid);
+				Long tmyid = Long.parseLong(String.valueOf(dataList.get(i).get("tmyid")));
+				for (int j = 0; j < detailList.size(); j++) {
+					String tmyname = String.valueOf(detailList.get(j).get("tmyname"));
+					String imagePath = String.valueOf(detailList.get(j).get("imagePath"));
+					String id = String.valueOf(detailList.get(j).get("id"));
+					int index = j + 1;
+					if (tmyid == 17) {
+						// 身份证
+						map.put("id_" + index, tmyname);
+						map.put("imagePath_id_" + index, imagePath);
+						map.put("mid_id_" + index, id);
+					} else if (tmyid == 18) {
+						// 企业营业执照正副本
+						map.put("license_" + index, tmyname);
+						map.put("imagePath_license_" + index, imagePath);
+						map.put("mid_license_" + index, id);
+					} else {
+						// 企业银行账号
+						map.put("bank_" + index, tmyname);
+						map.put("imagePath_bank_" + index, imagePath);
+						map.put("mid_bank_" + index, id);
+					}
+				}
+			}
+			Map<String, String> map1 = new HashMap<String, String>();
+			Map<String, String> map2 = new HashMap<String, String>();
+			Map<String, String> map3 = new HashMap<String, String>();
+			Map<String, String> map4 = new HashMap<String, String>();
+			Map<String, String> map5 = new HashMap<String, String>();
+			int k = 0;
+			for (String key : map.keySet()) {
+				k++;
+				int index = Integer.parseInt(key.substring(key.length() - 1));
+				if (1 == index) {
+					map1.put(key, map.get(key));
+				}
+				if (2 == index) {
+					map2.put(key, map.get(key));
+				}
+				if (3 == index) {
+					map3.put(key, map.get(key));
+				}
+				if (4 == index) {
+					map4.put(key, map.get(key));
+				}
+				if (5 == index) {
+					map5.put(key, map.get(key));
+				}
+			}
+			if (map1.size() > 0) {
+				list.add(map1);
+			}
+			if (map2.size() > 0) {
+				list.add(map2);
+			}
+			if (map3.size() > 0) {
+				list.add(map3);
+			}
+			if (map4.size() > 0) {
+				list.add(map4);
+			}
+			if (map5.size() > 0) {
+				list.add(map5);
+			}
+
+			List<Map<String, String>> list2 = new ArrayList<Map<String, String>>();
+			List<Map<String, Object>> otherDataList = materialsauthDao.queryEnterpriseDataListByUserId(userId, null, groupId);
+			Map<String, String> otherDataMap = new HashMap<String, String>();
+			Map<String, Object> otherDataNameMap = new HashMap<String, Object>();
+			for (int i = 0; i < otherDataList.size(); i++) {
+				Long materialsauthid = Long.parseLong(String.valueOf(otherDataList.get(i).get("tmid")));
+				String tmyId = String.valueOf(otherDataList.get(i).get("tmyid"));
+				String dataName = String.valueOf(otherDataList.get(i).get("tmyname"));
+				otherDataNameMap.put("tmyname", dataName);
+				otherDataNameMap.put("tmid", materialsauthid);
+				otherDataNameMap.put("tmyid", tmyId);
+				List<Map<String, Object>> detailList = materialsauthDao.queryEnterpriseDataDetail(materialsauthid);
+				for (int j = 0; j < detailList.size(); j++) {
+					String tmyname = String.valueOf(detailList.get(j).get("tmyname"));
+					String imagePath = String.valueOf(detailList.get(j).get("imagePath"));
+					String id = String.valueOf(detailList.get(j).get("id"));
+					int index = j + 1;
+					// 其他资料
+					otherDataMap.put("otherData_" + index, tmyname);
+					otherDataMap.put("imagePath_otherData_" + index, imagePath);
+					otherDataMap.put("mid_otherData_" + index, id);
+					list2.add(otherDataMap);
+				}
+			}
+			model.addAttribute("list", list);
+			model.addAttribute("otherDataList", list2);
+			model.addAttribute("dialogId", dialogId);
+			model.addAttribute("dataNameMap", dataNameMap);
+			model.addAttribute("otherDataNameMap", otherDataNameMap);
+			model.addAttribute("userId", userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************企业资料详细列表（法人身份证，营业执照正副本，企业银行账号）查询异常*****************");
+		}
+		return "/admin/borrow/companyfinance/datadetail.jsp";
+	}
+
+	public String queryDataImage(Model model, String imagePath) {
+		model.addAttribute("imagePath", imagePath);
+		return "/admin/borrow/companyfinance/listimage.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:上传法人身份证，营业执照正副本，企业银行账号
+	 * @author: xiaojin
+	 * @param file
+	 * @param dialogId
+	 * @param request
+	 * @param tmid
+	 * @param tmyid
+	 * @return
+	 */
+	public Map<String, Object> uploadData(MultipartFile file, String dialogId, HttpServletRequest request, Long tmid, Long tmyid, Long userId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		String fileName = ConvertUtil.dateConvert(new Date(), Constants.DATEYM_MILLI) + ".jpg";
+		String savePath =ConvertUtil.getUploadPath("/companydata/");
+		String uploadResult = uploadService.upload(file, savePath, fileName, dialogId, request);
+		if (uploadResult.equals(Constants.SUCCESS)) {
+			Materialimagedetal materialimagedetal = new Materialimagedetal();
+			materialimagedetal.setImagePath("../" + savePath + fileName);
+			materialimagedetal.setMaterialsauthid(tmid);
+			materialimagedetal.setUploadingTime(new Date());
+			materialimagedetal.setAuditStatus(3);
+			materialimagedetal.setVisiable(1);
+			long result = materialimagedetalDao.insertMaterialimagedetal(materialimagedetal);
+			if (result > 0) {
+//				Map<String, Object> dataCountMap = materialsauthDao.queryEnterprisePicturStatuCountAdmin(userId);
+//				System.out.println(dataCountMap);
+//				if (dataCountMap != null && dataCountMap.size() > 0) {
+//					Long count = Long.parseLong(String.valueOf(dataCountMap.get("ccc")));
+//					if (count >= 9) {
+//						Long borrowRoleResult = borrowRoleDao.updateBorrowRoleByUserId(2, userId);
+//						System.out.println(borrowRoleResult);
+//					}
+//				}
+				map.put("statusCode", "200");
+				map.put("message", "上传成功");
+				map.put("dialogid", dialogId);
+			} else {
+				map.put("statusCode", "300");
+				map.put("message", "上传失败");
+			}
+		} else {
+			map.put("statusCode", "300");
+			map.put("message", "上传失败");
+		}
+		return map;
+	}
+
+	public Long queryMaterialimagedetalCountByMaterId(Long id) {
+		return materialimagedetalDao.queryMaterialimagedetalCountByUserId(id);
+	}
+	
+	public void updateBorrowRoleByUserId(Integer authStep,Long userId) {
+		 borrowRoleDao.updateBorrowRoleByUserId(authStep, userId);
+	}
+	
+	
+	
+	/**
+	 * 删除企业资料图片
+	 * 
+	 * @describe:
+	 * @author: xiaojin
+	 * @param id
+	 * @param imagePath
+	 * @return
+	 */
+	public Map<String, Object> deleteDataImgById(Long id, String imagePath, HttpServletRequest request) {
+		Long result = materialimagedetalDao.deleteMaterialimagedetalById(id);
+		if (result > 0) {
+			String path = request.getSession().getServletContext().getRealPath(imagePath.substring(3, imagePath.length()));
+			File file = new File(path);
+			file.delete();
+			return ajaxDoneInfo("200", "图片删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "图片删除失败", "", "");
+		}
+	}
+
+	public String queryborrowfabiao(Model model, long pageNum, long pageSize, String state, String tname, String telphone, String tabid) {
+		try {
+			long count = applyDao.queryborrowfabiaoCount(state, tname, telphone);
+			PageBean pageBean = new PageBean(pageNum, pageSize, count, (count > 0) ? applyDao.queryborrowfabiao(state, tname, telphone, (pageNum - 1) * pageSize, pageSize) : null);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("state", state);
+			model.addAttribute("tname", tname);
+			model.addAttribute("telphone", telphone);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询企业融资申请异常**************************");
+		}
+		return "/admin/borrow/corporateFinanceToApplyFor/list.jsp";
+	}
+
+	public Map<String, Object> deleteBorrowfabiao(Admin admin, String delids) throws RuntimeException {
+		if (delids == null || "".equals(delids))
+			return ajaxDoneInfo("300", "删除企业融资申请失败，未选中任何记录", "", "");
+		try {
+			applyDao.deleteBorrowfabiao(delids.split(","));
+			operationLogDao.addOperationLog(new OperationLog("t_apply", admin.getUserName(), IConstants.DELETE, admin.getLastIp(), new Date(), 0d, "删除id为" + delids + "的企业融资申请表记录",
+					2, admin.getId()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************删除企业融资申请异常**************************");
+			throw new RuntimeException("*********************删除企业融资申请异常**************************");
+		}
+		return ajaxDoneInfo("200", "删除企业融资申请成功", "", "");
+	}
+
+	public String queryCompanyDataById(Model model, Long applyId, String tabid,String companyname) {
+		try {
+			// Map<String, String> mapWork = new HashMap<String, String>();
+			long userId = -1L;
+			int authStep = -1;
+			// 根据申请id去查询企业是否绑定前台用户
+			BorrowRole userMap = borrowRoleDao.queryBorrowRoleByApplyId(applyId);
+			String registeredTime = null;
+			userId = userMap.getUserId();
+			Enterprise enterprise = enterpriseDao.queryEnterpriseByUserId(userId);
+			if (enterprise != null) {
+				registeredTime = ConvertUtil.dateConvert(enterprise.getRegisteredTime(), Constants._DATESHORT);
+				if (registeredTime != null) {
+					registeredTime = registeredTime.substring(0, 10);
+				}
+			}
+
+			model.addAttribute("enterprise", enterprise);
+			model.addAttribute("registeredTime", registeredTime);
+			model.addAttribute("applyId", applyId);
+			model.addAttribute("authStep", authStep);
+			model.addAttribute("userId", userId);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("companyName", companyname);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业信息查看异常***************************");
+		}
+		return "/admin/borrow/companyfinance/edit.jsp";
+	}
+
+	public Map<String, Object> updateEnterpriseUserBaseInfo(Long applyId, Enterprise enterprise, String tabid) {
+		// 获取绑定用户后的企业信息
+		BorrowRole map = borrowRoleDao.queryBorrowRoleByApplyId(applyId);
+		Long userId = null;
+		if (map != null) {// 获取企业绑定后的用户
+			userId = map.getUserId();
+		}
+		long result = -1L;
+		Map<String, Object> enterpriseMap = new HashMap<String, Object>();
+		enterpriseMap.put("in_userId", enterprise.getUserId());
+		enterpriseMap.put("in_companyName", enterprise.getCompanyName());
+		enterpriseMap.put("in_legalPerson", enterprise.getLegalPerson());
+		enterpriseMap.put("in_registeredTime", enterprise.getRegisteredTime());
+		enterpriseMap.put("in_registeredCapital", enterprise.getRegisteredCapital());
+		enterpriseMap.put("in_businessCode", enterprise.getBusinessCode());
+		enterpriseMap.put("in_companyAddress", enterprise.getCompanyAddress());
+		enterpriseMap.put("in_companyPhone", enterprise.getCompanyPhone());
+		enterpriseMap.put("in_borrowCause", enterprise.getBorrowCause());
+		enterpriseMap.put("in_applyId", applyId);
+		enterpriseMap.put("out_ret", "");
+		enterpriseMap.put("out_desc", "");
+		enterpriseDao.callEnterpriseUserInfoUpdateProcedure(enterpriseMap);
+		result = Convert.strToLong(String.valueOf(enterpriseMap.get("out_ret")), -1);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "企业资料修改成功", "dialog", tabid);
+			// 成功
+		} else {
+			return ajaxDoneInfo("300", "企业资料修改失败", "", "");
+		}
+	}
+
+	public String addEnterpriseInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/borrow/companyfinance/add.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:增加企业融资
+	 * @author: xiaojin
+	 * @param model
+	 * @param apply
+	 * @param tabid
+	 * @return
+	 */
+	public Map<String, Object> addApply(Apply apply,String tabid) {
+		apply.setState(0);
+		Long result = applyDao.insertApply(apply);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "企业融资增加成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "企业融资增加失败", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:根据Id删除企业融资
+	 * @author: xiaojin
+	 * @param id
+	 * @return
+	 */
+	public Map<String, Object> deleteApplyById(Long id) {
+		long result = applyDao.deleteApplyById(id);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "企业融资删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "企业融资删除失败", "", "");
+		}
+	}
+
+	public String bindUserInit(Model model, Long id, String tabid,String companyname,Long userId) {
+		model.addAttribute("id", id);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("companyname", companyname);
+		User user=null;
+		String userName=null;
+		if(userId!=null){
+			 user=userDao.queryUserById(userId);
+			 userName=user.getUsername();
+		}
+		model.addAttribute("userName", userName);
+		return "/admin/borrow/companyfinance/binduser.jsp";
+	}
+
+	public String publishborrowInit(Model model, Long id, String conpany, Long userId, String tabid) {
+		try {
+			String ipayAcount = "";
+			// 发布借款初始化的时候进行基本信息和认证信息的判断，是否完善 by cheney 2015-4-16
+			Person map = personDao.queryPersonByUserId(userId);
+			if (map == null) {// 个人信息未完善
+				getOut().print("<script>alert('请先完善您的个人信息！');window.history.go(-1);</script>");
+				return null;
+			}
+			// // 查询用户认证资料
+			// Map<String, String> mmap = new HashMap<String, String>();
+			// mmap = userService.querymaterialsauthornot(userId);
+			// if (mmap == null) {// 用户基本认证资料未上传
+			// getOut().print("<script>alert('请先上传您的基本认证资料 ！');window.history.go(-1);</script>");
+			// return null;
+			// }
+			// 查询该用户是否已经成功注册汇付
+			User umap = userDao.queryUserById(userId);
+			if (umap != null) {
+				ipayAcount = umap.getIpayAccount();
+				if ("".equals(ipayAcount) || ipayAcount == null || ipayAcount == "") {
+					getOut().print("<script>alert('您还不是汇付天下会员，请先注册汇付 ！');window.history.go(-1);</script>");
+					return null;
+				}
+			}
+			BorrowRole borrowRole = borrowRoleDao.queryBorrowRoleByApplyId(id);
+			List<Map<String, Object>> dataList = materialsauthDao.queryEnterprisePictureGroup(borrowRole.getUserId());
+			List<Map<String, Object>> loanAfterMgrList = personDao.queryLoanAfterMgr();
+			List<Map<String, Object>> investorRepresent = personDao.queryInvestorRepresent();
+
+			List<Select> contractTemplateList = selectDao.querySelectByTypeIdAndDeleted(8L, 1);
+			List<Select> borrowPurposeList = selectDao.querySelectByTypeIdAndDeleted(1L, 1);
+			model.addAttribute("dataList", dataList);
+			model.addAttribute("loanAfterMgrList", loanAfterMgrList);
+			model.addAttribute("investorRepresentList", investorRepresent);
+			model.addAttribute("contractTemplateList", contractTemplateList);
+			model.addAttribute("borrowPurposeList", borrowPurposeList);
+			model.addAttribute("type", 2);
+			model.addAttribute("userId", userId);
+			model.addAttribute("person", map);
+			model.addAttribute("applyId", id);
+			model.addAttribute("time", new Date().getTime());
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*******************发布借款初始化异常******************");
+		}
+		return "/admin/borrow/companyfinance/publishborrow.jsp";
+	}
+
+	public Map<String, Object> addBorrow(Model model, Borrow borrow, String tabid, String code, HttpSession session, long applyId, String companyData, Long behalf, Double sum,
+			String ip, String setInvestPWD, String basePath, String setIsDayThe, Integer borrowType) {
+		String title = borrow.getBorrowTitle();// 标的名称
+		String borrowTitle = borrowDao.queryBorrowTitle(title.trim());
+		if (borrowTitle != null) {
+			return ajaxDoneInfo("300", "借款标题已存在，请填写其他标题", "", "");
+		}
+
+		if (3 == borrow.getBorrowTypeSubId()) {
+			if (borrow.getBehalfUserId() == -1) {
+				return ajaxDoneInfo("300", "投资人代表不能为空", "", "");
+			}
+		}
+
+		String borrowCodeSession = (String) session.getAttribute("publishBorrow_checkCode");
+		if (!code.trim().equals(borrowCodeSession)) {
+			return ajaxDoneInfo("300", "验证码错误", "", "");
+		}
+		Admin admin = (Admin) session.getAttribute(Constants.SESSION_ADMIN);
+		long publisherId = -1;
+		String userName = "";
+		Map<String, Object> umap = new HashMap<String, Object>();
+		if (admin != null) {
+			Long userId = borrow.getPublisher();
+			boolean back = false;
+			if (applyId != -1) {
+				// 查询出发布该标的的企业对应的用户 by cheney 2015-04-21
+				umap = borrowDao.queryBorrowInfoByApplyId(applyId);
+				publisherId = Convert.strToLong(String.valueOf(umap.get("userId")), -1);
+				userName = Convert.strToStr(String.valueOf(umap.get("username")), "");
+			}
+			// long userId = Convert.strToLong(paramMap.get("userId"), -1);
+			Integer borrowTypeSubId = borrow.getBorrowTypeSubId();
+			BorrowSubType typemap = borrowSubTypeDao.queryBorrowSubTypeById(borrowTypeSubId);
+			String borrowWay = null;
+			System.out.println(borrow.getBorrowType());
+			if (typemap != null) {
+				borrowWay = String.valueOf(typemap.getTypeId());
+
+			}
+
+			Integer groupid = borrow.getGroupid();// 选择使用哪个企业资料，标的相关文件里面需要显示
+
+			String hetong = String.valueOf(borrow.getHetong());// 合同类型，新手标才有值
+
+			String contract_id = borrow.getContractId();// 合同编码，
+
+			Date date = new Date();
+			String publishTime = Convert.dateToStr(date, "");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date publishDate = null;
+			try {
+				publishDate = sdf.parse(publishTime);
+			} catch (ParseException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			Integer deadLineInt = borrow.getDeadline();
+			Integer deadDayInt = borrow.getDeadline();
+			Integer paymentModeInt = borrow.getPaymentMode();
+			// 天标
+			Integer daytheInt = 1;
+			if ("true".equals(setIsDayThe)) {
+				deadLineInt = deadDayInt;
+				daytheInt = IConstants.DAY_THE_2;
+				// 为天标时默认就是按月分期还款
+				paymentModeInt = 1;
+			}
+			Double amountDouble = borrow.getBorrowAmount(); // 借款总额
+			// String platUseFee = paramMap.get("platUseFee"); //平台使用费
+			// String borrowFee = paramMap.get("borrowFee"); //借款手续费
+			// String borrowManageFee = paramMap.get("borrowManageFee");
+			// //借款管理费
+			// String InstGuaranteeFee = paramMap.get("InstGuaranteeFee");
+			// //机构担保费
+			String projectAddress = borrow.getProjectAddress(); // 项目地址
+			String showRate = borrow.getShowRate(); // 展示利率
+			Double platUseFeetDouble = 1d; // 平台使用费,默认值为1，需要管理员修改费用才能投标
+			Double borrowFeeDouble = 1d; // 借款手续费,默认值为1，需要管理员修改费用才能投标
+			Double borrowManageFeeDouble = 1d; // 借款管理费,默认值为1，需要管理员修改费用才能投标
+			Double InstGuaranteeFeeDouble = 1d; // 机构担保费,默认值为1，需要管理员修改费用才能投标
+			Date bidTimeFeeDate = borrow.getBidTime();
+			sum = sum == null ? 0 : sum;
+			if (sum > amountDouble) {
+				return ajaxDoneInfo("300", "奖励金额不能大于借款金额", "", "");
+			}
+			// 借款管理费用表增加记录
+
+			// 标的信息绑定担保公司开始 by cheney 2015-04-23
+			// int assuse = Convert.strToInt(paramMap.get("danbao"), -1);
+			// 二级担保公司信息
+			// int assusetwo = Convert.strToInt(paramMap.get("sdanbao"),
+			// -1);
+			String agent = "";
+			String sagent = "";
+
+			// 项目评级 by cheney 2015-05-13
+			Long projectScore = Long.parseLong(borrow.getProjectScore());
+			String projectScorename = "";
+			if (projectScore != -1) {
+				Select dbmap = selectDao.querySelectById(projectScore);
+				if (dbmap != null) {
+					projectScorename = dbmap.getSelectName();
+				}
+			}
+
+			// 标的信息绑定担保公司结束by cheney 2015-04-23
+			// String sumRate = paramMap.get("sumRate");
+			// double sumRateDouble = Convert.strToDouble(sumRate, -1);
+			Double annualRateDouble = borrow.getAnnualRate();
+			int minTenderedSumInt = 0;// 最小投标金额
+			int maxTenderedSumInt = 0;// 最大投标金额
+			Double minTenderedSum = borrow.getMinTenderedSum();
+			Double maxTenderedSum = borrow.getMaxTenderedSum();
+			Integer raiseTerm = borrow.getRaiseTerm();
+			Integer raiseTermInt = raiseTerm;
+			String detail = borrow.getDetail();// 项目描述
+			String retsource = borrow.getRetsource();// 还款来源
+			String projectIntro = borrow.getProjectIntro();// 项目介绍
+			String safeMeasures = borrow.getSafeMeasures();// 保障措施
+			// String borrowWay = (String) (object == null ? "" : object);
+			String remoteIP = ip;
+			Integer borrowWayInt = Convert.strToInt(borrowWay, -1);
+			// int subborrowTypeInt = Convert.strToInt(subborrowType, -1);
+
+			if (borrowWayInt <= 0) {
+				return ajaxDoneInfo("300", "无效操作", "", "");
+			}
+			// // 查询标种类型
+			// Map<String, String> borrowTypeMap =
+			// getBorrowTypeMap(borrowWay.toString());
+			// int number =
+			// Convert.strToInt(borrowTypeMap.get("subscribe_status"), -1);
+			// if (number != subscribe_status) {
+			// this.addFieldError("paramMap['allError']",
+			// "无效操作,该模式已关闭,请重新发布借款!");
+			// return "input";
+			// }
+			// 冻结保证金
+			double frozenMargin = 0;
+
+			Long result = -1L;
+			String investPWD = borrow.getInvestPwd();
+			if (StringUtils.isNotBlank(investPWD)) {
+				investPWD = Encrypt.MD5(investPWD);
+			}
+			String hasPWD = setInvestPWD;
+			if ("true".equals(hasPWD)) {
+				hasPWD = "1";
+				if (StringUtils.isBlank(borrow.getInvestPwd())) {
+					return ajaxDoneInfo("300", "投标密码不能为空", "", "");
+				}
+			}
+			int hasPWDInt = Convert.strToInt(hasPWD, -1);
+			// 得到所有平台所有收费标准
+			List<PlatFormCost> mapList = platFormCostDao.queryPlatFormCostByView(1);
+
+			Map<String, Object> mapfee = new HashMap<String, Object>();
+			Map<String, Object> mapFeestate = new HashMap<String, Object>();
+			for (PlatFormCost platformCostMap : mapList) {
+				double costFee = platformCostMap.getCostFee();
+				int costMode = platformCostMap.getCostMode();
+				String remark = platformCostMap.getRemark();
+				if (costMode == 1) {
+					mapfee.put(platformCostMap.getAlias(), costFee * 0.01);
+				} else {
+					mapfee.put(platformCostMap.getAlias(), costFee);
+				}
+				mapFeestate.put(platformCostMap.getAlias(), remark); // 费用说明
+				platformCostMap = null;
+			}
+			String json = JSONObject.fromObject(mapfee).toString();
+			String jsonState = JSONObject.fromObject(mapFeestate).toString();
+			// frozenMargin 冻结保证金
+			Map<String, String> returnMap = null;
+			// 随机产生4位数字
+			int intCount = 0;
+			intCount = (new Random()).nextInt(99999999);// 最大值位9999
+			if (intCount < 10000000) {
+				intCount += 10000000; // 最小值位10000001
+			}
+			if (contract_id == null || contract_id.isEmpty()) {
+				contract_id = Integer.toString(intCount);
+
+			}
+
+			Map<String, Object> borrowMap = new HashMap<String, Object>();
+			if (!back) {
+				borrowMap.put("contract_id", borrow.getContractId());
+				borrowMap.put("in_uid", borrow.getPublisher());
+				borrowMap.put("in_borrow_title", borrow.getBorrowTitle());
+				borrowMap.put("in_img_path", "images/default-img.jpg");
+				borrowMap.put("in_borrow_way", borrowWay);
+				borrowMap.put("in_hetong", borrow.getHetong());
+				borrowMap.put("in_borrow_info", "");
+				borrowMap.put("in_deadline", borrow.getDeadline());
+				borrowMap.put("in_payment_mode", borrow.getPaymentMode());
+				borrowMap.put("in_borrow_amount", borrow.getBorrowAmount());
+				borrowMap.put("in_platUseFee", 1);
+				borrowMap.put("in_borrowFee", 1);
+				borrowMap.put("in_borrowManageFee", 1);
+				borrowMap.put("in_InstGuaranteeFee", 1);
+				borrowMap.put("in_username", userName);
+				borrowMap.put("in_annual_rate", borrow.getAnnualRate());
+				borrowMap.put("in_min_tendered_sum", borrow.getMinTenderedSum());
+				borrowMap.put("in_max_tendered_sum", borrow.getMaxTenderedSum());
+				borrowMap.put("in_raise_term", borrow.getRaiseTerm());
+				borrowMap.put("in_detail", borrow.getDetail());
+				borrowMap.put("in_retsource", borrow.getRetsource());
+				borrowMap.put("in_projectIntro", borrow.getProjectIntro());
+				borrowMap.put("in_safeMeasures", borrow.getSafeMeasures());
+				borrowMap.put("in_trade_type", 1);
+				borrowMap.put("in_publisher", borrow.getPublisher());
+				borrowMap.put("in_excitation_type", -1);
+				borrowMap.put("in_excitation_sum", 0);
+				borrowMap.put("in_excitation_mode", null);
+				borrowMap.put("in_purpose", borrow.getPurpose());
+				borrowMap.put("in_loanUserId", borrow.getLoanUserId());
+				borrowMap.put("in_behalfUserId", borrow.getBehalfUserId());
+				borrowMap.put("in_haspwd", hasPWDInt);
+				borrowMap.put("in_investpwd", borrow.getInvestPwd());
+				borrowMap.put("in_publish_time", new Date());
+				borrowMap.put("in_publiship", ip);
+				borrowMap.put("in_isdaythe", daytheInt);
+				borrowMap.put("in_smallest_flow_unit", 0);
+				borrowMap.put("in_circulation_number", 0);
+				borrowMap.put("in_nid_log", "");
+				borrowMap.put("in_frozen_margin", 0);
+				borrowMap.put("in_url", "");
+				borrowMap.put("in_bathpath", basePath);
+				borrowMap.put("in_cost_fee", 0);
+				borrowMap.put("in_feelog", json);
+				borrowMap.put("in_feestate", jsonState);
+				borrowMap.put("in_agent", null);
+				borrowMap.put("in_counter_agent", null);
+				borrowMap.put("in_borrow_subType", borrowTypeSubId);
+				borrowMap.put("in_projectScorename", projectScorename);
+				borrowMap.put("in_business_detail", null);
+				borrowMap.put("in_assets", null);
+				borrowMap.put("in_money_purposes", null);
+				borrowMap.put("in_borrow_show", 1);
+				borrowMap.put("in_borrow_type", borrow.getBorrowType());
+				borrowMap.put("in_applyId", applyId);
+				borrowMap.put("in_userId", userId);
+				borrowMap.put("inbidTime", borrow.getBidTime());
+				borrowMap.put("inProjectAddress", borrow.getProjectAddress());
+				borrowMap.put("inShowRate", borrow.getShowRate());
+				borrowMap.put("inGroupid", groupid);
+				borrowMap.put("out_ret", -1);
+				borrowMap.put("out_desc", "");
+				borrowDao.callBorrowInitializationAdminProcedure(borrowMap);
+			} else {
+				// 个人借款
+				borrowMap.put("in_borrow_title", borrow.getBorrowTitle());
+				borrowMap.put("in_uid", borrow.getPublisher());
+				borrowMap.put("in_img_path", "images/default-img.jpg");
+				borrowMap.put("in_borrow_way", borrowWay);
+				borrowMap.put("in_borrow_info", "");
+				borrowMap.put("in_deadline", borrow.getDeadline());
+				borrowMap.put("in_payment_mode", borrow.getPaymentMode());
+				borrowMap.put("in_borrow_amount", borrow.getBorrowAmount());
+				borrowMap.put("in_annual_rate", borrow.getAnnualRate());
+				borrowMap.put("in_min_tendered_sum", borrow.getMinTenderedSum());
+				borrowMap.put("in_max_tendered_sum", borrow.getMaxTenderedSum());
+				borrowMap.put("in_raise_term", borrow.getRaiseTerm());
+				borrowMap.put("in_detail", borrow.getDetail());
+				borrowMap.put("in_trade_type", 1);
+				borrowMap.put("in_publisher", borrow.getPublisher());
+				borrowMap.put("in_excitation_type", -1);
+				borrowMap.put("in_excitation_sum", 0);
+				borrowMap.put("in_excitation_mode", null);
+				borrowMap.put("in_purpose", borrow.getPurpose());
+				borrowMap.put("in_haspwd", hasPWDInt);
+				borrowMap.put("in_investpwd", borrow.getInvestPwd());
+				borrowMap.put("in_publish_time", new Date());
+				borrowMap.put("in_publiship", ip);
+				borrowMap.put("in_isdaythe", daytheInt);
+				borrowMap.put("in_smallest_flow_unit", 0);
+				borrowMap.put("in_circulation_number", 0);
+				borrowMap.put("nid_log", null);
+				borrowMap.put("in_frozen_margin", 0);
+				borrowMap.put("in_url", "");
+				borrowMap.put("in_bathpath", basePath);
+				borrowMap.put("in_cost_fee", 0);
+				borrowMap.put("in_feelog", json);
+				borrowMap.put("in_feestate", jsonState);
+				borrowMap.put("in_agent", null);
+				borrowMap.put("in_counter_agent", null);
+				borrowMap.put("in_borrow_subType", borrowTypeSubId);
+				borrowMap.put("in_projectScorename", borrow.getProjectScore());
+				borrowMap.put("in_business_detail", null);
+				borrowMap.put("in_assets", null);
+				borrowMap.put("in_money_purposes", null);
+				borrowMap.put("in_borrow_show", 1);
+				borrowMap.put("out_ret", "");
+				borrowMap.put("out_desc", "");
+				borrowDao.callBorrowInitializationProcedure(borrowMap);
+
+			}
+
+			System.out.println(String.valueOf(borrowMap.get("out_desc")));
+			System.out.println(String.valueOf(borrowMap.get("out_ret")));
+			result = Convert.strToLong(String.valueOf(borrowMap.get("out_ret")), -1);
+			if (result < 0) {
+				return ajaxDoneInfo("300", String.valueOf(borrowMap.get("out_desc")), "", "");
+			}
+
+			Long recommendCount = borrowDao.queryBorrowRecommendCount(1);
+			if (recommendCount > 3) {
+				List<Long> recommendBorrowList = borrowDao.getRecommendBorrowIdList();
+				if (recommendBorrowList.size() > 0) {
+					for (int i = 0; i < recommendBorrowList.size(); i++) {
+						borrowDao.updateBorrowerRecommend(0, recommendBorrowList.get(i));
+					}
+				}
+			}
+
+			userService.updateSign(publisherId);// 更换校验码
+			// 清空paramMap
+			// Map<String, String> proIdmap =
+			// borrowManageService.queryBorrowProIdByBidName(title);
+			// String ProId = Convert.strToStr(proIdmap.get("id"),
+			// "");//项目ID
+			String BidName = title;
+			String BidType = "01";// 标的类型
+			String BidProdType = "09";
+			// 多金宝
+			if (borrowTypeSubId == 3) {
+				// 抵押贷款
+				BidType = "02";
+				BidProdType = "99";
+			} else {
+				// 信用贷款
+				BidType = "01";
+				BidProdType = "09";
+			}
+
+			String BorrTotAmt = String.valueOf(borrow.getBorrowAmount()); // 发标金额
+			String YearRate = String.valueOf(borrow.getAnnualRate());// 发标年化利率
+			BigDecimal RetInteres = BigDecimal.ZERO;
+			RetInteres = new BigDecimal(amountDouble).multiply(new BigDecimal(annualRateDouble)).multiply(new BigDecimal(deadLineInt))
+					.divide(new BigDecimal(100 * 12), 2, RoundingMode.HALF_UP);// amountDouble*(annualRateDouble/100)*(deadLineInt/12);
+			// String RetInterest = "" + RetInteres;// 应还款总利息
+
+			Date LastRetD = DateUtil.dateAddMonth(publishDate, deadLineInt);
+			String LastRetDate = DateUtil.dateToYMD(LastRetD);// 最后还款日期
+
+			// String BidStartDate = DateUtil.dateToYMDHMS(date);// 计划投标开始日期
+
+			// Date BidEndD = DateUtil.dateAddDay(date, raiseTermInt);
+			// String BidEndDate = DateUtil.dateToYMDHMS(BidEndD);// 计划投标截止日期
+			String LoanPeriod = "";// 借款期限
+			if ("true".equals(setIsDayThe)) {
+				LoanPeriod = String.valueOf(borrow.getDeadline()) + "天";
+			} else {
+				LoanPeriod = String.valueOf(borrow.getDeadline()) + "月";
+			}
+
+			String RetType = "";// 还款方式
+			if (paymentModeInt == 1) {
+				RetType = "03";// 等额本息
+			} else if (paymentModeInt == 2) {
+				RetType = "04";// 按期付息到期还本
+			} else {
+				RetType = "01";// 一次还本付息
+			}
+
+			Map<String, Object> enmap = enterpriseDao.queryEnterpriseInfoByUserId(publisherId);
+			String busiCode = Convert.strToStr(String.valueOf(enmap.get("busiCode")), "");
+			String BorrName = "";
+			String BorrType = "";
+			String BorrBusiCode = "";
+			if (busiCode.isEmpty() || busiCode == null) {
+				BorrType = "01";// 借款人类型 个人
+				BorrName = Convert.strToStr(String.valueOf(umap.get("realName")), "");// 借款人名称
+
+			} else {
+				BorrType = "02";// 借款人类型 企业
+				BorrName = Convert.strToStr(String.valueOf(enmap.get("companyName")), "");// 企业名称
+				BorrBusiCode = Convert.strToStr(String.valueOf(enmap.get("businessCode")), "");// 借款人名称
+			}
+
+			String RetDate = LastRetDate;// 应还款日期
+			String BorrCustId = Convert.strToStr(String.valueOf(umap.get("ipayAccount")), "");// 借款人ID
+			// String BorrBusiCode =
+			// Convert.strToStr(umap.get("registnumber"),
+			// "");//借款企业营业执照
+			String BorrCertType = "00";// 借借款人证件类型
+			String BorrCertId = Convert.strToStr(String.valueOf(umap.get("idNo")), "");// 借款人证件号码
+			String BorrMobiPhone = Convert.strToStr(String.valueOf(umap.get("mobilePhone")), "");// 借款人手机号
+
+			// 获取借款用途
+			// String BorrPurpose = "";
+			// borrowPurposeList = selectedService.borrowPurpose();
+			// for (int i = 0; i<borrowPurposeList.size();i++) {
+			// Map<String, Object> borrowPurposeMap =
+			// borrowPurposeList.get(i);
+			// int borrowPurposeInt = (Integer)
+			// borrowPurposeMap.get("selectValue");
+			// if(purposeInt == borrowPurposeInt){
+			// BorrPurpose = (String) borrowPurposeMap.get("selectName");
+			// }
+			// }
+
+			// 判断是否推送数据给融途网
+			if ("2".equals(ChinapnrConfig.pushToRongtu)) {
+				// 推送数据给融途网
+				String pushdate = Convert.dateToStr(date, "");
+				// 获取borrow的数据
+				String borrowStr = getBorrowInfo(basePath);
+				// 获取listborrow的数据
+				JSONObject listborrow = getListBorrow();
+				String results = ChinapnrService.pushBorrowList(borrowStr, listborrow);
+				log.info("推送数据给融途网,处理结果：" + results);
+				try {
+					JSONObject jsonPushBorrow = JSONObject.fromObject(results);
+					if (jsonPushBorrow.getString("code").equals("1")) {
+						Long rongTuresult = borrowDao.updateBorrowPushstate(new Date(), "2", borrowMaxId);
+						if (rongTuresult > 0) {
+							log.info("推送数据给融途网成功：" + results);
+						}
+					} else {
+						log.info("推送数据给融途网失败：" + results);
+						borrowDao.updateBorrowPushstate(new Date(), "3", borrowMaxId);
+					}
+				} catch (Exception e) {
+					log.info("推送数据给融途网异常：" + results);
+					borrowDao.updateBorrowPushstate(new Date(), "3", borrowMaxId);
+				}
+			}
+
+			String BgRetUrl = basePath + "shzc/reAsyncAddbidinforUrl.do"; // 后台返回
+			if (back) {
+				// Map<String, String> map =
+				// borrowManageService.queryBorrowFistAuditDetailById2(userId);
+				// result = -1L;
+				// result =
+				// borrowManageService.updateBorrowFistAuditStatus(Convert.strToLong(map.get("id"),
+				// -1L), Convert.strToLong(map.get("userId"), -1L), 2,
+				// "= =!", "= =",
+				// admin.getId(), getBasePath());
+				// if (result > 0) {
+				// if (borrowType == 1) {
+				// getOut().print("<script>alert('借款发布成功！');window.location.href='"
+				// + request().getContextPath() +
+				// "/admin/borrowBackstages.do';</script>");// 个人
+				// } else {
+				//
+				// getOut().print("<script>alert('借款发布成功！');window.location.href='"
+				// + request().getContextPath() +
+				// "/admin/enterpriseAddBorrowInit.do';</script>");// 企业
+				// }
+				// } else {
+				// return "fail";
+				// }
+			} else {
+				// getOut().print("<script>alert('借款发布成功！');</script>");
+				if (borrowType == 1) {
+					return ajaxDoneInfo("200", "借款发布成", "navtab", tabid);
+
+				} else {
+					return ajaxDoneInfo("200", "借款发布成", "navtab", tabid);
+				}
+			}
+		}
+		return ajaxDoneInfo("200", "借款发布成功", "navtab", tabid);
+	}
+
+	private String getBorrowInfo(String basePath) {
+		String borrowStr = null;
+		try {
+			JSONObject borrow = null;
+			Map<String, Object> borrowMap = borrowDao.queryBorrowMaxIdInfo();
+			this.borrowMaxId = Long.parseLong(String.valueOf(borrowMap.get("borrowid")));
+			// 根据开发环境和生产环境的不同获取url的前缀地址
+			log.info("getPath():" + basePath);
+			log.info("url:" + borrowMap.get("url"));
+			String url = basePath + borrowMap.get("url");
+			log.info("newurl:" + url);
+
+			// 设置时间成时间戳格式
+			String addtime = String.valueOf(borrowMap.get("addtime"));
+			long addtimeLong = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(addtime).getTime();
+			log.info("addtimeLong:" + ("" + addtimeLong).substring(0, 10));
+			// url，addtime 重新赋值
+			borrowMap.put("url", url);
+			borrowMap.put("addtime", ("" + addtimeLong).substring(0, 10));
+			borrow = JSONObject.fromObject(borrowMap);
+			borrowStr = borrow.toString().replace("{", "[{").replace("}", "}]");// 给数据添加[]
+			log.info("borrowStr:" + borrowStr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		return borrowStr;
+	}
+
+	private JSONObject getListBorrow() {
+		JSONObject listborrow = null;
+		try {
+			Map<String, Object> listMap = new HashMap<String, Object>();
+			/**
+			 * apr_data 最近30天内，每天所有标的平均年利率（计算方法：所有当天发的标的年利率之和除以发标的个数，保留小数2位，
+			 * 如果对应这一天没有数据的，值为0即可）
+			 */
+			Map<String, String> apr_data = new HashMap<String, String>();
+			Map<String, String> count_data = new HashMap<String, String>();// 最近30天内借款金额分布（30天内每天对应发布借款的金额，单位万元，保留小数2位，没有值给0即可）
+			Map<String, String> dcount_data = new HashMap<String, String>();// 最近30天内每天成交量（30天内每天借款成功的借款金额，单位万元，保留2位小数，没有值给0即可）
+			/**
+			 * time_data 平台借款期限分布 从平台成立到现在所有的数据分布，返回格式如下:
+			 * ['1-3个月',945.12],['4-6个月',112.23],['7-12个月',542.36]['12个月以上',0]
+			 * 1-3个月的所有标的总额（天标也算1-3个月）为945.12万元， 如果没有值，返回0即可
+			 */
+			String cj_data = "";// 平台总成交量，单位万元，保留2位小数
+			String dh_data = "";// 平台总待还金额，单位万元，保留2位小数
+			double avg_apr = 0;// 前一天平均年利率，如果对应前一天没有数据的，对应值为平均年利率即可，保留2位小数
+
+			List<Map<String, Object>> rongtuwangList = rongTuWangDao.getRongtuwangInfo();
+
+			for (Map<String, Object> rongtuwangMap : rongtuwangList) {
+				String recordTime = (rongtuwangMap.get("recordTime") + "").substring(5, 10);
+				apr_data.put(recordTime, rongtuwangMap.get("apr_data") + "");
+				count_data.put(recordTime, rongtuwangMap.get("count_data") + "");
+				dcount_data.put(recordTime, rongtuwangMap.get("dcount_data") + "");
+
+			}
+			// 取最后一条记录的值
+			// "['1-3个月',945.12],['4-6个月',112.23],['7-12个月',542.36]['12个月以上',0]"
+			String time_data = "['1-3个月'," + rongtuwangList.get(rongtuwangList.size() - 1).get("time_data1_3") + "]," + "['4-6个月',"
+					+ rongtuwangList.get(rongtuwangList.size() - 1).get("time_data4_6") + "]," + "['7-12个月'," + rongtuwangList.get(rongtuwangList.size() - 1).get("time_data7_12")
+					+ "]" + "['12个月以上'," + rongtuwangList.get(rongtuwangList.size() - 1).get("time_data12_") + "]";
+
+			DecimalFormat df = new DecimalFormat("#########0.00");
+			cj_data = df.format(Double.parseDouble(rongtuwangList.get(rongtuwangList.size() - 1).get("cj_data") + "") / 10000);
+			dh_data = df.format(Double.parseDouble(rongtuwangList.get(rongtuwangList.size() - 1).get("dh_data") + "") / 10000);
+			avg_apr = Double.parseDouble(rongtuwangList.get(rongtuwangList.size() - 1).get("avg_apr") + "");
+
+			listMap.put("apr_data", apr_data);
+			listMap.put("time_data", time_data);
+			listMap.put("count_data", count_data);
+			listMap.put("dcount_data", dcount_data);
+			listMap.put("cj_data", cj_data);
+			listMap.put("dh_data", dh_data);
+			listMap.put("avg_apr", avg_apr);
+
+			log.info("listMap:" + listMap);
+			listborrow = JSONObject.fromObject(listMap);
+			log.info("listborrow:" + listborrow);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		return listborrow;
+	}
+
+	/**
+	 * 
+	 * @describe:企业借款绑定用户
+	 * @author: xiaojin
+	 * @return
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public Map<String, Object> updateEnterpriseBorrowBindingUser(String companyname, String tabid, String username, Long applyId) {
+		long userId = -1;
+		if (StringUtils.isBlank(companyname)) {
+			return ajaxDoneInfo("300", "请填写企业名称", "", "");
+		}
+		if (StringUtils.isBlank(username)) {
+			return ajaxDoneInfo("300", "请填写一个注册过前台的用户", "", "");
+		}
+		// 检测该用户是否存在
+		User user = userDao.queryUserByUserName(username.trim());
+		if (user == null) {
+			return ajaxDoneInfo("300", "您填写的该用户名不存在", "", "");
+		} else {
+			userId = user.getId();
+		}
+		// 检查该用户是否已经绑定企业，这里为了避免数据的混乱，规定：一个用户只能绑定一个企业账户，已经绑定了企业账户的用户不能再次绑定其他的企业
+		// by cheney 2015-04-21
+		List<BorrowRole> list = borrowRoleDao.queryBorrowRoleByUserId(userId);
+		if (list != null && list.size() > 0) {
+			return ajaxDoneInfo("300", "您填写的该用户名已经绑定过其他企业账户，请换一个", "", "");
+		}
+		if (userId != -1) {
+			// 绑定用户与企业关系
+			long result = -1L;
+			BorrowRole borrowRole = new BorrowRole();
+			borrowRole.setApplyId(applyId);
+			borrowRole.setUserId(userId);
+			result = borrowRoleDao.addBorrowRole(borrowRole);
+
+			if (result > 0) {
+				return ajaxDoneInfo("200", "绑定用户成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "绑定用户失败", "", "");
+			}
+		} else {
+			return ajaxDoneInfo("300", "绑定用户失败", "", "");
+		}
+	}
+
+	public String addMaterialsauthInit(Model model, Long userId, String title, String tabid) {
+		model.addAttribute("userId", userId);
+		model.addAttribute("tabid", tabid);
+		return "/admin/borrow/companyfinance/addconpanydata.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:增加企业资料
+	 * @author: xiaojin
+	 * @param userid
+	 * @param title
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> addMaterialsauth(Long userId, String title, String tabid) {
+		Long maxId = 0l;
+		Long count = materialsauthDao.queryMaterialsauthCountByUserId(userId);
+		if (count != null) {
+			maxId = count + 1;
+			for (int i = 0, j = 17; i < 6; i++) {
+				Materialsauth materialsauth = new Materialsauth();
+				materialsauth.setUserId(userId);
+				materialsauth.setMaterAuthTypeId(Long.parseLong(String.valueOf(j)));
+				materialsauth.setGroupid(Integer.parseInt(String.valueOf(maxId)));
+				materialsauth.setCompanyname(title);
+				materialsauthDao.addMaterialsauth(materialsauth);
+				j++;
+			}
+		}
+		return ajaxDoneInfo("200", "企业资料增加成功", "dialog", tabid);
+	}
+
+	public String authfadadaInit(Model model, Long userId, String tabid) {
+		model.addAttribute("userId", userId);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("url", "");
+		return "/admin/borrow/companyfinance/authfadada.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:授权法大大
+	 * @author: xiaojin
+	 * @return
+	 * @throws Exception
+	 */
+	public String addAuthFadada(Model model,HttpServletRequest request, Long userId, String basePath, HttpServletResponse resp, String tabid) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+		// 查询借款人信息
+		User rerMap = userDao.queryUserById(userId);
+		if(rerMap==null){
+			model.addAttribute("url","-1");
+			return "/admin/borrow/companyfinance/authfadada.jsp";
+		}
+		if (rerMap.getAuthTime() != null) {
+			model.addAttribute("url","-1");
+			return "/admin/borrow/companyfinance/authfadada.jsp";
+		}
+
+		String contrac_id = GenerateSequenceNo.generateSequenceNo();// 合同编号
+		String middle_transaction = GenerateSequenceNo.generateSequenceNo();// 受托方
+		String contract_transaction = GenerateSequenceNo.generateSequenceNo(); // 委托方(借款人)
+
+		String filePath = request.getSession().getServletContext().getRealPath("/") + "WEB-INF/pages/front/personcenter/template_wt.html";
+
+		String savepath = request.getSession().getServletContext().getRealPath("/") + "WEB-INF/pages/front/personcenter/abc.html";
+
+		JspToHtml.JspToHtmlAuth(filePath, savepath);// 替换签约时间字段
+
+		String pdf = request.getSession().getServletContext().getRealPath("/") + "WEB-INF/pages/front/personcenter/pd4ml.pdf";
+		String fontUrl = IConstants.FONTURL;
+		FreemarkerUtil.htmlToPdf(savepath, pdf, fontUrl);
+
+		// HtmltoPDF.htmlToPdf3(savepath, pdf);
+		File file = new File(pdf);
+		String doc_type = ".pdf";
+
+		// 调用请求
+		String response = FddClient.invokeUploadDocs(contrac_id, file, "", doc_type);
+
+		System.out.println(response);
+		log.info("授权协议文件上传");
+		log.info(net.sf.json.util.JSONUtils.valueToString(response) + "====>");
+		JSONObject jobj1 = JSONObject.fromObject(response);
+
+		// 查询借款人的法大大CA证书
+		FaDaDa jkuanMap = faDaDaDao.queryFadadaByUserId(userId);
+		// 查询平台方的法大大CA证书
+		FaDaDa middleMap = faDaDaDao.queryFadadaByUserId(Long.parseLong(FddConstant.FADADA_MIDDLE_CUSTOMER));
+
+		String return_url = basePath + "admin/viewAuthFadada.do";// 页面跳转同步通知地址
+		String notify_url = basePath + "admin/viewAuthFadada.do";// 异步通知地址
+		String client_type = "1"; // 客户类型：1-个人，2-企业
+		if (rerMap.getBusiCode() != null && rerMap.getBusiCode().trim().length() > 0) {
+			client_type = "2";
+		}
+
+		if (jobj1.getInt("code") == 1000) { // 上传文件成功
+			// 受托方自动签署
+			String midd_sign_key = "受托方签";
+			String middSign = FddClient.invokeExtSignAutoTwo(middle_transaction, middleMap.getCustomerId(), "", "2", "1", contrac_id, "授权委托书", midd_sign_key, "", "");
+			JSONObject jobmiddle = JSONObject.fromObject(middSign);
+
+			log.info("受托方自动文档签署完成");
+			log.info(net.sf.json.util.JSONUtils.valueToString(jobmiddle) + "====>");
+
+			//
+			if (jobmiddle.getInt("code") == 1000) {
+				String client_keyword = "委托方签";// 签约位置关键字
+
+				userDao.updateUserByIdOrTransactionId(contract_transaction, userId);
+
+				String html = FddClient.invokeExtSign(contract_transaction, contrac_id, "", return_url, client_type, jkuanMap.getCustomerId(), "授权委托书", "", notify_url,
+						client_keyword);
+				System.out.println("html:" + html);
+				// sendHtml(html,resp);
+				model.addAttribute("url", html);
+				return "/admin/borrow/companyfinance/authfadada.jsp";
+			} else {
+				model.addAttribute("url", "-1");
+				return "/admin/borrow/companyfinance/authfadada.jsp";
+
+			}
+		} else {
+			model.addAttribute("url", "-1");
+			return "/admin/borrow/companyfinance/authfadada.jsp";
+		}
+	}
+
+	/**
+	 * 查看授权意向书
+	 * 
+	 * @return
+	 */
+	public String updateAuthFadada(Model model,HttpServletRequest request) {
+		try {
+			request.setCharacterEncoding("utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		String result_code = "";
+		String download_url = "";
+		String viewpdf_url = "";
+		String transaction_id = "";
+		String timestamp = "";
+		Map<String, String> jsonMap = new HashMap<String, String>();
+		System.out.println("request url==>" + request.getContextPath());
+		Map<String, String[]> paraMap = request.getParameterMap();
+		System.out.println("paraMap==>" + paraMap);
+		Set<String> keySet = paraMap.keySet();
+		log.info("=============request value start===============");
+		for (String key : keySet) {
+			if (key.equalsIgnoreCase("result_code")) {
+				result_code = Arrays.toString((String[]) paraMap.get(key));
+			}
+			if (key.equalsIgnoreCase("download_url")) {
+				download_url = Arrays.toString((String[]) paraMap.get(key));
+			}
+			if (key.equalsIgnoreCase("viewpdf_url")) {
+				viewpdf_url = Arrays.toString((String[]) paraMap.get(key));
+			}
+			if (key.equalsIgnoreCase("transaction_id")) {
+				transaction_id = Arrays.toString((String[]) paraMap.get(key));
+			}
+			if (key.equalsIgnoreCase("timestamp")) {
+				timestamp = Arrays.toString((String[]) paraMap.get(key));
+			}
+		}
+
+		// 数组转换为字符串
+		result_code = result_code.substring(1, result_code.length() - 1);
+		download_url = download_url.substring(1, download_url.length() - 1); // 签署后文件下载地址
+		viewpdf_url = viewpdf_url.substring(1, viewpdf_url.length() - 1); // 在线查看已签署地址
+		transaction_id = transaction_id.substring(1, transaction_id.length() - 1);
+		timestamp = timestamp.substring(1, timestamp.length() - 1);
+		log.info("result_code:" + result_code);
+		log.info("download_url:" + download_url);
+		log.info("viewpdf_url:" + viewpdf_url);
+		log.info("transaction_id:" + transaction_id);
+		log.info("=============request value end===============");
+		if (result_code.equalsIgnoreCase("3000")) {
+			long result = -1;
+			result = userDao.updateUserFaDaDaInfoByTransactionId(download_url, viewpdf_url, timestamp, transaction_id);
+
+			if (result > 0) {
+				model.addAttribute("result_msg", "success");
+				model.addAttribute("viewpdf_url", viewpdf_url);
+				model.addAttribute("download_url", download_url);
+			} else {
+				userDao.updateUserByIdOrTransactionId(transaction_id, -1L);
+				model.addAttribute("result_msg", "fail");
+			}
+		} else {
+			userDao.updateUserByIdOrTransactionId(transaction_id, -1L);
+			model.addAttribute("result_msg", "fail");
+		}
+		return "/admin/borrow/companyfinance/authfadadaview.jsp";
+	}
+
+}

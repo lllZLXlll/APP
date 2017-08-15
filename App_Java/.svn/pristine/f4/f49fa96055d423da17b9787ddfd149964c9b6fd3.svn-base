@@ -1,0 +1,222 @@
+package com.pjzb.service.admin.user;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.config.fadada.FddClient;
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.FaDaDaDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.FaDaDa;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DesSecurityUtil;
+import com.shove.Convert;
+
+/**
+ * 用户列表
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminUserListService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private FaDaDaDao faDaDaDao;
+
+	/**
+	 * 
+	 * @describe:查询用户信息
+	 * @author: xiaojin
+	 * @param model
+	 * @param userName
+	 * @param realName
+	 * @param recommendUsernname
+	 * @param pageNum
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 */
+	public String queryUserInfoList(Model model, String tabid, String userName, String realName, String recommendUsernname, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = ConvertUtil.objToStrConvert(userName);
+			realName = ConvertUtil.objToStrConvert(realName);
+			recommendUsernname = ConvertUtil.objToStrConvert(recommendUsernname);
+			List<Map<String, Object>> list = userDao.queryUserInfoList(userName, realName, recommendUsernname, (pageNum - 1) * pageSize, pageSize);
+			long count = userDao.queryUserInfoCount(userName, realName, recommendUsernname);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("recommendUsername", recommendUsernname);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询用户信息异常**************************");
+		}
+		return "/admin/user/userlist/list.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:更新用户签名
+	 * @author: xiaojin
+	 * @param userId
+	 * @return
+	 */
+	public Map<String, Object> updateSign(Long userId) {
+		long result = userService.updateSign(userId);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "更新成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "更新失败", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:查看用户详细信息
+	 * @author: xiaojin
+	 * @param model
+	 * @param userId
+	 * @return
+	 */
+	public String queryUserInfo(Model model, Long userId) {
+		try {
+			Map<String, Object> userMap = userDao.queryUserInfo(userId);
+			model.addAttribute("user", userMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************查看用户详细信息异常**************************");
+		}
+		return "/admin/user/userlist/edit.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:同步法大大证书
+	 * @author: xiaojin
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> addFadada(String id, String tabid) {
+		try{
+			long userId = Convert.strToLong(new DesSecurityUtil().decrypt(id), 0);
+			Map<String, Object> map = userDao.queryUserInfo(userId);
+			String idNo = String.valueOf(map.get("idNo"));
+			if (idNo == null || idNo.length() <= 0) {
+				return ajaxDoneInfo("300", "身份证号为空，不能同步法大大信息", "false", "");
+			}
+			// 个人CA证书申请接口（审核模式）
+			String response = FddClient.invokeSyncPersonAuto(String.valueOf(map.get("realName")), String.valueOf(map.get("email")), idNo, String.valueOf(map.get("cellPhone")));
+			JSONObject jobj1 = JSONObject.fromObject(response);
+			if (jobj1.getInt("code") == 1000) { // 上传文件成功
+				String customerId = jobj1.getString("customer_id");
+				FaDaDa faDaDa = new FaDaDa();
+				faDaDa.setCustomerId(customerId);
+				faDaDa.setUid(userId);
+				long result = faDaDaDao.addFadada(faDaDa);
+				if (result > 0) {
+					return ajaxDoneInfo("200", "已同步成功！法大大证书为：" + customerId, "false", tabid);
+				} else {
+					return ajaxDoneInfo("300", "法大大证书同步失败", "false", "");
+				}
+	
+			} else {
+				return ajaxDoneInfo("300", "同步失败！法大大申请错误", "false", "");
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "同步失败！法大大申请异常", "false", "");
+		}
+
+	}
+
+	/**
+	 * 
+	 * @describe: 同步汇付客户号
+	 * @author: xiaojin
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> addIpayAccount(String id, String tabid){
+		try{
+			long uid = Convert.strToLong(new DesSecurityUtil().decrypt(id), 0);
+			Map<String, Object> map = userDao.queryUserInfo(uid);
+			String idNo = ConvertUtil.objToStrConvert(map.get("idNo"));
+			if (idNo == null) {
+				return ajaxDoneInfo("300", "身份证号为空，不能查询汇付信息", "false", "");
+			}
+	
+			JSONObject jsonObject = JSONObject.fromObject(ChinapnrInterface.queryUsrInfo(idNo));
+			log.info("汇付用户信息查询：" + jsonObject.toString());
+			if (jsonObject.getInt("RespCode") != 0) {
+				String msg=null;
+				try {
+					msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+				return ajaxDoneInfo("300", "同步失败:" + msg, "false", "");
+			} else {
+				String UsrCustId = jsonObject.getString("UsrCustId");
+				String UsrId = Convert.strToStr(jsonObject.getString("UsrId"), "");// 该字段格式为:xxxx_123456789
+				long userId = Convert.strToLong(UsrId.substring(UsrId.indexOf("_") + 1), -1);
+				User user=new User();
+				user.setId(userId);
+				user.setIpayAccount(UsrCustId);
+				Long result = userDao.updateUser(user);
+				if (result > 0) {
+					userService.updateSign(userId);
+					// 个人CA证书申请接口（审核模式）
+					String response = FddClient.invokeSyncPersonAuto(String.valueOf(map.get("realName")),String.valueOf( map.get("email")), idNo,String.valueOf( map.get("cellPhone")));
+					JSONObject jobj1 = JSONObject.fromObject(response);
+					if (jobj1.getInt("code") == 1000) { // 上传文件成功
+						String customer = jobj1.getString("customer_id");
+						FaDaDa faDaDa = new FaDaDa();
+						faDaDa.setCustomerId(customer);
+						faDaDa.setUid(userId);
+						faDaDaDao.addFadada(faDaDa);
+					}
+					return ajaxDoneInfo("200","已同步成功！汇付客户号为：" + UsrCustId, "false", tabid);
+				} else {
+					return ajaxDoneInfo("300", "同步失败！插入汇付客户号失败", "false", "");
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "同步失败！插入汇付客户号异常", "false", "");
+		}
+	}
+
+}

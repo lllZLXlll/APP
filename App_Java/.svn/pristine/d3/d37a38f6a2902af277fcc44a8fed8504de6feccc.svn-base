@@ -1,0 +1,30 @@
+package com.pjzb.controller.admin;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.identify.AdminBasicInfoAuthenService;
+
+/**
+ * 认证管理service
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminIdentifyController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminIdentifyController.class);
+
+	@Autowired
+	private AdminBasicInfoAuthenService adminBasicInfoAuthenService;
+	
+	@RequestMapping(value = "/queryPersonInfolistindex")
+	public String queryUserCashListInit(Model model, Long pageCurrent, Long pageSize, String tabid,String userName,String realName,String serviceManName,String auditStatus,String certificateName) {
+		return adminBasicInfoAuthenService.queryPersonInfoListForPage(model,tabid,pageCurrent,pageSize,userName,realName,serviceManName,auditStatus,certificateName);
+	}
+}

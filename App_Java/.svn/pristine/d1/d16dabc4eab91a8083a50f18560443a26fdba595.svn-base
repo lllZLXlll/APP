@@ -1,0 +1,17 @@
+package com.pjzb.dao;
+
+import java.util.Map;
+
+import com.pjzb.entity.PhoneBindingInfo;
+
+public interface PhoneBindingInfoDao {
+
+	public Map<String, Object> getUserMobile(long userId, int phone_binding_on);
+	
+	public Map<String, Object> queryBindingInfoByUserId(long userId);
+	
+	public long addBindingMobile(PhoneBindingInfo PhoneBindingInfo);
+	
+	public long updateBindingMobile(PhoneBindingInfo PhoneBindingInfo);
+	
+}

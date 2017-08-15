@@ -1,0 +1,65 @@
+package com.pjzb.service.admin.loan;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+@Service
+public class AdminBorrowMonthInspectRecordService {
+	public static Log log = LogFactory.getLog(AdminBorrowMonthInspectRecordService.class);
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	/**
+	 * 
+	 * @describe:分页查询贷后月检记录
+	 * @author: xiaojin
+	 * @param model
+	 * @param tabid
+	 * @param borrowId
+	 * @param realName
+	 * @param borrowTitle
+	 * @param status
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 */
+	public String queryBorrowInspectRecord(Model model, String tabid, Long borrowId, String realName, String borrowTitle, Integer status, Long pageNum, Long pageSize,Long loanUserId) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowId = ConvertUtil.objToLongConvert(borrowId);
+			realName = ConvertUtil.convertObjToStr(realName);
+			borrowTitle = ConvertUtil.convertObjToStr(borrowTitle);
+			status = ConvertUtil.objToIntConvert(status);
+			List<Map<String, Object>> list = borrowDao.queryBorrowMonthInspectRecord(borrowId, realName, borrowTitle, status, (pageNum - 1) * pageSize, pageSize,loanUserId);
+			long count = borrowDao.queryBorrowMonthInspectRecordCount(borrowId, realName, borrowTitle, status,loanUserId);
+			model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+			model.addAttribute("borrowId", borrowId);
+			model.addAttribute("realName", realName);
+			model.addAttribute("borrowTitle", borrowTitle);
+			model.addAttribute("status", status);
+			model.addAttribute("borrowId", borrowId);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询贷后月检记录异常**************************");
+		}
+			
+		return "/admin/loan/inspectrecord/list.jsp";
+	}
+
+}

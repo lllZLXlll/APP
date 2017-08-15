@@ -1,0 +1,14 @@
+package com.pjzb.dao;
+
+import org.apache.ibatis.annotations.Param;
+
+/**
+ * 后台短信接口
+ * @author Administrator
+ *
+ */
+public interface SendSmsDao {
+	
+	public Long SendSMS(@Param("content") String content,@Param("splitID") String splitID,@Param("cellPhones") String cellPhones); 
+	
+}

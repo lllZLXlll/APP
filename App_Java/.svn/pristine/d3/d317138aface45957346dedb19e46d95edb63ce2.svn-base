@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.BorrowInspectionDao">
+
+	<!-- t_borrow_inspection 表 begin -->
+	<resultMap type="borrowInspection" id="borrowInspectionResultMap">
+	<id column="id" property="id"/>
+	<result column="borrowId" property="borrowId"/>
+	<result column="borrowTitle" property="borrowTitle"/>
+	<result column="loanUserId" property="loanUserId"/>
+	<result column="createTime" property="createTime"/>
+	<result column="dealWithStatus" property="dealWithStatus"/>
+	</resultMap>
+	
+	<insert id="insertBorrowInspection">
+		INSERT INTO t_borrow_inspection(borrowId,borrowTitle,loanUserId,createTime,dealWithStatus)
+		VALUES(#{borrowId},#{borrowTitle},#{loanUserId},#{createTime},#{dealWithStatus})
+	</insert>
+	
+	<select id="queryBorrowInspectionCount" resultType="java.lang.Long">
+		SELECT COUNT(1) AS borrowInspectionCount FROM t_borrow_inspection a WHERE a.dealWithStatus=0
+		<if test="loanUserId != -100">
+			AND a.loanUserId=#{loanUserId}
+		</if>
+	</select>
+	
+	<select id="queryBorrowInspectionForPageByLoanUserIdCount" resultType="java.lang.Long">
+		<if test="param3 == -100">
+			SELECT COUNT(*) FROM (SELECT a.id as id,a.borrowId as borrowId,b2.realName AS borrowRealName,a.borrowTitle as borrowTitle,b1.realName as realName,a.createTime as createTime,
+			a.dealWithStatus as dealWithStatus from t_borrow_inspection a,t_person b1,t_borrow tb,t_person b2 WHERE a.loanUserId=b1.userId and a.borrowId = tb.id and tb.publisher = b2.userId
+			and a.dealWithStatus=0 ORDER BY id DESC) c WHERE 1=1 
+			<if test="param1 != null">
+				AND c.realName LIKE '%' #{0} '%'
+			</if>
+			<if test="param2 != null">
+				AND c.borrowTitle LIKE '%' #{1} '%'
+			</if>
+		</if>
+		<if test="param3 != -100">
+			SELECT COUNT(*) FROM (SELECT a.id as id,a.borrowId as borrowId,b2.realName AS borrowRealName,a.borrowTitle as borrowTitle,b1.realName as realName,a.createTime as createTime, 
+			a.dealWithStatus as dealWithStatus from t_borrow_inspection a,t_person b1,t_borrow tb,t_person b2 WHERE a.loanUserId=b1.userId and a.borrowId = tb.id and tb.publisher = b2.userId 
+			and a.loanUserId = #{2} and a.dealWithStatus=0 ORDER BY id DESC) c WHERE 1=1 
+			<if test="param1 != null">
+				AND c.realName LIKE '%' #{0} '%'
+			</if>
+			<if test="param2 != null">
+				AND c.borrowTitle LIKE '%' #{1} '%'
+			</if>
+		</if>
+	</select>
+	
+	<select id="queryBorrowInspectionForPageByLoanUserId" resultType="map">
+		<if test="param3 == -100">
+			SELECT * FROM (SELECT a.id as id,a.borrowId as borrowId,b2.realName AS borrowRealName,a.borrowTitle as borrowTitle,b1.realName as realName,a.createTime as createTime,
+			a.dealWithStatus as dealWithStatus from t_borrow_inspection a,t_person b1,t_borrow tb,t_person b2 WHERE a.loanUserId=b1.userId and a.borrowId = tb.id and tb.publisher = b2.userId
+			and a.dealWithStatus=0 ORDER BY id DESC) c WHERE 1=1 
+			<if test="param1 != null">
+				AND c.realName LIKE '%' #{0} '%'
+			</if>
+			<if test="param2 != null">
+				AND c.borrowTitle LIKE '%' #{1} '%'
+			</if>
+			LIMIT #{3}, #{4}
+		</if>
+		<if test="param3 != -100">
+			SELECT * FROM (SELECT a.id as id,a.borrowId as borrowId,b2.realName AS borrowRealName,a.borrowTitle as borrowTitle,b1.realName as realName,a.createTime as createTime, 
+			a.dealWithStatus as dealWithStatus from t_borrow_inspection a,t_person b1,t_borrow tb,t_person b2 WHERE a.loanUserId=b1.userId and a.borrowId = tb.id and tb.publisher = b2.userId 
+			and a.loanUserId = #{2} and a.dealWithStatus=0 ORDER BY id DESC) c WHERE 1=1 
+			<if test="param1 != null">
+				AND c.realName LIKE '%' #{0} '%'
+			</if>
+			<if test="param2 != null">
+				AND c.borrowTitle LIKE '%' #{1} '%'
+			</if>
+			LIMIT #{3}, #{4}
+		</if>
+	</select>
+	
+	<select id="queryBorrowInspectionCountByLoanUserIdAndBorrowTitle" resultType="map">
+		<if test="param3 == -100">
+			SELECT COUNT(1) as borrowInspectionCount FROM (SELECT a.borrowTitle as borrowTitle,b.realName as realName from t_borrow_inspection a,t_person b WHERE a.loanUserId=b.userId AND a.dealWithStatus=0) c where 1=1 
+			<if test="param1 != null and param1 != ''">
+				AND c.realName LIKE '%' #{0} '%'
+			</if>
+			<if test="param2 != null and param2 != ''">
+				AND c.borrowTitle LIKE '%' #{1} '%'
+			</if>
+		</if>
+		<if test="param3 != -100">
+			SELECT COUNT(1) as borrowInspectionCount FROM (SELECT a.borrowTitle as borrowTitle,b.realName as realName,a.loanUserId as loanUserId from t_borrow_inspection a,t_person b WHERE a.loanUserId=b.userId AND a.dealWithStatus=0) c WHERE c.loanUserId=#{2}
+			<if test="param1 != null and param1 != ''">
+				AND c.realName LIKE '%' #{0} '%'
+			</if>
+			<if test="param2 != null and param2 != ''">
+				AND c.borrowTitle LIKE '%' #{1} '%'
+			</if>
+		</if>
+	</select>
+	
+	<select id="queryBorrowInspectionCountByBorrowId" resultType="java.lang.Long">
+		SELECT COUNT(1) AS borrowInspectionCount FROM t_borrow_inspection a WHERE a.borrowId=#{borrowId}
+	</select>
+	
+	<select id="queryBorrowInspectionById" resultMap="borrowInspectionResultMap">
+		SELECT * FROM t_borrow_inspection a WHERE a.id=#{id}
+	</select>
+	
+	<!-- t_borrow_inspection 表 end -->
+	
+	
+	<!-- t_borrow_loan_manager 表 begin -->
+	
+	<resultMap type="borrowLoanManager" id="borrowLoanManagerResultMap">
+	<id column="id" property="id"/>
+	<result column="borrowId" property="borrowId"/>
+	<result column="borrowTitle" property="borrowTitle"/>
+	<result column="visitTime" property="visitTime"/>
+	<result column="loanUserId" property="loanUserId"/>
+	<result column="loanMaintenance" property="loanMaintenance"/>
+	<result column="mainVisitName" property="mainVisitName"/>
+	<result column="collectMaterialId" property="collectMaterialId"/>
+	<result column="materDescription" property="materDescription"/>
+	<result column="description" property="description"/>
+	<result column="status" property="status"/>
+	<result column="sitePhotos" property="sitePhotos"/>
+	<result column="sitePhotoId" property="sitePhotoId"/>
+	<result column="operatingTime" property="operatingTime"/>
+	<result column="corpusIncome" property="corpusIncome"/>
+	<result column="isIncome" property="isIncome"/>
+	</resultMap>
+	
+	<insert id="addBorrowLoanManager">
+		INSERT INTO t_borrow_loan_manager(borrowId,borrowTitle,visitTime,loanUserId,loanMaintenance,mainVisitName,minorVisitName,
+		collectMaterialId,materDescription,description,`status`,sitePhotos,sitePhotoId,operatingTime,corpusIncome,isIncome)
+		VALUES(#{borrowId},#{borrowTitle},#{visitTime},#{loanUserId},#{loanMaintenance},#{mainVisitName},#{minorVisitName},
+		#{collectMaterialId},#{materDescription},#{description},#{status},#{sitePhotos},#{sitePhotoId},#{operatingTime},#{corpusIncome},
+		#{isIncome})
+	</insert>
+	
+	<update id="updateBorrowLoanManager">
+		update t_borrow_loan_manager
+		<trim prefix="set" suffixOverrides=",">
+			<if test="borrowId != null">borrowId = #{borrowId},</if>
+			<if test="borrowTitle != null">borrowTitle = #{borrowTitle},</if>
+			<if test="visitTime != null">visitTime = #{visitTime},</if>
+			<if test="loanUserId != null">loanUserId = #{loanUserId},</if>
+			<if test="loanMaintenance != null">loanMaintenance = #{loanMaintenance},</if>
+			<if test="mainVisitName != null">mainVisitName = #{mainVisitName},</if>
+			<if test="minorVisitName != null">minorVisitName = #{minorVisitName},</if>
+			<if test="collectMaterialId != null">collectMaterialId = #{collectMaterialId},</if>
+			<if test="materDescription != null">materDescription = #{materDescription},</if>
+			<if test="description != null">description = #{description},</if>
+			<if test="status != null">`status` = #{status},</if>
+			<if test="sitePhotos != null">sitePhotos = #{sitePhotos},</if>
+			<if test="sitePhotoId != null">sitePhotoId = #{sitePhotoId},</if>
+			<if test="corpusIncome != null">corpusIncome = #{corpusIncome},</if>
+			<if test="isIncome != null">isIncome = #{isIncome},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="queryBorrowLoanManagerById" resultMap="borrowLoanManagerResultMap">
+		SELECT * FROM t_borrow_loan_manager a WHERE a.id=#{id}
+	</select>
+	
+	<!-- t_borrow_loan_manager 表 end -->
+	
+	
+	
+	<!-- t_loanmanage_file 表 begin -->
+	
+	<resultMap type="loanManageFile" id="loanManageFileResultMap">
+		<id column="id" property="id"/>
+		<result column="filePath" property="filePath"/>
+		<result column="loanmanagerId" property="loanmanagerId"/>
+		<result column="uploadTime" property="uploadTime"/>
+		<result column="fileName" property="fileName"/>
+		<result column="type" property="type"/>
+	</resultMap>
+	
+	<select id="queryLoanManageFileByLoanmanagerId" resultMap="loanManageFileResultMap">
+		SELECT * FROM t_loanmanage_file a WHERE a.loanmanagerId=#{loanmanagerId}
+		<if test="type != null">
+			 AND a.type=#{type}
+		</if>
+	</select>
+	
+	<insert id="addLoanManageFile">
+		INSERT INTO t_loanmanage_file(filePath,loanmanagerId,uploadTime,fileName,type)
+		VALUES(#{filePath},#{loanmanagerId},#{uploadTime},#{fileName},#{type})
+	</insert>
+	
+	<delete id="deleteLoanManageFileById">
+		DELETE FROM t_loanmanage_file WHERE id=#{id}
+	</delete>
+	
+	<select id="queryLoanManageFileCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM t_loanmanage_file a WHERE a.loanmanagerId=#{loanmanagerId} AND a.type=#{type}
+	</select>
+	
+	<!-- t_loanmanage_file 表 end -->
+	
+
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+

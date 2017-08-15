@@ -1,0 +1,414 @@
+package com.pjzb.task;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.RecommendUserDao;
+import com.pjzb.entity.ActivityNewinvestaward;
+import com.pjzb.util.DateUtil;
+import com.shove.Convert;
+
+/**
+ * 活动 定时器
+ * 
+ * @author zlx
+ * 
+ */
+
+@Service
+public class JobActivityService {
+	private static Log log = LogFactory.getLog(JobActivityService.class);
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private RecommendUserDao recommendUserDao;
+
+	public void insertNewUserFirstInvestAward() throws RuntimeException {
+		log.info("--------------新用户首次投资奖励信息采集开始--------------");
+		int isStartActivity1 = Integer.parseInt(ChinapnrConfig.ISSTARTACTIVITY1);
+		double investMoney = Double.parseDouble(ChinapnrConfig.INVESTMONEY);
+		String activityStartTime = ChinapnrConfig.ACTIVITYSTARTTIME;
+		String activityEndTime = ChinapnrConfig.ACTIVITYENDTIME;
+		String activity_phase = ChinapnrConfig.ACTIVITY_PHASE;
+		String investTimeRange = activityStartTime + "至" + activityEndTime;
+
+		// 活动未开启
+		if (isStartActivity1 == 1) {
+			return;
+		}
+
+		log.info("普金资本第一季推广活动 - 新用户首次投标金额大于500奖励活动开启状态:" + isStartActivity1 + ",活动起点投资金额:" + investMoney + ",活动开始日期:" + activityStartTime + ",活动结束日期:" + activityEndTime);
+		// 查询所有首次投资符合资格的记录, 用户的领取资格为1的
+		List<Map<String, Object>> awardList = investDao.queryActivity_newInvestAward(investMoney, activityStartTime, activityEndTime, activity_phase);
+
+		if (awardList != null && awardList.size() > 0) {
+			// 将符合条件的记录插入到t_activity_newInvestAward表中
+			for (Map<String, Object> map : awardList) {
+				long userId = Convert.strToLong(map.get("investor") + "", -1);
+				long borrowId = Convert.strToLong(map.get("borrowId") + "", -1);
+				double investAmount = Convert.strToDouble(map.get("investAmount") + "", -1);
+				long month = Convert.strToLong(map.get("deadline") + "", -1);
+				double money = 0;
+
+				// 首次投资3个月以内(含3个月)奖励
+				if (month <= 3) {
+					if (investAmount >= 500 && investAmount < 1000) {
+						money = 10.00;
+					} else if (investAmount >= 1000 && investAmount < 2000) {
+						money = 20.00;
+					} else if (investAmount >= 2000 && investAmount < 5000) {
+						money = 40.00;
+					} else if (investAmount >= 5000 && investAmount < 10000) {
+						money = 110.00;
+					} else if (investAmount >= 10000 && investAmount < 50000) {
+						money = 220.00;
+					} else if (investAmount >= 50000) {
+						money = 1100.00;
+					}
+				} else if (month > 3) { // 首次投资3个月以上
+					if (investAmount >= 500 && investAmount < 1000) {
+						money = 12.00;
+					} else if (investAmount >= 1000 && investAmount < 1999) {
+						money = 25.00;
+					} else if (investAmount >= 2000 && investAmount < 5000) {
+						money = 50.00;
+					} else if (investAmount >= 5000 && investAmount < 10000) {
+						money = 128.00;
+					} else if (investAmount >= 10000 && investAmount < 50000) {
+						money = 256.00;
+					} else if (investAmount >= 50000) {
+						money = 1280.00;
+					}
+				}
+				log.info("查询所有首次投资符合资格的记录插入到奖励表中-->userId:" + userId + ", borrowId:" + borrowId + ", investAmount:" + investAmount + ", money:" + money);
+
+				ActivityNewinvestaward activityNewinvestaward = new ActivityNewinvestaward();
+				activityNewinvestaward.setUserId((int) userId);
+				activityNewinvestaward.setBorrowId((int) borrowId);
+				activityNewinvestaward.setInvestAmount(investAmount);
+				activityNewinvestaward.setMoney(money);
+				activityNewinvestaward.setMonth((int) month);
+				activityNewinvestaward.setPhase(Integer.parseInt(activity_phase));
+				activityNewinvestaward.setInvestTimeRange(investTimeRange);
+				investDao.insert_Activity_newInvestAward(activityNewinvestaward);
+			}
+		}
+		log.info("--------------新用户首次投资奖励信息采集结束--------------");
+	}
+
+	// 抢标奖励活动
+	public void insertRobBorrowAward() throws RuntimeException {
+		log.info("--------------抢标奖励信息采集开始--------------");
+		int isStartActivity2 = Integer.parseInt(ChinapnrConfig.ISSTARTACTIVITY2);
+		double firstLastInvest = Double.parseDouble(ChinapnrConfig.FIRSTLASTINVEST);
+		String activityStartTime = ChinapnrConfig.ACTIVITYSTARTTIME;
+		String activityEndTime = ChinapnrConfig.ACTIVITYENDTIME;
+		String activity_phase = ChinapnrConfig.ACTIVITY_PHASE;
+		String investTimeRange = activityStartTime + "至" + activityEndTime;
+
+		// 活动未开启
+		if (isStartActivity2 == 1) {
+			return;
+		}
+		log.info("普金资本第一季推广活动 - 一起抢标奖活动开启状态:" + isStartActivity2 + ",活动起点投资金额:" + firstLastInvest + ",活动开始日期:" + activityStartTime + ",活动结束日期:" + activityEndTime);
+		// 查询所有首投奖励用户
+		List<Map<String, Object>> firstAwardList = investDao.queryFirstAwardList(firstLastInvest, activityStartTime, activityEndTime, activity_phase);
+
+		// 查询所有标王奖励用户
+		List<Map<String, Object>> maxAwardList = investDao.queryMaxAwardList(firstLastInvest, activityStartTime, activityEndTime, activity_phase);
+
+		// 查询所有尾投奖励用户
+		List<Map<String, Object>> lastAwardList = investDao.queryLastAwardList(firstLastInvest, activityStartTime, activityEndTime, activity_phase);
+
+		if (firstAwardList != null && firstAwardList.size() > 0) {
+			// 将符合条件的首投记录插入到t_activity_grabInvestAward表中
+			for (Map<String, Object> map : firstAwardList) {
+				long userId = Convert.strToLong(map.get("investor") + "", -1);
+				long borrowId = Convert.strToLong(map.get("borrowId") + "", -1);
+				double investAmount = Convert.strToDouble(map.get("investAmount") + "", -1);
+				double money = Double.parseDouble(ChinapnrConfig.FIRSTINVESTAWARD);
+
+				log.info("将符合条件的首投记录插入到奖励表中-->userId:" + userId + ", borrowId:" + borrowId + ", investAmount:" + investAmount + ", money:" + money);
+				investDao.insert_FirstMaxLastAward(userId, borrowId, investAmount, money, 1, Integer.parseInt(activity_phase), investTimeRange);
+			}
+		}
+
+		if (maxAwardList != null && maxAwardList.size() > 0) {
+			// 记录标王的个数
+			List<String> maxList = new ArrayList<String>();
+			// 将符合条件的标王记录插入到t_activity_grabInvestAward表中
+			for (Map<String, Object> map : maxAwardList) {
+				long userId = Convert.strToLong(map.get("investor") + "", -1);
+				long borrowId = Convert.strToLong(map.get("borrowId") + "", -1);
+				double investAmount = Convert.strToDouble(map.get("investAmount") + "", -1);
+				double money = Double.parseDouble(ChinapnrConfig.MAXINVESTAWARD);
+
+				maxList.add(borrowId + "");
+
+				log.info("将符合条件的标王记录插入到奖励表中-->userId:" + userId + ", borrowId:" + borrowId + ", investAmount:" + investAmount + ", money:" + money);
+				investDao.insert_FirstMaxLastAward(userId, borrowId, investAmount, money, 2, Integer.parseInt(activity_phase), investTimeRange);
+			}
+			// 标王大于一个的平分100的标王奖励
+			Set<String> uniqueSet = new HashSet<String>(maxList);
+			for (String borrowId : uniqueSet) {
+				// 一个标中的标王大于1
+				if (Collections.frequency(maxList, borrowId) > 1) {
+					// 平分奖金
+					BigDecimal money = new BigDecimal(ChinapnrConfig.MAXINVESTAWARD).divide(new BigDecimal(Collections.frequency(maxList, borrowId)), 2, BigDecimal.ROUND_HALF_UP);
+					// 修改表中标王的奖励金额
+					investDao.updateMaxInvestAwrad(borrowId, money);
+					log.info("当一个标中的标王大于1个的时候,修改奖励表中的标王奖励--> borrowId:" + borrowId + ", money:" + money);
+				}
+			}
+		}
+
+		if (lastAwardList != null && lastAwardList.size() > 0) {
+			// 将符合条件的尾投记录插入到t_activity_grabInvestAward表中
+			for (Map<String, Object> map : lastAwardList) {
+				long userId = Convert.strToLong(map.get("investor") + "", -1);
+				long borrowId = Convert.strToLong(map.get("borrowId") + "", -1);
+				double investAmount = Convert.strToDouble(map.get("investAmount") + "", -1);
+				double money = Double.parseDouble(ChinapnrConfig.LASTINVESTAWARD);
+
+				log.info("将符合条件的尾投记录插入到奖励表中-->userId:" + userId + ", borrowId:" + borrowId + ", investAmount:" + investAmount + ", money:" + money);
+				investDao.insert_FirstMaxLastAward(userId, borrowId, investAmount, money, 3, Integer.parseInt(activity_phase), investTimeRange);
+			}
+		}
+		log.info("--------------抢标奖励信息采集结束--------------");
+	}
+
+	public void insertOldUserAward() throws RuntimeException {
+		log.info("--------------已投资老客户再次投资奖励信息采集开始--------------");
+		String activityStartTime = ChinapnrConfig.ACTIVITYSTARTTIME;
+		String activityEndTime = ChinapnrConfig.ACTIVITYENDTIME;
+		String activity_phase = ChinapnrConfig.ACTIVITY_PHASE;
+		String investTimeRange = activityStartTime + "至" + activityEndTime;
+		// //指定时间
+		// Date activityEndTimeD = DateUtil.strToYYMMDDDate(activityEndTime);
+		// //当前时间
+		// Date nowTime = new Date();
+		//
+		// // 当前时间超过指定时间，则进行计算,否则返回。
+		// long diffTime = DateUtil.diffTimes(nowTime,activityEndTimeD);
+		//
+		// if(diffTime>0) {
+		// return;
+		// }
+
+		log.info("凡是普金资本平台2017年1月1日之前已投资客户再次投资，投资3月标以下（包含3月标）即可享受投标金额0.5%的现金红包；投资3月标以上（不含3月标）即可享受投标金额1%的现金红包。");
+		int month = 3;// 判断3个月内还是3个月以上
+		DecimalFormat df = new DecimalFormat("#.00");// 格式化金额，2位小数
+		String moneyStr = "";
+
+		// 查询所有在规定时间之前有投资记录的用户,投资3月标以下的投资金额,并标记用户已计算过了 .
+		List<Map<String, Object>> OldMinawardList = investDao.queryOldUserMinMonth(month, activityStartTime, activityEndTime, activity_phase);
+
+		if (OldMinawardList != null && OldMinawardList.size() > 0) {
+			// 将符合条件的记录插入到t_OldUserAward表中
+			for (Map<String, Object> OldMap : OldMinawardList) {
+				long userId = Convert.strToLong(OldMap.get("investor") + "", -1);
+				long borrowId = Convert.strToLong(OldMap.get("borrowId") + "", -1);
+				double investAmount = Convert.strToDouble(OldMap.get("investAmounts") + "", -1);
+				moneyStr = df.format(investAmount * 0.005);
+				double money = Double.parseDouble(moneyStr);
+
+				log.info("查询所有投资3月标以下符合资格的记录插入到奖励表中-->userId:" + userId + ", investAmount:" + investAmount + ", money:" + money);
+				investDao.insert_activityOldInvestAward(userId, borrowId, 1, investAmount, money, Integer.parseInt(activity_phase), investTimeRange);
+			}
+		}
+		// 查询所有在规定时间之前有投资记录的用户,投资3月标以上的投资金额,并标记用户已计算过了 .
+		List<Map<String, Object>> OldMaxawardList = investDao.queryOldUserMaxMonth(month, activityStartTime, activityEndTime, activity_phase);
+		if (OldMaxawardList != null && OldMaxawardList.size() > 0) {
+			// 将符合条件的记录插入到t_OldUserAward表中
+			for (Map<String, Object> OldMap : OldMaxawardList) {
+				long userId = Convert.strToLong(OldMap.get("investor") + "", -1);
+				long borrowId = Convert.strToLong(OldMap.get("borrowId") + "", -1);
+				double investAmount = Convert.strToDouble(OldMap.get("investAmounts") + "", -1);
+				moneyStr = df.format(investAmount * 0.01);
+				double money = Double.parseDouble(moneyStr);
+				log.info("查询所有投资3月标以上符合资格的记录插入到奖励表中-->userId:" + userId + ", investAmount:" + investAmount + ", money:" + money);
+				investDao.insert_activityOldInvestAward(userId, borrowId, 2, investAmount, money, Integer.parseInt(activity_phase), investTimeRange);
+			}
+		}
+		log.info("--------------已投资老客户再次投资奖励信息采集结束--------------");
+	}
+
+	// 邀请好友奖励
+	public void insertInviteAward() throws RuntimeException {
+		log.info("--------------邀请好友奖励信息采集开始--------------");
+		String activityStartTime = ChinapnrConfig.ACTIVITYSTARTTIME;
+		String activityEndTime = ChinapnrConfig.ACTIVITYENDTIME;
+		String activity_phase = ChinapnrConfig.ACTIVITY_PHASE;
+		String investTimeRange = activityStartTime + "至" + activityEndTime;
+		double inviteAmount_1 = Double.parseDouble(ChinapnrConfig.INVITEAMOUNT_1);
+		double inviteAmount_2 = Double.parseDouble(ChinapnrConfig.INVITEAMOUNT_2);
+		double inviteAmount_3 = Double.parseDouble(ChinapnrConfig.INVITEAMOUNT_3);
+		// 指定时间
+		// Date activityEndTimeD = DateUtil.strToYYMMDDDate(activityEndTime);
+		// // 当前时间
+		// Date nowTime = new Date();
+
+		// 当前时间超过指定时间，则进行计算,否则返回。
+		// long diffTime = DateUtil.diffTimes(nowTime, activityEndTimeD);
+		//
+		// if (diffTime > 0) {
+		// return;
+		// }
+		log.info("普金资本第一季推广活动 - 邀请好友奖励活动开启状态: 活动开始日期:" + activityStartTime + ",活动结束日期:" + activityEndTime);
+		// 1、推荐人每推荐一位好友(好友注册时间为活动时间内)注册并投资任意一款理财产品500元以上，推荐人即可获得5元现金红包;推荐的人越多，奖励的越多。
+		// 查询在活动时间内注册的被推荐人有投资记录还未获得奖励的所有人
+		List<Map<String, Object>> inviteFriendList = investDao.queryAllInvestedRecommend(activityStartTime, activityEndTime);
+
+		if (inviteFriendList != null && inviteFriendList.size() > 0) {
+			log.info("活动期间，有投标记录，还未奖励给推荐人的数量：" + inviteFriendList.size());
+
+			for (Map<String, Object> investorMap : inviteFriendList) {
+				long userId = -1L;
+				userId = Convert.strToLong(investorMap.get("investor") + "", -1);
+
+				// 查询被推荐人的投资总额
+				Map<String, String> investMap = investDao.queryInvestAmountByInvestor(userId, inviteAmount_1, activityStartTime, activityEndTime);
+				int num = Convert.strToInt(investMap.get("num") + "", 0);
+				if (num > 0) {
+					double investAmount = Convert.strToDouble(investMap.get("investAmount") + "", -1);
+					log.info("(" + userId + ")的最大投资金额：" + investAmount);
+
+					// 奖励推荐人
+					Long recommendId = -1L;
+					String rewardMoney = "";
+					Map<String, Object> maps = recommendUserDao.getRecommendUserByuserId(userId);
+					if (maps != null) {
+						recommendId = Convert.strToLong(maps.get("recommendUserId") + "", -1L);
+						rewardMoney = maps.get("rewardMoney") + "";
+					}
+
+					// 1.判断是否有推荐人 2.是否已奖励过了
+					if (maps != null && recommendId > 0 && (rewardMoney == null || rewardMoney.equals(""))) {
+						Date inserttime = new Date();// 添加时间
+						// 标记奖励金额和奖励时间，标记后不再送奖励了。
+						recommendUserDao.addrewardMoney(userId, 5, inserttime);
+						investDao.insert_Activity_inviteAward(recommendId, userId, investAmount, 5, Integer.parseInt(activity_phase), investTimeRange);
+					}
+				}
+			}
+		}
+
+		// 2、推荐人推荐好友注册(好友注册时间为活动时间内)并累计投资达3万元即可额外返100元现金红包，达10万元即可额外返300元现金红包。
+		// 查询所有符合资格的记录(好友注册时间为活动时间内), 用户的领取资格为1的
+		List<Map<String, Object>> awardList = investDao.queryActivity_inviteAward(activityStartTime, activityEndTime);
+		if (awardList != null && awardList.size() > 0) {
+			// 将符合条件的记录插入到t_activity_inviteAward表中
+			for (Map<String, Object> map : awardList) {
+				long recommendUserId = Convert.strToLong(map.get("recommendUserId") + "", -1);
+				Long userId = -1L;
+
+				Map<String, String> investAmountMap = investDao.queryRecommendedInvestAmount(recommendUserId, activityStartTime, activityEndTime, activity_phase);
+
+				double investAmount = Convert.strToDouble(investAmountMap.get("investAmount") + "", -1);
+				int awardType = -1;
+				int money = 0;
+				if (investAmount >= inviteAmount_2 && investAmount < inviteAmount_3) {
+					awardType = 2;
+					money = 100;
+
+					log.info("查询邀请好友奖励的记录插入到奖励表中-->recommendUserId:" + recommendUserId + ", investAmount:" + investAmount + ", awardType:" + awardType);
+					investDao.insert_Activity_inviteAward(recommendUserId, userId, investAmount, money, Integer.parseInt(activity_phase), investTimeRange);
+				} else if (investAmount >= inviteAmount_3) {
+					awardType = 3;
+					money = 300;
+					log.info("查询邀请好友奖励的记录插入到奖励表中-->recommendUserId:" + recommendUserId + ", investAmount:" + investAmount + ", awardType:" + awardType);
+					investDao.insert_Activity_inviteAward(recommendUserId, userId, investAmount, 100, Integer.parseInt(activity_phase), investTimeRange);
+					investDao.insert_Activity_inviteAward(recommendUserId, userId, investAmount, money, Integer.parseInt(activity_phase), investTimeRange);
+				} else {
+					continue;
+				}
+			}
+		}
+		log.info("--------------邀请好友奖励信息采集结束--------------");
+	}
+
+	// 累计投资奖励
+	public void insertCumulateInviteAward() {
+		log.info("--------------累计投资奖励信息采集开始--------------");
+		int isStartActivity5 = Integer.parseInt(ChinapnrConfig.ISSTARTACTIVITY5);
+		// 活动未开启
+		if (isStartActivity5 == 1) {
+			return;
+		}
+
+		String activityStartTime = ChinapnrConfig.ACTIVITYSTARTTIME;
+		String activityEndTime = ChinapnrConfig.ACTIVITYENDTIME;
+		String activity_phase = ChinapnrConfig.ACTIVITY_PHASE;
+		String investTimeRange = activityStartTime + "至" + activityEndTime;
+		double investAmount_1 = Double.parseDouble(ChinapnrConfig.INVESTAMOUNT_1);
+		double investAmount_2 = Double.parseDouble(ChinapnrConfig.INVESTAMOUNT_2);
+		double investAmount_3 = Double.parseDouble(ChinapnrConfig.INVESTAMOUNT_3);
+		double investAmount_4 = Double.parseDouble(ChinapnrConfig.INVESTAMOUNT_4);
+		double investAmount_5 = Double.parseDouble(ChinapnrConfig.INVESTAMOUNT_5);
+
+		// 指定时间
+		Date activityEndTimeD = DateUtil.strToYYMMDDDate(activityEndTime);
+		// 当前时间
+		Date nowTime = new Date();
+
+		// 当前时间超过指定时间，则进行计算,否则返回。
+		long diffTime = DateUtil.diffTimes(nowTime, activityEndTimeD);
+
+		if (diffTime > 0) {
+			return;
+		}
+
+		log.info("普金资本第一季推广活动 - 累计投资奖励活动开启状态:" + isStartActivity5 + ",活动开始日期:" + activityStartTime + ",活动结束日期:" + activityEndTime);
+		// 查询所有首次投资符合资格的记录, 用户的领取资格为1的
+		List<Map<String, Object>> awardList = investDao.queryActivity_cumulateInvite(activityStartTime, activityEndTime, investAmount_1, activity_phase);
+
+		if (awardList != null && awardList.size() > 0) {
+			// 将符合条件的记录插入到t_activity_newInvestAward表中
+			for (Map<String, Object> map : awardList) {
+				long userId = Convert.strToLong(map.get("investor") + "", -1);
+				double investAmount = Convert.strToDouble(map.get("investAmount") + "", -1);
+				int awardType = -1;
+				String awardDescribe = "";
+
+				if (investAmount >= investAmount_1 && investAmount < investAmount_2) {
+					awardType = 1;
+					awardDescribe = "京东购物卡(200元)一张";
+				} else if (investAmount >= investAmount_2 && investAmount < investAmount_3) {
+					awardType = 2;
+					awardDescribe = "小米4手机1台";
+				} else if (investAmount >= investAmount_3 && investAmount < investAmount_4) {
+					awardType = 3;
+					awardDescribe = "Apple iPad Air平板电脑 (64G WiFi版)银色1台";
+				} else if (investAmount >= investAmount_4 && investAmount < investAmount_5) {
+					awardType = 4;
+					awardDescribe = "iPhone 6 plus手机(16G/颜色随机)1台";
+				} else if (investAmount >= investAmount_5) {
+					awardType = 5;
+					awardDescribe = "iPhone 7手机(32G/颜色随机)1台";
+				} else {
+					continue;
+				}
+
+				log.info("查询所有累计投资符合资格的记录插入到奖励表中-->userId:" + userId + ", investAmount:" + investAmount + ", awardType:" + awardType);
+				investDao.insert_Activity_cumulateInvite(userId, investAmount, awardType, awardDescribe, Integer.parseInt(activity_phase), investTimeRange);
+			}
+		}
+		log.info("--------------累计投资奖励信息采集结束--------------");
+	}
+}

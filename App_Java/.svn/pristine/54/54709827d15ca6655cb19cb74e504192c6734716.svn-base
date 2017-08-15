@@ -1,0 +1,80 @@
+package com.pjzb.entity;
+
+// default package
+
+import java.util.Date;
+
+/**
+ * LoanInspectAdvise entity. @author MyEclipse Persistence Tools
+ */
+
+public class LoanInspectAdvise implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long loanInspectId;
+	private String advise;
+	private Integer type;
+	private Date recordTime;
+	private Long adminId;
+
+	// Constructors
+
+	/** default constructor */
+	public LoanInspectAdvise() {
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getLoanInspectId() {
+		return this.loanInspectId;
+	}
+
+	public void setLoanInspectId(Long loanInspectId) {
+		this.loanInspectId = loanInspectId;
+	}
+
+	public String getAdvise() {
+		return advise;
+	}
+
+	public void setAdvise(String advise) {
+		this.advise = advise;
+	}
+
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public Date getRecordTime() {
+		return this.recordTime;
+	}
+
+	public void setRecordTime(Date recordTime) {
+		this.recordTime = recordTime;
+	}
+
+	public Long getAdminId() {
+		return adminId;
+	}
+
+	public void setAdminId(Long adminId) {
+		this.adminId = adminId;
+	}
+	
+	
+
+}

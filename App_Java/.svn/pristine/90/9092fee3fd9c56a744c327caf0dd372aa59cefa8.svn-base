@@ -1,0 +1,106 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * RedBagManage entity. @author MyEclipse Persistence Tools
+ */
+
+public class RedBagManage implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String rbName;
+	private Double rbFee;
+	private Integer rbMode;
+	private String remark;
+	private Date createTime;
+	private Integer rbtypes;
+	private Integer state;
+
+	// Constructors
+
+	/** default constructor */
+	public RedBagManage() {
+	}
+
+	/** full constructor */
+	public RedBagManage(String rbName, Double rbFee, Integer rbMode, String remark, Date createTime, Integer rbtypes, Integer state) {
+		this.rbName = rbName;
+		this.rbFee = rbFee;
+		this.rbMode = rbMode;
+		this.remark = remark;
+		this.createTime = createTime;
+		this.rbtypes = rbtypes;
+		this.state = state;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getRbName() {
+		return this.rbName;
+	}
+
+	public void setRbName(String rbName) {
+		this.rbName = rbName;
+	}
+
+	public Double getRbFee() {
+		return this.rbFee;
+	}
+
+	public void setRbFee(Double rbFee) {
+		this.rbFee = rbFee;
+	}
+
+	public Integer getRbMode() {
+		return this.rbMode;
+	}
+
+	public void setRbMode(Integer rbMode) {
+		this.rbMode = rbMode;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public Integer getRbtypes() {
+		return this.rbtypes;
+	}
+
+	public void setRbtypes(Integer rbtypes) {
+		this.rbtypes = rbtypes;
+	}
+
+	public Integer getState() {
+		return this.state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
+	}
+
+}

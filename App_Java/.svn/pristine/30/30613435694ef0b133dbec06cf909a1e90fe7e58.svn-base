@@ -1,0 +1,94 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * ApproveNoticeStyle entity. @author MyEclipse Persistence Tools
+ */
+
+public class ApproveNoticeStyle implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Integer noticeStyle;
+	private Integer noticeType;
+	private String title;
+	private String nid;
+	private Integer status;
+	private Integer sort;
+
+	// Constructors
+
+	/** default constructor */
+	public ApproveNoticeStyle() {
+	}
+
+	/** full constructor */
+	public ApproveNoticeStyle(Integer noticeStyle, Integer noticeType, String title, String nid, Integer status, Integer sort) {
+		this.noticeStyle = noticeStyle;
+		this.noticeType = noticeType;
+		this.title = title;
+		this.nid = nid;
+		this.status = status;
+		this.sort = sort;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Integer getNoticeStyle() {
+		return this.noticeStyle;
+	}
+
+	public void setNoticeStyle(Integer noticeStyle) {
+		this.noticeStyle = noticeStyle;
+	}
+
+	public Integer getNoticeType() {
+		return this.noticeType;
+	}
+
+	public void setNoticeType(Integer noticeType) {
+		this.noticeType = noticeType;
+	}
+
+	public String getTitle() {
+		return this.title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getNid() {
+		return this.nid;
+	}
+
+	public void setNid(String nid) {
+		this.nid = nid;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Integer getSort() {
+		return this.sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+
+}

@@ -1,0 +1,47 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.RechargeDetailDao;
+import com.pjzb.util.Constants;
+/**
+ * 充值管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminRechargeManageService extends BaseController {
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	public String queryUserCashListForPage(Model model, String tabid, Long pageNum, Long pageSize, String userName) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_15 : pageSize;
+			List<Map<String, Object>> list = fundrecordDao.queryUserCashListForPage((pageNum - 1) * pageSize, pageSize,userName,true);
+			Map<String, Object> map = fundrecordDao.queryUserCashListCounts(userName);
+			long count = fundrecordDao.queryUserCashListCount(userName);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("map", map);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询充值管理异常**************************");
+		}
+		return "/admin/fund/rechargemanage/list.jsp";
+	}
+}

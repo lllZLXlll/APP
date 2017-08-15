@@ -1,0 +1,116 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="redmoneyrecordInit.do" method="post">
+        <input type="hidden" name="pageSize" value="${pageBean.pageSize}">
+        <input type="hidden" name="pageCurrent" value="${pageBean.pageNum}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <input type="hidden" name="orderDirection" value="${param.orderDirection}">
+        <div class="bjui-searchBar">
+        	<br/>
+            &nbsp;&nbsp;
+            <a href="addRedmoneyrecordInit.do?tabid=${tabid }" data-toggle="dialog" data-id="addRecommendDialog" data-mask="true" data-width="600" data-height="500" class="btn btn-blue">增加代/现金券</a>&nbsp;&nbsp;
+            <label>用户名：</label><input type="text" value="${userName }" name="userName" class="form-control" maxlength="20" size="20">&nbsp;
+            <label>类型：</label>
+             <select name="redmoneytype" id="redmoneytype" data-toggle="selectpicker">
+                <option value="">请选择</option>
+                <option value="1" ${redmoneytype =='1'?'selected':''}>代金券</option>
+                <option value="2" ${redmoneytype =='2'?'selected':''}>现金券</option>
+            </select>
+            &nbsp;
+            <label>使用状态：</label> 
+            <select name="usestatus" id="usestatus" data-toggle="selectpicker" >
+                <option value="-1">请选择</option>
+                <option value="1" ${usestatus ==1?'selected':''}>未使用</option>
+                <option value="2" ${usestatus ==2?'selected':''}>已使用</option>
+                <option value="3" ${usestatus ==3?'selected':''}>已过期</option>
+            </select>&nbsp;
+            <button type="submit" class="btn-default" data-icon="search">查询</button>&nbsp;
+             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+            <div class="pull-right">
+            </div>
+        </div>
+        <div class="bjui-moreSearch">
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+        <thead>
+            <tr >
+            	<th align="center">序号</th>
+            	<th align="center">类型</th>
+            	<th align="center">券名称</th>
+                <th align="center">用户名</th>
+                <th align="center">金额（元）</th>
+                <th align="center">发放时间</th>
+                <th align="center">使用截止时间</th>
+                <th align="center">使用时间</th>
+                <th align="center">使用状态</th>
+            </tr>
+        </thead>
+        <tbody>
+        <c:set var="count" value="${(pageBean.pageNum-1)*pageBean.pageSize}"></c:set> 
+        	<c:forEach items="${pageBean.page }" var="data" varStatus="status">
+              <tr data-id="65" align="center">
+               <td >${status.index+1+count }</td>
+                <td >
+                 <c:choose>
+					<c:when test="${data.redmoneytype=='1' }">
+						代金券
+					</c:when>
+					<c:otherwise>
+					 现金券
+					</c:otherwise>
+				</c:choose>
+                
+                
+                </td>
+                <td>${data.rbName }</td>
+                <td>${data.username }</td>
+                <td>${data.money }</td>
+                <td><fmt:formatDate value="${data.inserttime }" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+                <td><fmt:formatDate value="${data.useendtime }" pattern="yyyy-MM-dd HH:mm:ss" /> </td>
+                <td><fmt:formatDate value="${data.usetime }" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+                
+                <td>
+                
+                 <c:choose>
+					<c:when test="${data.usestatus==1 }">
+						未使用
+					</c:when>
+					<c:when test="${data.usestatus==2 }">
+						已使用
+					</c:when>
+					
+					<c:otherwise>
+					已过期
+					</c:otherwise>
+				</c:choose>
+                </td>
+                
+            </tr>
+            </c:forEach>
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+            	<option value="20">20</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 ${pageBean.totalNum } 条， 共 ${pageBean.totalPageNum } 页</span>
+    </div>
+    <div class="pagination-box" data-toggle="pagination" data-total="${pageBean.totalNum }" data-page-size="${pageBean.pageSize }" data-page-current="1">
+    </div>
+</div>
+<script type="text/javascript">
+	
+</script>

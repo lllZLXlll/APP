@@ -1,0 +1,23 @@
+<div class="content calculator track-fund">
+    <ul>
+        <li class="track-title">
+            <p>期数</p>
+            <p>月还本息</p>
+            <p>月还本金</p>
+            <p>月还利息</p>
+            <p>本息余额</p>
+        </li>
+        <li v-if="dataLength">
+            <span>暂无明细</span>
+        </li>
+        <template v-for="list in dataList">
+            <li>
+                <p>{{list.mon}}</p>
+                <p>{{list.monForRateA}}</p>
+                <p>{{list.monForA}}</p>
+                <p>{{list.monForRate}}</p>
+                <p>{{list.rateARemain}}</p>
+            </li>
+        </template>
+    </ul>
+</div>

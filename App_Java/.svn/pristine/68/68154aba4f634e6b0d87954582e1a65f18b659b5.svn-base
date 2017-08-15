@@ -1,0 +1,51 @@
+package com.pjzb.service.admin.system;
+
+import java.sql.SQLException;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.SiteInformationDao;
+/**
+ * 站点资料
+ *
+ */
+@Service
+public class AdminSiteDataService extends BaseController {
+	
+	
+
+	@Autowired
+	private SiteInformationDao siteInformationDao;
+	
+	/***************************************************************************
+	 * 查询 站点资料
+	 * 
+	 * @param conn
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, String> querySiteAll() throws Exception {
+		return siteInformationDao.querySiteAll();
+	}
+
+	/**
+	 * 修改
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	public Long updateSiteById(int id, String siteName, String companyName,
+			String postcode, String address, String principal, String contact,
+			String telephone, String cellphone, String fax, String emial,
+			String qq, String servicePhone, String certificate,
+			String regionName) throws SQLException {
+		
+		return siteInformationDao.updateSiteById(id, siteName, companyName, postcode, address, principal, contact,
+					telephone, cellphone, fax, emial, qq, servicePhone,	certificate, regionName);
+	}
+
+
+}

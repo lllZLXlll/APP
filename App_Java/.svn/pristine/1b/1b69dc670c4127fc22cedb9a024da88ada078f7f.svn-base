@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.ApplyDao">
+	
+	<resultMap type="apply" id="applyResultMap">
+		<id column="id" property="id" />
+		<result column="companyname" property="companyname" />
+		<result column="tname" property="tname" />
+		<result column="telephone" property="telephone" />
+		<result column="cityaddress" property="cityaddress" />
+		<result column="borrowAmount" property="borrowAmount" />
+		<result column="deadline" property="deadline" />
+		<result column="borrowPurpose" property="borrowPurpose" />
+		<result column="state" property="state" />
+	</resultMap>
+
+
+	<insert id="insertApply" parameterType="apply">
+		INSERT INTO t_apply(companyname,registnumber,tname,telephone,cityaddress,borrowAmount,deadline,borrowPurpose,state)
+		VALUES(#{companyname},#{registnumber},#{tname},#{telephone},#{cityaddress},#{borrowAmount},#{deadline},#{borrowPurpose},#{state})
+	</insert>
+
+	<delete id="deleteApplyById">
+		DELETE FROM t_apply WHERE id=#{id}
+	</delete>
+
+	<select id="queryborrowfabiao" resultType="map">
+		SELECT * FROM t_apply WHERE 1 = 1
+		<if test="param1 != null and param1 != '' and param1 >= 0">AND state = #{0}</if>
+		<if test="param2 != null and param2 != ''">AND tname LIKE "%"#{1}"%"</if>
+		<if test="param3 != null and param3 != ''">AND telephone LIKE "%"#{2}"%"</if>
+		ORDER BY id DESC LIMIT #{3}, #{4}
+	</select>
+	
+	<select id="queryborrowfabiaoExport" resultType="map">
+		SELECT companyname,registnumber, tname, telephone, cityaddress, borrowAmount, deadline, borrowPurpose, if(state=0,'未处理','已处理') state
+		FROM t_apply 
+	</select>
+
+	<select id="queryborrowfabiaoCount" resultType="long">
+		SELECT count(id) count FROM t_apply WHERE 1 = 1
+		<if test="param1 != null and param1 != '' and param1 >= 0">AND state = #{0}</if>
+		<if test="param2 != null and param2 != ''">AND tname LIKE "%"#{1}"%"</if>
+		<if test="param3 != null and param3 != ''">AND telephone LIKE "%"#{2}"%"</if>
+	</select>
+
+	<delete id="deleteBorrowfabiao">
+		DELETE FROM t_apply WHERE id IN
+		<foreach item="item" index="index" collection="array" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<select id="queryApplyById" resultMap="applyResultMap">
+		SELECT * FROM t_apply WHERE id = #{0}
+	</select>
+	
+	<update id="updateState">
+		UPDATE t_apply SET state = #{1} WHERE id = #{0}
+	</update>
+
+</mapper>
+
+
+
+
+
+
+
+

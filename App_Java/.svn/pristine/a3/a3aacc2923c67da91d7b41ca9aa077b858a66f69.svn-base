@@ -1,0 +1,69 @@
+package com.pjzb.service.admin.user;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AdminDao;
+import com.pjzb.dao.MenuDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 
+ * @describe：管理员列表
+ */
+@Service
+public class AdminManagerListService extends BaseController {
+
+	@Autowired
+	private AdminDao adminDao;
+
+	@Autowired
+	private MenuDao menuDao;
+
+	/**
+	 * 
+	 * @describe:查询管理员列表
+	 * @author: xiaojin
+	 * @param userName
+	 * @param enable
+	 * @param roleId
+	 * @param pageNum
+	 * @param pageSize
+	 * @param model
+	 * @param tabid
+	 * @return
+	 */
+	public String queryAdminList(String userName, Integer enable, Long roleId, Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = ConvertUtil.convertObjToStr(userName);
+			List<Map<String, Object>> list = adminDao.queryAdminList(userName, enable, roleId, (pageNum - 1) * pageSize, pageSize);
+			long count = adminDao.queryAdminCount(userName, enable, roleId);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("enable", enable);
+			model.addAttribute("roleId", roleId);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("group", menuDao.queryRoleList(null, null, false));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询推荐人异常**************************");
+		}
+		return "/admin/user/adminlist/list.jsp";
+	}
+
+}

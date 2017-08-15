@@ -1,0 +1,17 @@
+<div class="content track">
+    <ul>
+        <li class="track-title">
+            <p>投资人</p>
+            <p>金额(元)</p>
+            <p>投资时间</p>
+        </li>
+        <li v-if="dataLength">
+            <span>暂无投资记录</span>
+        </li>
+        <li v-for="list in dataList">
+            <p>{{list.username}}</p>
+            <p>{{list.investAmount}}</p>
+            <p>{{list.investTime}}</p>
+        </li>
+    </ul>
+</div>

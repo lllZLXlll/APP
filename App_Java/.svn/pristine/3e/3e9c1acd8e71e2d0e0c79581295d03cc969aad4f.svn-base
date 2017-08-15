@@ -1,0 +1,103 @@
+<script type="text/javascript" src="src/libs/ZeroClipboard_d5afc46.js"></script>
+<div class="account-right-nav">
+	<div class="sub-a-nav">
+		<a href="javascript:void(0);" class="active tuijian">推荐好友</a>
+		<a href="javascript:void(0);" class="show-tuijian-list">推荐列表</a>
+		<a href="javascript:void(0);" class="fanhui">返回</a>
+	</div>
+	<em class="em-line"></em>
+</div>
+<div class="account-content">
+	<div class="tuiJianShow">
+		<img src="src/images/account/banner_t.png" width="896" height="260"/>
+		<p class="tj-tips">尊敬的用户,您的推荐号为：<span id="uid">100021</span></p>
+		<p class="tj-text">将以下链接地址或推荐号发给您的好友，这样您就成了他的邀请者。</p>
+		<p class="tj-text">1、2017年3月6日起，推荐人每推荐一位好友注册并投资任意一款理财产品满500元以上，推荐人即可获得<span>5元</span>推荐奖励；</p>
+		<p class="tj-text">2、本活动期间推荐人推荐好友注册并累计投资达3万元即可额外返<span>100元</span>推荐奖励，达10万元即可额外返<span>300元</span>推荐奖励。</p>
+		<div class="tj-clip" id="tj-clip">
+			<p class="tj-clip-text" id="tj-clip-text">http://pujinziben.com/reg.do?param=0908f1532850c1c4</p>
+			<button type="button" class="tj-clip-btn"  id="tj-clip-btn">复制链接</button>
+		</div>
+		<div class="tj-icon">
+			<ul>
+				<li>
+					<a href="javascript:;" onMouseover="weixin1();" onMouseleave="weixin2();">
+						<p id="weixin" class="icon icon-weichart"></p>
+					</a>
+					<p>分享到微信</p>
+				</li>
+				<li>
+					<a target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.pujinziben.com&desc=普金资本运营(赣州)有限公司&title=普金资本运营(赣州)有限公司&pics=http://www.pujinziben.com/src/images/logo.png&summary=还不错哦&site=QQ分享&style=201&width=32&height=32" class="about_qq">
+						<p class="icon icon-QQ"></p>
+					</a>
+					<p>分享到QQ</p>
+				</li>
+				<li>
+				  	<a href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://www.pujinziben.com/&title=普金资本运营(赣州)有限公司"> 
+						<p class="icon icon-qzone"></p>
+					</a>
+					<p>分享到QQ空间</p>
+				</li>
+				<li>
+					<a target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.pujinziben.com&title=普金资本运营(赣州)有限公司&appkey=1343713053&searchPic=true" class="about_sina">
+						<p class="icon icon-Sina"></p>
+					</a>
+					<p>分享到新浪微博</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+	
+	<div class="tuijian-list">
+		<div class="account-form cl">
+			<input type="text" class="date icon icon-date"  id="startDate"/>
+			<p class="text">至</p>
+			<input type="text" class="date icon icon-date" id="endDate"/>
+			 <button type="button" class="search" id="cashSearch">搜索</button>
+		</div>
+		<div class="account-list">
+			<ul class="cash-list-box list-box">
+				<li class="title">
+					<div class="children01">用户名</div>
+					<div class="children02">用户创建时间</div>
+					<div class="children03">奖励金额</div>
+					<div class="children04">操作</div>
+				</li>
+			</ul>
+			<ul class="tuijian-list listData">
+			
+			</ul>
+			<ul class="paging">
+			
+			</ul>
+		</div>
+	</div>
+	
+	<div class="investList">
+		<div class="account-form cl">
+			<p class="text" style="width: 120px;">借款发布时间:</p>
+			<input type="text" class="date icon icon-date" autocomplete="off" id="invest-startDate"/>
+			<p class="text">至</p>
+			<input type="text" class="date icon icon-date" autocomplete="off" id="invest-endDate"/>
+			<!-- <input type="text" placeholder="请输入关键字搜索" class="search icon icon-search" /> -->
+			<button type="button" class="search" id="investSearch">搜索</button>
+		</div>
+		<div class="invest-listData invest-listData1">
+			<ul class="investData list-box" >
+				<li class="title">
+					<div class="children0">标题</div>
+					<div class="children1">类型</div>
+					<div class="children2">年利率</div>
+					<div class="children3">期限</div>
+					<div class="children4">还款方式</div>
+					<div class="children5">投资金额</div>
+					<div class="children6">投资时间</div>
+				</li>
+			</ul>
+			<ul class="investData listData">
+			</ul>
+			<ul class="paging">
+			</ul>
+		</div>
+	</div>
+</div>

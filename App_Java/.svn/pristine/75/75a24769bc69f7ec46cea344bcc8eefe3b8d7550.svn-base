@@ -1,0 +1,23 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.BannerDao;
+import com.pjzb.entity.Banner;
+
+
+@Service
+public class BannerService {
+	
+	@Autowired
+	private BannerDao bannerDao;
+	
+	
+	public List<Banner> queryIndexBannerByType(Integer bannerType){
+		return bannerDao.queryIndexBannerByType(bannerType);
+	}
+
+}

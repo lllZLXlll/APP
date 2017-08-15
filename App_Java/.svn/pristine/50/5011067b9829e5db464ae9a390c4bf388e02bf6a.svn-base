@@ -1,0 +1,169 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * NoticeTask entity. @author MyEclipse Persistence Tools
+ */
+
+public class NoticeTask implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private String email;
+	private String telphone;
+	private String mailInfo;
+	private String emailInfo;
+	private String smsInfo;
+	private Long operateId;
+	private String attachment;
+	private Date addTime;
+	private String operateIdentify;
+	private String username;
+	private String SNid;
+	private String sendtitle;
+
+	// Constructors
+
+	/** default constructor */
+	public NoticeTask() {
+	}
+
+	/** full constructor */
+	public NoticeTask(Long userId, String email, String telphone,
+			String mailInfo, String emailInfo, String smsInfo, Long operateId,
+			String attachment, Date addTime, String operateIdentify,
+			String username, String SNid, String sendtitle) {
+		this.userId = userId;
+		this.email = email;
+		this.telphone = telphone;
+		this.mailInfo = mailInfo;
+		this.emailInfo = emailInfo;
+		this.smsInfo = smsInfo;
+		this.operateId = operateId;
+		this.attachment = attachment;
+		this.addTime = addTime;
+		this.operateIdentify = operateIdentify;
+		this.username = username;
+		this.SNid = SNid;
+		this.sendtitle = sendtitle;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getTelphone() {
+		return this.telphone;
+	}
+
+	public void setTelphone(String telphone) {
+		this.telphone = telphone;
+	}
+
+	public String getMailInfo() {
+		return this.mailInfo;
+	}
+
+	public void setMailInfo(String mailInfo) {
+		this.mailInfo = mailInfo;
+	}
+
+	public String getEmailInfo() {
+		return this.emailInfo;
+	}
+
+	public void setEmailInfo(String emailInfo) {
+		this.emailInfo = emailInfo;
+	}
+
+	public String getSmsInfo() {
+		return this.smsInfo;
+	}
+
+	public void setSmsInfo(String smsInfo) {
+		this.smsInfo = smsInfo;
+	}
+
+	public Long getOperateId() {
+		return this.operateId;
+	}
+
+	public void setOperateId(Long operateId) {
+		this.operateId = operateId;
+	}
+
+	public String getAttachment() {
+		return this.attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	}
+
+	public Date getAddTime() {
+		return this.addTime;
+	}
+
+	public void setAddTime(Date addTime) {
+		this.addTime = addTime;
+	}
+
+	public String getOperateIdentify() {
+		return this.operateIdentify;
+	}
+
+	public void setOperateIdentify(String operateIdentify) {
+		this.operateIdentify = operateIdentify;
+	}
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getSNid() {
+		return this.SNid;
+	}
+
+	public void setSNid(String SNid) {
+		this.SNid = SNid;
+	}
+
+	public String getSendtitle() {
+		return this.sendtitle;
+	}
+
+	public void setSendtitle(String sendtitle) {
+		this.sendtitle = sendtitle;
+	}
+
+}

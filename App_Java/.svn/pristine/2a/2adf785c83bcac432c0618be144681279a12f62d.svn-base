@@ -1,0 +1,56 @@
+package com.pjzb.task;
+
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.User;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+@Service
+public class JobAutomaticUnlockAccountService {
+	public static Log log = LogFactory.getLog(JobAutomaticUnlockAccountService.class);
+
+	@Autowired
+	private UserDao userDao;
+
+	/**
+	 * 自动解锁账户
+	 * 
+	 * @xiaojin
+	 */
+	public void autoUnlockAccount() {
+		log.info("--------------自动解锁开始--------------");
+		try {
+			List<User> list = userDao.queryUserByIsLoginLimit(Constants.ISLOGINLIMIT_2);
+			for (User user : list) {
+				Long userId = user.getId();
+				Date loginLimitTime = user.getLoginLimitTime();
+				Date nowTime = new Date();
+				// 锁定时间增加3小时，如果大于当前时间，则解锁账户。
+				java.util.Calendar Cal = java.util.Calendar.getInstance();
+				Cal.setTime(loginLimitTime);
+				Cal.add(java.util.Calendar.HOUR_OF_DAY, 3);
+				log.info(Cal.getTime());
+
+				// 超过3个小时的锁定时间，自动解锁。
+				long diffTime = ConvertUtil.diffTimes(Cal.getTime(), nowTime);
+				if (diffTime > 0) {
+					userDao.updateUserIsLoginLimitById(0, 1, userId);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************自动解锁账户异常**************************");
+		}
+		log.info("--------------自动解锁结束--------------");
+	}
+
+}

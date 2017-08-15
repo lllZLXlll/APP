@@ -1,0 +1,116 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Sms entity. @author MyEclipse Persistence Tools
+ */
+
+public class Sms implements java.io.Serializable {
+
+	// Fields
+
+	private Integer id;
+	private String userId;
+	private String account;
+	private String password;
+	private String url;
+	private Integer status;
+	private Integer type;
+	private String smsoperator;
+	private Date configTime;
+
+	// Constructors
+
+	/** default constructor */
+	public Sms() {
+	}
+
+	/** full constructor */
+	public Sms(String userId, String account, String password, String url, Integer status, Integer type, String smsoperator, Date configTime) {
+		this.userId = userId;
+		this.account = account;
+		this.password = password;
+		this.url = url;
+		this.status = status;
+		this.type = type;
+		this.smsoperator = smsoperator;
+		this.configTime = configTime;
+	}
+
+	// Property accessors
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getAccount() {
+		return this.account;
+	}
+
+	public void setAccount(String account) {
+		this.account = account;
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUrl() {
+		return this.url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Integer getType() {
+		return this.type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public String getSmsoperator() {
+		return this.smsoperator;
+	}
+
+	public void setSmsoperator(String smsoperator) {
+		this.smsoperator = smsoperator;
+	}
+
+	public Date getConfigTime() {
+		return this.configTime;
+	}
+
+	public void setConfigTime(Date configTime) {
+		this.configTime = configTime;
+	}
+
+}

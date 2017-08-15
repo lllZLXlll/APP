@@ -1,0 +1,114 @@
+package com.pjzb.controller.admin;
+
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.extend.AdminSendsmsService;
+import com.pjzb.service.admin.extend.AdminUserOperRecordService;
+
+/**
+ * 扩展管理Controller
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminExtendController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminExtendController.class);
+
+	@Autowired
+	private AdminUserOperRecordService adminUserOperRecordService;
+
+	@Autowired
+	private AdminSendsmsService adminSendsmsService;
+
+	/**
+	 * 用户与管理员操作记录
+	 * 
+	 */
+	@RequestMapping(value = "/queryRecordInit")
+	public String queryRecordInit(Model model, Long pageCurrent, Long pageSize, String startTime, String endTime, String userName,
+			String operation_around) {
+		return adminUserOperRecordService.queryRecordInit(model, pageCurrent, pageSize, startTime, endTime, userName, operation_around);
+	}
+
+	/**
+	 * 
+	 * @describe:短信发送
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/queryUserListInit")
+	public String queryUserListInit(Model model, String tabid, Long pageCurrent, Long pageSize, String userName, String realName) {
+		return adminSendsmsService.queryUserList(model, tabid, pageCurrent, pageSize, userName, realName);
+	}
+
+	/**
+	 * 
+	 * @describe:编辑发送短信内容初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/querySendSMSInfo")
+	public String querySendSMSInfo(Model model, String tabid) {
+		return adminSendsmsService.querySendSMSInfo(model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:保存发送短信内容
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/addsendSMSContent")
+	@ResponseBody
+	public Map<String, Object> addsendSMSContent(Model model, String content, String tabid) {
+		try {
+			return adminSendsmsService.addsendSMSContent(model, content, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "短信内容编辑异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:发送短信给选中用户
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/sendSMSs")
+	@ResponseBody
+	public Map<String, Object> sendSMSs(Model model, String[] cellPhones) {
+		try {
+			return adminSendsmsService.sendSMSs(model, cellPhones);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "短信内容发送异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:发送短信给所有用户
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/sendAllSMS")
+	@ResponseBody
+	public Map<String, Object> sendAllSMS(Model model) {
+		try {
+			return adminSendsmsService.sendAllSMS(model);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "短信内容发送异常", "", "");
+		}
+	}
+
+}

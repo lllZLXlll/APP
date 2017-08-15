@@ -1,0 +1,63 @@
+package com.pjzb.service.admin.identify;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.util.ExcelUtils;
+
+/**
+ * 手机号码绑定
+ * 
+ * @author zlx
+ *
+ */
+@Service
+public class AdminPhoneNumberBindService extends BaseController {
+
+	@Autowired
+	private PersonDao personDao;
+
+	public String updatephoneIndex(Model model, String tabid, Long pageCurrent, Long pageSize, String userName,
+			String starttime, String endtime) {
+		pageCurrent = pageCurrent == null ? 1l : pageCurrent;
+		pageSize = pageSize == null ? 20l : pageSize;
+
+		List<Map<String, Object>> page = personDao.querytelphonePage((pageCurrent - 1) * pageSize, pageSize, userName,
+				starttime, endtime);
+		long count = personDao.querytelphonePageCount(userName, starttime, endtime);
+
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("starttime", starttime);
+		model.addAttribute("endtime", endtime);
+		model.addAttribute("pageBean", new PageBean(pageCurrent, pageSize, count, page));
+
+		return "/admin/identify/phonenumberbind/list.jsp";
+	}
+
+	public void exportupdatephonex(HttpServletResponse response, String userName, String starttime, String endtime) {
+		try {
+			List<Map<String, Object>> applyList = personDao.exportupdatephonex(userName, starttime, endtime);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("手机号码绑定列表", applyList,
+					new String[] { "用户名", "真实姓名", "手机号码", "投标总额（¥元）", "绑定时间" },
+					new String[] { "username", "realName", "cellPhone", "amountall", "requsetTime1" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************手机号码绑定导出异常***************************");
+		}
+	}
+
+}

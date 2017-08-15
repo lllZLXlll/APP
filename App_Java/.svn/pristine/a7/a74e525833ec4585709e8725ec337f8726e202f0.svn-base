@@ -1,0 +1,18 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.GesturesPassword;
+
+public interface GesturesPasswordDao {
+
+	public GesturesPassword queryGesturesPassword(Long userId);
+	
+	public Long addGesturesPassword(GesturesPassword gesturesPassword);
+	
+	public Long updateGesturesPassword(Long userId, String password);
+	
+	public Long closeGesturesPassword(Long userId);
+	
+	public Long openGesturesPassword(Long userId);
+	
+	public Long updateVerifyErrorCount(Long userId, int errorCount,int status);
+}

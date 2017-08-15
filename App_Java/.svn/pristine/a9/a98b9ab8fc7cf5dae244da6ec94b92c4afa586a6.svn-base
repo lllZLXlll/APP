@@ -1,0 +1,77 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * SmsContent entity. @author MyEclipse Persistence Tools
+ */
+
+public class SmsContent implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String content;
+	private Date sendTime;
+	private Integer status;
+	private Long uid;
+
+	// Constructors
+
+	/** default constructor */
+	public SmsContent() {
+	}
+
+	/** full constructor */
+	public SmsContent(String content, Date sendTime, Integer status,
+			Long uid) {
+		this.content = content;
+		this.sendTime = sendTime;
+		this.status = status;
+		this.uid = uid;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getContent() {
+		return this.content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Date getSendTime() {
+		return this.sendTime;
+	}
+
+	public void setSendTime(Date sendTime) {
+		this.sendTime = sendTime;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Long getUid() {
+		return this.uid;
+	}
+
+	public void setUid(Long uid) {
+		this.uid = uid;
+	}
+
+}

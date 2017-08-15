@@ -1,0 +1,31 @@
+define(function (require,exports,module) {
+	
+	var VueComponent = Vue.extend({
+		data:function(){
+			return {
+				listData:[
+				{name:'资金记录',className:'zijin',href:{path:'funddetail'}},
+				{name:'投资明细',className:'touzi',href:{path:'invest'}},
+				{name:'我的赠券',className:'zengquan',href:{path:'coupon'}},
+				{name:'我的银行卡',className:'bankcard',href:{path:'bankcard'}},
+				{name:'邀请好友',className:'haoyou',href:{path:'friend'}}
+				],
+				show:false
+			}
+		},
+		methods:{
+			clear:function(){
+				Storage.clear();
+				router.go({path:'/index'});
+			}
+		},
+		template:'<div class="account-item"><ul class="item-link">'+
+					'<li v-for="list in listData"  :class="[list.classLi]" class="item-table">'+
+						'<a :class="[list.className]" v-link="list.href">{{list.name}}</a>'+
+					'</li>'+
+					'</ul><div class="text-item-submit">'+
+		            '<button type="button" @click="clear" class="btn btn-submit">退出</button>'+
+		            '</div></div>'
+	});
+	module.exports = VueComponent;
+})

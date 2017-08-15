@@ -1,0 +1,182 @@
+var borrowDetailMap = {},debtsDetail={},userInfo={},timeInterval,proTypeId ;
+$(function(){
+	//页面初始化
+	utils.initPage();
+	proTypeId = utils.getUrlParam('id');
+	var param = {
+			debtId:proTypeId
+	}
+	$('.sub-creditor').hide();
+	//获取数据
+	utils.ajax({
+        url:'../front/findDebtsById.do',
+        data:JSON.stringify(param),
+        dataType:'json',
+        success: function(data){
+        	if(data.error == '0'){
+        		borrowDetailMap = data.borrowDetailMap;
+        		debtsDetail = data.debtsDetail;
+        		userInfo = data.userInfo;
+        		//可用余额
+        		if(utils.Storage.getItem('uid')){
+        			$('#canUseSum').text(data.usableSum+'元');
+        			$('.login').remove();
+        		}else{
+        			$('#canUseSum').text('登录后可显示余额');
+        			$('.pay').remove();
+        		}
+        		initData(data);
+        	}
+        }
+	});
+});
+
+
+function initData(data){
+	//标的类型
+	$('#borrowWayName').text(borrowDetailMap.borrowWayName);
+	//标题
+	$('#borrowTitle').text('债权转让('+borrowDetailMap.borrowTitle+')');
+	//转让总额
+	$('#creditor-amt').text(debtsDetail.auctionBasePrice);
+	//预期年化利率
+	$('.rate').text(borrowDetailMap.annualRate);
+	//剩余期限
+	$('#date').text(debtsDetail.debtLimit);
+	//转让总额
+	$('#debtSum').text(debtsDetail.debtSum);
+	//还款方式
+	$('#paymentMode').text(paymentMode(debtsDetail.auctionMode));
+	//原标的期限
+	$('#y-date').text(borrowDetailMap.deadline);
+	//原标的借款总额
+	$('#borrowSum').text(borrowDetailMap.borrowSum);
+	//原始标的详情
+	$('#y-old').attr('href','invest.html?id='+borrowDetailMap.id);
+	//剩余认购时间
+	if(debtsDetail.debtStatus!='2'){
+		$('#publishTime').text('--');
+	}else{
+		//进入倒计时
+		initFundTime(debtsDetail);
+	}
+	//用户名
+	$('#username').text(debtsDetail.username);
+	//手机号
+	$('#mobilePhone').text(debtsDetail.mobilePhone);
+	//注册时间
+	$('#createTime').text(userInfo.createTime);
+	//原标的满标时间
+	$('#auditTime').text(borrowDetailMap.auditTime);
+	setBtnStatus();
+	//认购人
+	var audor = $('.sub-creditor-list-top .bottom');
+	if((data.debtUserMap) != null && debtsDetail.auctionerId!=''){
+//		$('#auctionerId').text(debtsDetail.auctionerId);
+		$('#auctionerId').text(data.debtUserMap.username);
+		$('#auctionHighPrice').text(debtsDetail.auctionHighPrice);
+		$('#auctionEndTime').text(debtsDetail.auctionEndTime);
+	}else{
+		audor.empty();
+		$('<p class="center">暂未被认购</p>').appendTo(audor);
+	}
+	$('.subject-submit-l').fadeIn();
+	$('.subject-submit-r').fadeIn();
+	$('.sub-creditor').fadeIn();
+	$('.btn').click(function(){
+		submit(data.usableSum);
+	});
+}
+//提交
+function submit(usableSum){
+	if(debtsDetail.debtStatus != '2'){return};
+	if(!utils.Storage.getItem('uid')){
+		utils.alert('您还未登录，请先登录！',function(){
+			window.location.href='login.html';
+		});
+		return;
+	};
+	if(parseFloat(usableSum) < parseFloat(debtsDetail.auctionBasePrice) ){
+		utils.alert('可用余额不足，请充值！');
+		return;
+	}
+	var param = {
+			debtId:proTypeId,
+			auctionPrice:debtsDetail.auctionBasePrice
+	}
+	$('.btn').text('认购中...').addClass('disabled');
+	debtsDetail.debtStatus == '99';
+	//提交
+	utils.ajax({
+		url:'../front/buyAuctingDebt.do',
+		data:JSON.stringify(param),
+		success:function(data){
+			if(data.error=='0'){
+				var html = data.html.replace('target="_blank"','');
+				$('#productJump').empty().html(html);
+			}else{
+				utils.alert(data.msg);
+			}
+			$('.btn').text('立即认购').removeClass('disabled');
+			debtsDetail.debtStatus == '2';
+		}
+	})
+	
+}
+//获取还款方式
+function paymentMode(val){
+	if(val==4){
+		$('#paymentMode').text(' 一次性还款');
+	}else if(val==1){
+		$('#paymentMode').text('等额本息'); 
+	}else{
+		$('#paymentMode').text('按月付息，到期还本'); 
+	}
+};
+//设置投标按钮状态
+function setBtnStatus(){
+	var status = debtsDetail.debtStatus;
+	if(status == '3' ){
+		$('.btn').text('转让成功');
+	}else if(debtsDetail.remainDays=="过期"){
+		$('.btn').text('已结束');
+	}else if(status == '2'){
+		$('.btn').text('立即认购').removeClass('disabled');
+	}else if(status == '1'){
+		$('.btn').text('审核中');
+	}else if(status == '4'){
+		$('.btn').text('转让失败');
+	}else if(status == '5'){
+		$('.btn').text('已撤销');
+	}
+};
+//剩余期限倒计时
+function initFundTime(debtsDetail){
+	clearInterval(timeInterval);
+	//var didTime = productDetail.bidTime.replace(/-/g,'/');
+	//var everTime = productDetail.nowDate.replace(/-/g,'/');
+	//var EndTime= new Date(didTime);
+	//var NowTime = new Date(everTime);
+	var t =debtsDetail.remainDays - debtsDetail.curTime;
+	if(t<0){
+		debtsDetail.debtStatus = 100;
+	};
+	timeInterval = setInterval(function(){
+		t = t-1000;
+	    var d=0;
+	    var h=0;
+	    var m=0;
+	    var s=0;
+	    if(t>0){
+	      d=Math.floor(t/1000/60/60/24);
+	      h=Math.floor(t/1000/60/60%24);
+	      m=Math.floor(t/1000/60%60);
+	      s=Math.floor(t/1000%60);
+	      $('#publishTime').text(d+'天'+h+'时'+m+'分'+s+'秒');
+	    }else{
+	      $('.btn').text('--');
+	      debtsDetail.debtStatus = 2;
+	      clearInterval(timeInterval);
+	    }
+	},1000);
+ };

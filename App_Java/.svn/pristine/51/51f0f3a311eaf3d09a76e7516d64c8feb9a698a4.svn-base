@@ -1,0 +1,47 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/about/Dynamicdetail.html');
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			var flag = this.$route.query.flag;
+			if(flag && flag=='1'){
+				this.$set('url','../front/frontNewsDetails.do');
+			}else{
+				this.$set('url','../front/frontMediaReportDetails.do');
+			}
+			utils.setAppConfig('详情',true,false);
+		},
+		route:{
+			data:function(transition){
+				var _this = this;
+				var param={id:_this.$route.query.id};
+				utils.ajax({
+			        url:_this.url,
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(_this.$route.query.flag){
+			        			_this.$set('content',data.paramMap.content);
+				        		_this.$set('title',data.paramMap.title);
+				        		_this.$set('time',data.paramMap.publishTime);
+				        	}else{
+				        		_this.$set('content',data.map.content);
+				        		_this.$set('title',data.map.title);
+				        		_this.$set('time',data.map.publishTime);
+				        	}
+			        	}
+			        },complete:function(){
+			        	transition.next();
+			        }
+			    })
+			},waitForData:true
+		},
+		data:function(){
+			return {
+				content:''
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

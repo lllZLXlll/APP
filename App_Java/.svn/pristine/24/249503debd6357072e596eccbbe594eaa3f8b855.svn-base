@@ -1,0 +1,198 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * BorrowLoanManager entity. @author MyEclipse Persistence Tools
+ */
+
+public class BorrowLoanManager implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long borrowId;
+	private String borrowTitle;
+	private Date visitTime;
+	private Long loanUserId;
+	private String loanMaintenance;
+	private String mainVisitName;
+	private String minorVisitName;
+	private String collectMaterialId;
+	private String materDescription;
+	private String description;
+	private Integer status;
+	private String sitePhotos;
+	private String sitePhotoId;
+	private Date operatingTime;
+	private String corpusIncome;
+	private Integer isIncome;
+
+	// Constructors
+
+	/** default constructor */
+	public BorrowLoanManager() {
+	}
+
+	/** full constructor */
+	public BorrowLoanManager(Long borrowId, String borrowTitle, Date visitTime, Long loanUserId, String loanMaintenance, String mainVisitName, String minorVisitName,
+			String collectMaterialId, String materDescription, String description, Integer status, String sitePhotos, String sitePhotoId, Date operatingTime,
+			String corpusIncome, Integer isIncome) {
+		this.borrowId = borrowId;
+		this.borrowTitle = borrowTitle;
+		this.visitTime = visitTime;
+		this.loanUserId = loanUserId;
+		this.loanMaintenance = loanMaintenance;
+		this.mainVisitName = mainVisitName;
+		this.minorVisitName = minorVisitName;
+		this.collectMaterialId = collectMaterialId;
+		this.materDescription = materDescription;
+		this.description = description;
+		this.status = status;
+		this.sitePhotos = sitePhotos;
+		this.sitePhotoId = sitePhotoId;
+		this.operatingTime = operatingTime;
+		this.corpusIncome = corpusIncome;
+		this.isIncome = isIncome;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public String getBorrowTitle() {
+		return this.borrowTitle;
+	}
+
+	public void setBorrowTitle(String borrowTitle) {
+		this.borrowTitle = borrowTitle;
+	}
+
+	public Date getVisitTime() {
+		return this.visitTime;
+	}
+
+	public void setVisitTime(Date visitTime) {
+		this.visitTime = visitTime;
+	}
+
+	public Long getLoanUserId() {
+		return this.loanUserId;
+	}
+
+	public void setLoanUserId(Long loanUserId) {
+		this.loanUserId = loanUserId;
+	}
+
+	public String getLoanMaintenance() {
+		return this.loanMaintenance;
+	}
+
+	public void setLoanMaintenance(String loanMaintenance) {
+		this.loanMaintenance = loanMaintenance;
+	}
+
+	public String getMainVisitName() {
+		return this.mainVisitName;
+	}
+
+	public void setMainVisitName(String mainVisitName) {
+		this.mainVisitName = mainVisitName;
+	}
+
+	public String getMinorVisitName() {
+		return this.minorVisitName;
+	}
+
+	public void setMinorVisitName(String minorVisitName) {
+		this.minorVisitName = minorVisitName;
+	}
+
+	public String getCollectMaterialId() {
+		return this.collectMaterialId;
+	}
+
+	public void setCollectMaterialId(String collectMaterialId) {
+		this.collectMaterialId = collectMaterialId;
+	}
+
+	public String getMaterDescription() {
+		return this.materDescription;
+	}
+
+	public void setMaterDescription(String materDescription) {
+		this.materDescription = materDescription;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public String getSitePhotos() {
+		return this.sitePhotos;
+	}
+
+	public void setSitePhotos(String sitePhotos) {
+		this.sitePhotos = sitePhotos;
+	}
+
+	public String getSitePhotoId() {
+		return this.sitePhotoId;
+	}
+
+	public void setSitePhotoId(String sitePhotoId) {
+		this.sitePhotoId = sitePhotoId;
+	}
+
+	public Date getOperatingTime() {
+		return this.operatingTime;
+	}
+
+	public void setOperatingTime(Date operatingTime) {
+		this.operatingTime = operatingTime;
+	}
+
+	public String getCorpusIncome() {
+		return this.corpusIncome;
+	}
+
+	public void setCorpusIncome(String corpusIncome) {
+		this.corpusIncome = corpusIncome;
+	}
+
+	public Integer getIsIncome() {
+		return this.isIncome;
+	}
+
+	public void setIsIncome(Integer isIncome) {
+		this.isIncome = isIncome;
+	}
+
+}

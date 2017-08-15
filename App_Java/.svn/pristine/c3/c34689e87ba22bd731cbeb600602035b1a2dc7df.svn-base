@@ -1,0 +1,273 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * AssignmentDebt entity. @author MyEclipse Persistence Tools
+ */
+
+public class AssignmentDebt implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Double debtSum;
+	private Double auctionBasePrice;
+	private Integer debtLimit;
+	private Integer auctionMode;
+	private Date publishTime;
+	private Integer viewCount;
+	private String details;
+	private Integer auctionDays;
+	private Integer debtStatus;
+	private Long borrowId;
+	private Long alienatorId;
+	private Long auctionerId;
+	private Double auctionHighPrice;
+	private Date auctionEndTime;
+	private Date applyTime;
+	private Double manageFee;
+	private Long investId;
+	private Date buyTime;
+	private String ordId;
+	private String pageType;
+	private String downloadUrl;
+	private String viewpdfUrl;
+	private String contractId;
+
+	// Constructors
+
+	/** default constructor */
+	public AssignmentDebt() {
+	}
+
+	/** full constructor */
+	public AssignmentDebt(Double debtSum, Double auctionBasePrice,
+			Integer debtLimit, Integer auctionMode, Date publishTime,
+			Integer viewCount, String details, Integer auctionDays,
+			Integer debtStatus, Long borrowId, Long alienatorId,
+			Long auctionerId, Double auctionHighPrice,
+			Date auctionEndTime, Date applyTime, Double manageFee,
+			Long investId, Date buyTime, String ordId, String pageType,
+			String downloadUrl, String viewpdfUrl, String contractId) {
+		this.debtSum = debtSum;
+		this.auctionBasePrice = auctionBasePrice;
+		this.debtLimit = debtLimit;
+		this.auctionMode = auctionMode;
+		this.publishTime = publishTime;
+		this.viewCount = viewCount;
+		this.details = details;
+		this.auctionDays = auctionDays;
+		this.debtStatus = debtStatus;
+		this.borrowId = borrowId;
+		this.alienatorId = alienatorId;
+		this.auctionerId = auctionerId;
+		this.auctionHighPrice = auctionHighPrice;
+		this.auctionEndTime = auctionEndTime;
+		this.applyTime = applyTime;
+		this.manageFee = manageFee;
+		this.investId = investId;
+		this.buyTime = buyTime;
+		this.ordId = ordId;
+		this.pageType = pageType;
+		this.downloadUrl = downloadUrl;
+		this.viewpdfUrl = viewpdfUrl;
+		this.contractId = contractId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Double getDebtSum() {
+		return this.debtSum;
+	}
+
+	public void setDebtSum(Double debtSum) {
+		this.debtSum = debtSum;
+	}
+
+	public Double getAuctionBasePrice() {
+		return this.auctionBasePrice;
+	}
+
+	public void setAuctionBasePrice(Double auctionBasePrice) {
+		this.auctionBasePrice = auctionBasePrice;
+	}
+
+	public Integer getDebtLimit() {
+		return this.debtLimit;
+	}
+
+	public void setDebtLimit(Integer debtLimit) {
+		this.debtLimit = debtLimit;
+	}
+
+	public Integer getAuctionMode() {
+		return this.auctionMode;
+	}
+
+	public void setAuctionMode(Integer auctionMode) {
+		this.auctionMode = auctionMode;
+	}
+
+	public Date getPublishTime() {
+		return this.publishTime;
+	}
+
+	public void setPublishTime(Date publishTime) {
+		this.publishTime = publishTime;
+	}
+
+	public Integer getViewCount() {
+		return this.viewCount;
+	}
+
+	public void setViewCount(Integer viewCount) {
+		this.viewCount = viewCount;
+	}
+
+	public String getDetails() {
+		return this.details;
+	}
+
+	public void setDetails(String details) {
+		this.details = details;
+	}
+
+	public Integer getAuctionDays() {
+		return this.auctionDays;
+	}
+
+	public void setAuctionDays(Integer auctionDays) {
+		this.auctionDays = auctionDays;
+	}
+
+	public Integer getDebtStatus() {
+		return this.debtStatus;
+	}
+
+	public void setDebtStatus(Integer debtStatus) {
+		this.debtStatus = debtStatus;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Long getAlienatorId() {
+		return this.alienatorId;
+	}
+
+	public void setAlienatorId(Long alienatorId) {
+		this.alienatorId = alienatorId;
+	}
+
+	public Long getAuctionerId() {
+		return this.auctionerId;
+	}
+
+	public void setAuctionerId(Long auctionerId) {
+		this.auctionerId = auctionerId;
+	}
+
+	public Double getAuctionHighPrice() {
+		return this.auctionHighPrice;
+	}
+
+	public void setAuctionHighPrice(Double auctionHighPrice) {
+		this.auctionHighPrice = auctionHighPrice;
+	}
+
+	public Date getAuctionEndTime() {
+		return this.auctionEndTime;
+	}
+
+	public void setAuctionEndTime(Date auctionEndTime) {
+		this.auctionEndTime = auctionEndTime;
+	}
+
+	public Date getApplyTime() {
+		return this.applyTime;
+	}
+
+	public void setApplyTime(Date applyTime) {
+		this.applyTime = applyTime;
+	}
+
+	public Double getManageFee() {
+		return this.manageFee;
+	}
+
+	public void setManageFee(Double manageFee) {
+		this.manageFee = manageFee;
+	}
+
+	public Long getInvestId() {
+		return this.investId;
+	}
+
+	public void setInvestId(Long investId) {
+		this.investId = investId;
+	}
+
+	public Date getBuyTime() {
+		return this.buyTime;
+	}
+
+	public void setBuyTime(Date buyTime) {
+		this.buyTime = buyTime;
+	}
+
+	public String getOrdId() {
+		return this.ordId;
+	}
+
+	public void setOrdId(String ordId) {
+		this.ordId = ordId;
+	}
+
+	public String getPageType() {
+		return this.pageType;
+	}
+
+	public void setPageType(String pageType) {
+		this.pageType = pageType;
+	}
+
+	public String getDownloadUrl() {
+		return this.downloadUrl;
+	}
+
+	public void setDownloadUrl(String downloadUrl) {
+		this.downloadUrl = downloadUrl;
+	}
+
+	public String getViewpdfUrl() {
+		return this.viewpdfUrl;
+	}
+
+	public void setViewpdfUrl(String viewpdfUrl) {
+		this.viewpdfUrl = viewpdfUrl;
+	}
+
+	public String getContractId() {
+		return this.contractId;
+	}
+
+	public void setContractId(String contractId) {
+		this.contractId = contractId;
+	}
+
+}

@@ -1,0 +1,207 @@
+package com.pjzb.service.common;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.NewsDao;
+import com.pjzb.entity.Invest;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.GenerateSequenceNo;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+
+@Service
+public class InvestService {
+	private static Log log = LogFactory.getLog(InvestService.class);
+	
+	@Autowired
+	private InvestDao investDao;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private ChinapnrService chinapnrService;
+	
+	@Autowired
+	private NewsDao newsDao;
+	
+	
+	public Map<String, Object> queryTotalInvestAmount(){
+		return investDao.queryTotalInvestAmount();
+	}
+	
+	public Map<String, Object> queryUserIsInvest(Long userId){
+		return investDao.queryUserIsInvest(userId);
+	}
+
+	public  Invest queryInvestById(Long id){
+		return investDao.queryInvestById(id);
+	}
+	
+	public List<Map<String, Object>> queryInvestRank(){
+		return investDao.queryInvestRank();
+		
+	}
+
+	public PageBean queryInvestByCondition(Long borrowId,Long curPage,Long pageSize,String pageType){
+		List<Map<String, Object>> investListDetail= investDao.queryInvestListByCondition(borrowId, (curPage - 1) *pageSize,pageSize);
+		Map<String, Long> investCount=investDao.queryInvestCountByCondition(borrowId);
+		PageBean pageBean=new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investCount.get("borrowCount"));
+		pageBean.setPage(investListDetail);
+		return pageBean;
+	}
+	
+	public Map<String, BigDecimal> queryInvestAmountWithin15Days(Long userId){
+		return investDao.queryInvestAmountWithin15Days(userId);
+	}
+
+	public Invest queryrInvests(long borrowId, long invest_id) {
+		return investDao.queryrInvests(borrowId, invest_id);
+	}
+	
+	/**
+	 * 根据ID查询投资记录
+	 * @return
+	 */
+	public List<Map<String, Object>> queryInvestByid(Long borrowId){
+		return investDao.queryInvestByid(borrowId);
+		
+	}
+	
+	public void addBorrowInvest(Map<String, Object> map){
+		investDao.addBorrowInvest(map);
+	}
+	
+	/**
+	 * 投标-代金券
+	 * @param id
+	 * @param ordid
+	 * @param userId
+	 * @param string
+	 * @param investAmount
+	 * @param vocherAmt
+	 * @param basePath
+	 * @param userName
+	 * @param status
+	 * @param num
+	 * @param pMerBillNo
+	 * @param pIpsBillNo
+	 * @param investId
+	 * @param in_isAutoBid
+	 * @param usrCustId
+	 * @param bgRetUrl
+	 * @param amtDjq
+	 * @param pagetype
+	 * @return
+	 * @throws Exception
+	 */
+	public long updateAccountInvest(long id, long ordid, long userId, String string, double investAmount,
+			double vocherAmt, String basePath, String userName, int status, int num, String pMerBillNo,
+			String pIpsBillNo, String investId, int in_isAutoBid, long usrCustId, String bgRetUrl, long amtDjq,
+			String pagetype) throws Exception {
+		long ret = -1;
+		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> userMap = new HashMap<String, String>();
+		List<Object> outValues = new ArrayList<Object>();
+		long result = -1;
+		// 冻结投标金额
+		double voAmt = investAmount - vocherAmt;
+		String cherAmt = new DecimalFormat("0.00").format(voAmt);
+		String transAmt = new DecimalFormat("0.00").format(investAmount);
+		String merPriv = "UsrFreezeBg";
+		String ordId = GenerateSequenceNo.generateSequenceNo();
+		JSONObject json = JSONObject.fromObject(ChinapnrInterface.usrFreezeBg(usrCustId + "", "", "", ordId, cherAmt, bgRetUrl, merPriv));
+		log.info("投标冻结结果参数：" + json);
+		log.info("投标冻结投标金额处理结果：" + java.net.URLDecoder.decode(json.getString("RespDesc"), "UTF-8"));
+		if (json.getInt("RespCode") != 0) {
+			// 冻结失败处理
+			deleteBorrowInvest(pMerBillNo);
+			map.put("ret", "-10010");
+			map.put("ret_desc", "投标冻结失败：" + java.net.URLDecoder.decode(json.getString("RespDesc"), "UTF-8"));
+			return -1;
+		}
+
+		pIpsBillNo = json.getString("TrxId"); // 冻结流水号
+
+		log.info("投标成功后平台处理参数==== id:" + id + ",ordid:" + ordid + ",userId:" + userId + ",basePath:" + basePath
+				+ ",investAmount:" + investAmount + ",vocherAmt:" + vocherAmt + ",status:" + status + ",num:" + num
+				+ ",pMerBillNo:" + pMerBillNo + ",pIpsBillNo:" + pIpsBillNo + ",investId:" + investId
+				+ ",in_isAutoBid:" + in_isAutoBid + ",amtDjq:" + amtDjq + ",pageType" + pagetype); 
+		ret = Convert.strToLong(outValues.get(0) + "", -1);
+		map.put("ret", ret + "");
+		map.put("ret_desc", outValues.get(1) + "");
+		userService.updateSign(userId);// 更换校验码
+		if (ret <= 0) {
+			// 失败上汇付解冻投资人的投标冻结金额
+			String merPriv1 = "UsrUnFreeze";
+			String jsonStr = ChinapnrInterface.usrUnFreeze(json.getString("TrxId"), json.getString("TrxId"),
+					bgRetUrl, merPriv1);
+			JSONObject jsonFree = JSONObject.fromObject(jsonStr);
+			log.info("投标平台执行失败:" + map.get("ret_desc") + ",解冻投标金额处理结果："
+					+ java.net.URLDecoder.decode(jsonFree.getString("RespDesc"), "UTF-8"));
+//		} else {
+//			userMap = userDao.queryUserById(userId);
+		}
+		return ret;
+
+	}
+	
+	/**
+	 * 删除投资记录
+	 * 
+	 * @param ordId
+	 * @return
+	 * @throws SQLException
+	 *             [参数说明]
+	 * 
+	 * @return long [返回类型说明]
+	 * @exception throws
+	 *                [违例类型] [违例说明]
+	 * @see [类、类#方法、类#成员]
+	 */
+	public long deleteBorrowInvest(String ordId){ 
+		try {
+			long ret = investDao.deleteBorrowInvest(ordId);
+			if (ret > 0) { 
+				return ret;
+			} 
+		} catch (Exception e) { 
+			e.printStackTrace();
+		} finally { 
+			
+		}
+		return -1L;
+	}
+
+	public List<Map<String, Object>> queryBorrowInvestByCondition(String string, String title, String publishTimeStart, String publishTimeEnd, String borrowStatus, Long userId, long l, int pageSize) {
+		return investDao.queryBorrowInvestByCondition(string, title, publishTimeStart, publishTimeEnd, borrowStatus, userId, l, pageSize);
+	}
+
+	public Long queryBorrowInvestcount(String string, String title, String publishTimeStart, String publishTimeEnd, String borrowStatus, Long userId) {
+		return investDao.queryBorrowInvestcount(string, title, publishTimeStart, publishTimeEnd, borrowStatus, userId);
+	}
+	
+	
+}

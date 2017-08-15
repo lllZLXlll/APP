@@ -1,0 +1,131 @@
+package com.pjzb.service.admin.borrow;
+
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.util.Constants;
+import com.shove.Convert;
+
+/**
+ * 待审核的借款，招标中的借款,流标的借款
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminBorrowingService extends BaseController{
+
+	@Autowired
+	private BorrowDao borrowDao;
+	/**
+	 * 后台借款招标中的记录
+	 * @param model
+	 * @param id
+	 * @param status
+	 * @param auditOpinion
+	 * @param tabid
+	 * @param session
+	 * @return
+	 */
+	public String borrowTenderIn(Model model,Long pageNum,Long pageSize,String userName, Long borrowWay, String tabid){
+
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" : userName;
+			borrowWay = borrowWay == null ? -1 : borrowWay;
+
+			List<Map<String, Object>> payList = borrowDao.borrowTenderIn(userName, borrowWay, (pageNum-1)*pageSize,pageSize);
+
+			Long borrowTenderInCount = borrowDao.borrowTenderInCount(userName, borrowWay);
+			
+			Map<String, Object> repaymentMap = borrowDao.queryBorrowTotalTenderDetail();
+			// 统计当前页等待
+			double tenderAmount = 0;
+			if (payList != null) {
+				for (Map<String, Object> map : payList) {
+					tenderAmount = tenderAmount + Convert.strToDouble(map.get("borrowAmount") + "", 0);
+				}
+			}
+			DecimalFormat fmt = new DecimalFormat("0.00");	
+
+			PageBean pageBean=new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPage(payList);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(borrowTenderInCount);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("repaymentMap", repaymentMap);
+			model.addAttribute("tenderAmount", fmt.format(tenderAmount));
+			model.addAttribute("pageNum",  pageNum);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询借款招标中的记录异常********************");
+		}
+
+		return "/admin/borrow/borrowing/tenderinlist.jsp";
+	}
+	
+	/**
+	 * 后台借款流标的记录
+	 * @return
+	 */
+	public String borrowFlowMark(Model model,Long pageNum,Long pageSize,String userName, Long borrowWay, String tabid){
+
+		try {
+
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" : userName;
+			borrowWay = borrowWay == null ? -1 : borrowWay;
+
+			List<Map<String, Object>> payList = borrowDao.borrowFlowMark(userName, borrowWay, (pageNum-1)*pageSize,pageSize);
+			
+			
+			Long borrowTenderInCount = borrowDao.borrowFlowMarkCount(userName, borrowWay);
+			
+			Map<String, Object> repaymentMap = borrowDao.queryBorrowFlowMarkDetail();
+
+			// 统计当前页等待
+			double flowmarkAmount = 0;
+			if (payList != null) {
+				for (Map<String, Object> map : payList) {
+					flowmarkAmount = flowmarkAmount + Convert.strToDouble(map.get("borrowAmount") + "", 0);
+				}
+			}
+			DecimalFormat fmt = new DecimalFormat("0.00");	
+
+			PageBean pageBean=new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPage(payList);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(borrowTenderInCount);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("repaymentMap", repaymentMap);
+			model.addAttribute("flowmarkAmount", fmt.format(flowmarkAmount));
+			model.addAttribute("pageNum",  pageNum);
+			model.addAttribute("tabid", tabid);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询借款流标的记录异常********************");
+		}
+		return "/admin/borrow/borrowing/flowmarklist.jsp";
+	}
+
+
+}

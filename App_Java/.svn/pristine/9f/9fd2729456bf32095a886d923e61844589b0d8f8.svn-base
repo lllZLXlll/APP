@@ -1,0 +1,165 @@
+package com.pjzb.task;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.util.Constants;
+
+public class JobTask extends BaseController {
+	public static Log log = LogFactory.getLog(JobTask.class);
+
+	@Autowired
+	private JonDealOverdueDebtsService jonDealOverdueDebtsService;
+
+	@Autowired
+	private JobAutomaticRepayService jobAutomaticRepayService;
+
+	@Autowired
+	private JobSendRepayInfoToBorrowerService jobSendRepayInfoToBorrowerService;
+
+	@Autowired
+	private JobDealOverdueBorrowService jobDealOverdueBorrowService;
+
+	@Autowired
+	private JobCreateOperateReportService jobCreateOperateReportService;
+
+	@Autowired
+	private JobAutomaticUnlockAccountService jobAutomaticUnlockAccountService;
+
+	@Autowired
+	private JobCreateBorrowInspectionService jobCreateBorrowInspectionService;
+
+	@Autowired
+	private JobPendingReleaseLoanService jobPendingReleaseLoanService;
+
+	@Autowired
+	private JobAutoGrantExGoInterestService jobAutoGrantExGoInterestService;
+
+	@Autowired
+	private JobBeOverdueRepaymentService jobBeOverdueRepaymentService;
+
+	@Autowired
+	private JobRepayInfoCollectService jobRepayInfoCollectService;
+
+	@Autowired
+	private JobUpdateUnuseRedmoneyrecordService jobUpdateUnuseRedmoneyrecordService;
+
+	@Autowired
+	private JobAddExGoQuotaService jobAddExGoQuotaService;
+
+	@Autowired
+	private JobCreateRongTuWangDataService jobCreateRongTuWangDataService;
+	
+	@Autowired
+	private JobDebitReconciliationService jobDebitReconciliationService;
+	
+	@Autowired
+	private JobActivityService jobActivityService;
+	
+	
+	/**
+	 * 每五分钟定时器
+	 * 
+	 */
+	public void timeMinutesTask() {
+//		log.info("--------------每五分钟任务开始--------------");
+//
+//		// 距还款日期有7、3、1天且用户余额不足时，发短信提醒用户
+//		if (Constants.ISDEMO.equals(Constants.ISDEMO_2)) {
+//			jobSendRepayInfoToBorrowerService.sendMsgToBorrow();
+//		}
+//
+//		// 处理过期借款
+//		jobDealOverdueBorrowService.dealOverdueBorrow();
+//
+//		// 处理过期债权
+//		jonDealOverdueDebtsService.dealDueDebt();
+//
+//		// 自动解锁
+//		jobAutomaticUnlockAccountService.autoUnlockAccount();
+//
+//		// 自动还款
+//		jobAutomaticRepayService.autoRepayPayment();
+//
+//		// 自动发放体验金利息给用户
+//		jobAutoGrantExGoInterestService.autoGrantExGoInterest();
+//		log.info("--------------每五分钟任务结束--------------");
+	}
+
+	/**
+	 * 每天00:00:00定时器
+	 * 
+	 */
+	public void dayZeroClockTask() throws Exception {
+//		log.info("--------------每天00:00:00任务开始--------------");
+//		// 待发布借款
+//		jobPendingReleaseLoanService.updateWaitPublishBorrow();
+//
+//		// 逾期的还款
+//		jobBeOverdueRepaymentService.updateOverDueRepayment();
+//		
+//		// 逾期的投资还款记录
+//		jobBeOverdueRepaymentService.updateOverDueInvestRepayment();
+//		
+//		// 放还款对账
+//		jobRepayInfoCollectService.addReconciliation("LOANS");
+//		jobRepayInfoCollectService.addReconciliation("REPAYMENT");
+//
+//		// 未使用且过期的代、现金券改为过期状态
+//		jobUpdateUnuseRedmoneyrecordService.updateRedmoneyrecord();
+//
+//		// 生成融图网统计信息
+//		jobCreateRongTuWangDataService.createRongTuWangData();
+//
+//		// 汇付扣款对账 zlx
+//		jobDebitReconciliationService.addTrfReconciliation();
+//		// 汇付取现对账 zlx
+//		jobDebitReconciliationService.addCashReconciliation();
+//		// ------------------活动------------------------
+//		// 活动1 zlx
+//		// jobActivityService.insertNewUserFirstInvestAward();
+//		// 活动2 zlx
+//		// jobActivityService.insertRobBorrowAward();
+//		// 活动3 zlx
+//		// jobActivityService.insertOldUserAward();
+//		// 活动4 zlx
+//		jobActivityService.insertInviteAward();
+//		// 活动5 zlx
+//		// jobActivityService.insertCumulateInviteAward();
+//		// ------------------活动------------------------
+//		log.info("--------------每天00:00:00任务结束--------------");
+	}
+
+	/**
+	 * 每天09:00:00定时器
+	 * 
+	 */
+	public void dayNineClockTask() {
+//		log.info("--------------每天09:00:00任务开始--------------");
+//
+//		// 添加20个体验金的名额
+//		jobAddExGoQuotaService.updatExGoAccount();
+//
+//		log.info("--------------每天09:00:00任务结束--------------");
+
+	}
+
+	/**
+	 * 每月1号00:00:00定时定时器
+	 * 
+	 */
+	public void monthZeroClockTask() {
+//		log.info("--------------每月1号00:00:00定时任务开始--------------");
+//
+//		// 生成月检任务
+//		jobCreateBorrowInspectionService.createBorrowInspection();
+//
+//		// 生成运营数据任务
+//		jobCreateOperateReportService.createOperateReport();
+//
+//		log.info("--------------每月1号00:00:00定时任务结束--------------");
+	}
+
+}

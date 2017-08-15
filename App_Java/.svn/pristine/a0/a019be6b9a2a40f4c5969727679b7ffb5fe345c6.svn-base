@@ -1,0 +1,50 @@
+package com.pjzb.service.admin.identify;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.util.Constants;
+import com.shove.Convert;
+/**
+ * 基本信息审核
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminBasicInfoAuthenService extends BaseController {
+
+	@Autowired
+	private PersonDao personDao;
+	
+	public String queryPersonInfoListForPage(Model model, String tabid, Long pageNum, Long pageSize, String userName, String realName, String serviceManName,
+			String auditStatus, String certificateName) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_15 : pageSize;
+			int auditStatu = Convert.strToInt(auditStatus, -1);
+			int certificateNam = Convert.strToInt(certificateName, -1);
+			List<Map<String, Object>> list = personDao.queryPersonInfoListForPage((pageNum - 1) * pageSize, pageSize,userName,realName,serviceManName,auditStatu,certificateNam,true);
+			long count = personDao.queryPersonInfoListCount(userName,realName,serviceManName,auditStatu,certificateNam);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询登入统计异常**************************");
+		}
+		return "/admin/identify/basicinfoauthen/list.jsp";
+	}
+
+}

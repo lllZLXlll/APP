@@ -1,0 +1,253 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * ExGoRepayment entity. @author MyEclipse Persistence Tools
+ */
+
+public class ExGoRepayment implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Date repayDate;
+	private Date realRepayDate;
+	private String repayPeriod;
+	private Double hasPi;
+	private Double stillPrincipal;
+	private Double stillInterest;
+	private Double hasFi;
+	private Double lateFi;
+	private Integer lateDay;
+	private Integer repayStatus;
+	private Long borrowId;
+	private Integer isLate;
+	private Integer isWebRepay;
+	private Double investorForpayFi;
+	private Double investorHaspayFi;
+	private Double principalBalance;
+	private Double interestBalance;
+	private Integer version;
+	private Date executeTime;
+	private String identify;
+	private String orId;
+
+	// Constructors
+
+	/** default constructor */
+	public ExGoRepayment() {
+	}
+
+	/** full constructor */
+	public ExGoRepayment(Date repayDate, Date realRepayDate,
+			String repayPeriod, Double hasPi, Double stillPrincipal,
+			Double stillInterest, Double hasFi, Double lateFi, Integer lateDay,
+			Integer repayStatus, Long borrowId, Integer isLate,
+			Integer isWebRepay, Double investorForpayFi,
+			Double investorHaspayFi, Double principalBalance,
+			Double interestBalance, Integer version, Date executeTime,
+			String identify, String orId) {
+		this.repayDate = repayDate;
+		this.realRepayDate = realRepayDate;
+		this.repayPeriod = repayPeriod;
+		this.hasPi = hasPi;
+		this.stillPrincipal = stillPrincipal;
+		this.stillInterest = stillInterest;
+		this.hasFi = hasFi;
+		this.lateFi = lateFi;
+		this.lateDay = lateDay;
+		this.repayStatus = repayStatus;
+		this.borrowId = borrowId;
+		this.isLate = isLate;
+		this.isWebRepay = isWebRepay;
+		this.investorForpayFi = investorForpayFi;
+		this.investorHaspayFi = investorHaspayFi;
+		this.principalBalance = principalBalance;
+		this.interestBalance = interestBalance;
+		this.version = version;
+		this.executeTime = executeTime;
+		this.identify = identify;
+		this.orId = orId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Date getRepayDate() {
+		return this.repayDate;
+	}
+
+	public void setRepayDate(Date repayDate) {
+		this.repayDate = repayDate;
+	}
+
+	public Date getRealRepayDate() {
+		return this.realRepayDate;
+	}
+
+	public void setRealRepayDate(Date realRepayDate) {
+		this.realRepayDate = realRepayDate;
+	}
+
+	public String getRepayPeriod() {
+		return this.repayPeriod;
+	}
+
+	public void setRepayPeriod(String repayPeriod) {
+		this.repayPeriod = repayPeriod;
+	}
+
+	public Double getHasPi() {
+		return this.hasPi;
+	}
+
+	public void setHasPi(Double hasPi) {
+		this.hasPi = hasPi;
+	}
+
+	public Double getStillPrincipal() {
+		return this.stillPrincipal;
+	}
+
+	public void setStillPrincipal(Double stillPrincipal) {
+		this.stillPrincipal = stillPrincipal;
+	}
+
+	public Double getStillInterest() {
+		return this.stillInterest;
+	}
+
+	public void setStillInterest(Double stillInterest) {
+		this.stillInterest = stillInterest;
+	}
+
+	public Double getHasFi() {
+		return this.hasFi;
+	}
+
+	public void setHasFi(Double hasFi) {
+		this.hasFi = hasFi;
+	}
+
+	public Double getLateFi() {
+		return this.lateFi;
+	}
+
+	public void setLateFi(Double lateFi) {
+		this.lateFi = lateFi;
+	}
+
+	public Integer getLateDay() {
+		return this.lateDay;
+	}
+
+	public void setLateDay(Integer lateDay) {
+		this.lateDay = lateDay;
+	}
+
+	public Integer getRepayStatus() {
+		return this.repayStatus;
+	}
+
+	public void setRepayStatus(Integer repayStatus) {
+		this.repayStatus = repayStatus;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Integer getIsLate() {
+		return this.isLate;
+	}
+
+	public void setIsLate(Integer isLate) {
+		this.isLate = isLate;
+	}
+
+	public Integer getIsWebRepay() {
+		return this.isWebRepay;
+	}
+
+	public void setIsWebRepay(Integer isWebRepay) {
+		this.isWebRepay = isWebRepay;
+	}
+
+	public Double getInvestorForpayFi() {
+		return this.investorForpayFi;
+	}
+
+	public void setInvestorForpayFi(Double investorForpayFi) {
+		this.investorForpayFi = investorForpayFi;
+	}
+
+	public Double getInvestorHaspayFi() {
+		return this.investorHaspayFi;
+	}
+
+	public void setInvestorHaspayFi(Double investorHaspayFi) {
+		this.investorHaspayFi = investorHaspayFi;
+	}
+
+	public Double getPrincipalBalance() {
+		return this.principalBalance;
+	}
+
+	public void setPrincipalBalance(Double principalBalance) {
+		this.principalBalance = principalBalance;
+	}
+
+	public Double getInterestBalance() {
+		return this.interestBalance;
+	}
+
+	public void setInterestBalance(Double interestBalance) {
+		this.interestBalance = interestBalance;
+	}
+
+	public Integer getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+
+	public Date getExecuteTime() {
+		return this.executeTime;
+	}
+
+	public void setExecuteTime(Date executeTime) {
+		this.executeTime = executeTime;
+	}
+
+	public String getIdentify() {
+		return this.identify;
+	}
+
+	public void setIdentify(String identify) {
+		this.identify = identify;
+	}
+
+	public String getOrId() {
+		return this.orId;
+	}
+
+	public void setOrId(String orId) {
+		this.orId = orId;
+	}
+
+}

@@ -1,0 +1,911 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Borrow entity. @author MyEclipse Persistence Tools
+ */
+
+public class Borrow implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String borrowTitle;
+	private String imgPath;
+	private Integer borrowWay;
+	private Integer hetong;
+	private String borrowInfo;
+	private Integer deadline;
+	private Integer paymentMode;
+	private Double borrowAmount;
+	private Double annualRate;
+	private Double minTenderedSum;
+	private Double maxTenderedSum;
+	private Integer raiseTerm;
+	private String detail;
+	private Integer tradeType;
+	private Long publisher;
+	private Integer excitationType;
+	private Integer visitors;
+	private Date remainTimeStart;
+	private String auditOpinion;
+	private Integer borrowStatus;
+	private Double excitationSum;
+	private Integer excitationMode;
+	private Double hasInvestAmount;
+	private Integer investNum;
+	private Integer purpose;
+	private Integer hasPwd;
+	private String investPwd;
+	private Date publishTime;
+	private String publishIp;
+	private Date remainTimeEnd;
+	private Date auditTime;
+	private Integer hasDeadline;
+	private Integer isAutoBid;
+	private Double manageFee;
+	private Integer isDayThe;
+	private Date autoBidEnableTime;
+	private Integer version;
+	private Double frozenMargin;
+	private Double smallestFlowUnit;
+	private Integer circulationNumber;
+	private Integer hasCirculationNumber;
+	private String nidLog;
+	private Integer sort;
+	private String feestate;
+	private String feelog;
+	private String businessDetail;
+	private String assets;
+	private String moneyPurposes;
+	private Integer circulationMode;
+	private Integer circulationStatus;
+	private Long undertaker;
+	private Integer borrowShow;
+	private Integer hasRepoNumber;
+	private String agent;
+	private String counterAgent;
+	private Double amountScale;
+	private Integer borrowType;
+	private Integer publisherWay;
+	private Integer authCount;
+	private String billcode;
+	private String trxId;
+	private Integer loansOk;
+	private Integer unfreeOk;
+	private Integer borrowTypeSubId;
+	private String projectScore;
+	private String retsource;
+	private Long batchId;
+	private String contractId;
+	private Short isShow;
+	private String projectIntro;
+	private String safeMeasures;
+	private Date bidTime;
+	private String showRate;
+	private String projectAddress;
+	private Long behalfUserId;
+	private Long loanUserId;
+	private Integer groupid;
+	private Long loan2userId;
+	private Date pushdate;
+	private String pushstate;
+	private Integer recommend;
+	private Integer transferable;
+	private Integer auditStatus;
+	private String auditRemark;
+	private Integer adminId;
+
+	// Constructors
+
+	/** default constructor */
+	public Borrow() {
+	}
+
+	/** full constructor */
+	public Borrow(String borrowTitle, String imgPath, Integer borrowWay,
+			Integer hetong, String borrowInfo, Integer deadline,
+			Integer paymentMode, Double borrowAmount, Double annualRate,
+			Double minTenderedSum, Double maxTenderedSum, Integer raiseTerm,
+			String detail, Integer tradeType, Long publisher,
+			Integer excitationType, Integer visitors,
+			Date remainTimeStart, String auditOpinion,
+			Integer borrowStatus, Double excitationSum, Integer excitationMode,
+			Double hasInvestAmount, Integer investNum, Integer purpose,
+			Integer hasPwd, String investPwd, Date publishTime,
+			String publishIp, Date remainTimeEnd, Date auditTime,
+			Integer hasDeadline, Integer isAutoBid, Double manageFee,
+			Integer isDayThe, Date autoBidEnableTime, Integer version,
+			Double frozenMargin, Double smallestFlowUnit,
+			Integer circulationNumber, Integer hasCirculationNumber,
+			String nidLog, Integer sort, String feestate, String feelog,
+			String businessDetail, String assets, String moneyPurposes,
+			Integer circulationMode, Integer circulationStatus,
+			Long undertaker, Integer borrowShow, Integer hasRepoNumber,
+			String agent, String counterAgent, Double amountScale,
+			Integer borrowType, Integer publisherWay, Integer authCount,
+			String billcode, String trxId, Integer loansOk, Integer unfreeOk,
+			Integer borrowTypeSubId, String projectScore, String retsource,
+			Long batchId, String contractId, Short isShow, String projectIntro,
+			String safeMeasures, Date bidTime, String showRate,
+			String projectAddress, Long behalfUserId, Long loanUserId,
+			Integer groupid, Long loan2userId, Date pushdate,
+			String pushstate, Integer recommend, Integer transferable) {
+		this.borrowTitle = borrowTitle;
+		this.imgPath = imgPath;
+		this.borrowWay = borrowWay;
+		this.hetong = hetong;
+		this.borrowInfo = borrowInfo;
+		this.deadline = deadline;
+		this.paymentMode = paymentMode;
+		this.borrowAmount = borrowAmount;
+		this.annualRate = annualRate;
+		this.minTenderedSum = minTenderedSum;
+		this.maxTenderedSum = maxTenderedSum;
+		this.raiseTerm = raiseTerm;
+		this.detail = detail;
+		this.tradeType = tradeType;
+		this.publisher = publisher;
+		this.excitationType = excitationType;
+		this.visitors = visitors;
+		this.remainTimeStart = remainTimeStart;
+		this.auditOpinion = auditOpinion;
+		this.borrowStatus = borrowStatus;
+		this.excitationSum = excitationSum;
+		this.excitationMode = excitationMode;
+		this.hasInvestAmount = hasInvestAmount;
+		this.investNum = investNum;
+		this.purpose = purpose;
+		this.hasPwd = hasPwd;
+		this.investPwd = investPwd;
+		this.publishTime = publishTime;
+		this.publishIp = publishIp;
+		this.remainTimeEnd = remainTimeEnd;
+		this.auditTime = auditTime;
+		this.hasDeadline = hasDeadline;
+		this.isAutoBid = isAutoBid;
+		this.manageFee = manageFee;
+		this.isDayThe = isDayThe;
+		this.autoBidEnableTime = autoBidEnableTime;
+		this.version = version;
+		this.frozenMargin = frozenMargin;
+		this.smallestFlowUnit = smallestFlowUnit;
+		this.circulationNumber = circulationNumber;
+		this.hasCirculationNumber = hasCirculationNumber;
+		this.nidLog = nidLog;
+		this.sort = sort;
+		this.feestate = feestate;
+		this.feelog = feelog;
+		this.businessDetail = businessDetail;
+		this.assets = assets;
+		this.moneyPurposes = moneyPurposes;
+		this.circulationMode = circulationMode;
+		this.circulationStatus = circulationStatus;
+		this.undertaker = undertaker;
+		this.borrowShow = borrowShow;
+		this.hasRepoNumber = hasRepoNumber;
+		this.agent = agent;
+		this.counterAgent = counterAgent;
+		this.amountScale = amountScale;
+		this.borrowType = borrowType;
+		this.publisherWay = publisherWay;
+		this.authCount = authCount;
+		this.billcode = billcode;
+		this.trxId = trxId;
+		this.loansOk = loansOk;
+		this.unfreeOk = unfreeOk;
+		this.borrowTypeSubId = borrowTypeSubId;
+		this.projectScore = projectScore;
+		this.retsource = retsource;
+		this.batchId = batchId;
+		this.contractId = contractId;
+		this.isShow = isShow;
+		this.projectIntro = projectIntro;
+		this.safeMeasures = safeMeasures;
+		this.bidTime = bidTime;
+		this.showRate = showRate;
+		this.projectAddress = projectAddress;
+		this.behalfUserId = behalfUserId;
+		this.loanUserId = loanUserId;
+		this.groupid = groupid;
+		this.loan2userId = loan2userId;
+		this.pushdate = pushdate;
+		this.pushstate = pushstate;
+		this.recommend = recommend;
+		this.transferable = transferable;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getBorrowTitle() {
+		return this.borrowTitle;
+	}
+
+	public void setBorrowTitle(String borrowTitle) {
+		this.borrowTitle = borrowTitle;
+	}
+
+	public String getImgPath() {
+		return this.imgPath;
+	}
+
+	public void setImgPath(String imgPath) {
+		this.imgPath = imgPath;
+	}
+
+	public Integer getBorrowWay() {
+		return this.borrowWay;
+	}
+
+	public void setBorrowWay(Integer borrowWay) {
+		this.borrowWay = borrowWay;
+	}
+
+	public Integer getHetong() {
+		return this.hetong;
+	}
+
+	public void setHetong(Integer hetong) {
+		this.hetong = hetong;
+	}
+
+	public String getBorrowInfo() {
+		return this.borrowInfo;
+	}
+
+	public void setBorrowInfo(String borrowInfo) {
+		this.borrowInfo = borrowInfo;
+	}
+
+	public Integer getDeadline() {
+		return this.deadline;
+	}
+
+	public void setDeadline(Integer deadline) {
+		this.deadline = deadline;
+	}
+
+	public Integer getPaymentMode() {
+		return this.paymentMode;
+	}
+
+	public void setPaymentMode(Integer paymentMode) {
+		this.paymentMode = paymentMode;
+	}
+
+	public Double getBorrowAmount() {
+		return this.borrowAmount;
+	}
+
+	public void setBorrowAmount(Double borrowAmount) {
+		this.borrowAmount = borrowAmount;
+	}
+
+	public Double getAnnualRate() {
+		return this.annualRate;
+	}
+
+	public void setAnnualRate(Double annualRate) {
+		this.annualRate = annualRate;
+	}
+
+	public Double getMinTenderedSum() {
+		return this.minTenderedSum;
+	}
+
+	public void setMinTenderedSum(Double minTenderedSum) {
+		this.minTenderedSum = minTenderedSum;
+	}
+
+	public Double getMaxTenderedSum() {
+		return this.maxTenderedSum;
+	}
+
+	public void setMaxTenderedSum(Double maxTenderedSum) {
+		this.maxTenderedSum = maxTenderedSum;
+	}
+
+	public Integer getRaiseTerm() {
+		return this.raiseTerm;
+	}
+
+	public void setRaiseTerm(Integer raiseTerm) {
+		this.raiseTerm = raiseTerm;
+	}
+
+	public String getDetail() {
+		return this.detail;
+	}
+
+	public void setDetail(String detail) {
+		this.detail = detail;
+	}
+
+	public Integer getTradeType() {
+		return this.tradeType;
+	}
+
+	public void setTradeType(Integer tradeType) {
+		this.tradeType = tradeType;
+	}
+
+	public Long getPublisher() {
+		return this.publisher;
+	}
+
+	public void setPublisher(Long publisher) {
+		this.publisher = publisher;
+	}
+
+	public Integer getExcitationType() {
+		return this.excitationType;
+	}
+
+	public void setExcitationType(Integer excitationType) {
+		this.excitationType = excitationType;
+	}
+
+	public Integer getVisitors() {
+		return this.visitors;
+	}
+
+	public void setVisitors(Integer visitors) {
+		this.visitors = visitors;
+	}
+
+	public Date getRemainTimeStart() {
+		return this.remainTimeStart;
+	}
+
+	public void setRemainTimeStart(Date remainTimeStart) {
+		this.remainTimeStart = remainTimeStart;
+	}
+
+	public String getAuditOpinion() {
+		return this.auditOpinion;
+	}
+
+	public void setAuditOpinion(String auditOpinion) {
+		this.auditOpinion = auditOpinion;
+	}
+
+	public Integer getBorrowStatus() {
+		return this.borrowStatus;
+	}
+
+	public void setBorrowStatus(Integer borrowStatus) {
+		this.borrowStatus = borrowStatus;
+	}
+
+	public Double getExcitationSum() {
+		return this.excitationSum;
+	}
+
+	public void setExcitationSum(Double excitationSum) {
+		this.excitationSum = excitationSum;
+	}
+
+	public Integer getExcitationMode() {
+		return this.excitationMode;
+	}
+
+	public void setExcitationMode(Integer excitationMode) {
+		this.excitationMode = excitationMode;
+	}
+
+	public Double getHasInvestAmount() {
+		return this.hasInvestAmount;
+	}
+
+	public void setHasInvestAmount(Double hasInvestAmount) {
+		this.hasInvestAmount = hasInvestAmount;
+	}
+
+	public Integer getInvestNum() {
+		return this.investNum;
+	}
+
+	public void setInvestNum(Integer investNum) {
+		this.investNum = investNum;
+	}
+
+	public Integer getPurpose() {
+		return this.purpose;
+	}
+
+	public void setPurpose(Integer purpose) {
+		this.purpose = purpose;
+	}
+
+	public Integer getHasPwd() {
+		return this.hasPwd;
+	}
+
+	public void setHasPwd(Integer hasPwd) {
+		this.hasPwd = hasPwd;
+	}
+
+	public String getInvestPwd() {
+		return this.investPwd;
+	}
+
+	public void setInvestPwd(String investPwd) {
+		this.investPwd = investPwd;
+	}
+
+	public Date getPublishTime() {
+		return this.publishTime;
+	}
+
+	public void setPublishTime(Date publishTime) {
+		this.publishTime = publishTime;
+	}
+
+	public String getPublishIp() {
+		return this.publishIp;
+	}
+
+	public void setPublishIp(String publishIp) {
+		this.publishIp = publishIp;
+	}
+
+	public Date getRemainTimeEnd() {
+		return this.remainTimeEnd;
+	}
+
+	public void setRemainTimeEnd(Date remainTimeEnd) {
+		this.remainTimeEnd = remainTimeEnd;
+	}
+
+	public Date getAuditTime() {
+		return this.auditTime;
+	}
+
+	public void setAuditTime(Date auditTime) {
+		this.auditTime = auditTime;
+	}
+
+	public Integer getHasDeadline() {
+		return this.hasDeadline;
+	}
+
+	public void setHasDeadline(Integer hasDeadline) {
+		this.hasDeadline = hasDeadline;
+	}
+
+	public Integer getIsAutoBid() {
+		return this.isAutoBid;
+	}
+
+	public void setIsAutoBid(Integer isAutoBid) {
+		this.isAutoBid = isAutoBid;
+	}
+
+	public Double getManageFee() {
+		return this.manageFee;
+	}
+
+	public void setManageFee(Double manageFee) {
+		this.manageFee = manageFee;
+	}
+
+	public Integer getIsDayThe() {
+		return this.isDayThe;
+	}
+
+	public void setIsDayThe(Integer isDayThe) {
+		this.isDayThe = isDayThe;
+	}
+
+	public Date getAutoBidEnableTime() {
+		return this.autoBidEnableTime;
+	}
+
+	public void setAutoBidEnableTime(Date autoBidEnableTime) {
+		this.autoBidEnableTime = autoBidEnableTime;
+	}
+
+	public Integer getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+
+	public Double getFrozenMargin() {
+		return this.frozenMargin;
+	}
+
+	public void setFrozenMargin(Double frozenMargin) {
+		this.frozenMargin = frozenMargin;
+	}
+
+	public Double getSmallestFlowUnit() {
+		return this.smallestFlowUnit;
+	}
+
+	public void setSmallestFlowUnit(Double smallestFlowUnit) {
+		this.smallestFlowUnit = smallestFlowUnit;
+	}
+
+	public Integer getCirculationNumber() {
+		return this.circulationNumber;
+	}
+
+	public void setCirculationNumber(Integer circulationNumber) {
+		this.circulationNumber = circulationNumber;
+	}
+
+	public Integer getHasCirculationNumber() {
+		return this.hasCirculationNumber;
+	}
+
+	public void setHasCirculationNumber(Integer hasCirculationNumber) {
+		this.hasCirculationNumber = hasCirculationNumber;
+	}
+
+	public String getNidLog() {
+		return this.nidLog;
+	}
+
+	public void setNidLog(String nidLog) {
+		this.nidLog = nidLog;
+	}
+
+	public Integer getSort() {
+		return this.sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+
+	public String getFeestate() {
+		return this.feestate;
+	}
+
+	public void setFeestate(String feestate) {
+		this.feestate = feestate;
+	}
+
+	public String getFeelog() {
+		return this.feelog;
+	}
+
+	public void setFeelog(String feelog) {
+		this.feelog = feelog;
+	}
+
+	public String getBusinessDetail() {
+		return this.businessDetail;
+	}
+
+	public void setBusinessDetail(String businessDetail) {
+		this.businessDetail = businessDetail;
+	}
+
+	public String getAssets() {
+		return this.assets;
+	}
+
+	public void setAssets(String assets) {
+		this.assets = assets;
+	}
+
+	public String getMoneyPurposes() {
+		return this.moneyPurposes;
+	}
+
+	public void setMoneyPurposes(String moneyPurposes) {
+		this.moneyPurposes = moneyPurposes;
+	}
+
+	public Integer getCirculationMode() {
+		return this.circulationMode;
+	}
+
+	public void setCirculationMode(Integer circulationMode) {
+		this.circulationMode = circulationMode;
+	}
+
+	public Integer getCirculationStatus() {
+		return this.circulationStatus;
+	}
+
+	public void setCirculationStatus(Integer circulationStatus) {
+		this.circulationStatus = circulationStatus;
+	}
+
+	public Long getUndertaker() {
+		return this.undertaker;
+	}
+
+	public void setUndertaker(Long undertaker) {
+		this.undertaker = undertaker;
+	}
+
+	public Integer getBorrowShow() {
+		return this.borrowShow;
+	}
+
+	public void setBorrowShow(Integer borrowShow) {
+		this.borrowShow = borrowShow;
+	}
+
+	public Integer getHasRepoNumber() {
+		return this.hasRepoNumber;
+	}
+
+	public void setHasRepoNumber(Integer hasRepoNumber) {
+		this.hasRepoNumber = hasRepoNumber;
+	}
+
+	public String getAgent() {
+		return this.agent;
+	}
+
+	public void setAgent(String agent) {
+		this.agent = agent;
+	}
+
+	public String getCounterAgent() {
+		return this.counterAgent;
+	}
+
+	public void setCounterAgent(String counterAgent) {
+		this.counterAgent = counterAgent;
+	}
+
+	public Double getAmountScale() {
+		return this.amountScale;
+	}
+
+	public void setAmountScale(Double amountScale) {
+		this.amountScale = amountScale;
+	}
+
+	public Integer getBorrowType() {
+		return this.borrowType;
+	}
+
+	public void setBorrowType(Integer borrowType) {
+		this.borrowType = borrowType;
+	}
+
+	public Integer getPublisherWay() {
+		return this.publisherWay;
+	}
+
+	public void setPublisherWay(Integer publisherWay) {
+		this.publisherWay = publisherWay;
+	}
+
+	public Integer getAuthCount() {
+		return this.authCount;
+	}
+
+	public void setAuthCount(Integer authCount) {
+		this.authCount = authCount;
+	}
+
+	public String getBillcode() {
+		return this.billcode;
+	}
+
+	public void setBillcode(String billcode) {
+		this.billcode = billcode;
+	}
+
+	public String getTrxId() {
+		return this.trxId;
+	}
+
+	public void setTrxId(String trxId) {
+		this.trxId = trxId;
+	}
+
+	public Integer getLoansOk() {
+		return this.loansOk;
+	}
+
+	public void setLoansOk(Integer loansOk) {
+		this.loansOk = loansOk;
+	}
+
+	public Integer getUnfreeOk() {
+		return this.unfreeOk;
+	}
+
+	public void setUnfreeOk(Integer unfreeOk) {
+		this.unfreeOk = unfreeOk;
+	}
+
+	public Integer getBorrowTypeSubId() {
+		return this.borrowTypeSubId;
+	}
+
+	public void setBorrowTypeSubId(Integer borrowTypeSubId) {
+		this.borrowTypeSubId = borrowTypeSubId;
+	}
+
+	public String getProjectScore() {
+		return this.projectScore;
+	}
+
+	public void setProjectScore(String projectScore) {
+		this.projectScore = projectScore;
+	}
+
+	public String getRetsource() {
+		return this.retsource;
+	}
+
+	public void setRetsource(String retsource) {
+		this.retsource = retsource;
+	}
+
+	public Long getBatchId() {
+		return this.batchId;
+	}
+
+	public void setBatchId(Long batchId) {
+		this.batchId = batchId;
+	}
+
+	public String getContractId() {
+		return this.contractId;
+	}
+
+	public void setContractId(String contractId) {
+		this.contractId = contractId;
+	}
+
+	public Short getIsShow() {
+		return this.isShow;
+	}
+
+	public void setIsShow(Short isShow) {
+		this.isShow = isShow;
+	}
+
+	public String getProjectIntro() {
+		return this.projectIntro;
+	}
+
+	public void setProjectIntro(String projectIntro) {
+		this.projectIntro = projectIntro;
+	}
+
+	public String getSafeMeasures() {
+		return this.safeMeasures;
+	}
+
+	public void setSafeMeasures(String safeMeasures) {
+		this.safeMeasures = safeMeasures;
+	}
+
+	public Date getBidTime() {
+		return this.bidTime;
+	}
+
+	public void setBidTime(Date bidTime) {
+		this.bidTime = bidTime;
+	}
+
+	public String getShowRate() {
+		return this.showRate;
+	}
+
+	public void setShowRate(String showRate) {
+		this.showRate = showRate;
+	}
+
+	public String getProjectAddress() {
+		return this.projectAddress;
+	}
+
+	public void setProjectAddress(String projectAddress) {
+		this.projectAddress = projectAddress;
+	}
+
+	public Long getBehalfUserId() {
+		return this.behalfUserId;
+	}
+
+	public void setBehalfUserId(Long behalfUserId) {
+		this.behalfUserId = behalfUserId;
+	}
+
+	public Long getLoanUserId() {
+		return this.loanUserId;
+	}
+
+	public void setLoanUserId(Long loanUserId) {
+		this.loanUserId = loanUserId;
+	}
+
+	public Integer getGroupid() {
+		return this.groupid;
+	}
+
+	public void setGroupid(Integer groupid) {
+		this.groupid = groupid;
+	}
+
+	public Long getLoan2userId() {
+		return this.loan2userId;
+	}
+
+	public void setLoan2userId(Long loan2userId) {
+		this.loan2userId = loan2userId;
+	}
+
+	public Date getPushdate() {
+		return this.pushdate;
+	}
+
+	public void setPushdate(Date pushdate) {
+		this.pushdate = pushdate;
+	}
+
+	public String getPushstate() {
+		return this.pushstate;
+	}
+
+	public void setPushstate(String pushstate) {
+		this.pushstate = pushstate;
+	}
+
+	public Integer getRecommend() {
+		return this.recommend;
+	}
+
+	public void setRecommend(Integer recommend) {
+		this.recommend = recommend;
+	}
+
+	public Integer getTransferable() {
+		return this.transferable;
+	}
+
+	public void setTransferable(Integer transferable) {
+		this.transferable = transferable;
+	}
+
+	public Integer getAuditStatus() {
+		return auditStatus;
+	}
+
+	public void setAuditStatus(Integer auditStatus) {
+		this.auditStatus = auditStatus;
+	}
+
+	public String getAuditRemark() {
+		return auditRemark;
+	}
+
+	public void setAuditRemark(String auditRemark) {
+		this.auditRemark = auditRemark;
+	}
+
+	public Integer getAdminId() {
+		return adminId;
+	}
+
+	public void setAdminId(Integer adminId) {
+		this.adminId = adminId;
+	}
+
+	
+}

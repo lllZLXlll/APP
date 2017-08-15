@@ -1,0 +1,9 @@
+package com.pjzb.dao;
+
+
+
+public interface EmpDao {
+	
+	
+
+}

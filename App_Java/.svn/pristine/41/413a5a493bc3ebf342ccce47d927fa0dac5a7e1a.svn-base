@@ -1,0 +1,303 @@
+package com.pjzb.task;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.CashReconciliationDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.TrfReconciliationDao;
+import com.pjzb.entity.CashReconciliation;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.TrfReconciliation;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DateUtil;
+
+/**
+ * 汇付天下扣款对账 定时器
+ * 
+ * @author zlx
+ */
+
+@Service
+public class JobDebitReconciliationService {
+	private static Log log = LogFactory.getLog(JobDebitReconciliationService.class);
+
+	@Autowired
+	private TrfReconciliationDao trfReconciliationDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private CashReconciliationDao cashReconciliationDao;
+
+	/**
+	 * 商户扣款信息采集
+	 * 
+	 * @throws RuntimeException
+	 */
+	public String addTrfReconciliation(){
+		log.info("--------------汇付天下扣款对账开始--------------");
+		Date d = new Date();
+		Date date = new Date(d.getTime() - 1 * 24 * 60 * 60 * 1000);
+		String BeginDate = DateUtil.dateToYMD(date);
+		String EndDate = DateUtil.dateToYMD(date);
+
+		String PageNum = "1";
+		String PageSize = "1000";
+		JSONObject jsonObject=null;
+		try {
+			jsonObject = JSONObject.fromObject(ChinapnrInterface.trfReconciliation(BeginDate, EndDate, PageSize, PageNum));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		log.info("商户扣款对账：" + jsonObject.toString());
+
+		if (jsonObject.getInt("RespCode") != 0) {
+			String msg=null;
+			try {
+				msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			System.out.println("汇付返回msg:" + msg);
+		} else {
+			// 汇付返回成功
+			// 对账结果串变成数组
+			JSONArray jsonArray = JSONArray.fromObject(jsonObject.getString("TrfReconciliationDtoList"));
+
+			// 解析对账结果串放入TrfMapList中
+			List<Map<String, String>> TrfMapList = new ArrayList<Map<String, String>>();
+			for (int i = 0; i < jsonArray.size(); i++) {
+				JSONObject TrfJSONObject = jsonArray.getJSONObject(i);
+				if (!TrfJSONObject.isNullObject()) {
+
+					Map<String, String> TrfMap = new HashMap<String, String>();
+					@SuppressWarnings("unchecked")
+					Iterator<String> nameItr = TrfJSONObject.keys();
+					String name = "";
+					while (nameItr.hasNext()) {
+						name = nameItr.next();
+						TrfMap.put(name, TrfJSONObject.getString(name));
+					}
+					TrfMapList.add(TrfMap);
+				}
+			}
+			if (!TrfMapList.isEmpty()) {
+				// 把TrfMapList中数据写入数据库
+				Long result = addTrfReconciliation(TrfMapList, BeginDate);
+				log.info("商户扣款对账插入本地数据库条数:" + result);
+			} else {
+				log.info("商户扣款对账当天无数据,时间:" + BeginDate);
+			}
+			return "success";
+		}
+		log.info("--------------汇付天下扣款对账结束--------------");
+		return null;
+	}
+
+	// 采集汇付的商户扣款信息
+	public long addTrfReconciliation(List<Map<String, String>> TrfMapList, String PnrDate) throws RuntimeException {
+		Long result = 0L;
+		trfReconciliationDao.deleteTrfReconciliation(PnrDate);
+		for (int i = 0; i < TrfMapList.size(); i++) {
+			Map<String, String> TrfMap = TrfMapList.get(i);
+			if (TrfMap != null && TrfMap.size() > 0) {
+				TrfReconciliation trfReconciliation = new TrfReconciliation();
+				if (TrfMap.containsKey("OrdId")) {
+					trfReconciliation.setOrdId(TrfMap.get("OrdId"));
+				}
+				if (TrfMap.containsKey("MerCustId")) {
+					trfReconciliation.setMerCustId(TrfMap.get("MerCustId"));
+				}
+				if (TrfMap.containsKey("UsrCustId")) {
+					trfReconciliation.setUsrCustId(TrfMap.get("UsrCustId"));
+				}
+				if (TrfMap.containsKey("TransAmt")) {
+					trfReconciliation.setTransAmt(Double.parseDouble(TrfMap.get("TransAmt")));
+				}
+				if (TrfMap.containsKey("TransStat")) {
+					trfReconciliation.setTransStat(TrfMap.get("TransStat"));
+				}
+				if (TrfMap.containsKey("PnrDate")) {
+					trfReconciliation.setPnrDate(TrfMap.get("PnrDate"));
+				}
+				if (TrfMap.containsKey("PnrSeqId")) {
+					trfReconciliation.setPnrSeqId(TrfMap.get("PnrSeqId"));
+				}
+				trfReconciliation.setInDate(new Date());
+
+				result = trfReconciliationDao.addTrfReconciliation(trfReconciliation);
+			}
+		}
+
+		if (result <= 0) {
+			result = -1L;
+			throw new RuntimeException("采集汇付的商户扣款信息失败");
+		} else {
+			operationLogDao.addOperationLog(new OperationLog("t_trf_reconciliation", Constants.SESSION_ADMIN, Constants.INSERT, null, new Date(), 0d, "系统自动采集商户扣款信息", 0, -2l));
+		}
+		return result;
+	}
+
+	/**
+	 * 取现对账信息采集
+	 */
+	public String addCashReconciliation() throws RuntimeException {
+		log.info("--------------汇付取现对账信息采集开始--------------");
+		Date d = new Date();
+		Date date = new Date(d.getTime() - 1 * 24 * 60 * 60 * 1000);
+		String beginDate = DateUtil.dateToYMD(date);
+		String endDate = DateUtil.dateToYMD(date);
+
+		int pageNum = 1;
+		String pageSize = "1000";
+		// 判断条数是否等于最大值1000，如果等于则继续取下一页的数据。
+		boolean flag = false;
+			do {
+				JSONObject jsonObject=null;
+				try {
+					jsonObject = JSONObject.fromObject(ChinapnrInterface.cashReconciliation(beginDate, endDate, pageSize, pageNum + ""));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				log.info("取现对账：" + jsonObject.toString());
+
+				if (jsonObject.getInt("RespCode") != 0) {
+					String msg=null;
+					try {
+						msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+					System.out.println("汇付返回msg:" + msg);
+				} else {
+					// 汇付返回成功
+					// 对账结果串变成数组
+					JSONArray jsonArray = JSONArray.fromObject(jsonObject.getString("CashReconciliationDtoList"));
+
+					int jsonSize = jsonArray.size();
+					// 如果数据量超过1000条，继续取下一页的数据。
+					if (jsonSize == 1000) {
+						pageNum = pageNum + 1;
+						flag = true;
+					} else {
+						flag = false;
+					}
+
+					// 取现的手续费收取方 ： U--向用户收取 M--向商户收取
+					String FeeObj = jsonObject.getString("FeeObj");
+
+					// 解析对账结果串放入TrfMapList中
+					List<Map<String, String>> cashMapList = new ArrayList<Map<String, String>>();
+					for (int i = 0; i < jsonArray.size(); i++) {
+						JSONObject cashJSONObject = jsonArray.getJSONObject(i);
+						if (!cashJSONObject.isNullObject()) {
+
+							Map<String, String> cashMap = new HashMap<String, String>();
+							@SuppressWarnings("unchecked")
+							Iterator<String> nameItr = cashJSONObject.keys();
+							String name = "";
+							while (nameItr.hasNext()) {
+								name = nameItr.next();
+								cashMap.put(name, cashJSONObject.getString(name));
+							}
+							cashMapList.add(cashMap);
+						}
+					}
+					if (!cashMapList.isEmpty()) {
+
+						// 把cashMapList中数据写入数据库
+						Long result = addCashReconciliation(cashMapList, beginDate, pageNum, FeeObj);
+
+						System.out.println("放还款对账插入本地数据库条数:" + result);
+
+					} else {
+						System.out.println("放还款对账当天无数据,时间:" + beginDate);
+					}
+
+				}
+			} while (flag);
+		log.info("--------------汇付取现对账信息采集结束--------------");
+		return "success";
+	}
+
+	// 采集汇付的取现对账信息
+	public long addCashReconciliation(List<Map<String, String>> cashMapList, String PnrDate, int pageNum, String FeeObj) throws RuntimeException {
+		Long result = 0L;
+		// pageNum==1 || pageNum==2
+		// 说明是第一次循环取值，可以删除当天的数据，再次循环取值时不能再删除当天的数据，否则取现对账表的数据不准确。
+		if (pageNum == 1 || pageNum == 2) {
+			cashReconciliationDao.deleteCashReconciliation(PnrDate);
+		}
+		for (int i = 0; i < cashMapList.size(); i++) {
+			Map<String, String> cashMap = cashMapList.get(i);
+			if (cashMap != null && cashMap.size() > 0) {
+				result += cashReconciliationDao.insertCashReconciliation(setEntityValue(cashMap, FeeObj));
+			}
+		}
+		if (result <= 0) {
+			result = -1L;
+			throw new RuntimeException("采集汇付的商户扣款信息失败");
+		} else {
+			operationLogDao.addOperationLog(new OperationLog("t_cash_reconciliation", Constants.SESSION_ADMIN, Constants.INSERT, null, new Date(), 0d, "系统自动采集取现对账信息", 0, -2l));
+		}
+		return result;
+	}
+
+	public CashReconciliation setEntityValue(Map<String, String> cashMap, String FeeObj) {
+		CashReconciliation cashReconciliation = new CashReconciliation();
+		if (cashMap.containsKey("OrdId")) {
+			cashReconciliation.setCardId(cashMap.get("OrdId"));
+		}
+		if (cashMap.containsKey("MerCustId")) {
+			cashReconciliation.setMerCustId(cashMap.get("MerCustId"));
+		}
+		if (cashMap.containsKey("UsrCustId")) {
+			cashReconciliation.setUsrCustId(cashMap.get("UsrCustId"));
+		}
+		if (cashMap.containsKey("CardId")) {
+			cashReconciliation.setCardId(cashMap.get("CardId"));
+		}
+		if (cashMap.containsKey("TransAmt")) {
+			cashReconciliation.setTransAmt(Double.parseDouble(cashMap.get("TransAmt")));
+		}
+		if (cashMap.containsKey("TransStat")) {
+			cashReconciliation.setTransStat(cashMap.get("TransStat"));
+		}
+		if (cashMap.containsKey("PnrDate")) {
+			cashReconciliation.setPnrDate(cashMap.get("PnrDate"));
+		}
+		if (cashMap.containsKey("PnrSeqId")) {
+			cashReconciliation.setPnrSeqId(cashMap.get("PnrSeqId"));
+		}
+		if (cashMap.containsKey("FeeAmt")) {
+			cashReconciliation.setFeeAmt(Double.parseDouble(cashMap.get("FeeAmt")));
+		}
+		if (cashMap.containsKey("FeeCustId")) {
+			cashReconciliation.setFeeCustId(cashMap.get("FeeCustId"));
+		}
+		if (cashMap.containsKey("FeeAcctId")) {
+			cashReconciliation.setFeeAcctId(cashMap.get("FeeAcctId"));
+		}
+		cashReconciliation.setFeeObj(FeeObj);
+		return cashReconciliation;
+	}
+
+}

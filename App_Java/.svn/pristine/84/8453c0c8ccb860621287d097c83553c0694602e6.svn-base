@@ -1,0 +1,193 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script>
+$(function(){
+	
+	   $('#radio_4').click(function(){
+		   var radios = document.getElementsByName("ck_radio");
+			 for (i=0; i<radios.length; i++) {  
+			        if (radios[i].checked) {
+			        	$("#radio").val(radios[i].value);
+			        }
+			 }
+	      $('#beginTime').attr('disabled',false);
+	      $('#endTime').attr('disabled',false);
+	   });
+	   
+	   $("#excel").click(function(){
+		   $(this).alertmsg('confirm', '确定导出吗！', {displayMode:'slide', okName:'确定', 
+       		cancelName:'取消', title:'确认框',
+       		okCall:
+       			expo
+		  	});
+		    
+		});
+});
+
+function expo(){
+	$("#excel").attr("disabled",true);
+    var radio = $('input[name="ck_radio"]:checked').val();
+    var timeStart=$("#beginTime").val();
+    var timeEnd= $("#endTime").val();
+    window.location.href="exportfinanceStatis.do?radio="+radio+"&timeStart="+timeStart+"&timeEnd="+timeEnd;
+    setTimeout("test()",3000);
+}
+function test(){
+	$("#excel").attr("disabled",false);
+}
+function serachRecommendUser(){
+	var operatingTime=$("#beginTime").val();
+	var endTime=$("#endTime").val();
+	operatingTime = operatingTime.replace(/-/g,'/');
+	endTime = endTime.replace(/-/g,"/");
+	var date1= new Date(operatingTime);  //开始时间
+	var date2=new Date(endTime);    //结束时间
+	var date3=date2.getTime()-date1.getTime();  //时间差的毫秒数
+		
+		if(operatingTime==""&& endTime==""){
+			$('#pagerForm').submit(); 
+		}else{
+			if(operatingTime==""){
+				alert("开始时间不能为空");
+				return;
+			}
+			if(endTime==""){
+				alert("结束时间不能为空");
+				return;
+			}
+		if(date3<0){
+	   		alert("结束时间不能小于开始时间");
+			return;
+	 	 }else{
+	 	 $('#pagerForm').submit(); 
+	 	 }
+		 
+		}
+	}
+
+function clearVal(){
+	var radios = document.getElementsByName("ck_radio");
+	 for (i=0; i<radios.length; i++) {  
+	        if (radios[i].checked) {
+	        	$("#radio").val(radios[i].value);
+	        }
+	 }
+	   $('#beginTime').val('');
+	   $('#endTime').val('');
+	   $('#beginTime').attr('disabled',true);
+	   $('#endTime').attr('disabled',true);
+}
+</script>
+<div class="bjui-pageHeader" >
+    <form id="pagerForm" data-toggle="ajaxsearch" action="financeStatisInit.do" method="post">
+      	<input type="hidden" name="radio" id="radio">
+        <div class="bjui-searchBar">
+            <br/>
+            <button type="button" class="btn-green" data-icon="floppy-o" id="excel" data-confirm-msg="确定要导出信息吗？" data-toggle="doexport">导出</button>&nbsp;
+            <br/>
+            <br/>
+            <div>&nbsp;&nbsp;
+	              <input type="radio" name="ck_radio" value="1" onclick="clearVal();">当日&nbsp;&nbsp;
+			       <input type="radio" name="ck_radio" value="2" onclick="clearVal();">本月&nbsp;&nbsp;
+			       <input type="radio" name="ck_radio" value="3" onclick="clearVal();">当年&nbsp;&nbsp;
+			       <input type="radio" id="radio_4" name="ck_radio" value="4">其他时间段:&nbsp;&nbsp;
+			       <input type="text" name="beginTime" id="beginTime" data-toggle="datepicker"  data-rule="date" size="20" disabled="disabled" pattern="yyyy-MM-dd HH:mm:ss"> 
+	              — <input type="text" name="endTime" id="endTime" data-toggle="datepicker"  data-rule="date" size="20" disabled="disabled" pattern="yyyy-MM-dd HH:mm:ss">
+	              <button type="button" class="btn-default" data-icon="search" onclick="serachRecommendUser()">查询</button>&nbsp;
+           			<a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+            </div>
+            <br/>
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent" >
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+        <thead>
+            <tr >
+            	<th align="center">统计项</th>
+                <th align="center">金额</th>
+            </tr>
+        </thead>
+        <tbody>
+       		<tr data-id="65" align="center">
+				<td>
+					投资成功待收金额：
+				</td>
+				<td align="center">
+					${invest.investForAmount}
+				</td>
+			</tr>
+			<tr data-id="65" align="center">
+				<td>
+					投资奖励金额：
+				</td>
+				<td align="center">
+					${invest.investRewardAmount}
+				</td>
+			</tr>
+			<tr data-id="65" align="center">
+				<td>
+					借款人逾期罚金金额：
+				</td>
+				<td align="center">
+					${invest.borrowLateFAmount}
+				</td>
+			</tr>
+			<tr data-id="65" align="center">
+				<td>
+					用户邀请好友金额：
+				</td>
+				<td align="center">
+					${invest.inviteReward}
+				</td>
+			</tr>
+			<tr data-id="65" align="center">
+				<td>
+					借款成功总额：
+				</td>
+				<td align="center">
+					${invest.borrowAmount}
+				</td>
+			</tr>
+			<tr data-id="65" align="center">
+				<td>
+					借款管理费总额：
+				</td>
+				<td align="center">
+					${invest.borrowManageFee}
+				</td>
+			</tr>
+			<tr data-id="65" align="center">
+				<td>
+					借款利息总额：
+				</td>
+				<td align="center">
+					${invest.borrowInterestAmount}
+				</td>
+			</tr>
+			<!-- 
+			<tr class="gvItem">
+				<td>
+					借款奖励总额：
+				</td>
+				<td align="center">
+					${invest.borrowRewardAmount}
+				</td>
+			</tr>
+			 -->
+			<tr data-id="65" align="center">
+				<td>
+					借款逾期罚息总额：
+				</td>
+				<td align="center">
+					${invest.borrowLateFI}
+				</td>
+			</tr>
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+	
+</script>

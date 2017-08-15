@@ -1,0 +1,1327 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.BorrowDao">
+
+	<select id="queryLastestBorrow" resultType="java.util.Map"
+		parameterType="java.lang.Integer">
+		select
+		id,borrowTitle,schedules,borrowAmount,transferable,annualRate,borrowStatus,publishTime,deadline
+		from `v_t_borrow_index` where sorts != 0 and borrowStatus in
+		(2,3,4,5)
+		and borrowTypeSubId=#{borrowTypeSubId} ORDER BY sorts
+		desc,schedules
+		asc limit 0, 3
+	</select>
+
+
+	<resultMap type="com.pjzb.entity.vo.BorrowDebtVo" id="borrowDebtVoResultMap">
+		<result column="borrowShow" property="borrowShow" />
+		<result column="borrowAmount" property="borrowAmount" />
+		<result column="deadline" property="deadline" />
+		<result column="isDayThe" property="isDayThe" />
+		<result column="borrowWay" property="borrowWay" />
+		<result column="publisher" property="publisher" />
+		<result column="auditTime" property="auditTime" />
+		<result column="annualRate" property="annualRate" />
+		<result column="borrowTitle" property="borrowTitle" />
+		<result column="username" property="username" />
+		<result column="frozenMargin" property="frozenMargin" />
+		<result column="feestate" property="feestate" />
+		<result column="feelog" property="feelog" />
+		<result column="realName" property="realName" />
+		<result column="idNo" property="idNo" />
+		<result column="purpose" property="purpose" />
+		<result column="paymentMode" property="paymentMode" />
+	</resultMap>
+
+	<resultMap type="borrow" id="borrowResultMap">
+		<id column="id" property="id" />
+		<result column="borrowTitle" property="borrowTitle" />
+		<result column="imgPath" property="imgPath" />
+		<result column="borrowWay" property="borrowWay" />
+		<result column="hetong" property="hetong" />
+		<result column="borrowInfo" property="borrowInfo" />
+		<result column="deadline" property="deadline" />
+		<result column="paymentMode" property="paymentMode" />
+		<result column="borrowAmount" property="borrowAmount" />
+		<result column="annualRate" property="annualRate" />
+		<result column="minTenderedSum" property="minTenderedSum" />
+		<result column="maxTenderedSum" property="maxTenderedSum" />
+		<result column="raiseTerm" property="raiseTerm" />
+		<result column="detail" property="detail" />
+		<result column="tradeType" property="tradeType" />
+		<result column="publisher" property="publisher" />
+		<result column="excitationType" property="excitationType" />
+		<result column="visitors" property="visitors" />
+		<result column="remainTimeStart" property="remainTimeStart" />
+		<result column="auditOpinion" property="auditOpinion" />
+		<result column="borrowStatus" property="borrowStatus" />
+		<result column="excitationSum" property="excitationSum" />
+		<result column="excitationMode" property="excitationMode" />
+		<result column="hasInvestAmount" property="hasInvestAmount" />
+		<result column="investNum" property="investNum" />
+		<result column="purpose" property="purpose" />
+		<result column="hasPWD" property="hasPwd" />
+		<result column="investPWD" property="investPwd" />
+		<result column="publishTime" property="publishTime" />
+		<result column="publishIP" property="publishIp" />
+		<result column="remainTimeEnd" property="remainTimeEnd" />
+		<result column="auditTime" property="auditTime" />
+		<result column="hasDeadline" property="hasDeadline" />
+		<result column="isAutoBid" property="isAutoBid" />
+		<result column="manageFee" property="manageFee" />
+		<result column="isDayThe" property="isDayThe" />
+		<result column="autoBidEnableTime" property="autoBidEnableTime" />
+		<result column="version" property="version" />
+		<result column="frozen_margin" property="frozenMargin" />
+		<result column="smallestFlowUnit" property="smallestFlowUnit" />
+		<result column="circulationNumber" property="circulationNumber" />
+		<result column="hasCirculationNumber" property="hasCirculationNumber" />
+		<result column="nid_log" property="nidLog" />
+		<result column="sort" property="sort" />
+		<result column="feestate" property="feestate" />
+		<result column="feelog" property="feelog" />
+		<result column="businessDetail" property="businessDetail" />
+		<result column="assets" property="assets" />
+		<result column="moneyPurposes" property="moneyPurposes" />
+		<result column="circulationMode" property="circulationMode" />
+		<result column="circulationStatus" property="circulationStatus" />
+		<result column="undertaker" property="undertaker" />
+		<result column="borrowShow" property="borrowShow" />
+		<result column="hasRepoNumber" property="hasRepoNumber" />
+		<result column="agent" property="agent" />
+		<result column="counterAgent" property="counterAgent" />
+		<result column="amount_scale" property="amountScale" />
+		<result column="borrowType" property="borrowType" />
+		<result column="publisherWay" property="publisherWay" />
+		<result column="authCount" property="authCount" />
+		<result column="billcode" property="billcode" />
+		<result column="trxId" property="trxId" />
+		<result column="loansOk" property="loansOk" />
+		<result column="unfreeOk" property="unfreeOk" />
+		<result column="borrowTypeSubId" property="borrowTypeSubId" />
+		<result column="projectScore" property="projectScore" />
+		<result column="retsource" property="retsource" />
+		<result column="batch_id" property="batchId" />
+		<result column="contract_id" property="contractId" />
+		<result column="isShow" property="isShow" />
+		<result column="projectIntro" property="projectIntro" />
+		<result column="safeMeasures" property="safeMeasures" />
+		<result column="bidTime" property="bidTime" />
+		<result column="showRate" property="showRate" />
+		<result column="projectAddress" property="projectAddress" />
+		<result column="behalfUserId" property="behalfUserId" />
+		<result column="loanUserId" property="loanUserId" />
+		<result column="groupid" property="groupid" />
+		<result column="loan2UserId" property="loan2userId" />
+		<result column="pushdate" property="pushdate" />
+		<result column="pushstate" property="pushstate" />
+		<result column="recommend" property="recommend" />
+		<result column="transferable" property="transferable" />
+		<result column="auditStatus" property="auditStatus"/>
+		<result column="auditRemark" property="auditRemark"/>
+	</resultMap>
+
+
+	<select id="queryBorrowInfo" resultMap="borrowDebtVoResultMap"
+		parameterType="java.lang.Long">
+		SELECT
+		a.borrowShow,a.borrowAmount,a.deadline,a.isDayThe,a.borrowWay,a.publisher,a.auditTime
+		AS auditTime,a.annualRate,a.borrowTitle,
+		b.username,a.frozen_margin,a.feestate,a.feelog,d.realName AS
+		realName,d.idNo AS idNo,ts.selectName as purpose,tbs.title as
+		paymentMode
+		FROM t_borrow a LEFT JOIN t_user b ON a.publisher = b.id
+		LEFT JOIN
+		t_person d ON d.userId = b.id LEFT JOIN t_select ts ON
+		a.purpose =
+		ts.selectValue and ts.typeId=1 and ts.deleted = 1 LEFT JOIN
+		t_borrow_style tbs ON a.paymentMode = tbs.id WHERE a.id =#{id}
+	</select>
+
+	<update id="addBrowseCount">
+		update t_borrow set visitors = visitors+1 where id =
+		#{borrowId}
+	</update>
+	<update id="updateRemainTime">
+		update t_borrow set remainTimeStart = now() WHERE
+		remainTimeEnd IS NOT NULL
+		AND remainTimeStart &lt; remainTimeEnd AND id
+		= #{borrowId}
+	</update>
+
+	<select id="queryUserInfoByBorrowId" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select id, userId ,ipayAccount,f_formatting_username(
+		username) as username
+		, username as username_2 ,vipStatus ,rating ,
+		personalHead ,address ,
+		credit , creditrating , createTime
+		,DATE_FORMAT(lastDate,'%Y-%m-%d')
+		as lastDate , creditLimit , vip , age
+		,maritalStatus , workPro ,
+		workCity , companyLine , companyScale , job
+		,school ,highestEdu
+		,eduStartDay , hasHourse , hasCar , hasHousrseLoan
+		, hasCarLoan ,
+		auditperson , auditwork
+		,nativePlaceCity,nativePlacePro,nativePlace,sex
+		from
+		v_t_borrow_user_info where id = #{borrowId}
+	</select>
+
+	<select id="queryBorrowDetailById" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT * from v_t_borrow_detail WHERE id =#{id}
+	</select>
+
+	<select id="getRecommendBorrow" resultType="java.util.Map"
+		parameterType="java.lang.Integer">
+		SELECT * FROM v_t_borrow_list a WHERE
+		a.recommend=#{recommend} ORDER BY a.id
+		DESC
+	</select>
+
+	<select id="queryBorrowListByCondition" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT * FROM v_t_borrow_list WHERE 1=1 and sorts!= 0
+		<if test="borrowStatus != null">
+			and borrowStatus in
+			<foreach item="item" index="index" collection="borrowStatus"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="borrowWay != null and borrowWay != ''">
+			and borrowTypeSubId = #{borrowWay}
+		</if>
+		<if test="titles != null and titles != ''">
+			and borrowTitle LIKE CONCAT('%',#{titles},'%')
+		</if>
+		<if test="deadlinestart != null and deadlinestart != ''">
+			and deadline &gt;= #{deadlinestart}
+			<if test="deadlineend != null and deadlineend != ''">
+				and deadline &lt;= #{deadlineend}
+			</if>
+		</if>
+		<if test="Rateend != null and Rateend != ''">
+			and annualRate &lt;= #{Rateend}
+			<if test="Ratestart != null and Ratestart != ''">
+				and annualRate &gt;= #{Ratestart}
+			</if>
+		</if>
+		<choose>
+			<when test="flages == 1">
+				ORDER BY annualRate asc, sorts desc,schedules asc ,id
+				desc
+			</when>
+			<when test="flages == 2">
+				ORDER BY annualRate desc, sorts desc,schedules asc
+				,id desc
+			</when>
+			<when test="flages == 3">
+				ORDER BY publishTime asc, sorts desc,schedules asc
+				,id desc
+			</when>
+			<when test="flages == 4">
+				ORDER BY publishTime desc, sorts desc,schedules asc
+				,id desc
+			</when>
+			<when test="flages == 5">
+				ORDER BY deadline asc, sorts desc,schedules asc ,id
+				desc
+			</when>
+			<when test="flages == 6">
+				ORDER BY deadline desc, sorts desc,schedules asc ,id
+				desc
+			</when>
+			<otherwise>
+				ORDER BY sorts desc,schedules asc ,id desc
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="rates == 1">
+				ORDER BY annualRate desc
+			</when>
+			<when test="rates == 2">
+				ORDER BY annualRate asc
+			</when>
+			<when test="timeers == 2">
+				ORDER BY publishTime asc
+			</when>
+			<when test="timeers == 1">
+				ORDER BY publishTime desc
+			</when>
+			<when test="deadlines == 1">
+				ORDER BY deadline desc
+			</when>
+			<when test="deadlines == 2">
+				ORDER BY deadline asc
+			</when>
+			<!-- <when test="flages == ''"> ORDER BY publishTime desc </when> -->
+		</choose>
+		LIMIT #{curPage},#{pageSize}
+	</select>
+
+	<select id="queryBorrowCountByCondition" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT count(1) as borrowTotalNum FROM v_t_borrow_list WHERE 1=1 and
+		sorts!= 0
+		<if test="borrowStatus != null">
+			and borrowStatus in
+			<foreach item="item" index="index" collection="borrowStatus"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="borrowWay != null and borrowWay != ''">
+			and borrowTypeSubId = #{borrowWay}
+		</if>
+		<if test="titles != null and titles != ''">
+			and borrowTitle like CONCAT('%',#{titles},'%')
+		</if>
+		<if test="deadlinestart != null and deadlinestart != ''">
+			and deadline &gt;= #{deadlinestart}
+			<if test="deadlineend != null and deadlineend != ''">
+				and deadline &lt;= #{deadlineend}
+			</if>
+		</if>
+		<if test="Rateend != null and Rateend != ''">
+			and annualRate &lt;= #{Rateend}
+			<if test="Ratestart != null and Ratestart != ''">
+				and annualRate &gt;= #{Ratestart}
+			</if>
+		</if>
+	</select>
+
+	<select id="queryUserIdentifiedByidAdmin" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select *, sum(case when visiable = 1 then 1 else 0 end)
+		visiable_2
+		from v_t_borrow_user_materialsauth_byadmin where
+		materAuthTypeId>16 and
+		id=#{borrowId} AND visiable=1 group by
+		materAuthTypeId
+	</select>
+
+	<select id="findRelatedDocuments" resultType="java.util.Map">
+		select
+		name,CONCAT(#{param2},substring(imgPath, 4)) AS
+		imgPath,auditStatus,passTime,materAuthTypeId,userId,visiable,id,groupid,sum(case
+		when visiable = 1 then 1 else 0 end) visiable_2
+		from v_t_borrow_user_materialsauth_byadmin where materAuthTypeId>16 and
+		id=#{param1} AND visiable=1 group by materAuthTypeId
+	</select>
+
+	<select id="queryUserImageByid" resultType="java.util.Map">
+		select * from
+		v_t_borrow_user_materauth_img where
+		materAuthTypeId=#{param1} and
+		userId=#{param2} and groupid=#{param3} and visiable='1'
+	</select>
+
+	<select id="findOtherData" resultType="java.util.Map">
+		select userId,materAuthTypeId,name,checktime,visiable,CONCAT(#{param4},
+		substring(imagePath, 4)) AS imagePath,groupid from
+		v_t_borrow_user_materauth_img where
+		materAuthTypeId=#{param1} and userId=#{param2} and groupid=#{param3} and visiable='1'
+	</select>
+
+	<select id="queryBorrowerByBorrowId" resultType="java.lang.Long"
+		parameterType="java.lang.Long">
+		SELECT publisher FROM t_borrow WHERE id = #{borrowId}
+	</select>
+
+	<select id="queryBorrowFlowMarkDetailById" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT * FROM v_t_borrow_h_flowmark_detail WHERE id = #{borrowId} limit 0, 1
+	</select>
+
+	<select id="queryBorrowerImgpath" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT imgPath FROM t_borrow WHERE id = #{borrowId}
+	</select>
+
+	<select id="queryBorrowSumMomeny" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+
+		SELECT round(SUM(b.recivedPrincipal),2) AS sumRecivedPal,
+		round(sum(b.recivedInterest),2) AS sumRecivedInt,round(sum(
+		b.recivedInterest + b.recivedPrincipal ),2) AS sumRecivedPalInt ,
+		round(SUM(b.hasPrincipal),2) AS sumHasPal, round(SUM(b.hasInterest),2)
+		AS sumHasInt,round(sum( b.hasPrincipal + b.hasInterest ),2) AS
+		sumPalInt
+		FROM t_repayment a LEFT JOIN t_invest_repayment b ON a.id =
+		b.repayId WHERE a.borrowId = #{borrowId}
+		<if test="invest_id > 0">
+			AND b.invest_id = #{invest_id}
+		</if>
+	</select>
+
+	<select id="queryBorrowById" resultMap="borrowResultMap">
+		SELECT * FROM t_borrow
+		WHERE id = #{0}
+	</select>
+
+	<select id="getInvestStatus" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select id,hasPWD
+		,nid_log,hasCirculationNumber,circulationNumber,smallestFlowUnit,
+		publishTime,bidTime,detail,safeMeasures from t_borrow
+		where borrowStatus =2 and id= #{borrowId}
+		ORDER BY id desc
+	</select>
+
+	<select id="queryBorrowTypeLogByNid" resultType="java.util.Map"
+		parameterType="java.lang.String">
+		select * from t_borrow_type_log where identifier =
+		#{identifier}
+	</select>
+
+	<select id="queryBorrowInvest" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select * from v_t_borrow_invest where id = #{id}
+	</select>
+
+	<select id="queryRePayByid" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select * from v_t_borrow_repayment where borrowId=
+		#{borrowId}
+	</select>
+
+	<select id="queryNoviceStandard" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select t.borrowTitle FROM t_borrow t,t_borrow_sub_type s
+		where t.borrowTypeSubId = s.id and s.id =5 and t.id= #{borrowId}
+	</select>
+
+	<select id="getInvestPWD" resultType="java.util.Map">
+		select id from t_borrow
+		where id=#{param1} and investPWD=#{param2}
+	</select>
+
+	<select id="callAccountJoinBackProcedure" statementType="CALLABLE"
+		resultType="java.util.Map" parameterType="java.util.Map">
+		{CALL p_account_join_call_back(
+		#{in_bid,jdbcType=BIGINT,mode=IN},
+		#{in_ordid,jdbcType=BIGINT,mode=IN},
+		#{in_uid,jdbcType=BIGINT,mode=IN},
+		#{in_basepath,jdbcType=VARCHAR,mode=IN},
+		#{in_invest_amount,jdbcType=DOUBLE,mode=IN},
+		#{vocherAmt,jdbcType=DOUBLE,mode=IN},
+		#{in_invest_time,jdbcType=TIMESTAMP,mode=IN},
+		#{in_status,jdbcType=INTEGER,mode=IN},
+		#{in_num,jdbcType=INTEGER,mode=IN},
+		#{in_pMerBillNo,jdbcType=VARCHAR,mode=IN},
+		#{in_pIpsBillNo,jdbcType=VARCHAR,mode=IN},
+		#{investId,jdbcType=VARCHAR,mode=IN},
+		#{in_isAutoBid,jdbcType=INTEGER,mode=IN},
+		#{in_voucherId,jdbcType=BIGINT,mode=IN},
+		#{in_pageType,jdbcType=VARCHAR,mode=IN},
+		#{out_ret,jdbcType=INTEGER,mode=OUT},
+		#{out_desc,jdbcType=VARCHAR,mode=OUT}
+		)
+		}
+	</select>
+
+	<select id="getBorrowById" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select t.id AS borrowid,t.borrowTitle
+		AS name,concat('financeDetail.do?id=',t.id) as url,
+		IF(isDayThe=1,0,1) as isday,IF(isDayThe=2,0,t.deadline) as
+		timelimit,IF(isDayThe=1,0,t.deadline)
+		as timelimitday, t.borrowAmount as account,t.publisher as
+		owner,t.annualRate as apr,'0' as
+		award,'0' as partaccount,'0' as funds, case when paymentMode=1 then 0 when
+		paymentMode=4
+		then 1 else 3 end as repaymentType, case when borrowWay=1 then 2 when
+		borrowWay=2 then 3
+		when borrowWay=6 then 4 else 1 end as type, publishTime as
+		addtime,t.hasInvestAmount as
+		sumtender,minTenderedSum as startmoney,investNum as tenderTimes from t_borrow t where id
+		=#{id}
+	</select>
+
+
+	<select id="getBorrowIdByBorrowStatus" resultType="java.lang.Long"
+		parameterType="java.lang.Integer">
+		SELECT id FROM t_borrow WHERE
+		remainTimeStart &lt; remainTimeEnd AND borrowStatus = #{borrowStatus}
+	</select>
+
+	<select id="queryMaxTime" resultType="java.lang.Long">
+		SELECT id FROM t_borrow a
+		WHERE a.borrowStatus = 2 AND a.remainTimeEnd > #{0} and a.id = #{1}
+	</select>
+
+
+	<update id="updateBorrowRemainTimeStartById">
+		UPDATE t_borrow SET remainTimeStart =#{0} where id
+		=#{1}
+	</update>
+
+	<select id="queryMinTime" resultType="java.lang.Long">
+		SELECT id
+		FROM t_borrow WHERE borrowStatus = 2 and remainTimeEnd &lt; #{0} and
+		id =#{1}
+	</select>
+
+	<select id="queryBorrowState" resultType="java.lang.Long"
+		parameterType="java.lang.Long">
+		SELECT id FROM t_borrow WHERE
+		borrowAmount = hasInvestAmount and borrowStatus = 2 and id
+		=#{borrowId}
+	</select>
+
+	<update id="updateBorrowState">
+		update t_borrow set remainTimeStart =
+		remainTimeEnd,borrowStatus =#{0}, sort =#{1} where id =#{2}
+	</update>
+
+
+	<select id="callBorrowCancelProcedure" statementType="CALLABLE"
+		resultType="java.util.Map" parameterType="java.util.Map">
+		{CALL p_borrow_cancel(
+		#{in_bid,jdbcType=BIGINT,mode=IN},
+		#{in_aid,jdbcType=BIGINT,mode=IN},
+		#{in_status,jdbcType=INTEGER,mode=IN},
+		#{in_audit_opinion,jdbcType=VARCHAR,mode=IN},
+		#{in_basepath,jdbcType=VARCHAR,mode=IN},
+		#{out_ret,jdbcType=INTEGER,mode=OUT},
+		#{out out_desc,jdbcType=VARCHAR,mode=OUT}
+		)
+		}
+	</select>
+
+
+	<select id="queryBorrowPublishById" resultType="java.lang.Long"
+		parameterType="java.lang.Long">
+		SELECT publisher FROM t_borrow WHERE id
+		=#{id}
+	</select>
+
+	<select id="queryBorrowForInspection" resultType="java.util.Map">
+		SELECT a.id AS
+		borrowId,a.borrowTitle AS borrowTitle,a.loanUserId AS loanUserId FROM
+		t_borrow a WHERE a.borrowStatus &lt; 5
+		AND a.id NOT in (select b.borrowId FROM t_borrow_inspection b where
+		month(b.createTime)=month(now()))
+	</select>
+
+
+	<select id="queryBorrowCostByPayId" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select a.feestate,a.feelog from t_borrow a left join
+		t_repayment b on b.borrowId = a.id where b.id=#{id}
+	</select>
+
+	<select id="queryBorrowCost" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select a.feestate,a.feelog from t_borrow a where
+		a.id=#{id}
+	</select>
+
+	<select id="queryborrowManageForPage" resultType="java.util.Map">
+		SELECT * from v_t_borrow_publish where borrowStatus in
+		<foreach item="borrowStatus" index="index" collection="param4"
+			open="(" separator="," close=")">
+			#{borrowStatus}
+		</foreach>
+		<if test="param2!=null and param3!=null">
+			AND publishTime &gt;= #{1} and publishTime &lt;= #{2}
+		</if>
+		AND userId =#{0} ORDER BY id desc LIMIT #{4},#{5}
+	</select>
+
+	<select id="queryborrowManageCount" resultType="java.lang.Long">
+		SELECT COUNT(1) AS investCount FROM v_t_borrow_publish a WHERE
+		a.borrowStatus in
+		<foreach item="borrowStatus" index="index" collection="param4"
+			open="(" separator="," close=")">
+			#{borrowStatus}
+		</foreach>
+		<if test="param2!=null and param3!=null">
+			and a.publishTime &gt;= #{1} and a.publishTime &lt;= #{2}
+		</if>
+		AND a.userId =#{0}
+	</select>
+
+	<select id="queryMySuccessBorrowList" resultType="java.util.Map">
+		SELECT
+		id,borrowTitle,borrowWay,borrowAmount,annualRate,deadline,date_format(publishTime,'%Y-%m-%d')
+		as publishTime,
+		publisher,borrowStatus,paymentMode,
+		isDayThe,borrowId,stillTotalSum,hasPI,hasSum,hasFI,date_format(auditTime,'%Y-%m-%d')
+		as auditTime,borrowWayName
+		from t_borrow_success_list where
+		borrowStatus in
+		<foreach item="borrowStatus" index="index" collection="param4"
+			open="(" separator="," close=")">
+			#{borrowStatus}
+		</foreach>
+		<if test="param2!=null and param3!=null">
+			AND publishTime &gt;= #{1} and publishTime &lt;= #{2}
+		</if>
+		AND publisher =#{0} AND borrowId is not null ORDER BY publishTime desc
+		LIMIT #{4},#{5}
+	</select>
+
+
+	<select id="callBorrowRepaymentProcedure" statementType="CALLABLE"
+		resultType="java.util.Map" parameterType="java.util.Map">
+		{CALL p_borrow_repayment(
+		#{in_pid,jdbcType=BIGINT,mode=IN},
+		#{in_uid,jdbcType=BIGINT,mode=IN},
+		#{in_dealpwd,jdbcType=VARCHAR,mode=IN},
+		#{in_basepath,jdbcType=VARCHAR,mode=IN},
+		#{in_pay_time,jdbcType=TIMESTAMP,mode=IN},
+		#{in_ifeerate,jdbcType=DOUBLE,mode=IN},
+		#{in_payType,jdbcType=BIGINT,mode=IN},
+		#{out_ret,jdbcType=INTEGER,mode=OUT},
+		#{out_desc,jdbcType=VARCHAR,mode=OUT}
+		)
+		}
+	</select>
+	<select id="queryMySuccessBorrowCount" resultType="java.lang.Long">
+		SELECT COUNT(1) from t_borrow_success_list where borrowStatus in
+		<foreach item="borrowStatus" index="index" collection="param4"
+			open="(" separator="," close=")">
+			#{borrowStatus}
+		</foreach>
+		<if test="param2!=null and param3!=null">
+			and publishTime &gt;= #{1} and publishTime &lt;= #{2}
+		</if>
+		AND publisher =#{0} AND borrowId is not null
+	</select>
+
+	<select id="queryHetongList" resultType="java.util.Map">
+		SELECT * from v_borrow_hetong_list
+		<if test="param1 != -1">
+			where borrowId = #{0}
+		</if>
+		limit #{1},#{2}
+	</select>
+
+
+
+	<select id="queryHetongListCount" resultType="java.lang.Long">
+		SELECT COUNT(1) from v_borrow_hetong_list
+		<if test="borrowId != -1">
+			where borrowId = #{borrowId}
+		</if>
+	</select>
+
+	<select id="queryBorrowInvestorInfo" resultType="java.util.Map">
+		SELECT * from (SELECT * FROM v_t_bacount_detail UNION ALL SELECT *
+		FROM v_t_bacount_history_detail) a where
+		<if test="param2!=null">
+			a.username LIKE "%"#{1}"%" AND
+		</if>
+		a.publisher=#{0} AND a.borrowId is not null LIMIT #{2},#{3}
+	</select>
+
+	<select id="queryBorrowInvestorCount" resultType="java.lang.Long">
+		SELECT COUNT(1) from (SELECT * FROM v_t_bacount_detail UNION ALL
+		SELECT * FROM v_t_bacount_history_detail) a where
+		<if test="param2!=null">
+			a.username LIKE "%"#{1}"%" AND
+		</if>
+		a.publisher=#{0} AND a.borrowId is not null
+	</select>
+
+	<select id="queryPayingDetails" resultType="java.util.Map">
+		SELECT * from t_success_paying_details where
+		<if test="param2 == 2">
+			repayStatus = #{1} and
+		</if>
+		borrowId = #{0} ORDER BY repayDate asc LIMIT #{2},#{3}
+	</select>
+
+	<select id="queryPayingDetailsCount" resultType="java.lang.Long">
+		SELECT COUNT(1) from t_success_paying_details where
+		<if test="param2 == 2">
+			repayStatus = #{1} and
+		</if>
+		borrowId = #{0}
+	</select>
+
+	<select id="findMyPayData" resultType="java.util.Map">
+		SELECT a.id,
+		(c.usableSum+c.freezeSum)
+		totalSum,c.usableSum,DATE_FORMAT(a.repayDate,'%Y-%m-%d') repayDate,
+		(a.stillPrincipal+a.stillInterest-a.hasPI)
+		forPI,a.lateFI,(a.stillPrincipal+a.stillInterest-a.hasPI+a.lateFI)
+		needSum
+		FROM t_repayment a LEFT JOIN t_borrow b ON a.borrowId=b.id LEFT
+		JOIN t_user c ON b.publisher=c.id where a.id= #{0} limit 0,1
+	</select>
+
+	<select id="valideTradePassWord" resultType="java.util.Map">
+		SELECT id from
+		t_user where id = #{0} and dealpwd = #{1} limit 0,1
+	</select>
+
+	<select id="getInvestCountByBorrowTd" resultType="java.util.Map">
+		SELECT COUNT(1)
+		as investCount FROM t_invest WHERE borrowId= #{0}
+	</select>
+
+	<select id="getRepamentCountByBorrowId" resultType="java.util.Map">
+		SELECT
+		COUNT(1) as rePaymentCount FROM t_invest_repayment WHERE repayId= #{0}
+	</select>
+
+	<select id="callBorrowRepaymentinitProcedure" statementType="CALLABLE"
+		parameterType="java.util.Map" resultType="java.util.Map">
+		{
+		CALL p_borrow_repaymentinit(
+		#{in_bid,jdbcType=BIGINT,mode=IN},
+		#{out_ret,jdbcType=INTEGER,mode=OUT},
+		#{out_desc,jdbcType=VARCHAR,mode=OUT}
+		)
+		}
+	</select>
+
+	<select id="queryAllInvestInfo" resultType="java.util.Map">
+		SELECT * FROM
+		v_t_chianpnr_repay WHERE payId= #{0}
+	</select>
+
+	<select id="queryAssignmentDebtListByInvestId" resultType="java.util.Map">
+		SELECT id, alienatorId, buyTime, auctionerId, ordId FROM
+		t_assignment_debt WHERE id in
+		(select max(id) from t_assignment_debt where investId = #{0} and debtStatus =
+		3) ORDER BY
+		applyTime desc limit 0,2
+	</select>
+
+	<select id="selectInvestId" resultType="java.util.Map">
+		select * from t_invest
+		where id = #{0}
+	</select>
+
+
+
+	<select id="DisposeIntegral" resultType="java.util.Map">
+		select a.id,a.investor
+		userId,((a.realAmount/c.borrowAmount)*b.stillPrincipal) principal from
+		t_invest a
+		left join t_repayment b on a.borrowId = b.borrowId left join t_borrow c on
+		a.borrowId = c.id where b.id = #{0}
+	</select>
+
+	<select id="queryRelationByUserId" resultType="java.util.Map">
+		select * from
+		t_relation where level in(3,4) and peopleId= #{0} limit 0,1
+	</select>
+
+	<select id="queryRelationByPeopleId" resultType="java.util.Map">
+		select * from
+		t_relation where peopleId= #{0} limit 0,1
+	</select>
+
+	<select id="getBorrowTitle" resultType="java.lang.String">
+		SELECT a.borrowTitle AS
+		borrowTitle FROM t_borrow a WHERE a.id = (select t.borrowId from
+		t_assignment_debt t where t.id=#{0})
+	</select>
+
+	<select id="getBorrowPublisherById" resultType="java.lang.Long">
+		select
+		a.publisher AS publisher from t_borrow a WHERE a.id =#{id}
+	</select>
+
+	<select id="queryWaitPublishBorrow" resultType="map">
+		<![CDATA[
+			select b.id from t_borrow b where b.borrowStatus = 7 and b.publishTime <= now() 
+		]]>
+	</select>
+
+	<select id="queryBorrowerById" resultType="java.util.Map">
+		select publisher from
+		t_borrow where id = #{0}
+	</select>
+
+	<select id="queryInvesterById" resultType="java.util.Map">
+		select investor from
+		t_invest t where t.borrowId= (SELECT r.borrowId from t_repayment r
+		where r.id= #{0})
+	</select>
+
+	<select id="queryBorrowUserPersonInfoForUnion" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT
+		a.borrowShow,a.borrowAmount,a.deadline,a.isDayThe,a.borrowWay,a.publisher,a.auditTime
+		AS auditTime,a.annualRate,a.borrowTitle,
+		b.username,a.frozen_margin,a.feestate,a.feelog,d.realName AS
+		realName,d.idNo AS idNo,ts.selectName as purpose,tbs.title as
+		paymentMode
+		FROM t_borrow a LEFT JOIN t_user b ON a.publisher = b.id
+		LEFT JOIN t_person d ON d.userId = b.id LEFT JOIN t_select ts ON
+		a.purpose =
+		ts.selectValue and ts.typeId=1 and ts.deleted = 1 LEFT JOIN t_borrow_style tbs ON
+		a.paymentMode = tbs.id WHERE a.id = #{borrowId}
+	</select>
+
+	<select id="queryBorrowByPayId" resultType="java.util.Map">
+		select borrow_id from
+		t_invest_repayment where repayId= #{0} limit 0, 1
+	</select>
+
+	<select id="queryAllDetails" resultType="java.util.Map">
+		SELECT * from v_t_repayment_detail where
+		<if test="param2!=null and param3!=null">
+			repayDate &gt;= #{1} and repayDate &lt;= #{2} AND
+		</if>
+		publisher =#{0} LIMIT #{3},#{4}
+	</select>
+
+	<update id="updateBorrowStatus">
+		UPDATE t_borrow SET borrowStatus = 2 WHERE id IN
+		<foreach item="item" index="index" collection="array" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</update>
+
+	<select id="queryAllDetailsCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_repayment_detail WHERE
+		<if test="param2!=null and param3!=null">
+			repayDate &gt;= #{1} and repayDate &lt;= #{2} AND
+		</if>
+		publisher =#{0}
+	</select>
+
+
+	<select id="queryAutomaticBid" resultType="java.util.Map">
+		SELECT a.usableSum,b.*
+		FROM t_user a LEFT JOIN t_automaticbid b ON b.userId = a.id
+		where a.id
+		= #{0} limit 0,1
+	</select>
+
+	<select id="queBorrowInfo" resultType="java.util.Map"
+		parameterType="long">
+		SELECT borrowTitle, publisher, feestate, feelog,
+		borrowWay FROM t_borrow WHERE id = #{0} LIMIT 0, 1
+	</select>
+
+	<select id="queryBorrowAll" resultType="java.util.Map">
+		SELECT * FROM v_t_borrow_h a LEFT JOIN (SELECT userid,COUNT(1) AS
+		counts FROM t_materialsauth
+		where auditStatus = 3 GROUP BY userid) b ON a.userid=b.userid WHERE 1=1
+		<if test="param1!=null">
+			AND username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=-1">
+			AND borrowTypeSubId = #{1}
+		</if>
+		<if test="param3!=-1">
+			AND borrowStatus = #{2}
+		</if>
+		ORDER BY id desc LIMIT #{3},#{4}
+	</select>
+
+	<select id="queryBorrowAllCount" resultType="long">
+		SELECT COUNT(1) FROM v_t_borrow_h a LEFT JOIN (SELECT userid,COUNT(1)
+		AS counts FROM t_materialsauth
+		where auditStatus = 3 GROUP BY userid) b ON a.userid=b.userid WHERE 1=1
+		<if test="param1!=null">
+			AND username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=-1">
+			AND borrowTypeSubId = #{1}
+		</if>
+		<if test="param3!=-1">
+			AND borrowStatus = #{2}
+		</if>
+	</select>
+
+
+	<select id="queryBorrowerRecommendCount" resultType="long">
+		SELECT COUNT(1) AS recommendCount FROM t_borrow a WHERE a.recommend=1
+	</select>
+
+
+	<update id="updateBorrowerRecommend">
+		UPDATE t_borrow SET recommend=#{0} WHERE id=#{1}
+	</update>
+
+
+	<select id="queryBorrowFullScale" resultType="java.util.Map">
+		SELECT * FROM v_t_borrow_h_fullscale a
+		LEFT JOIN (SELECT userid,COUNT(1) AS counts FROM t_materialsauth where
+		auditStatus = 3 GROUP BY userid) b
+		ON a.userid=b.userid WHERE 1=1
+		<if test="param1!=null">
+			AND username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=-1">
+			AND borrowTypeSubId = #{1}
+		</if>
+		ORDER BY id desc LIMIT #{2},#{3}
+	</select>
+
+	<select id="queryBorrowFullScaleCount" resultType="long">
+		SELECT COUNT(1) FROM v_t_borrow_h_fullscale a
+		LEFT JOIN (SELECT userid,COUNT(1) AS counts FROM t_materialsauth where
+		auditStatus = 3 GROUP BY userid) b
+		ON a.userid=b.userid WHERE 1=1
+		<if test="param1!=null">
+			AND username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=-1">
+			AND borrowTypeSubId = #{1}
+		</if>
+	</select>
+
+
+	<select id="borrowTenderIn" resultType="java.util.Map">
+		SELECT * FROM  
+			v_t_borrow_h_tenderin a LEFT JOIN 
+			(SELECT userid,COUNT(1) AS counts FROM t_materialsauth where auditStatus = 3 GROUP BY userid) b 
+			ON a.userid=b.userid 
+		 WHERE 1=1
+		<if test="param1!=null">
+			AND username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=-1">
+			AND borrowTypeSubId = #{1}
+		</if>
+		ORDER BY id desc LIMIT #{2},#{3}
+	</select>
+	<select id="borrowTenderInCount" resultType="long">
+		SELECT COUNT(1) FROM 
+			v_t_borrow_h_tenderin a LEFT JOIN 
+			(SELECT userid,COUNT(1) AS counts FROM t_materialsauth where auditStatus = 3 GROUP BY userid) b 
+			ON a.userid=b.userid 
+		WHERE 1=1
+		<if test="param1!=null">
+			AND username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=-1">
+			AND borrowTypeSubId = #{1}
+		</if>
+	</select>
+	
+	<select id="queryBorrowTotalTenderDetail" resultType="java.util.Map">
+		 select sum(borrowAmount) as tenderBorrowAmount from v_t_borrow_h_tenderin 
+	</select>
+	
+
+
+	<select id="borrowFlowMark" resultType="java.util.Map">
+		SELECT * FROM  
+			 v_t_borrow_h_flowmark a LEFT JOIN (SELECT userid,COUNT(1) AS counts FROM t_materialsauth where auditStatus = 3 GROUP BY userid) b ON a.userid=b.userid 
+		 WHERE 1=1
+		<if test="param1!=null">
+			AND username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=-1">
+			AND borrowTypeSubId = #{1}
+		</if>
+		ORDER BY id desc LIMIT #{2},#{3}
+	</select>
+	<select id="borrowFlowMarkCount" resultType="long">
+		SELECT COUNT(1) FROM 
+			 v_t_borrow_h_flowmark a LEFT JOIN (SELECT userid,COUNT(1) AS counts FROM t_materialsauth where auditStatus = 3 GROUP BY userid) b ON a.userid=b.userid 
+		WHERE 1=1
+		<if test="param1!=null">
+			AND username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=-1">
+			AND borrowTypeSubId = #{1}
+		</if>
+	</select>
+	
+	<select id="queryBorrowFlowMarkDetail" resultType="java.util.Map">
+		 select sum(borrowAmount) as flowmarkBorrowAmount from v_t_borrow_h_flowmark
+	</select>
+
+	<select id="queryBorrowTotalAuditAmount" resultType="java.util.Map">
+		SELECT
+		sum(borrowAmount) as borrowTotalAuditAmount FROM
+		v_t_borrow_h_fullscale
+	</select>
+
+	<select id="queryEnterpriseApplyList" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT * FROM v_t_enterprise_apply a WHERE 1=1
+		<if test="param1!=null">
+			AND a.tname LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=null">
+			AND a.telephone LIKE CONCAT('%',#{1},'%')
+		</if>
+		<if test="param3!=null">
+			AND a.borrowAmount =#{2}
+		</if>
+		ORDER BY a.id DESC LIMIT #{3},#{4}
+	</select>
+
+	
+
+<select id="queryEnterpriseApplyCount" resultType="long" parameterType="java.util.Map">
+		SELECT COUNT(1) FROM v_t_enterprise_apply a WHERE 1=1
+		<if test="param1!=null">
+			AND a.tname LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2!=null">
+			AND a.telephone LIKE CONCAT('%',#{1},'%')
+		</if>
+		<if test="param3!=null">
+			AND a.borrowAmount =#{2}
+		</if>
+	</select>
+
+<!-- 	<select id=""> -->
+<!-- 		select id,name from `t_borrow_sub_type` where state =0 -->
+<!-- 	</select> -->
+
+
+	<select id="queryBorrowFullScaleDetailById" resultType="java.util.Map" parameterType="long">
+		SELECT * FROM v_t_borrow_h_fullscale_detail WHERE id =#{0} LIMIT 0,1
+	</select>
+
+	<select id="queryBorrowTenderInDetailById" resultType="java.util.Map" parameterType="long">
+		SELECT v.*,b.projectIntro,b.safeMeasures,b.retsource FROM v_t_borrow_h_tenderin_detail v 
+		LEFT JOIN t_borrow b on v.id=b.id WHERE v.id =#{0} LIMIT 0,1
+	</select>
+
+
+	<select id="queryBorrowLoansOk" resultType="java.util.Map"
+		parameterType="long">
+		select loansOk,unfreeOk from t_borrow where id= #{id}
+	</select>
+
+	<update id="updateLoansOk">
+		UPDATE t_borrow SET loansOk=#{1},unfreeOk=#{2} WHERE id=#{0}
+	</update>
+
+
+	<select id="queryBorrowInfoByApplyId" resultType="java.util.Map" parameterType="java.lang.Long">
+		select `a`.`id` AS `id`,`a`.`companyname` AS `companyname`,`a`.
+		`registnumber` AS
+		`registnumber`,`b`.`userId` AS `userId`,
+		`b`.`authStep` AS `authStep`,`u`.`username` AS `username`,`u`.`ipayAccount` AS
+		`ipayAccount`,`u`.`mobilePhone` AS `mobilePhone`,`p`.`idNo`
+		AS `idNo` , `p`.realName
+		from t_apply a left join t_borrow_role b on a.id=b.applyId left join
+		t_user u on b.userId=u.id LEFT JOIN t_person p ON b.userId = p.userId where
+		a.id=#{applyId} LIMIT 0,1
+	</select>
+
+
+
+	<select id="callBorrowInitializationProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">
+		{CALL p_borrow_initialization(
+		#{in_uid,jdbcType=BIGINT,mode=IN},
+		#{in_borrow_title,jdbcType=VARCHAR,mode=IN},
+		#{in_img_path,jdbcType=VARCHAR,mode=IN},
+		#{in_borrow_way,jdbcType=INTEGER,mode=IN},
+		#{in_borrow_info,jdbcType=VARCHAR,mode=IN},
+		#{in_deadline,jdbcType=INTEGER,mode=IN},
+		#{in_payment_mode,jdbcType=INTEGER,mode=IN},
+		#{in_borrow_amount,jdbcType=DOUBLE,mode=IN},
+		#{in_annual_rate,jdbcType=DOUBLE,mode=IN},
+		#{in_min_tendered_sum,jdbcType=DOUBLE,mode=IN},
+		#{in_max_tendered_sum,jdbcType=DOUBLE,mode=IN},
+		#{in_raise_term,jdbcType=DOUBLE,mode=IN},
+		#{in_detail,jdbcType=VARCHAR,mode=IN},
+		#{in_trade_type,jdbcType=INTEGER,mode=IN},
+		#{in_publisher,jdbcType=BIGINT,mode=IN},
+		#{in_excitation_type,jdbcType=INTEGER,mode=IN},
+		#{in_excitation_sum,jdbcType=DOUBLE,mode=IN},
+		#{in_excitation_mode,jdbcType=INTEGER,mode=IN},
+		#{in_purpose,jdbcType=INTEGER,mode=IN},
+		#{in_haspwd,jdbcType=INTEGER,mode=IN},
+		#{in_investpwd,jdbcType=VARCHAR,mode=IN},
+		#{in_publish_time,jdbcType=TIMESTAMP,mode=IN},
+		#{in_publiship,jdbcType=VARCHAR,mode=IN},
+		#{in_isdaythe,jdbcType=INTEGER,mode=IN},
+		#{in_smallest_flow_unit,jdbcType=DOUBLE,mode=IN},
+		#{in_circulation_number,jdbcType=INTEGER,mode=IN},
+		#{nid_log,jdbcType=VARCHAR,mode=IN},
+		#{in_frozen_margin,jdbcType=DOUBLE,mode=IN},
+		#{in_url,jdbcType=VARCHAR,mode=IN},
+		#{in_bathpath,jdbcType=VARCHAR,mode=IN},
+		#{in_cost_fee,jdbcType=DOUBLE,mode=IN},
+		#{in_feelog,jdbcType=VARCHAR,mode=IN},
+		#{in_feestate,jdbcType=VARCHAR,mode=IN},
+		#{in_agent,jdbcType=VARCHAR,mode=IN},
+		#{in_counter_agent,jdbcType=VARCHAR,mode=IN},
+		#{in_borrow_subType,jdbcType=INTEGER,mode=IN},
+		#{in_projectScorename,jdbcType=VARCHAR,mode=IN},
+		#{in_business_detail,jdbcType=VARCHAR,mode=IN},
+		#{in_assets,jdbcType=VARCHAR,mode=IN},
+		#{in_money_purposes,jdbcType=VARCHAR,mode=IN},
+		#{in_borrow_show,jdbcType=INTEGER,mode=IN},
+		#{out_ret,jdbcType=INTEGER,mode=OUT},
+		#{out_desc,jdbcType=VARCHAR,mode=OUT}
+		)
+		}
+	</select>
+	
+	<select id="callBorrowInitializationAdminProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">
+		{CALL p_borrow_initialization_admin(
+		#{contract_id,jdbcType=VARCHAR,mode=IN},
+		#{in_uid,jdbcType=BIGINT,mode=IN},
+		#{in_borrow_title,jdbcType=VARCHAR,mode=IN},
+		#{in_img_path,jdbcType=VARCHAR,mode=IN},
+		#{in_borrow_way,jdbcType=INTEGER,mode=IN},
+		#{in_hetong,jdbcType=INTEGER,mode=IN},
+		#{in_borrow_info,jdbcType=VARCHAR,mode=IN},
+		#{in_deadline,jdbcType=INTEGER,mode=IN},
+		#{in_payment_mode,jdbcType=INTEGER,mode=IN},
+		#{in_borrow_amount,jdbcType=DOUBLE,mode=IN},
+		#{in_platUseFee,jdbcType=DOUBLE,mode=IN},
+		#{in_borrowFee,jdbcType=DOUBLE,mode=IN},
+		#{in_borrowManageFee,jdbcType=DOUBLE,mode=IN},
+		#{in_InstGuaranteeFee,jdbcType=DOUBLE,mode=IN},
+		#{in_username,jdbcType=VARCHAR,mode=IN},
+		#{in_annual_rate,jdbcType=DOUBLE,mode=IN},
+		#{in_min_tendered_sum,jdbcType=DOUBLE,mode=IN},
+		#{in_max_tendered_sum,jdbcType=DOUBLE,mode=IN},
+		#{in_raise_term,jdbcType=DOUBLE,mode=IN},
+		#{in_detail,jdbcType=VARCHAR,mode=IN},
+		#{in_retsource,jdbcType=VARCHAR,mode=IN},
+		#{in_projectIntro,jdbcType=VARCHAR,mode=IN},
+		#{in_safeMeasures,jdbcType=VARCHAR,mode=IN},
+		#{in_trade_type,jdbcType=INTEGER,mode=IN},
+		#{in_publisher,jdbcType=BIGINT,mode=IN},
+		#{in_excitation_type,jdbcType=INTEGER,mode=IN},
+		#{in_excitation_sum,jdbcType=DOUBLE,mode=IN},
+		#{in_excitation_mode,jdbcType=INTEGER,mode=IN},
+		#{in_purpose,jdbcType=INTEGER,mode=IN},
+		#{in_loanUserId,jdbcType=INTEGER,mode=IN},
+		#{in_behalfUserId,jdbcType=INTEGER,mode=IN},
+		#{in_haspwd,jdbcType=INTEGER,mode=IN},
+		#{in_investpwd,jdbcType=VARCHAR,mode=IN},
+		#{in_publish_time,jdbcType=TIMESTAMP,mode=IN},
+		#{in_publiship,jdbcType=VARCHAR,mode=IN},
+		#{in_isdaythe,jdbcType=INTEGER,mode=IN},
+		#{in_smallest_flow_unit,jdbcType=DOUBLE,mode=IN},
+		#{in_circulation_number,jdbcType=INTEGER,mode=IN},
+		#{in_nid_log,jdbcType=VARCHAR,mode=IN},
+		#{in_frozen_margin,jdbcType=DOUBLE,mode=IN},
+		#{in_url,jdbcType=VARCHAR,mode=IN},
+		#{in_bathpath,jdbcType=VARCHAR,mode=IN},
+		#{in_cost_fee,jdbcType=DOUBLE,mode=IN},
+		#{in_feelog,jdbcType=VARCHAR,mode=IN},
+		#{in_feestate,jdbcType=VARCHAR,mode=IN},
+		#{in_agent,jdbcType=VARCHAR,mode=IN},
+		#{in_counter_agent,jdbcType=VARCHAR,mode=IN},
+		#{in_borrow_subType,jdbcType=INTEGER,mode=IN},
+		#{in_projectScorename,jdbcType=VARCHAR,mode=IN},
+		#{in_business_detail,jdbcType=VARCHAR,mode=IN},
+		#{in_assets,jdbcType=VARCHAR,mode=IN},
+		#{in_money_purposes,jdbcType=VARCHAR,mode=IN},
+		#{in_borrow_show,jdbcType=INTEGER,mode=IN},
+		#{in_borrow_type,jdbcType=INTEGER,mode=IN},
+		#{in_applyId,jdbcType=BIGINT,mode=IN},
+		#{in_userId,jdbcType=BIGINT,mode=IN},
+		#{inbidTime,jdbcType=TIMESTAMP,mode=IN},
+		#{inProjectAddress,jdbcType=VARCHAR,mode=IN},
+		#{inShowRate,jdbcType=VARCHAR,mode=IN},
+		#{inGroupid,jdbcType=INTEGER,mode=IN},
+		#{out_ret,jdbcType=INTEGER,mode=OUT},
+		#{out_desc,jdbcType=VARCHAR,mode=OUT}
+		)
+		}
+	</select>
+
+
+	<select id="queryBorrowRecommendCount" resultType="java.lang.Long" >
+		SELECT COUNT(1) AS recommendCount FROM t_borrow a WHERE a.recommend=#{recommend}
+	</select>
+
+	<select id="getRecommendBorrowIdList" resultType="java.lang.Long" parameterType="java.lang.Long">
+		SELECT id FROM t_borrow a WHERE a.recommend=1 ORDER BY a.id DESC LIMIT 3,20
+	</select>
+
+	<select id="queryBorrowMaxIdInfo" resultType="java.util.Map">
+		select t.id AS borrowid,t.borrowTitle AS name,concat('financeDetail.do?id=',t.id) as url,
+		IF(isDayThe=1,0,1) as isday,IF(isDayThe=2,0,t.deadline) as timelimit,IF(isDayThe=1,0,t.deadline) as timelimitday,
+		t.borrowAmount as account,t.publisher as owner,t.annualRate as apr,'0' as award,'0' as partaccount,'0' as funds,
+		case when paymentMode=1 then 0 when paymentMode=4 then 1 else 3 end as repaymentType, case when borrowWay=1 then 2
+		when borrowWay=2 then 3 when borrowWay=6 then 4 else 1 end as type, publishTime as addtime,t.hasInvestAmount
+		as sumtender,minTenderedSum as startmoney,investNum as tenderTimes from t_borrow t where id = (select MAX(id)
+		from t_borrow)
+	</select>
+	
+	<update id="updateBorrowManageFee">
+		update t_borrow_manage_fee set paymentStatus='1001' where borrowId = #{0}
+	</update>
+
+	<update id="updateBorrowManageFees">
+		UPDATE t_borrow SET manageFee = #{1}, isShow = 1 WHERE id = #{0}
+	</update>
+	<update id="updateAuditStatus">
+		 UPDATE t_borrow  SET adminId=#{1},auditStatus=#{2},auditRemark=#{3},auditOpinion=#{4},basepath=#{5},projectRealPath=#{6}  WHERE id=#{0}
+	</update>
+	<update id="updateBorrowPushstate">
+		update t_borrow set pushdate = #{pushdate},pushstate = #{pushstate} where id =#{id}
+	</update>
+	 
+	<select id="queryBorrowFullScaleInfo" resultType="java.util.Map">
+		SELECT a.*,ta.id as adminId,ta.userName as adminUserName,ta.lastIP 
+		  FROM  v_t_borrow_h_fullscale a LEFT JOIN t_admin ta ON (ta.id = a.adminId) where a.auditStatus = 2
+	</select> 
+	<select id="queryBorrowTitle" resultType="java.lang.String">
+		SELECT a.borrowTitle AS borrowTitle FROM t_borrow a WHERE a.borrowTitle=#{borrowTitle}
+	</select>
+
+ 	<select id="queryRebackBorrowTenderIn" resultType="java.util.Map">
+ 		SELECT i.id,i.trxId,i.investor,i.investAmount,b.publisher,b.borrowTitle,b.id borrrowId,u.usableSum,u.freezeSum,i.voucherId FROM t_invest i 
+		LEFT JOIN t_borrow b on i.borrowId=b.id left join t_user u on u.id=i.investor  where b.id= #{0}
+ 	</select>
+ 	
+ 	<update id="updateBorrowTender">
+ 		UPDATE t_borrow SET retsource=#{retsource},projectIntro=#{projectIntro},detail=#{detail},safeMeasures=#{safeMeasures} WHERE id = #{id}
+ 	</update>
+ 	
+	<select id="queryApplyDebt" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT * FROM v_t_assignment_debt_audit WHERE 1=1
+		<if test="debtStatus != null">
+			and debtStatus in
+			<foreach item="item" index="index" collection="debtStatus"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="borrowerName!=null">
+			AND borrowerName LIKE CONCAT('%',#{borrowerName},'%')
+		</if>
+		<if test="alienatorName!=null">
+			AND alienatorName LIKE CONCAT('%',#{alienatorName},'%')
+		</if>
+		ORDER BY id DESC LIMIT #{index},#{pageSize}
+	</select>	
+	
+	
+	<select id="queryApplyDebtCount" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT COUNT(1) as fullScaleCount FROM v_t_assignment_debt_audit WHERE 1=1
+		<if test="debtStatus != null">
+			and debtStatus in
+			<foreach item="item" index="index" collection="debtStatus"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="borrowerName!=null">
+			AND borrowerName LIKE CONCAT('%',#{borrowerName},'%')
+		</if>
+		<if test="alienatorName!=null">
+			AND alienatorName LIKE CONCAT('%',#{alienatorName},'%')
+		</if>
+	</select>	
+ 	
+	
+	<select id="queryApplyDebtDetail" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT sum(debtSum) as applydebtSum FROM v_t_assignment_debt_audit a WHERE debtStatus=1
+	</select>	
+ 	
+	<select id="queryAssignmentDebt" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT * FROM v_admin_assignment_debt_borrow WHERE 1=1
+		<if test="debtStatus != null">
+			and debtStatus in
+			<foreach item="item" index="index" collection="debtStatus"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="borrowerName!=null">
+			AND borrowerName LIKE CONCAT('%',#{borrowerName},'%')
+		</if>
+		<if test="alienatorName!=null">
+			AND alienatorName LIKE CONCAT('%',#{alienatorName},'%')
+		</if>
+		 order by auctionEndTime DESC LIMIT #{index},#{pageSize}
+	</select>	
+	
+	
+	<select id="queryAssignmentDebtCount" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT COUNT(1) as assignmentCount FROM v_admin_assignment_debt_borrow WHERE 1=1
+		<if test="debtStatus != null">
+			and debtStatus in
+			<foreach item="item" index="index" collection="debtStatus"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="borrowerName!=null">
+			AND borrowerName LIKE CONCAT('%',#{borrowerName},'%')
+		</if>
+		<if test="alienatorName!=null">
+			AND alienatorName LIKE CONCAT('%',#{alienatorName},'%')
+		</if>
+	</select>	
+ 	
+ 	<select id="queryBorrowStatisInitForPage" resultType="java.util.Map">
+ 		SELECT ( 
+			CASE
+				WHEN isDayThe=1 THEN '月'
+				ELSE  '天'
+			END
+		) AS unit, b.* FROM v_t_borrow_statis b WHERE 1=1
+ 		<if test="param3 != null and param3 != ''">
+ 			AND b.auditTime  &gt;= #{2} 
+ 		</if>
+ 		<if test="param4 != null and param4 != ''">
+ 			AND b.auditTime &lt;= #{3}
+ 		</if>
+ 		<if test="param5 != null and param5 != ''">
+ 			AND b.borrowTitle  LIKE '%' #{4} '%'
+ 		</if>
+ 		<if test="param6 != null and param6 != ''">
+ 			AND b.borrower  LIKE '%' #{5} '%'
+ 		</if>
+ 		<if test="param7 != -1">
+ 			AND b.borrowTypeSubId = #{6}
+ 		</if>
+ 		LIMIT #{0},#{1}
+ 	</select>
+ 	
+ 	<select id="queryInvestBorrowStatisInitCount" resultType="java.lang.Long">
+ 		SELECT COUNT(1) FROM v_t_borrow_statis WHERE 1=1
+ 		<if test="param1!= null and param1 != ''">
+ 			AND auditTime  &gt;= #{0} 
+ 		</if>
+ 		<if test="param2 != null and param2 != ''">
+ 			AND auditTime &lt;= #{1}
+ 		</if>
+ 		<if test="param3 != null and param3 != ''">
+ 			AND borrowTitle  LIKE '%' #{2} '%'
+ 		</if>
+ 		<if test="param4 != null and param4 != ''">
+ 			AND borrower  LIKE '%' #{3} '%'
+ 		</if>
+ 		<if test="param5 != -1">
+ 			AND borrowTypeSubId = #{4}
+ 		</if>
+ 	</select>
+ 	
+ 	<select id="queryBorrowStatisAmount" resultType="java.util.Map">
+ 		SELECT SUM(manageFee) AS amount FROM v_t_borrow_statis WHERE 1=1
+ 		<if test="param1!= null and param1 != ''">
+ 			AND auditTime  &gt;= #{0} 
+ 		</if>
+ 		<if test="param2 != null and param2 != ''">
+ 			AND auditTime &lt;= #{1}
+ 		</if>
+ 		<if test="param3 != null and param3 != ''">
+ 			AND borrowTitle  LIKE '%' #{2} '%'
+ 		</if>
+ 		<if test="param4 != null and param4 != ''">
+ 			AND borrower  LIKE '%' #{3} '%'
+ 		</if>
+ 		<if test="param5 != -1">
+ 			AND borrowTypeSubId = #{4}
+ 		</if>
+ 	</select>
+</mapper> 

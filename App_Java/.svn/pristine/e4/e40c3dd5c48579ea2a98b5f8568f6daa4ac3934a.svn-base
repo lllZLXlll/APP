@@ -1,0 +1,28 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.RiskDetail;
+
+public interface RiskDetailDao {
+
+	public Map<String, Object> queryTotalRisk();
+
+	public Map<String, Object> queryCurrentRisk();
+
+	public RiskDetail queryRiskDetailMax();
+
+	public long insertRiskDetail(RiskDetail riskDetail);
+
+	public List<Map<String, Object>> queryRiskDetailForPage(Long l, Long pageSize, Double riskInCome, Double riskSpending, String beginRiskDateStr, String endRiskDateStr,
+			String riskType, String resource);
+
+	public long queryRiskDetailCount(Double riskInCome, Double riskSpending, String beginRiskDateStr, String endRiskDateStr, String riskType, String resource);
+
+	public List<Map<String, Object>> exportCompanyFundRecord();
+
+	public BigDecimal queryRiskDetailSum(String type,Double riskInCome, Double riskSpending, String beginTime, String endTime, String resource, Long index, Long pageSize,String riskType);
+
+}

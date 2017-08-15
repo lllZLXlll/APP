@@ -1,0 +1,53 @@
+package com.pjzb.service.admin.system;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.CloseNetWorkDao;
+import com.pjzb.entity.CloseNetWork;
+import com.pjzb.util.Constants;
+
+/**
+ * 关闭网站
+ *
+ */
+@Service
+public class AdminCloseWebService extends BaseController{
+	
+	@Autowired
+	private CloseNetWorkDao closeNetWorkDao;
+	
+	public String queryNetWorkById(Model model, String tabid ) {
+		try {
+			model.addAttribute("netWork", closeNetWorkDao.queryNetWorkById());
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************查询网站运行状态异常**************************");
+		}
+		return "/admin/system/closeweb/closeNetWork.jsp";
+	}
+
+	public Map<String, Object> updateNetWorkById(Model model, String tabid,CloseNetWork closeNetWork) throws RuntimeException{
+		try{
+			long result = closeNetWorkDao.updateNetWorkById(closeNetWork);
+			if (result > 0) {
+				applicationSetAttribute(Constants.CLOSEWEB, closeNetWork.getStatus());
+				applicationSetAttribute(Constants.CLOSEWEBCONTENT, closeNetWork.getContent());
+				return ajaxDoneInfo("200", "网站状态修改成功", "", tabid);
+			} else {
+				return ajaxDoneInfo("300", "网站状态修改失败", "", "");
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**********网站状态修改异常***************");
+		}
+	}
+
+}

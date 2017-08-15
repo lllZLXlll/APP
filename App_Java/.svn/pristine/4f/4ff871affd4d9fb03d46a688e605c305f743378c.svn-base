@@ -1,0 +1,27 @@
+<%@page import="com.sun.org.apache.xml.internal.serialize.Printer"%>
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@page import="com.pjzb.util.IConstants"%>
+    
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">    
+<meta http-equiv="keywords" content="<%=IConstants.SEO_KEYWORDS%>">
+<meta http-equiv="description" content="<%=IConstants.SEO_DESCRIPTION %>">
+<%=IConstants.SEO_OTHERTAGS %>
+
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/> -->
+<title><%=IConstants.SEO_TITLE %></title>
+<link rel="shortcut icon" href="../favicon.ico">
+<link rel="stylesheet" href="css/shCss/main.css">
+<%--
+<script type="text/javascript" src="script/shJs/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="script/jquery-1.7.1.min.js"></script>
+--%>
+<script type="text/javascript" src="script/shJs/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="script/shJs/ibanner_full.js"></script>
+<script type="text/javascript" src="script/shJs/sidebar.js"></script>
+<script type="text/javascript" src="script/shJs/shzc.js"></script>
+
+<script type="text/javascript" src="My97DatePicker/WdatePicker.js"></script>

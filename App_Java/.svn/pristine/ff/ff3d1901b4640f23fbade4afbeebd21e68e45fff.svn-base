@@ -1,0 +1,97 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/about/Newsport.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			var flag = this.$route.query.flag;
+			if(flag == 1){
+				utils.setAppConfig('新标预告',true,false);
+				this.$set('announcementType','1');
+			}else{
+				utils.setAppConfig('平台公告',true,false);
+				this.$set('announcementType','2');
+			}
+		},
+		data:function(){
+			return {
+				listNum:1,
+				model:false,
+				loading:false,
+				announcementType:''
+			}
+		},
+		route:{
+			data:function(transition){
+				var _this = this;
+				var param={curPage:_this.listNum,announcementType:_this.announcementType};
+				utils.ajax({
+			        url:'../front/frontQueryNewsList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error==0){
+			        		if(data.pageBean.page.length>0){
+								_this.$set('dataList',data.pageBean.page);
+			        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+			        		}else{
+			        			_this.$set('dataLength',true);
+			        		}
+			        	}
+			        },complete: function(){
+			        	transition.next();
+			        }
+			    });
+			},waitForData:true
+		},
+		ready: function(){
+			//$.attachInfiniteScroll('.infinite-scroll');
+			var _this = this;
+			$(document).on('infinite',function(){
+				if (_this.loading){return;}
+				_this.$set('model',true);
+				// 设置flag
+				_this.$set('loading',true);
+				var listNum = _this.listNum+1;
+				//如果查询页数大于当前总页数，则返回
+				if(listNum > _this.totalPageNum){
+					$.toast('没有更多记录了哦');
+					_this.$set('model',false);
+					_this.$set('loading',false);
+					return;
+				}
+				_this.$set('listNum',listNum);
+				//无线滚动
+				var param={curPage:_this.listNum};
+				utils.ajax({
+			        url:'../front/frontQueryNewsList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(data.pageBean.page.length>0){
+			        			if(data.pageBean.page.length<10){
+			        				_this.$set('model',false);
+			        			}
+			        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+			        		}
+			        	}
+			        },complete:function(){
+			        	_this.$set('loading',false);
+			        }
+			    })
+			});
+			$.initPage();
+		},
+		filters: {
+			timeSub: function(value){
+				return value.substring(0,10);
+			}
+		},
+		methods:{
+			toDetail:function(id){
+				router.go({name:'dynamicdetail',append:true,query:{id:id,flag:'1'}});
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

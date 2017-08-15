@@ -1,0 +1,57 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowSubTypeDao;
+
+
+/**
+ * 标的类型
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminBorrowStyleService extends BaseController{
+
+
+	@Autowired
+	private BorrowSubTypeDao borrowSubTypeDao;
+	
+	/**
+	 * 查询 标的类型
+	 * zlx
+	 */
+	public String queryBorrowtypeinfolist(Model model, long pageNum, long pageSize, String tabid) {
+		try {
+			long count = borrowSubTypeDao.queryBorrowtypeinfolistCount();
+			model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, (count > 0) ? borrowSubTypeDao.queryBorrowtypeinfolist((pageNum - 1) * pageSize, pageSize) : null));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询企业融资申请异常**************************");
+		}
+		return "/admin/borrow/borrowstyle/list.jsp";
+	}
+
+	/**
+	 * 修改 标的类型
+	 * zlx
+	 */
+	public long updateStateBorrowType(Long id,Integer state) throws RuntimeException {
+		try {
+			return borrowSubTypeDao.updateStateBorrowType(id, state);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			throw new RuntimeException("**********************修改标的类型异常***************************");
+		}
+	}
+	
+}

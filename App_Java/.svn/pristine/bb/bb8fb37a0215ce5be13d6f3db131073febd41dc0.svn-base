@@ -1,0 +1,896 @@
+package com.pjzb.service.front;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONObject;
+import nl.bitwalker.useragentutils.OperatingSystem;
+import nl.bitwalker.useragentutils.UserAgent;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.ApproveNoticeTemplateDao;
+import com.pjzb.dao.AssignmentDebtDao;
+import com.pjzb.dao.AuctionDebtDao;
+import com.pjzb.dao.BillCodeDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.InvestHistoryDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RiskDetailDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.AssignmentDebt;
+import com.pjzb.entity.BillCode;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.Invest;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.RiskDetail;
+import com.pjzb.entity.User;
+import com.pjzb.entity.vo.BorrowDebtVo;
+import com.pjzb.service.common.SendMessageService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.IAmountConstants;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.IInformTemplateConstants;
+import com.pjzb.util.WebUtil;
+import com.shove.Convert;
+import com.shove.data.DataException;
+import com.shove.web.Utility;
+
+@Service
+public class AssignmentDebtService extends BaseController {
+
+	@Autowired
+	private AssignmentDebtDao assignmentDebtDao;
+
+	@Autowired
+	private AuctionDebtDao auctionDebtDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private InvestHistoryDao investHistoryDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private SendMessageService sendMessageService;
+
+	@Autowired
+	private RiskDetailDao riskDetailDao;
+
+	@Autowired
+	private BillCodeDao billCodeDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private ApproveNoticeTemplateDao approveNoticeTemplateDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public List<AssignmentDebt> queryDueDebt() {
+		return assignmentDebtDao.queryDueDebt();
+	}
+
+	public AssignmentDebt queryDueDebtById(Long id) {
+		return assignmentDebtDao.queryDueDebtById(id);
+	}
+
+	public Map<String, Object> queryAssignmentDebt(long debtId) {
+		return assignmentDebtDao.queryAssignmentDebt(debtId);
+	}
+
+	public List<Map<String, Object>> queryAssignmentDebtListByInvestId(long investId) {
+		return assignmentDebtDao.queryAssignmentDebtListByInvestId(investId);
+	}
+
+	public Map<String, Object> getAssignmentDebt(long id) {
+		return assignmentDebtDao.getAssignmentDebt(id);
+	}
+
+	/**
+	 * 结束债权转让
+	 */
+	@SuppressWarnings("unchecked")
+	public long updateAuctDebtSuccess(long debtId, double fee, String trxId, String basePath) {
+		trxId=Utility.filteSqlInfusion(trxId);
+		long result = -1;
+		Map<String, Object> debtMap = null;
+		Date nowDate = new Date();
+		Map<String, Object> maxMap = null;
+		User auctionerUserMap = null;
+		User userMap = null;
+		Map<String, Object> fundRecordMap = null;
+		Map<String, String> noticeMap = null;
+		Invest investMap = null;
+		Invest investHistoryMap = null;
+		Invest investUpdateMap = null;
+		List<Map<String, Object>> auctionList = null;
+		Map<String, Object> userAmountMap = null;
+		Map<String, String> alienatorUserMap = null;
+		try {
+			// 根据id查询出对应的债权
+			debtMap = assignmentDebtDao.getAssignmentDebt(debtId);
+			/**
+			 * 转让人
+			 */
+			long alienatorId = Convert.strToLong(debtMap.get("alienatorId").toString(), -1);
+			long borrowId = Convert.strToLong(debtMap.get("borrowId").toString(), -1);
+			/**
+			 * 竞拍者
+			 */
+			long auctionerId = Convert.strToLong(debtMap.get("auctionerId").toString(), -1);// 最高竞拍者Id
+			long investId = Convert.strToLong(debtMap.get("investId").toString(), -1);
+
+			double debtSum = Convert.strToDouble(debtMap.get("debtSum").toString(), 0.0);
+			maxMap = auctionDebtDao.queryAuctionMaxPrice(debtId);// 查询出最高出价竞拍信息
+			long counts = auctionDebtDao.queryAuctionDebtCountByDebtId(debtId);
+			nowDate = new Date();
+			String now = DateUtil.dateToString(nowDate);
+			// -- 7 - 9
+			// 查询借款信息得到借款时插入的平台收费标准
+			BorrowDebtVo maps = borrowDao.queryBorrowInfo(borrowId);
+			// 得到收费标准的json代码
+			String feelog = Convert.strToStr(maps.getFeelog(), "");
+			Map<String, Double> feeMap = (Map<String, Double>) JSONObject.toBean(JSONObject.fromObject(feelog), HashMap.class);
+			// 得到收费标准的说明信息
+			// String feestate = Convert.strToStr(maps.getFeestate(), "");
+			// Map<String, String> feestateMap = (Map<String, String>)
+			// JSONObject.toBean(JSONObject.fromObject(feestate),
+			// HashMap.class);
+			// --end
+			if (maxMap != null && StringUtils.isNotBlank(counts + "") && !"0".equals(counts + "")) {
+				// 转让者扣除手续费
+				double manageFee = debtSum * Convert.strToDouble(feeMap.get(IAmountConstants.CREDIT_TRANSFER_FEE_RATE) + "", 0);// 资金流动点1：手续费
+
+				// 债权转让手续费暂且定义为0-zhz
+
+				manageFee = fee;
+
+				/* costManagerDao.getCostManagerNumberByType(conn, 7); */
+				// 修改转让表
+				String[] arr = { "2" };
+
+				Map<String, Object> mapParam = new HashMap<String, Object>();
+				mapParam.put("array", arr);
+				mapParam.put("id", debtId);
+				mapParam.put("manageFee", manageFee);
+				mapParam.put("debtStatus", 3);
+				mapParam.put("auctionEndTime", DateUtil.strToDate(now));
+
+				long updateCount = assignmentDebtDao.updateAssignmentDebt(mapParam);
+				if (updateCount != 0) {
+					result = 1;
+
+					long maxAuctionId = Convert.strToLong(maxMap.get("id").toString(), -1);
+					double maxPrice = Convert.strToDouble(maxMap.get("auctionPrice").toString(), 0.0);
+
+					// 更新投资还款记录是债权转让的状态
+					investRepaymentDao.updateInvestDebtStatus(investId, auctionerId, "," + auctionerId);
+
+					// 操作投资表
+					// 添加投资历史表
+					investMap = investDao.queryInvestById(investId);
+					investHistoryMap = investMap;
+					investHistoryMap.setId(investId);
+					investHistoryMap.setRecivedPrincipal(investMap.getHasPrincipal());
+					investHistoryMap.setRecievedInterest(investMap.getHasInterest());
+					investHistoryMap.setRepayStatus(2);
+					investHistoryMap.setRecivedFi(investMap.getHasFi());
+					investHistoryMap.setManageFee(0d);
+
+					Map<String, Object> historyInfo = investHistoryDao.getInvestHistory(investId);
+
+					if (historyInfo != null) {
+						investHistoryDao.updateInvestHistory(investHistoryMap);
+					} else {
+						// investHistoryMap.setId(null);
+						investHistoryDao.addInvestHistory(investHistoryMap);
+					}
+
+					// 修改投资表
+					investUpdateMap = new Invest();
+					investUpdateMap.setInvestor(auctionerId);
+					investUpdateMap.setHasPi(0d);
+
+					double realAmount = investMap.getRecivedPrincipal() - investMap.getHasPrincipal();
+					double recievedInterest = investMap.getRecievedInterest() - investMap.getHasInterest();
+					investUpdateMap.setRealAmount(realAmount);
+					investUpdateMap.setRecivedPrincipal(realAmount);
+					investUpdateMap.setRecievedInterest(recievedInterest);
+					investUpdateMap.setHasPrincipal(0d);
+					investUpdateMap.setHasInterest(0d);
+					investUpdateMap.setIsDebt(2);
+					investUpdateMap.setManageFee(0d);
+					investUpdateMap.setRecivedFi(investMap.getRecivedFi() - investMap.getHasFi());
+					investUpdateMap.setHasFi(0d);
+					investUpdateMap.setId(investId);
+					// investUpdateMap.put("billcode", trxId);
+
+					investDao.updateInvest(investUpdateMap);
+
+					// 扣除竞拍者金额
+					auctionerUserMap = userDao.queryUserById(auctionerId);// 资金流动点2：扣除竞拍者金额
+
+					userMap = new User();
+					double usableSum = auctionerUserMap.getUsableSum();
+					double freezeSum = auctionerUserMap.getFreezeSum();
+					double dueinSum = auctionerUserMap.getDueinSum();
+					userMap.setDueinSum(dueinSum + debtSum);
+					userMap.setFreezeSum(freezeSum - maxPrice);
+					userMap.setId(auctionerId);
+					userDao.updateUser(userMap);
+
+					// 竞拍者竞拍成功资金记录表
+					userAmountMap = userDao.queryUserAmountAfterHander(auctionerId);
+					if (userAmountMap == null) {
+						userAmountMap = new HashMap<String, Object>();
+					}
+					String borrowTitle = borrowDao.getBorrowTitle(debtId);
+					// 将竞拍成功扣除修改为购买成功 -zhz 2014-03-28 14:21:00
+					String remark = "债权转让[<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target='_blank'>" + borrowTitle + "</a>]购买成功";
+
+					Fundrecord fundrecord = new Fundrecord();
+					fundrecord.setUserId(auctionerId);
+					fundrecord.setFundMode("债权转让购买成功扣除");
+					fundrecord.setHandleSum(maxPrice);
+					fundrecord.setUsableSum((Convert.strToDouble(userAmountMap.get("usableSum").toString(), 0.0)));
+					fundrecord.setFreezeSum((Convert.strToDouble(userAmountMap.get("freezeSum").toString(), 0.0)));
+					fundrecord.setDueinSum(((Convert.strToDouble(userAmountMap.get("forPI").toString(), 0.0)) - (realAmount + recievedInterest)));
+					fundrecord.setTrader(alienatorId);
+					fundrecord.setRecordTime(DateUtil.strToDate(now));
+					fundrecord.setRemarks(remark);
+					fundrecord.setSpending(maxPrice);
+					fundrecord.setOperateType(726);
+					fundrecord.setRecordTime(new Date());
+					fundrecordDao.addFundRecord(fundrecord);
+
+					String remarks = "债权转让[<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target='_blank'>" + borrowTitle + "</a>]成功,待收金额增加";
+					// 债权转让成功待收增加
+					fundrecord = new Fundrecord();
+					fundrecord.setUserId(auctionerId);
+					fundrecord.setFundMode("待收金额增加");
+					fundrecord.setHandleSum(realAmount + recievedInterest);
+					fundrecord.setUsableSum((Convert.strToDouble(userAmountMap.get("usableSum").toString(), 0.0)));
+					fundrecord.setFreezeSum((Convert.strToDouble(userAmountMap.get("freezeSum").toString(), 0.0)));
+					fundrecord.setDueinSum(((Convert.strToDouble(userAmountMap.get("forPI").toString(), 0.0)) - (realAmount + recievedInterest)));
+					fundrecord.setTrader(alienatorId);
+					fundrecord.setRecordTime(DateUtil.strToDate(now));
+					fundrecord.setRemarks(remarks);
+					fundrecord.setIncome(debtSum);
+					fundrecord.setOperateType(1005);
+					fundrecord.setRecordTime(new Date());
+					fundrecordDao.addFundRecord(fundrecord);
+
+					// 发送通知，通过通知模板
+					Map<String, Object> informTemplateMap = new HashMap<String, Object>();
+					List<Map<String, Object>> noticeTemplateList = null;
+					noticeTemplateList = approveNoticeTemplateDao.queryAllInformTemplate();
+					for (Map<String, Object> noticeTemplateMap : noticeTemplateList) {
+						informTemplateMap.put(noticeTemplateMap.get("nid") + "", noticeTemplateMap.get("template") + "");
+						noticeTemplateMap = null;
+					}
+
+					noticeMap = new HashMap<String, String>();
+
+					// 竞拍者消息提醒
+					// 消息模版
+					// 站内信
+					String informTemplate = informTemplateMap.get(IInformTemplateConstants.SUCCESS_BID).toString();
+					informTemplate = informTemplate.replace("date", DateUtil.dateToString((new Date())));
+					informTemplate = informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target=_blank>" + borrowTitle + "</a>");
+					informTemplate = informTemplate.replace("money", maxPrice + "");
+					noticeMap.put("mail", informTemplate);
+
+					// 邮件
+					String e_informTemplate = informTemplateMap.get(IInformTemplateConstants.E_SUCCESS_BID).toString();
+					e_informTemplate = e_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+					e_informTemplate = e_informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + ">" + borrowTitle + "</a>");
+					e_informTemplate = e_informTemplate.replace("money", maxPrice + "");
+					noticeMap.put("email", e_informTemplate);
+
+					// 短信
+					String s_informTemplate = informTemplateMap.get(IInformTemplateConstants.S_SUCCESS_BID).toString();
+					s_informTemplate = s_informTemplate.replace("userName", userDao.queryUserNameById(auctionerId));
+					s_informTemplate = s_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+					s_informTemplate = s_informTemplate.replace("describe", borrowTitle);
+					s_informTemplate = s_informTemplate.replace("money", maxPrice + "");
+					noticeMap.put("note", e_informTemplate);
+					// 债权转让竞拍报告修改为债权转让报告
+					sendMessageService.sendNoticeMSG(auctionerId, "债权转让报告", noticeMap, IConstants.NOTICE_MODE_5);
+
+					// 解除其它未中拍的竞拍者资金
+					auctionList = auctionDebtDao.queryAuctionDebtByDebtId(debtId);
+					Map<Long, Double> frezeMap = new HashMap<Long, Double>(); // 记录解冻的资金
+					for (Map<String, Object> map : auctionList) {
+						long id = Convert.strToLong(map.get("id") + "", -1);
+						long userId = Convert.strToLong(map.get("userId") + "", -1);
+						if (id != maxAuctionId && userId != auctionerId) {
+							auctionerUserMap = userDao.queryUserById(userId);
+							usableSum = auctionerUserMap.getUsableSum();
+							freezeSum = auctionerUserMap.getFreezeSum();
+							double auctionPrice = Convert.strToDouble(map.get("auctionPrice") + "", 0.0);
+							// 防止解冻重复解冻金额
+							if (frezeMap.containsKey(userId)) {
+								double oldAcutionPrice = frezeMap.get(userId);
+								if (oldAcutionPrice >= auctionPrice) {
+									continue;
+								} else {
+									frezeMap.put(userId, auctionPrice);// 记录该用户最大竞拍值
+									auctionPrice = auctionPrice - oldAcutionPrice;
+								}
+
+							} else {
+								frezeMap.put(userId, auctionPrice);// 记录该用户竞拍
+							}
+							userMap = new User();
+							userMap.setUsableSum(usableSum + auctionPrice);
+							userMap.setFreezeSum(freezeSum - auctionPrice);
+							userMap.setId(userId);
+							// 资金流动点3：解除竞拍失败用户冻结
+							if (userDao.updateUser(userMap) > 0) {
+								// 解冻资金操作记录
+								userAmountMap = userDao.queryUserAmountAfterHander(userId);
+								if (userAmountMap == null) {
+									userAmountMap = new HashMap<String, Object>();
+								}
+								String rms = "债权转让[<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target=_blank>" + borrowTitle + "</a>]竞拍失败解冻金额";
+								double usableSumAfter = Convert.strToDouble(userAmountMap.get("usableSum") + "", 0);
+								double freezeSumAfter = Convert.strToDouble(userAmountMap.get("freezeSum") + "", 0);
+								double forPI = Convert.strToDouble(userAmountMap.get("forPI") + "", 0);
+
+								fundrecord = new Fundrecord();
+								fundrecord.setUserId(userId);
+								fundrecord.setFundMode("债权转让竞拍解冻");
+								fundrecord.setHandleSum(auctionPrice);
+								fundrecord.setUsableSum(usableSumAfter);
+								fundrecord.setFreezeSum(freezeSumAfter);
+								fundrecord.setDueinSum(forPI);
+								fundrecord.setTrader(-1l);
+								fundrecord.setRecordTime(new Date());
+								fundrecord.setRemarks(rms);
+								fundrecord.setIncome(auctionPrice);
+								fundrecord.setSpending(0.0);
+								fundrecord.setBorrowId(borrowId);
+								fundrecord.setRepaymentId(-1l);
+								fundrecord.setOperateType(202);
+								fundrecord.setDueoutSum(0.0);
+								fundrecordDao.addFundRecord(fundrecord);
+
+								// 竞拍者消息提醒
+								noticeMap = new HashMap<String, String>();
+
+								// 消息模版
+								// 站内信
+								informTemplate = informTemplateMap.get(IInformTemplateConstants.FAIL_BID).toString();
+								informTemplate = informTemplate.replace("date", DateUtil.dateToString((new Date())));
+								informTemplate = informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target=_blank>" + borrowTitle
+										+ "</a>");
+								informTemplate = informTemplate.replace("money", auctionPrice + "");
+								noticeMap.put("mail", informTemplate);
+
+								// 邮件
+								e_informTemplate = informTemplateMap.get(IInformTemplateConstants.E_FAIL_BID).toString();
+								e_informTemplate = e_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+								e_informTemplate = e_informTemplate.replace("describe", "<a href='" + basePath + "/queryDebtDetail.do?id=" + debtId + "' target='_blank'>"
+										+ borrowTitle + "</a>");
+								e_informTemplate = e_informTemplate.replace("money", auctionPrice + "");
+								noticeMap.put("email", e_informTemplate);
+
+								// 短信
+								s_informTemplate = informTemplateMap.get(IInformTemplateConstants.S_FAIL_BID).toString();
+								s_informTemplate = s_informTemplate.replace("userName", userDao.queryUserNameById(userId));
+								s_informTemplate = s_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+								s_informTemplate = s_informTemplate.replace("describe", borrowTitle);
+								s_informTemplate = s_informTemplate.replace("money", auctionPrice + "");
+								noticeMap.put("note", e_informTemplate);
+								// 债权转让竞拍报告修改为债权转让报告
+								sendMessageService.sendNoticeMSG(userId, "债权转让报告", noticeMap, IConstants.NOTICE_MODE_5);
+							}
+						}
+						// 回收对象
+						map = null;
+					}
+
+					// 转让者待收金额减少资金记录
+					userAmountMap = userDao.queryUserAmountAfterHander(alienatorId);
+					if (userAmountMap == null) {
+						userAmountMap = new HashMap<String, Object>();
+					}
+					// 将竞拍成功修改为转让成功2014-03-28 14:11
+					String remark1 = "债权转让[<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target='_blank'>" + borrowTitle + "</a>]转让成功,待收金额减少";
+
+					fundrecord = new Fundrecord();
+					fundrecord.setUserId(alienatorId);
+					fundrecord.setFundMode("待收金额减少");
+					fundrecord.setHandleSum((realAmount + recievedInterest));
+					fundrecord.setUsableSum(Double.parseDouble(userAmountMap.get("usableSum") + ""));
+					fundrecord.setFreezeSum(Double.parseDouble(userAmountMap.get("freezeSum") + ""));
+					fundrecord.setDueinSum(Double.parseDouble(userAmountMap.get("forPI") + ""));
+					fundrecord.setTrader(auctionerId);
+					fundrecord.setRecordTime(DateUtil.strToDate(now));
+					fundrecord.setRemarks(remark1);
+					fundrecord.setSpending(debtSum);
+					fundrecord.setOperateType(1003);
+					fundrecordDao.addFundRecord(fundrecord);
+
+					// 添加转让者金额
+					alienatorUserMap = userDao.getUserById(alienatorId);
+					userMap = new User();
+					usableSum = Convert.strToDouble(alienatorUserMap.get("usableSum"), 0.0);
+					userMap.setUsableSum(usableSum + maxPrice);
+					dueinSum = Convert.strToDouble(alienatorUserMap.get("dueinSum"), 0.0);
+					userMap.setDueinSum(dueinSum - debtSum);
+					userMap.setId(alienatorId);
+					userDao.updateUser(userMap);
+
+					// 转让者转让成功资金记录
+					userAmountMap = userDao.queryUserAmountAfterHander(alienatorId);
+					if (userAmountMap == null) {
+						userAmountMap = new HashMap<String, Object>();
+					}
+					// 修改竞拍成功收入为转让成功 -zhz2014-03-28 14:09
+					String remark2 = "债权转让[<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target='_blank'>" + borrowTitle + "</a>]转让成功";
+
+					fundrecord = new Fundrecord();
+					fundrecord.setUserId(alienatorId);
+					fundrecord.setFundMode("债权转让成功");
+					fundrecord.setHandleSum(maxPrice);
+					fundrecord.setUsableSum(Double.parseDouble(userAmountMap.get("usableSum") + ""));
+					fundrecord.setFreezeSum(Double.parseDouble(userAmountMap.get("freezeSum") + ""));
+					fundrecord.setDueinSum(Double.parseDouble(userAmountMap.get("forPI") + ""));
+					fundrecord.setTrader(auctionerId);
+					fundrecord.setRecordTime(DateUtil.strToDate(now));
+					fundrecord.setRemarks(remark2);
+					fundrecord.setIncome(maxPrice);
+					fundrecord.setOperateType(201);
+
+					HttpServletRequest requests = request();
+					UserAgent userAgent = UserAgent.parseUserAgentString(requests.getHeader("User-Agent"));
+					OperatingSystem os = userAgent.getOperatingSystem();
+					String osSystem = os.toString();
+					System.out.println("os:" + os);
+					if (osSystem.equalsIgnoreCase("MAC_OS_X_IPHONE") || osSystem.equalsIgnoreCase("ANDROID")) {
+						osSystem = "phonepage";
+					} else {
+						osSystem = "PC";
+					}
+					fundrecord.setPageType(osSystem);
+					fundrecordDao.addFundRecord(fundrecord);
+
+					alienatorUserMap = userDao.getUserById(alienatorId);
+					userMap = new User();
+					usableSum = Convert.strToDouble(alienatorUserMap.get("usableSum"), 0.0);
+					userMap.setUsableSum(usableSum - manageFee);
+					userMap.setId(alienatorId);
+					userDao.updateUser(userMap);
+
+					fundRecordMap = new HashMap<String, Object>();
+					userAmountMap = userDao.queryUserAmountAfterHander(alienatorId);
+					if (userAmountMap == null) {
+						userAmountMap = new HashMap<String, Object>();
+					}
+
+					if (manageFee > 0) {
+						String remark3 = "债权转让[<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target='_blank'>" + borrowTitle + "</a>]转让手续费扣除";
+						fundRecordMap.put("pageType", osSystem);
+
+						fundrecord = new Fundrecord();
+						fundrecord.setUserId(alienatorId);
+						fundrecord.setFundMode("债权转让手续费扣除");
+						fundrecord.setHandleSum(manageFee);
+						fundrecord.setUsableSum(Double.parseDouble(userAmountMap.get("usableSum") + ""));
+						fundrecord.setFreezeSum(Double.parseDouble(userAmountMap.get("freezeSum") + ""));
+						fundrecord.setDueinSum(Double.parseDouble(userAmountMap.get("forPI") + ""));
+						fundrecord.setRecordTime(DateUtil.strToDate(now));
+						fundrecord.setRemarks(remark3);
+						fundrecord.setSpending(manageFee);
+						fundrecord.setIncome(maxPrice);
+						fundrecord.setOperateType(701);
+
+						fundrecordDao.addFundRecord(fundrecord);
+					}
+					// 转让者消息提醒
+					noticeMap = new HashMap<String, String>();
+					// 消息模版
+					// 站内信
+					informTemplate = informTemplateMap.get(IInformTemplateConstants.SUCCESS_CREDIT).toString();
+					informTemplate = informTemplate.replace("date", DateUtil.dateToString((new Date())));
+					informTemplate = informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target=_blank>" + borrowTitle + "</a>");
+					informTemplate = informTemplate.replace("money", maxPrice + "");
+					noticeMap.put("mail", informTemplate);
+
+					// 邮件
+					e_informTemplate = informTemplateMap.get(IInformTemplateConstants.E_SUCCESS_CREDIT).toString();
+					e_informTemplate = e_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+					e_informTemplate = e_informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + ">" + borrowTitle + "</a>");
+					e_informTemplate = e_informTemplate.replace("money", maxPrice + "");
+					noticeMap.put("email", e_informTemplate);
+
+					// 短信
+					s_informTemplate = informTemplateMap.get(IInformTemplateConstants.S_SUCCESS_CREDIT).toString();
+					s_informTemplate = s_informTemplate.replace("userName", userDao.queryUserNameById(alienatorId));
+					s_informTemplate = s_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+					s_informTemplate = s_informTemplate.replace("describe", borrowTitle);
+					s_informTemplate = s_informTemplate.replace("money", maxPrice + "");
+					noticeMap.put("note", e_informTemplate);
+
+					sendMessageService.sendNoticeMSG(alienatorId, "债权转让报告", noticeMap, IConstants.NOTICE_MODE_5);
+
+					// 添加风险保障金
+					Map<String, Object> map = riskDetailDao.queryRiskBalance();
+					String riskBalance = map.get("riskBalance") + "";
+					double riskBalanceDouble = Convert.strToDouble(riskBalance, 0);
+					String riskType = "收入";
+					String resource = "债权转让手续费";
+					String remark_ = "债权手续费转让";
+
+					RiskDetail riskDetail = new RiskDetail();
+					riskDetail.setRiskInCome(manageFee);
+					riskDetail.setOperator(-1l);
+					riskDetail.setRemark(remark_);
+					riskDetail.setRiskBalance(riskBalanceDouble);
+					riskDetail.setRiskDate(nowDate);
+					riskDetail.setRiskType(riskType);
+					riskDetail.setResource(resource);
+					riskDetailDao.insertRiskDetail(riskDetail);
+					if (trxId.length() != 0) {
+						BillCode billCode = new BillCode();
+						billCode.setPipsBillNo(trxId);
+						billCode.setPmerBillNo(trxId);
+						billCodeDao.insertBillCode(billCode);
+					}
+					informTemplateMap = null;
+					// 更新转让人签名
+					userService.updateSign(alienatorId);
+				}
+			} else {
+				// 修改转让表
+				String[] arr = { "2" };
+
+				Map<String, Object> mapParam = new HashMap<String, Object>();
+				mapParam.put("array", arr);
+				mapParam.put("id", debtId);
+				mapParam.put("debtStatus", 5);
+				mapParam.put("auctionEndTime", DateUtil.strToDate(now));
+
+				long updateCount = assignmentDebtDao.updateAssignmentDebt(mapParam);
+				if (updateCount != 0) {
+					result = 1;
+				}
+			}
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			debtMap = null;
+			nowDate = null;
+			maxMap = null;
+			auctionerUserMap = null;
+			userMap = null;
+			fundRecordMap = null;
+			noticeMap = null;
+			investMap = null;
+			investHistoryMap = null;
+			investUpdateMap = null;
+			auctionList = null;
+			userAmountMap = null;
+			alienatorUserMap = null;
+			System.gc();
+		}
+		return result;
+	}
+
+	public Map<String, Object> queryDebtUserName(long parseLong) {
+		return assignmentDebtDao.queryDebtUserName(parseLong);
+	}
+
+	public long updateAssignmentDebt(AssignmentDebt assignmentDebt) {
+		return assignmentDebtDao.updateAssignmentDebtById(assignmentDebt);
+	}
+
+	/**
+	 * 提前还款时处理正在竞拍中的债权
+	 * 
+	 * @param repayId
+	 *            还款Id
+	 * @return
+	 * @throws SQLException
+	 * @throws DataException
+	 */
+	public long updatePreRepayment(long repayId) {
+		long result = -1;
+		List<Integer> list = new ArrayList<Integer>();
+		list.add(1);
+		list.add(2);
+		long borrowId = auctionDebtDao.queryBorrowIdByRepayId(repayId);
+		List<Map<String, Object>> debtList = assignmentDebtDao.queryAssignmentDebtIdss(borrowId, list);
+		if (debtList != null) {
+			for (Map<String, Object> map : debtList) {
+				long id = Convert.strToLong(map.get("id") + "", -1);
+				updateAssignmentDebt(id, list, 7);
+				List<Map<String, Object>> auctionerList = this.getAllauctionerId(id);
+				if (list != null) {
+					for (Map<String, Object> m : auctionerList) {
+						long uid = Convert.strToLong(m.get("userId") + "", -1);
+						userService.updateSign(uid);
+					}
+				}
+			}
+		}
+
+		result = 1;
+		return result;
+	}
+
+	/**
+	 * 撤销转让
+	 * 
+	 * @param debtId
+	 * @param debtStatus
+	 *            5：撤销,7：提前还款
+	 * @throws SQLException
+	 */
+	public long updateCancelAssignmentDebt(long debtId, int debtStatus, long userId, int type) {
+		Map<String, Object> userMap = new HashMap<String, Object>();
+		long result = -1;
+		List<Integer> list = new ArrayList<Integer>();
+		list.add(1);
+		list.add(2);
+		if (isDebtInStatus(debtId, list)) {
+			long dealResult = updateAssignmentDebt(debtId, list, debtStatus);
+			if (dealResult == 1) {
+				if (type == 1) {
+					userMap = userDao.queryUserInfoById(userId);
+					OperationLog ol = new OperationLog("t_assignment_debt", Convert.strToStr(String.valueOf(userMap.get("username")), ""), IConstants.UPDATE, Convert.strToStr(
+							String.valueOf(userMap.get("lastIP")), ""), new Date(), 0.0, "用户取消债权转让", 1, Long.parseLong(String.valueOf(userMap.get("id"))));
+					operationLogDao.addOperationLog(ol);
+				} else {
+					userMap = assignmentDebtDao.queryAdminById(userId);
+					OperationLog ol = new OperationLog("t_assignment_debt", Convert.strToStr(String.valueOf(userMap.get("username")), ""), IConstants.UPDATE, Convert.strToStr(
+							String.valueOf(userMap.get("lastIP")), ""), new Date(), 0.0, "用户取消债权转让", 1, Long.parseLong(String.valueOf(userMap.get("id"))));
+					operationLogDao.addOperationLog(ol);
+				}
+				result = 1;
+			} else {
+			}
+		}
+
+		return result;
+	}
+
+	public boolean isDebtInStatus(long debtId, List<Integer> list) {
+		long counts = -1;
+		try {
+			counts = assignmentDebtDao.isDebtInStatus(debtId, list);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return counts > 0;
+	}
+
+	/**
+	 * 债权转让失败操作
+	 * 
+	 * @param conn
+	 * @param debtId
+	 * @param debtStatus
+	 *            5：撤销,7：提前还款
+	 * @throws DataException
+	 * @throws SQLException
+	 */
+	private long updateAssignmentDebt(long debtId, List<Integer> preDebtStatus, int debtStatus) {
+		long result = -1;
+		List<Map<String, Object>> auctionList = auctionDebtDao.queryAuctionDebtByDebtId(debtId);
+		String borrowTitle = assignmentDebtDao.getBorrowTitle(debtId);
+		String basePath = WebUtil.getBasePath();
+
+		Map<String, Object> updateDebtMap = new HashMap<String, Object>();
+		updateDebtMap.put("auctionEndTime", DateUtil.dateToString(new Date()));
+		updateDebtMap.put("debtStatus", debtStatus + "");
+		updateDebtMap.put("id", debtId);
+		updateDebtMap.put("array", preDebtStatus);
+		long updateCount = assignmentDebtDao.updateAssignmentDebt(updateDebtMap);
+		if (updateCount != 0) {
+			result = 1;
+			if (auctionList != null) {
+				Map<Long, Double> frezeMap = new HashMap<Long, Double>(); // 记录解冻的资金
+				for (Map<String, Object> map : auctionList) {
+					long userId = Convert.strToLong(map.get("userId") + "", -1);
+					Map<String, Object> auctionerUserMap = auctionDebtDao.getUserById(userId);
+					Map<String, Object> userMap = new HashMap<String, Object>();
+					double usableSum = Convert.strToDouble(String.valueOf(auctionerUserMap.get("usableSum")), 0.0);
+					double freezeSum = Convert.strToDouble(String.valueOf(auctionerUserMap.get("freezeSum")), 0.0);
+					double auctionPrice = Convert.strToDouble(String.valueOf(map.get("auctionPrice")) + "", 0.0);
+					// 防止解冻重复解冻金额
+
+					if (frezeMap.containsKey(userId)) {
+						double oldAcutionPrice = frezeMap.get(userId);
+						if (oldAcutionPrice >= auctionPrice) {
+							continue;
+						} else {
+							frezeMap.put(userId, auctionPrice);// 记录该用户最大竞拍值
+							auctionPrice = auctionPrice - oldAcutionPrice;
+						}
+					} else {
+						frezeMap.put(userId, auctionPrice);// 记录该用户竞拍
+					}
+					userMap.put("usableSum", (usableSum + auctionPrice) + "");
+					userMap.put("freezeSum", (freezeSum - auctionPrice) + "");
+					userMap.put("id", userId);
+					if (userDao.updateUsers(userMap) > 0) {
+						// 解冻资金操作记录
+						Map<String, Object> userAmountMap = userDao.queryUserAmountAfterHander(userId);
+						if (userAmountMap == null) {
+							userAmountMap = new HashMap<String, Object>();
+						}
+						double usableSumAfter = Convert.strToDouble(userAmountMap.get("usableSum") + "", 0);
+						double freezeSumAfter = Convert.strToDouble(userAmountMap.get("freezeSum") + "", 0);
+						double forPI = Convert.strToDouble(userAmountMap.get("forPI") + "", 0);
+						String remark = "[<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target=_blank>" + borrowTitle + "</a>]竞拍失败解冻";
+						Fundrecord fundrecord = new Fundrecord();
+						fundrecord.setUserId(userId);
+						fundrecord.setFundMode("债权转让竞拍解冻");
+						fundrecord.setHandleSum(auctionPrice);
+						fundrecord.setUsableSum(usableSumAfter);
+						fundrecord.setFreezeSum(freezeSumAfter);
+						fundrecord.setDueinSum(forPI);
+						fundrecord.setTrader(-1L);
+						fundrecord.setRecordTime(new Date());
+						fundrecord.setRemarks(remark);
+						fundrecord.setIncome(auctionPrice);
+						fundrecord.setSpending(0.0);
+						fundrecord.setBorrowId(-1L);
+						fundrecord.setRepaymentId(-1L);
+						fundrecord.setOperateType(202);
+						fundrecord.setDueoutSum(0.0);
+						fundrecordDao.addFundRecord(fundrecord);
+						// 竞拍者消息提醒
+						// 发送通知，通过通知模板
+						Map<String, Object> informTemplateMap = getInformTemplate();
+
+						Map<String, String> noticeMap = new HashMap<String, String>();
+
+						// 消息模版
+						// 站内信
+						String informTemplate = informTemplateMap.get(IInformTemplateConstants.FAIL_BID).toString();
+						if (informTemplate == null) {
+							return -1L;
+						}
+						informTemplate = informTemplate.replace("date", DateUtil.dateToString((new Date())));
+						informTemplate = informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target=_blank>" + borrowTitle + "</a>");
+						informTemplate = informTemplate.replace("money", auctionPrice + "");
+						noticeMap.put("mail", informTemplate);
+
+						// 邮件
+						String e_informTemplate = informTemplateMap.get(IInformTemplateConstants.E_FAIL_BID).toString();
+						if (e_informTemplate == null) {
+							return -1L;
+						}
+						e_informTemplate = e_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+						e_informTemplate = e_informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + ">" + borrowTitle + "</a>");
+						e_informTemplate = e_informTemplate.replace("money", auctionPrice + "");
+						noticeMap.put("email", e_informTemplate);
+
+						// 短信
+						String s_informTemplate = informTemplateMap.get(IInformTemplateConstants.S_FAIL_BID).toString();
+						if (s_informTemplate == null) {
+							return -1L;
+						}
+						s_informTemplate = s_informTemplate.replace("userName", assignmentDebtDao.queryUserNameById(userId));
+						s_informTemplate = s_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+						s_informTemplate = s_informTemplate.replace("describe", borrowTitle);
+						s_informTemplate = s_informTemplate.replace("money", auctionPrice + "");
+						noticeMap.put("note", e_informTemplate);
+
+						sendMessageService.sendNoticeMSG(userId, "债权转让竞拍报告", noticeMap, IConstants.NOTICE_MODE_5);
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 查询所有竞拍者
+	 * 
+	 * @param debtId
+	 * @return
+	 * @throws Exception
+	 * @author Li zeyang
+	 */
+	public List<Map<String, Object>> getAllauctionerId(long debtId) {
+		List<Map<String, Object>> auctionList = null;
+		try {
+			auctionList = auctionDebtDao.queryAuctionDebtByDebtId(debtId);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return auctionList;
+	}
+
+	/**
+	 * 添加债权转让
+	 * 
+	 * @param paramMap
+	 * @return
+	 * @author Li zeyang
+	 */
+	public long addAssignmentDebt(Map<String, Object> paramMap) {
+		Map<String, Object> userMap = new HashMap<String, Object>();
+		long result = -1;
+		if (!isHaveAssignmentDebt(Convert.strToLong(paramMap.get("investId") + "", -1), Convert.strToLong(paramMap.get("alienatorId") + "", -1))) {
+			result = assignmentDebtDao.addAssignmentDebt(paramMap);
+			String borrowTitle = assignmentDebtDao.getBorrowTitle(result);
+			// 添加用户动态
+			String cotent = "债权转让了借款<a href=queryDebtDetail.do?id=" + result + " target=_blank>" + borrowTitle + "</a>";
+			assignmentDebtDao.addUserDynamic(Convert.strToLong(paramMap.get("alienatorId") + "", -1), cotent, new Date());
+			userMap = userDao.queryUserInfoById(Convert.strToLong(paramMap.get("alienatorId") + "", -1));
+			OperationLog oLog = new OperationLog("t_assignment_debt", Convert.strToStr(userMap.get("username") + "", ""), IConstants.INSERT, Convert.strToStr(userMap.get("lastIP")
+					+ "", ""), new Date(), 0.0, "发布债权转让", 1, Long.parseLong(userMap.get("id") + ""));
+			operationLogDao.addOperationLog(oLog);
+			result = 1;
+		}
+
+		return result;
+	}
+
+	/**
+	 * 判断是否可以债权转让
+	 * 
+	 * @param strToLong
+	 * @param strToLong2
+	 * @return 返回true则不可以转让，否则可以
+	 * @throws DataException
+	 * @throws SQLException
+	 */
+	public boolean isHaveAssignmentDebt(long investId, long userId) {
+		long count = -1;
+		try {
+			count = assignmentDebtDao.isHaveAssignmentDebt(investId, userId);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return count > 0;
+	}
+
+	public List<Map<String, Object>> queryAuctioner(long debtId) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		try {
+			list = auctionDebtDao.queryAuctionDebtByDebtId(debtId);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return list;
+	}
+}

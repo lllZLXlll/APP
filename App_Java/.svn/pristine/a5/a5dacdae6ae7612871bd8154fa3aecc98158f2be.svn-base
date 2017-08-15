@@ -1,0 +1,16 @@
+package com.pjzb.service.admin.borrow;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 手工补签合同
+ * @author xiaojin
+ *
+ */
+
+@Service
+public class AdminManSuppContractService extends BaseController{
+
+}

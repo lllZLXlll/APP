@@ -1,0 +1,33 @@
+package com.pjzb.service.front;
+
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.entity.Person;
+import com.pjzb.service.common.UserService;
+
+
+@Service
+public class PersonService extends BaseController{
+	public static Log log = LogFactory.getLog(UserService.class);
+	
+	@Autowired
+	private PersonDao personDao;
+
+	/**
+	 * 用户基本信息
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	public Person queryPersonByUserId(long id){
+		return personDao.queryPersonByUserId(id);
+	}
+
+}

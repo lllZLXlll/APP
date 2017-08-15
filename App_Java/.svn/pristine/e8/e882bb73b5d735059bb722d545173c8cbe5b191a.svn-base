@@ -1,0 +1,54 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * Rolerights entity. @author MyEclipse Persistence Tools
+ */
+
+public class Rolerights implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long roleId;
+	private Long rightsId;
+
+	// Constructors
+
+	/** default constructor */
+	public Rolerights() {
+	}
+
+	/** full constructor */
+	public Rolerights(Long roleId, Long rightsId) {
+		this.roleId = roleId;
+		this.rightsId = rightsId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getRoleId() {
+		return this.roleId;
+	}
+
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
+	}
+
+	public Long getRightsId() {
+		return this.rightsId;
+	}
+
+	public void setRightsId(Long rightsId) {
+		this.rightsId = rightsId;
+	}
+
+}

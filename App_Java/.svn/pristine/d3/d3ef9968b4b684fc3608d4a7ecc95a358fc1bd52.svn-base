@@ -1,0 +1,1233 @@
+package com.pjzb.controller.admin;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.Activity;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Banner;
+import com.pjzb.entity.Links;
+import com.pjzb.entity.Mediareport;
+import com.pjzb.entity.Message;
+import com.pjzb.entity.News;
+import com.pjzb.entity.OperateReportPage;
+import com.pjzb.entity.Yybg;
+import com.pjzb.service.admin.declare.AdmIninfoManageService;
+import com.pjzb.service.admin.declare.AdminActivityService;
+import com.pjzb.service.admin.declare.AdminAppOperateReportService;
+import com.pjzb.service.admin.declare.AdminBannerService;
+import com.pjzb.service.admin.declare.AdminFriendLinkService;
+import com.pjzb.service.admin.declare.AdminMediaCoverageService;
+import com.pjzb.service.admin.declare.AdminOperateReportService;
+import com.pjzb.service.admin.declare.AdminPictureManageService;
+import com.pjzb.service.admin.declare.AdminWebConsultService;
+import com.pjzb.service.common.UploadService;
+
+/**
+ * 宣传管理Controller
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminDeclareController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminDeclareController.class);
+
+	@Autowired
+	private AdminMediaCoverageService adminMediaCoverageService;
+
+	@Autowired
+	private AdminWebConsultService adminWebConsultService;
+
+	@Autowired
+	private AdmIninfoManageService adminInfoManageService;
+
+	@Autowired
+	private AdminFriendLinkService adminFriendLinkService;
+
+	@Autowired
+	private AdminBannerService adminBannerService;
+
+	@Autowired
+	private AdminActivityService adminActivityService;
+
+	@Autowired
+	private AdminOperateReportService adminOperateReportService;
+
+	@Autowired
+	private AdminAppOperateReportService adminAppOperateReportService;
+
+	@Autowired
+	private UploadService uploadService;
+	
+	@Autowired
+	private AdminPictureManageService adminPictureManageService;
+
+	/**
+	 * 分页显示媒体报道列表
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/mediaReportListinit")
+	public String recommendInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminMediaCoverageService.queryMediaCoverageForPage(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 添加媒体报道初始化
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addMediaCoverageInit")
+	public String addMediaCoverageInit(Model model, String tabid) {
+		return adminMediaCoverageService.queryMediaCoverageInit(model, tabid);
+	}
+
+	/**
+	 * 添加媒体报道
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addMediareport")
+	@ResponseBody
+	public Map<String, Object> addMediareport(Model model, Mediareport mediareport, String tabid) {
+		try {
+			return adminMediaCoverageService.addMediareport(mediareport, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "媒体报道增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 编辑媒体报道
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateMediareportByIdInit")
+	public String updateMediareportByIdInit(Model model, Long id, String tabid) {
+		return adminMediaCoverageService.queryMediareportByIdInit(id, model, tabid);
+	}
+
+	/**
+	 * 修改媒体报道
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateMediareportById")
+	@ResponseBody
+	public Map<String, Object> updateMediareportById(Model model, Mediareport mediareport, String tabid) {
+		try {
+			return adminMediaCoverageService.updateMediareportById(mediareport, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "媒体报道修改异常", "", "");
+		}
+	}
+
+	/**
+	 * 上传图片
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadDataMediareport")
+	@ResponseBody
+	public Map<String, Object> uploadDataMediareport(MultipartFile file, String dialogId) {
+		try {
+			return adminMediaCoverageService.uploadDataMediareport(file, dialogId, request());
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("statusCode", "300");
+			map.put("message", "上传异常");
+			return map;
+		}
+	}
+
+	/**
+	 * 上传图片
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadMediareportManager")
+	@ResponseBody
+	public String uploadMediareportManager() {
+		try {
+			return uploadService.uploadMediareportManager();
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.error(e);
+			return null;
+		}
+	}
+
+	/**
+	 * 上传图片
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadMediareport")
+	@ResponseBody
+	public String uploadMediareport() {
+		return uploadService.uploadMediareport();
+	}
+
+	/**
+	 * 设置是否置顶
+	 * 
+	 * @param model
+	 * @param stick
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateMediaStick")
+	@ResponseBody
+	public Map<String, Object> updateStickById(Model model, Integer stick, Long id) {
+		try {
+			return adminMediaCoverageService.updateStickById(stick, id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "置顶设置异常", "", "");
+		}
+	}
+
+	/**
+	 * 删除媒体报道
+	 * 
+	 * @param model
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteMediareportById")
+	@ResponseBody
+	public Map<String, Object> deleteMediareportById(Model model, Long id) {
+		try {
+			return adminMediaCoverageService.deleteMediareportById(id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "删除媒体报道删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 批量删除媒体报道
+	 * 
+	 * @param model
+	 * @param delids
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteMediaCoverageByIds")
+	@ResponseBody
+	public Map<String, Object> deleteMediaCoverageByIds(Model model, String delids) {
+		try {
+			return adminMediaCoverageService.deleteMediareportByIds(delids);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "媒体报道删除异常", "", "");
+		}
+
+	}
+
+	/**
+	 * 预览媒体报道
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/preViewMediaReportInit")
+	public String preViewMediaReportInit(Model model, Long id, String tabid) {
+		return adminMediaCoverageService.queryMediareportById(id, model, tabid);
+	}
+
+	/**
+	 * 网站咨询分页
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/queryNewsListInit")
+	public String queryNewsListInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminWebConsultService.queryNewsListInit(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 官方公告添加初始化
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addNewsInit")
+	public String addNewsInit(Model model, String tabid) {
+		return adminWebConsultService.addNewsInit(model, tabid);
+	}
+
+	/**
+	 * 添加官方公告
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addNews")
+	@ResponseBody
+	public Map<String, Object> addNews(Model model, News news, String tabid) {
+		try {
+			return adminWebConsultService.addNews(news, tabid, getSessionAdminInfo().getId());
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "官方公告增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 删除官方公告
+	 * 
+	 * @param model
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteWebConsultById")
+	@ResponseBody
+	public Map<String, Object> deleteWebConsultById(Model model, Long id) {
+		try {
+			return adminWebConsultService.deleteWebConsultById(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 批量删除官方公告
+	 * 
+	 * @param model
+	 * @param delids
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteWebConsultByIds")
+	@ResponseBody
+	public Map<String, Object> deleteWebConsultByIds(Model model, String delids) {
+		try {
+			return adminWebConsultService.deleteWebConsultByIds(delids);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "官方公告删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 编辑官方公告
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateWebConsultByIdInit")
+	public String updateWebConsultByIdInit(Model model, Long id, String tabid) {
+		return adminWebConsultService.updateWebConsultByIdInit(id, model, tabid);
+	}
+
+	/**
+	 * 修改官方公告
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateWebConsultById")
+	@ResponseBody
+	public Map<String, Object> updateWebConsultById(Model model, News news, String tabid) {
+		try {
+			return adminWebConsultService.updateWebConsultById(news, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "官方公告修改异常", "", "");
+		}
+	}
+
+	/**
+	 * 预览官方公告
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/preViewWebConsultInit")
+	public String preViewWebConsultInit(Model model, Long id, String tabid) {
+		return adminWebConsultService.preViewWebConsultInit(id, model, tabid);
+	}
+
+	/**
+	 * 信息管理分页
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/queryMessageListInit")
+	public String queryMessageListInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminInfoManageService.queryMessageListInit(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 编辑信息管理
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateInfoManageByIdInit")
+	public String updateInfoManageByIdInit(Model model, Long id, String tabid) {
+		return adminInfoManageService.updateInfoManageByIdInit(id, model, tabid);
+	}
+
+	/**
+	 * 修改信息管理
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateInfoManageById")
+	@ResponseBody
+	public Map<String, Object> updateInfoManageById(Model model, Message message, String tabid) {
+		try {
+			return adminInfoManageService.updateInfoManageById(message, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "信息管理修改异常", "", "");
+		}
+	}
+
+	/**
+	 * 预览信息管理
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/preViewInfoManageInit")
+	public String preViewInfoManageInit(Model model, Long id, String tabid) {
+		return adminInfoManageService.preViewInfoManageInit(id, model, tabid);
+	}
+
+	/**
+	 * 友情链接分页
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/queryLinksListPageInit")
+	public String queryLinksListPageInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminFriendLinkService.queryLinksListPageInit(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 友情链接添加初始化
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addLinksInit")
+	public String addLinksInit(Model model, String tabid) {
+		return adminFriendLinkService.addLinksInit(model, tabid);
+	}
+
+	/**
+	 * 添加友情链接
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addLinks")
+	@ResponseBody
+	public Map<String, Object> addLinks(Model model, Links links, String tabid) {
+		try {
+			return adminFriendLinkService.addLinks(links, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "友情链接增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 上传图片
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadLinks")
+	@ResponseBody
+	public Map<String, Object> uploadLinks(MultipartFile file, String dialogId) {
+		return adminFriendLinkService.uploadLinks(file, dialogId, request(),getBasePath());
+	}
+
+	/**
+	 * 删除友情链接
+	 * 
+	 * @param model
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteLinksById")
+	@ResponseBody
+	public Map<String, Object> deleteLinksById(Model model, Long id) {
+		try {
+			return adminFriendLinkService.deleteLinksById(id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 批量删除友情链接
+	 * 
+	 * @param model
+	 * @param delids
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteLinksByIds")
+	@ResponseBody
+	public Map<String, Object> deleteLinksByIds(Model model, String delids) {
+		try {
+			return adminFriendLinkService.deleteLinksByIds(delids);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "友情链接删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 编辑友情链接
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateLinksByIdInit")
+	public String updateLinksByIdInit(Model model, Long id, String tabid) {
+		return adminFriendLinkService.updateLinksByIdInit(id, model, tabid);
+	}
+
+	/**
+	 * 修改友情链接
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateLinksById")
+	@ResponseBody
+	public Map<String, Object> updateLinksById(Model model, Links links, String tabid) {
+		try {
+			return adminFriendLinkService.updateLinksById(links, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "友情链接修改异常", "", "");
+		}
+	}
+
+	/**
+	 * Banner分页
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/toBanner")
+	public String queryBannerListPageInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminBannerService.queryBannerListPageInit(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 修改Banner排序
+	 * 
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateSortByid")
+	@ResponseBody
+	public Map<String, Object> updateSortByid(String tabid) {
+		try {
+			String bannerId = request().getParameter("bannerId");
+			String sort = request().getParameter("sort");
+			return adminBannerService.updateSortByid(bannerId, sort, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "修改异常", "", "");
+		}
+	}
+
+	/**
+	 * 编辑Banner
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateBannerByIdInit")
+	public String updateBannerByIdInit(Model model, Long id, String tabid) {
+		return adminBannerService.updateBannerByIdInit(id, model, tabid);
+	}
+
+	/**
+	 * 修改信息管理
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateBannerById")
+	@ResponseBody
+	public Map<String, Object> updateBannerById(Model model, Banner banner, String tabid) {
+		try {
+			return adminBannerService.updateBannerById(banner, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "Banner修改异常", "", "");
+		}
+	}
+
+	/**
+	 * 删除Banner
+	 * 
+	 * @param model
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteBannerById")
+	@ResponseBody
+	public Map<String, Object> deleteBannerById(Model model, Long id) {
+		try {
+			return adminBannerService.deleteBannerById(id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "删除异常", "", "");
+		}
+	}
+
+	/**
+	 * Banner添加初始化
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addBannerInit")
+	public String addBannerInit(Model model, String tabid) {
+		return adminBannerService.addBannerInit(model, tabid);
+	}
+
+	/**
+	 * 添加Banner
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addBanner")
+	@ResponseBody
+	public Map<String, Object> addBanner(Model model, Banner banner, String tabid) {
+		try {
+			return adminBannerService.addBanner(banner, tabid,getBasePath());
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "Bannner增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 上传banner
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadBanner")
+	@ResponseBody
+	public Map<String, Object> uploadBanner(MultipartFile file, String dialogId) {
+		return adminBannerService.uploadBanner(file, dialogId, request(),getBasePath());
+	}
+
+	/**
+	 * 活动管理分页
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/activityInit")
+	public String activityInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminActivityService.queryActivityListPageInit(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 活动添加初始化
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addActivityInit")
+	public String addActivityInit(Model model, String tabid) {
+		return adminActivityService.addActivityInit(model, tabid);
+	}
+
+	/**
+	 * 添加活动
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addActivity")
+	@ResponseBody
+	public Map<String, Object> addActivity(Model model, Activity activity, String tabid) {
+		try {
+			return adminActivityService.addActivity(activity, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "活动增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 上传图片
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadActivity")
+	@ResponseBody
+	public Map<String, Object> uploadActivity(MultipartFile file, String dialogId) {
+		return adminActivityService.uploadActivity(file, dialogId, request());
+	}
+
+	/**
+	 * 删除活动
+	 * 
+	 * @param model
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteActivityById")
+	@ResponseBody
+	public Map<String, Object> deleteActivityById(Model model, Long id) {
+		try {
+			return adminActivityService.deleteActivityById(id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 批量删活动
+	 * 
+	 * @param model
+	 * @param delids
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteActivityByIds")
+	@ResponseBody
+	public Map<String, Object> deleteActivityByIds(Model model, String delids) {
+		try {
+			return adminActivityService.deleteActivityByIds(delids);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "活动删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 编辑活动
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateActivityByIdInit")
+	public String updateActivityByIdInit(Model model, Long id, String tabid) {
+		return adminActivityService.updateActivityByIdInit(id, model, tabid);
+	}
+
+	/**
+	 * 修改活动管理
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateActivityById")
+	@ResponseBody
+	public Map<String, Object> updateActivityById(Model model, Activity activity, String tabid) {
+		try {
+			return adminActivityService.updateActivityById(activity, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "活动修改异常", "", "");
+		}
+	}
+
+	/**
+	 * 运营报告分页
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/yybgInit")
+	public String OperateReportInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminOperateReportService.queryOperateReportListPageInit(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 运营报告添加初始化
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addYybgInit")
+	public String addYybgInit(Model model, String tabid) {
+		return adminOperateReportService.addYybgInit(model, tabid);
+	}
+
+	/**
+	 * 上传图片
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadYybg")
+	@ResponseBody
+	public Map<String, Object> uploadYybg(MultipartFile file, String dialogId) {
+		return adminOperateReportService.uploadYybg(file, dialogId, request());
+	}
+
+	/**
+	 * 添加运营报告
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addYybg")
+	@ResponseBody
+	public Map<String, Object> addYybg(Model model, Yybg yybg, String tabid) {
+		try {
+			return adminOperateReportService.addYybg(yybg, tabid, getSessionAdminInfo().getUserName());
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "报告增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 上传文件
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadYybgFile")
+	@ResponseBody
+	public Map<String, Object> uploadYybgFile(MultipartFile file, String dialogId, String tabid, int id, int type) {
+		return adminOperateReportService.uploadYybgFile(file, dialogId, request(), tabid, id, type);
+	}
+
+	/**
+	 * 删除运营报告
+	 * 
+	 * @param model
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteYybgById")
+	@ResponseBody
+	public Map<String, Object> deleteYybgById(Model model, Long id) {
+		try {
+			return adminOperateReportService.deleteYybgById(id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "删除异常", "", "");
+		}
+	}
+
+	/**
+	 * APP运营报告分页
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/appOperateReportInit")
+	public String appOperateReportInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminAppOperateReportService.queryAppOperateReportListPageInit(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * App运营报告添加初始化
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addAppOperateReportInit")
+	public String addAppOperateReportInit(Model model, String tabid) {
+		return adminAppOperateReportService.addAppOperateReportInit(model, tabid);
+	}
+
+	/**
+	 * 添加App运营报告
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addAppOperateReport")
+	@ResponseBody
+	public Map<String, Object> addAppOperateReport(Model model, OperateReportPage operateReportPage, String tabid) {
+		try {
+			return adminAppOperateReportService.addAppOperateReport(operateReportPage, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "报告增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 上传图片
+	 * 
+	 * @param file
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadAppOperateReport")
+	@ResponseBody
+	public Map<String, Object> uploadAppOperateReport(MultipartFile file, String dialogId) {
+		return adminAppOperateReportService.uploadAppOperateReport(file, dialogId, request());
+	}
+
+	/**
+	 * 删除App运营报告
+	 * 
+	 * @param model
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteAppOperateReportById")
+	@ResponseBody
+	public Map<String, Object> deleteAppOperateReportById(Model model, Long id) {
+		try {
+			return adminAppOperateReportService.deleteAppOperateReportById(id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 批量删App运营报告
+	 * 
+	 * @param model
+	 * @param delids
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteAppOperateReportByIds")
+	@ResponseBody
+	public Map<String, Object> deleteAppOperateReportByIds(Model model, String delids) {
+		try {
+			return adminAppOperateReportService.deleteAppOperateReportByIds(delids);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "App运营报告删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 编辑App运营报告
+	 * 
+	 * @param model
+	 * @param id
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateAppOperateReportByIdInit")
+	public String updateAppOperateReportByIdInit(Model model, Long id, String tabid) {
+		return adminAppOperateReportService.updateAppOperateReportByIdInit(id, model, tabid);
+	}
+
+	/**
+	 * 修改App运营报告
+	 * 
+	 * @param model
+	 * @param mediareport
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateAppOperateReportById")
+	@ResponseBody
+	public Map<String, Object> updateAppOperateReportById(Model model, OperateReportPage operateReportPage, String tabid) {
+		try {
+			return adminAppOperateReportService.updateAppOperateReportById(operateReportPage, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "报告修改异常", "", "");
+		}
+	}
+	
+	/**
+	 * 图片管理分页查询
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/queryIndexRollImgInit")
+	public String queryIndexRollImgInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminPictureManageService.queryIndexRollImgInit(pageCurrent, pageSize, model, tabid);
+	}
+	
+	/**
+	 * 图片添加初始化
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addIndexRollImgInit")
+	public String addIndexRollImgInit(Model model, String tabid) {
+		return adminPictureManageService.addIndexRollImgInit(model, tabid);
+	}
+	
+	/**
+	 * 上传图片
+	 * @param file
+	 * @param dialogId
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/uploadPicture")
+	@ResponseBody
+	public Map<String, Object> uploadPicture(MultipartFile file, String dialogId) {
+		return adminPictureManageService.uploadPicture(file, dialogId, request());
+	}
+	
+	/**
+	 * 添加图片
+	 * @param model
+	 * @param links
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addIndexRollImgInfo")
+	@ResponseBody
+	public Map<String, Object> addIndexRollImgInfo(Model model, Links links, String tabid) {
+		try {
+			return adminPictureManageService.addIndexRollImgInfo(links, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "图片增加异常", "", "");
+		}
+	}
+	
+	/**
+	 * 图片编辑初始化
+	 * @param model
+	 * @param tabid
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateIndexRollImgInit")
+	public String updateIndexRollImgInit(Model model, String tabid, Long id) {
+		return adminPictureManageService.updateIndexRollImgInit(model, tabid, id);
+	}
+	
+	/**
+	 * 修改图片
+	 * @param model
+	 * @param links
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateIndexRollImg")
+	@ResponseBody
+	public Map<String, Object> updateIndexRollImg(Model model, Links links, String tabid) {
+		try {
+			return adminPictureManageService.updateIndexRollImg(links, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "图片修改异常", "", "");
+		}
+	}
+	
+	/**
+	 * 删除图片
+	 * @param model
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/deleteIndexRollImg")
+	@ResponseBody
+	public Map<String, Object> deleteIndexRollImg(Model model, Long id) {
+		try {
+			return adminPictureManageService.deleteIndexRollImg(id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "删除异常", "", "");
+		}
+	}
+	
+	@RequestMapping(value = "/deleteIndexRollImgByIds")
+	@ResponseBody
+	public Map<String, Object> deleteIndexRollImgByIds(Model model, String delids) {
+		try {
+			return adminPictureManageService.deleteIndexRollImgByIds(delids);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "图片批量删除异常", "", "");
+		}
+	}
+}

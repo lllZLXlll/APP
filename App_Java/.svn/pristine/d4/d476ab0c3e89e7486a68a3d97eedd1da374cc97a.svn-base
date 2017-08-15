@@ -1,0 +1,715 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * User entity. @author MyEclipse Persistence Tools
+ */
+
+public class User implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String email;
+	private String username;
+	private Integer vipStatus;
+	private Integer authStep;
+	private Integer enable;
+	private String password;
+	private String dealpwd;
+	private String mobilePhone;
+	private String refferee;
+	private Integer rating;
+	private Integer creditrating;
+	private String lastIp;
+	private Date lastDate;
+	private Date vipCreateTime;
+	private Long creditLimit;
+	private String headImg;
+	private Date createTime;
+	private String content;
+	private Double usableSum;
+	private Double freezeSum;
+	private Double dueinSum;
+	private Double dueoutSum;
+	private Long kefuId;
+	private Long adminId;
+	private Long groupId;
+	private Long usableCreditLimit;
+	private Long creditlimtor;
+	private Double vipFee;
+	private Integer feeStatus;
+	private Long loginCount;
+	private Date lockTime;
+	private Integer cashStatus;
+	private Double xmax;
+	private Double x;
+	private Double xmin;
+	private Integer isFirstVip;
+	private String sign;
+	private String sign2;
+	private Integer loginErrorCount;
+	private Integer isLoginLimit;
+	private Integer isApplyPro;
+	private String ipayAccount;
+	private Double regRedBag;
+	private String nickname;
+	private Double accountSum;
+	private Integer accountNum;
+	private Integer isEmployeeReferral;
+	private Double vocherAmt;
+	private Double fiVocherAmt;
+	private Double teVocherAmt;
+	private Double twVocherAmt;
+	private String busiCode;
+	private String legalName;
+	private String legalIdNo;
+	private Date loginLimitTime;
+	private Date authTime;
+	private String viewpdfUrl;
+	private String downloadUrl;
+	private String transactionId;
+	private Integer isBehalf;
+	private Integer isLoanManager;
+	private String registerSource;
+	private Integer isAccountSum;
+	private String ipArea;
+	private Integer isInvestAmt;
+	private String dealset;
+
+
+	/** default constructor */
+	public User() {
+	}
+
+	/** full constructor */
+	public User(String email, String username, Integer vipStatus,
+			Integer authStep, Integer enable, String password, String dealpwd,
+			String mobilePhone, String refferee, Integer rating,
+			Integer creditrating, String lastIp, Date lastDate,
+			Date vipCreateTime, Long creditLimit, String headImg,
+			Date createTime, String content, Double usableSum,
+			Double freezeSum, Double dueinSum, Double dueoutSum, Long kefuId,
+			Long adminId, Long groupId, Long usableCreditLimit,
+			Long creditlimtor, Double vipFee, Integer feeStatus,
+			Long loginCount, Date lockTime, Integer cashStatus,
+			Double xmax, Double x, Double xmin, Integer isFirstVip,
+			String sign, String sign2, Integer loginErrorCount,
+			Integer isLoginLimit, Integer isApplyPro, String ipayAccount,
+			Double regRedBag, String nickname, Double accountSum,
+			Integer accountNum, Integer isEmployeeReferral, Double vocherAmt,
+			Double fiVocherAmt, Double teVocherAmt, Double twVocherAmt,
+			String busiCode, String legalName, String legalIdNo,
+			Date loginLimitTime, Date authTime, String viewpdfUrl,
+			String downloadUrl, String transactionId, Integer isBehalf,
+			Integer isLoanManager, String registerSource, Integer isAccountSum,
+			String ipArea, Integer isInvestAmt) {
+		this.email = email;
+		this.username = username;
+		this.vipStatus = vipStatus;
+		this.authStep = authStep;
+		this.enable = enable;
+		this.password = password;
+		this.dealpwd = dealpwd;
+		this.mobilePhone = mobilePhone;
+		this.refferee = refferee;
+		this.rating = rating;
+		this.creditrating = creditrating;
+		this.lastIp = lastIp;
+		this.lastDate = lastDate;
+		this.vipCreateTime = vipCreateTime;
+		this.creditLimit = creditLimit;
+		this.headImg = headImg;
+		this.createTime = createTime;
+		this.content = content;
+		this.usableSum = usableSum;
+		this.freezeSum = freezeSum;
+		this.dueinSum = dueinSum;
+		this.dueoutSum = dueoutSum;
+		this.kefuId = kefuId;
+		this.adminId = adminId;
+		this.groupId = groupId;
+		this.usableCreditLimit = usableCreditLimit;
+		this.creditlimtor = creditlimtor;
+		this.vipFee = vipFee;
+		this.feeStatus = feeStatus;
+		this.loginCount = loginCount;
+		this.lockTime = lockTime;
+		this.cashStatus = cashStatus;
+		this.xmax = xmax;
+		this.x = x;
+		this.xmin = xmin;
+		this.isFirstVip = isFirstVip;
+		this.sign = sign;
+		this.sign2 = sign2;
+		this.loginErrorCount = loginErrorCount;
+		this.isLoginLimit = isLoginLimit;
+		this.isApplyPro = isApplyPro;
+		this.ipayAccount = ipayAccount;
+		this.regRedBag = regRedBag;
+		this.nickname = nickname;
+		this.accountSum = accountSum;
+		this.accountNum = accountNum;
+		this.isEmployeeReferral = isEmployeeReferral;
+		this.vocherAmt = vocherAmt;
+		this.fiVocherAmt = fiVocherAmt;
+		this.teVocherAmt = teVocherAmt;
+		this.twVocherAmt = twVocherAmt;
+		this.busiCode = busiCode;
+		this.legalName = legalName;
+		this.legalIdNo = legalIdNo;
+		this.loginLimitTime = loginLimitTime;
+		this.authTime = authTime;
+		this.viewpdfUrl = viewpdfUrl;
+		this.downloadUrl = downloadUrl;
+		this.transactionId = transactionId;
+		this.isBehalf = isBehalf;
+		this.isLoanManager = isLoanManager;
+		this.registerSource = registerSource;
+		this.isAccountSum = isAccountSum;
+		this.ipArea = ipArea;
+		this.isInvestAmt = isInvestAmt;
+	}
+
+	// Constructors
+
+	public String getDealset() {
+		return dealset;
+	}
+
+	public void setDealset(String dealset) {
+		this.dealset = dealset;
+	}
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public Integer getVipStatus() {
+		return this.vipStatus;
+	}
+
+	public void setVipStatus(Integer vipStatus) {
+		this.vipStatus = vipStatus;
+	}
+
+	public Integer getAuthStep() {
+		return this.authStep;
+	}
+
+	public void setAuthStep(Integer authStep) {
+		this.authStep = authStep;
+	}
+
+	public Integer getEnable() {
+		return this.enable;
+	}
+
+	public void setEnable(Integer enable) {
+		this.enable = enable;
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getDealpwd() {
+		return this.dealpwd;
+	}
+
+	public void setDealpwd(String dealpwd) {
+		this.dealpwd = dealpwd;
+	}
+
+	public String getMobilePhone() {
+		return this.mobilePhone;
+	}
+
+	public void setMobilePhone(String mobilePhone) {
+		this.mobilePhone = mobilePhone;
+	}
+
+	public String getRefferee() {
+		return this.refferee;
+	}
+
+	public void setRefferee(String refferee) {
+		this.refferee = refferee;
+	}
+
+	public Integer getRating() {
+		return this.rating;
+	}
+
+	public void setRating(Integer rating) {
+		this.rating = rating;
+	}
+
+	public Integer getCreditrating() {
+		return this.creditrating;
+	}
+
+	public void setCreditrating(Integer creditrating) {
+		this.creditrating = creditrating;
+	}
+
+	public String getLastIp() {
+		return this.lastIp;
+	}
+
+	public void setLastIp(String lastIp) {
+		this.lastIp = lastIp;
+	}
+
+	public Date getLastDate() {
+		return this.lastDate;
+	}
+
+	public void setLastDate(Date lastDate) {
+		this.lastDate = lastDate;
+	}
+
+	public Date getVipCreateTime() {
+		return this.vipCreateTime;
+	}
+
+	public void setVipCreateTime(Date vipCreateTime) {
+		this.vipCreateTime = vipCreateTime;
+	}
+
+	public Long getCreditLimit() {
+		return this.creditLimit;
+	}
+
+	public void setCreditLimit(Long creditLimit) {
+		this.creditLimit = creditLimit;
+	}
+
+	public String getHeadImg() {
+		return this.headImg;
+	}
+
+	public void setHeadImg(String headImg) {
+		this.headImg = headImg;
+	}
+
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getContent() {
+		return this.content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Double getUsableSum() {
+		return this.usableSum;
+	}
+
+	public void setUsableSum(Double usableSum) {
+		this.usableSum = usableSum;
+	}
+
+	public Double getFreezeSum() {
+		return this.freezeSum;
+	}
+
+	public void setFreezeSum(Double freezeSum) {
+		this.freezeSum = freezeSum;
+	}
+
+	public Double getDueinSum() {
+		return this.dueinSum;
+	}
+
+	public void setDueinSum(Double dueinSum) {
+		this.dueinSum = dueinSum;
+	}
+
+	public Double getDueoutSum() {
+		return this.dueoutSum;
+	}
+
+	public void setDueoutSum(Double dueoutSum) {
+		this.dueoutSum = dueoutSum;
+	}
+
+	public Long getKefuId() {
+		return this.kefuId;
+	}
+
+	public void setKefuId(Long kefuId) {
+		this.kefuId = kefuId;
+	}
+
+	public Long getAdminId() {
+		return this.adminId;
+	}
+
+	public void setAdminId(Long adminId) {
+		this.adminId = adminId;
+	}
+
+	public Long getGroupId() {
+		return this.groupId;
+	}
+
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
+	}
+
+	public Long getUsableCreditLimit() {
+		return this.usableCreditLimit;
+	}
+
+	public void setUsableCreditLimit(Long usableCreditLimit) {
+		this.usableCreditLimit = usableCreditLimit;
+	}
+
+	public Long getCreditlimtor() {
+		return this.creditlimtor;
+	}
+
+	public void setCreditlimtor(Long creditlimtor) {
+		this.creditlimtor = creditlimtor;
+	}
+
+	public Double getVipFee() {
+		return this.vipFee;
+	}
+
+	public void setVipFee(Double vipFee) {
+		this.vipFee = vipFee;
+	}
+
+	public Integer getFeeStatus() {
+		return this.feeStatus;
+	}
+
+	public void setFeeStatus(Integer feeStatus) {
+		this.feeStatus = feeStatus;
+	}
+
+	public Long getLoginCount() {
+		return this.loginCount;
+	}
+
+	public void setLoginCount(Long loginCount) {
+		this.loginCount = loginCount;
+	}
+
+	public Date getLockTime() {
+		return this.lockTime;
+	}
+
+	public void setLockTime(Date lockTime) {
+		this.lockTime = lockTime;
+	}
+
+	public Integer getCashStatus() {
+		return this.cashStatus;
+	}
+
+	public void setCashStatus(Integer cashStatus) {
+		this.cashStatus = cashStatus;
+	}
+
+	public Double getXmax() {
+		return this.xmax;
+	}
+
+	public void setXmax(Double xmax) {
+		this.xmax = xmax;
+	}
+
+	public Double getX() {
+		return this.x;
+	}
+
+	public void setX(Double x) {
+		this.x = x;
+	}
+
+	public Double getXmin() {
+		return this.xmin;
+	}
+
+	public void setXmin(Double xmin) {
+		this.xmin = xmin;
+	}
+
+	public Integer getIsFirstVip() {
+		return this.isFirstVip;
+	}
+
+	public void setIsFirstVip(Integer isFirstVip) {
+		this.isFirstVip = isFirstVip;
+	}
+
+	public String getSign() {
+		return this.sign;
+	}
+
+	public void setSign(String sign) {
+		this.sign = sign;
+	}
+
+	public String getSign2() {
+		return this.sign2;
+	}
+
+	public void setSign2(String sign2) {
+		this.sign2 = sign2;
+	}
+
+	public Integer getLoginErrorCount() {
+		return this.loginErrorCount;
+	}
+
+	public void setLoginErrorCount(Integer loginErrorCount) {
+		this.loginErrorCount = loginErrorCount;
+	}
+
+	public Integer getIsLoginLimit() {
+		return this.isLoginLimit;
+	}
+
+	public void setIsLoginLimit(Integer isLoginLimit) {
+		this.isLoginLimit = isLoginLimit;
+	}
+
+	public Integer getIsApplyPro() {
+		return this.isApplyPro;
+	}
+
+	public void setIsApplyPro(Integer isApplyPro) {
+		this.isApplyPro = isApplyPro;
+	}
+
+	public String getIpayAccount() {
+		return this.ipayAccount;
+	}
+
+	public void setIpayAccount(String ipayAccount) {
+		this.ipayAccount = ipayAccount;
+	}
+
+	public Double getRegRedBag() {
+		return this.regRedBag;
+	}
+
+	public void setRegRedBag(Double regRedBag) {
+		this.regRedBag = regRedBag;
+	}
+
+	public String getNickname() {
+		return this.nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public Double getAccountSum() {
+		return this.accountSum;
+	}
+
+	public void setAccountSum(Double accountSum) {
+		this.accountSum = accountSum;
+	}
+
+	public Integer getAccountNum() {
+		return this.accountNum;
+	}
+
+	public void setAccountNum(Integer accountNum) {
+		this.accountNum = accountNum;
+	}
+
+	public Integer getIsEmployeeReferral() {
+		return this.isEmployeeReferral;
+	}
+
+	public void setIsEmployeeReferral(Integer isEmployeeReferral) {
+		this.isEmployeeReferral = isEmployeeReferral;
+	}
+
+	public Double getVocherAmt() {
+		return this.vocherAmt;
+	}
+
+	public void setVocherAmt(Double vocherAmt) {
+		this.vocherAmt = vocherAmt;
+	}
+
+	public Double getFiVocherAmt() {
+		return this.fiVocherAmt;
+	}
+
+	public void setFiVocherAmt(Double fiVocherAmt) {
+		this.fiVocherAmt = fiVocherAmt;
+	}
+
+	public Double getTeVocherAmt() {
+		return this.teVocherAmt;
+	}
+
+	public void setTeVocherAmt(Double teVocherAmt) {
+		this.teVocherAmt = teVocherAmt;
+	}
+
+	public Double getTwVocherAmt() {
+		return this.twVocherAmt;
+	}
+
+	public void setTwVocherAmt(Double twVocherAmt) {
+		this.twVocherAmt = twVocherAmt;
+	}
+
+	public String getBusiCode() {
+		return this.busiCode;
+	}
+
+	public void setBusiCode(String busiCode) {
+		this.busiCode = busiCode;
+	}
+
+	public String getLegalName() {
+		return this.legalName;
+	}
+
+	public void setLegalName(String legalName) {
+		this.legalName = legalName;
+	}
+
+	public String getLegalIdNo() {
+		return this.legalIdNo;
+	}
+
+	public void setLegalIdNo(String legalIdNo) {
+		this.legalIdNo = legalIdNo;
+	}
+
+	public Date getLoginLimitTime() {
+		return this.loginLimitTime;
+	}
+
+	public void setLoginLimitTime(Date loginLimitTime) {
+		this.loginLimitTime = loginLimitTime;
+	}
+
+	public Date getAuthTime() {
+		return this.authTime;
+	}
+
+	public void setAuthTime(Date authTime) {
+		this.authTime = authTime;
+	}
+
+	public String getViewpdfUrl() {
+		return this.viewpdfUrl;
+	}
+
+	public void setViewpdfUrl(String viewpdfUrl) {
+		this.viewpdfUrl = viewpdfUrl;
+	}
+
+	public String getDownloadUrl() {
+		return this.downloadUrl;
+	}
+
+	public void setDownloadUrl(String downloadUrl) {
+		this.downloadUrl = downloadUrl;
+	}
+
+	public String getTransactionId() {
+		return this.transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
+
+	public Integer getIsBehalf() {
+		return this.isBehalf;
+	}
+
+	public void setIsBehalf(Integer isBehalf) {
+		this.isBehalf = isBehalf;
+	}
+
+	public Integer getIsLoanManager() {
+		return this.isLoanManager;
+	}
+
+	public void setIsLoanManager(Integer isLoanManager) {
+		this.isLoanManager = isLoanManager;
+	}
+
+	public String getRegisterSource() {
+		return this.registerSource;
+	}
+
+	public void setRegisterSource(String registerSource) {
+		this.registerSource = registerSource;
+	}
+
+	public Integer getIsAccountSum() {
+		return this.isAccountSum;
+	}
+
+	public void setIsAccountSum(Integer isAccountSum) {
+		this.isAccountSum = isAccountSum;
+	}
+
+	public String getIpArea() {
+		return this.ipArea;
+	}
+
+	public void setIpArea(String ipArea) {
+		this.ipArea = ipArea;
+	}
+
+	public Integer getIsInvestAmt() {
+		return this.isInvestAmt;
+	}
+
+	public void setIsInvestAmt(Integer isInvestAmt) {
+		this.isInvestAmt = isInvestAmt;
+	}
+
+}

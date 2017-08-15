@@ -1,0 +1,12 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.ReleaseAlsoReconciliation;
+
+
+public interface ReleaseAlsoReconciliationDao {
+	
+	public void  deleteReleaseAlsoReconciliationByPnrDate(String PnrDate);
+	
+	public long  insertReleaseAlsoReconciliation(ReleaseAlsoReconciliation releaseAlsoReconciliation);
+	
+}

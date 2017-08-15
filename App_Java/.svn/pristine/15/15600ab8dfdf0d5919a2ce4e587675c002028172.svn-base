@@ -1,0 +1,36 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%-- <%@ include file="../../../../../include/base.jsp"%> --%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+<script type="text/javascript" src="../WEB-PC/src/libs/jquery.js"></script>
+<link rel="stylesheet" href="../WEB-PC/src/css/adminresult.css" />
+<script type="text/javascript">
+var timers=5;
+var tipId;
+$(function() {
+	var result = '${result}';
+	if(result.indexOf('成功')){
+		$('.result').addClass('result-success');
+	}else{
+		$('.result').addClass('result-fail');
+	}
+	$('.btn').click(function(){ 		
+		window.location.href="queryUserManageIndex.do";
+	    window.parent.close();
+	    return;
+	});
+});
+</script>
+</head>
+<body>  
+	<div class="pj-result">
+		<div class="result result-success">
+			<p class="big">${result}</p> 
+			<button type="button" class="btn">返回</button>
+		</div>
+	</div> 
+</body>
+</html>

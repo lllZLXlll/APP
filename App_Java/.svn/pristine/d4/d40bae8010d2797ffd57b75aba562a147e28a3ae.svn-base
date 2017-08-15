@@ -1,0 +1,86 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * UserRename entity. @author MyEclipse Persistence Tools
+ */
+
+public class UserRename implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private String rename;
+	private Date startTime;
+	private Date endTime;
+	private Date createTime;
+
+	// Constructors
+
+	/** default constructor */
+	public UserRename() {
+	}
+
+	/** full constructor */
+	public UserRename(Long userId, String rename, Date startTime, Date endTime, Date createTime) {
+		this.userId = userId;
+		this.rename = rename;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.createTime = createTime;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getRename() {
+		return this.rename;
+	}
+
+	public void setRename(String rename) {
+		this.rename = rename;
+	}
+
+	public Date getStartTime() {
+		return this.startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return this.endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+}

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.OperateReportDao">
+
+	
+	
+	<resultMap type="operateReport" id="operateReportResultMap">
+		<id column="id" property="id"/>
+		<result column="month" property="month"/>
+		<result column="createTime" property="createTime"/>
+		<result column="totalInvestAmount" property="totalInvestAmount"/>
+		<result column="totalMonthAmount" property="totalMonthAmount"/>
+		<result column="monthUnRepayAmount" property="monthUnRepayAmount"/>
+		<result column="totalIncome" property="totalIncome"/>
+		<result column="monthIncome" property="monthIncome"/>
+		<result column="totalUser" property="totalUser"/>
+		<result column="monthUser" property="monthUser"/>
+		<result column="totalInvestUser" property="totalInvestUser"/>
+		<result column="monthInvestUser" property="monthInvestUser"/>
+		<result column="monthAvgAmount" property="monthAvgAmount"/>
+		<result column="penAvgAmount" property="penAvgAmount"/>
+		<result column="manProp" property="manProp"/>
+		<result column="womanProp" property="womanProp"/>
+		<result column="hjbUnrepay" property="hjbUnrepay"/>
+		<result column="pjbUnrepay" property="pjbUnrepay"/>
+		<result column="djbUnrepay" property="djbUnrepay"/>
+		<result column="less18" property="less18"/>
+		<result column="o1824" property="o1824"/>
+		<result column="o2529" property="o2529"/>
+		<result column="o3034" property="o3034"/>
+		<result column="o3539" property="o3539"/>
+		<result column="o4049" property="o4049"/>
+		<result column="exc50" property="exc50"/>
+		<result column="beijing" property="beijing"/>
+		<result column="tianjin" property="tianjin"/>
+		<result column="hebei" property="hebei"/>
+		<result column="shanxi" property="shanxi"/>
+		<result column="neimenggu" property="neimenggu"/>
+		<result column="liaoning" property="liaoning"/>
+		<result column="jilin" property="jilin"/>
+		<result column="heilongjiang" property="heilongjiang"/>
+		<result column="shanghai" property="shanghai"/>
+		<result column="jiangsu" property="jiangsu"/>
+		<result column="zhejiang" property="zhejiang"/>
+		<result column="anhui" property="anhui"/>
+		<result column="jiangxi" property="jiangxi"/>
+		<result column="fujian" property="fujian"/>
+		<result column="shandong" property="shandong"/>
+		<result column="taiwan" property="taiwan"/>
+		<result column="henan" property="henan"/>
+		<result column="hubei" property="hubei"/>
+		<result column="hunan" property="hunan"/>
+		<result column="guangdong" property="guangdong"/>
+		<result column="guangxi" property="guangxi"/>
+		<result column="hainan" property="hainan"/>
+		<result column="hongkong" property="hongkong"/>
+		<result column="macao" property="macao"/>
+		<result column="chongqing" property="chongqing"/>
+		<result column="sichuan" property="sichuan"/>
+		<result column="yunan" property="yunan"/>
+		<result column="tibet" property="tibet"/>
+		<result column="guizhou" property="guizhou"/>
+		<result column="shaanxi" property="shaanxi"/>
+		<result column="gansu" property="gansu"/>
+		<result column="qinghai" property="qinghai"/>
+		<result column="ningxia" property="ningxia"/>
+		<result column="xinjiang" property="xinjiang"/>
+	</resultMap>
+
+	<insert id="insertOperateReport">
+	INSERT INTO t_operate_report(month,createTime,totalInvestAmount,totalMonthAmount,monthUnRepayAmount,totalIncome,monthIncome,totalUser,monthUser,
+	totalInvestUser,monthInvestUser,monthAvgAmount,penAvgAmount,manProp,womanProp,hjbUnrepay,pjbUnrepay,djbUnrepay,less18,o1824,o2529,o3034,o3539,o4049,exc50,
+	beijing,tianjin,hebei,shanxi,neimenggu,liaoning,jilin,heilongjiang,shanghai,jiangsu,zhejiang,anhui,jiangxi,fujian,shandong,taiwan,henan,hubei,hunan
+	,guangdong,guangxi,hainan,hongkong,macao,chongqing,sichuan,yunan,tibet,guizhou,shaanxi,gansu,qinghai,ningxia,xinjiang)
+	VALUES(#{month},#{createTime},#{totalInvestAmount},#{totalMonthAmount},#{monthUnRepayAmount},#{totalIncome},#{monthIncome},#{totalUser},#{monthUser},
+	#{totalInvestUser},#{monthInvestUser},#{monthAvgAmount},#{penAvgAmount},#{manProp},#{womanProp},#{hjbUnrepay},#{pjbUnrepay},#{djbUnrepay},#{less18},#{o1824},#{o2529},
+	#{o3034},#{o3539},#{o4049},#{exc50},#{beijing},#{tianjin},#{hebei},#{shanxi},#{neimenggu},#{liaoning},#{jilin},#{heilongjiang},#{shanghai},#{jiangsu},
+	#{zhejiang},#{anhui},#{jiangxi},#{fujian},#{shandong},#{taiwan},#{henan},#{hubei},#{hunan},#{guangdong},#{guangxi},#{hainan},#{hongkong},#{macao},
+	#{chongqing},#{sichuan},#{yunan},#{tibet},#{guizhou},#{shaanxi},#{gansu},#{qinghai},#{ningxia},#{xinjiang})
+	</insert>
+
+	<select id="queryOperateReportCountByMonth" resultType="java.lang.Long" parameterType="java.lang.String">
+		SELECT COUNT(1) AS monthCount FROM t_operate_report a WHERE a.`month`=#{month}
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+

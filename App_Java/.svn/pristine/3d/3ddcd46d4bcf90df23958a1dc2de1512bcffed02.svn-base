@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>忘记密码-普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<link rel="stylesheet" href="src/css/public.css">
+	<link rel="stylesheet" href="src/css/login.css">
+</head>
+<body>
+	<!--[if lt IE 8]>
+    <div class="show-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  	<![endif]-->
+	<!-- top -->
+	<div class="nav-out">
+		<div class="wrap cl">
+			<div class="logo"><a href="index.html"><img src="src/images/logo.png" alt="普金资本"></a></div>
+			<p class="index"><a href="index.html" class="icon icon-home">普金资本首页</a></p>
+		</div>
+	</div>
+	<div class="registpay-content">
+		<div class="recover-box regist-box">
+			<h3>手机找回</h3>
+			<p class="error-msg icon icon-error"></p>
+			<div class="step step-one">
+				<div class="from">
+					<label for="phone" class="icon icon-mobile"></label>
+					<input type="text" name="" id="phone" maxlength="11" placeholder="输入注册时使用的手机号码"/>
+				</div>
+				<div class="from from-msg">
+					<label for="msgcode" class="icon icon-msg"></label>
+					<input type="text" name="" id="msgcode" maxlength="6" placeholder="输入短信验证码"/>
+					<div class="msg-btn">
+						<button type="button" id="getMsgCode">获取验证码</button>
+					</div>
+				</div>
+				<button class="btn" type="button" id="step1">下一步</button>
+			</div>
+			<div class="step step-two">
+				<div class="from">
+					<label for="pwd" class="icon icon-pwd"></label>
+					<input type="password" name="" id="pwd" autocomplete="new-password" placeholder="输入新密码" maxlength="18" >
+				</div>
+				<div class="from">
+					<label for="pwd-c" class="icon icon-pwd"></label>
+					<input type="password" name="" id="pwd-c" autocomplete="new-password" placeholder="确认新密码" maxlength="18">
+				</div>
+				<button class="btn" type="button" id="submit">提交</button>
+			</div>
+			<div class="step step-three">
+				<div class="from-result">
+					<div class="success">
+						<p>密码找回成功!</p>
+					</div>
+				</div>
+				<button class="btn" type="button" id="login">登录</button>
+			</div>
+		</div>
+	</div>
+	<div class="login-footer" style="margin-top:30px;">
+		<p>版权所有 © 普金资本运营（赣州）有限公司 All rights reserved 备案确认书：赣ICP备16004010号</p>
+	</div>
+	<script type="text/javascript" src="src/libs/jquery.js"></script>
+	<script type="text/javascript" src="src/libs/public.js"></script>
+	<script type="text/javascript" src="scripts/recoverpwd.js"></script>
+</body>
+</html>

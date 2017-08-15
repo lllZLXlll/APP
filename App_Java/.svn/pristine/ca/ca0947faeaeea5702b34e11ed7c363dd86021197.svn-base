@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<meta name="format-detection" content="telephone=no; email=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<title>投资赢好礼—普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+		<link rel="stylesheet" href="css/activity_4.css">	
+	</head>
+	<body>
+		<div class="activity">
+			<div class="activity_content">
+				<div class="content_center">
+					<ul>
+						<li class="item_1">
+							<div class="item_img"><img  src="images/activity_04/img_01.png"></div>
+						</li>
+						<li class="item_2">
+							<div class="item_img"><img  src="images/activity_04/img_02.png"></div>
+						</li>
+						<li class="item_3">
+							<div class="item_img"><img  src="images/activity_04/img_03.png"></div>
+						</li>
+						<li class="item_4">
+							<div class="item_img"><img  src="images/activity_04/img_04.png"></div>
+						</li>
+						<li class="item_5">
+							<div class="item_img"><img  src="images/activity_04/img_05.png"></div>
+						</li>
+						<li class="item_6">
+							<div class="item_img"><img  src="images/activity_04/img_06.png"></div>
+						</li>
+						<li class="item_7">
+							<div class="item_img"><img  src="images/activity_04/img_07.png"></div>
+						</li>
+						<li class="item_8">
+							<div class="item_img"><img  src="images/activity_04/img_08.png"></div>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="footer">
+				<div class="title">
+					<div class="title_i">活动说明</div>
+				</div>
+				<div class="text">
+					<p>1、8月5日至9月5日期间投资的金额方可参与累计投资活动;</p>
+					<p>2、如不需实物奖品，可按物品价格8折折现;</p>
+					<p>3、实物奖励将于活动结束后10个工作日内寄出。获奖用户请及时联系客服留下收件地址，以便公司安排邮寄；同城的投资人可联系客服前来公司自取实物奖励;</p>
+					<p>4、普金资本拥有所有最终解释权。如有疑问，欢迎致电400-606-2079。</p>
+				</div>
+			</div>			
+		</div>
+	</body>
+	<script type="text/javascript" src="srcipt/init.js"></script>
+</html>

@@ -1,0 +1,108 @@
+package com.pjzb.service.admin.extend;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.ApproveNoticeTemplateDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.ApproveNoticeStyle;
+import com.pjzb.entity.ApproveNoticeTemplate;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.IConstants;
+
+/**
+ * 提醒方式
+ * 
+ */
+@Service
+public class AdminRemindModeService extends BaseController {
+
+	@Autowired
+	private ApproveNoticeTemplateDao approveNoticeTemplateDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryApproveNoticeStyleList(Model model, String tabid, Long pageNum, Long pageSize, Integer noticeStyle) {
+		noticeStyle = noticeStyle == null ? 1 : noticeStyle;
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		noticeStyle = ConvertUtil.objToIntConvert(noticeStyle);
+		List<ApproveNoticeStyle> list = approveNoticeTemplateDao.queryApproveNoticeStyleListByType(noticeStyle, (pageNum - 1) * pageSize,
+				pageSize);
+		Long count = approveNoticeTemplateDao.queryApproveNoticeStyleCountByType(noticeStyle);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("noticeStyle", noticeStyle);
+		return "/admin/extend/remindmode/list.jsp";
+	}
+
+	public String queryApproveNoticeStyleDetailByType(Model model, String tabid, Long pageNum, Long pageSize, Integer noticeStyle, Long id) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		noticeStyle = ConvertUtil.objToIntConvert(noticeStyle);
+		List<Map<String, Object>> list = approveNoticeTemplateDao.queryApproveNoticeStyleDetailByType(noticeStyle, id, (pageNum - 1) * pageSize,
+				pageSize);
+		Long count = approveNoticeTemplateDao.queryApproveNoticeStyleDetailCountByType(noticeStyle, id);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("noticeStyle", noticeStyle);
+		model.addAttribute("id", id);
+		return "/admin/extend/remindmode/list-manage.jsp";
+	}
+
+	public String queryUpdateNoticeStyleInit(Model model, String tabid, Long id) {
+		ApproveNoticeStyle approveNoticeStyle = approveNoticeTemplateDao.queryApproveNoticeStyleById(id);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("approveNoticeStyle", approveNoticeStyle);
+		return "/admin/extend/remindmode/edit.jsp";
+	}
+
+	public Map<String, Object> updateApproveNoticeStyleById(Model model, ApproveNoticeStyle approveNoticeStyle, String tabid) {
+		long result = approveNoticeTemplateDao.updateApproveNoticeStyleById(approveNoticeStyle);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "修改成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "修改失败", "", "");
+		}
+	}
+
+	public String queryApproveNoticeTemplateById(Model model, String tabid, Integer noticeStyle, Long id) {
+		Map<String, Object> map = approveNoticeTemplateDao.queryApproveNoticeTemplateById(noticeStyle, id);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("map", map);
+		return "/admin/extend/remindmode/update.jsp";
+	}
+
+	public Map<String, Object> updateApproveNoticeTemplateById(Model model, ApproveNoticeTemplate approveNoticeTemplate, String tabid,
+			Admin admin, String ip) {
+		long result = approveNoticeTemplateDao.updateApproveNoticeTemplateById(approveNoticeTemplate);
+		OperationLog operationLog = new OperationLog();
+		operationLog.setOperationTable("t_approve_notice_template");
+		operationLog.setOperationUser(admin.getUserName());
+		operationLog.setOperationIp(ip);
+		operationLog.setOperationType(IConstants.UPDATE);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("提醒管理修改" + result);
+		operationLog.setUserId(admin.getId());
+		operationLog.setOperationTime(new Date());
+		operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+		operationLogDao.addOperationLog(operationLog);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "修改成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "修改失败", "", "");
+		}
+	}
+
+}

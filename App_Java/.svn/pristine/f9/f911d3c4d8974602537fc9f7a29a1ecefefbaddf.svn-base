@@ -1,0 +1,39 @@
+package com.pjzb.service.admin.extend;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.OperationLogDao;
+
+/**
+ * 用户操作记录
+ *
+ */
+@Service
+public class AdminUserOperRecordService extends BaseController {
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryRecordInit(Model model, Long pageCurrent, Long pageSize, String startTime, String endTime,
+			String userName, String operation_around) {
+
+		operation_around = operation_around != null ? operation_around.substring(0, 1) : null;
+		long count = operationLogDao.queryAdminRecordAllCount(userName, startTime, endTime, operation_around);
+
+		model.addAttribute("operation_around" + operation_around, operation_around);
+		model.addAttribute("userName", userName);
+		model.addAttribute("startTime", startTime);
+		model.addAttribute("endTime", endTime);
+		model.addAttribute("pageBean",
+				new PageBean(pageCurrent, pageSize, count, count > 0 ? operationLogDao.queryAdminRecordAll(userName,
+						startTime, endTime, operation_around, (pageCurrent - 1) * pageSize, pageSize) : null));
+
+		return operation_around.equals("1") ? "/admin/extend/useroperrecord/list-user.jsp"
+				: "/admin/extend/useroperrecord/list-admin.jsp";
+	}
+
+}

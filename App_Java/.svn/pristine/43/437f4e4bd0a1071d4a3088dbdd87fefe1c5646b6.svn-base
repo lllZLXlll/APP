@@ -1,0 +1,60 @@
+package com.pjzb.service.admin.borrow;
+
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowManageDao;
+import com.pjzb.dao.BorrowManageFeeDao;
+import com.shove.Convert;
+
+/**
+ * 标的融资管理费
+ * @author zlx
+ *
+ */
+@Service
+public class AdminBorrowManageFeeService extends BaseController{
+
+	@Autowired
+	private BorrowManageDao borrowManageDao;
+	
+	@Autowired
+	private BorrowManageFeeDao borrowManageFeeDao;
+	
+	public String queryBorrowmanagefeeindex(Model model, long pageNum, long pageSize, String userName, Long borrowWay,
+			String tabid) {
+		long count = borrowManageDao.queryBorrowByConditionCount(userName, borrowWay);
+		List<Map<String, Object>> page = borrowManageDao.queryBorrowByCondition(userName, borrowWay, (pageNum - 1) * pageSize, pageSize);
+		Map<String, Object> repaymentMap = borrowManageDao.queryBorrowTotalAllList();
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowWay", borrowWay);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, (count > 0) ? page : null));
+		model.addAttribute("tenderBorrowAmount", repaymentMap.get("tenderBorrowAmount"));
+		// 统计当前页等待
+		double tenderAmount = 0;
+		if (page != null) {
+			for (Map<String, Object> map : page) {
+				tenderAmount += Convert.strToDouble(map.get("borrowAmount") + "", 0);
+			}
+		}
+		DecimalFormat fmt = new DecimalFormat("0.00");
+		model.addAttribute("tenderAmount", fmt.format(tenderAmount));
+		return "/admin/borrow/borrowmanagefee/list.jsp";
+	}
+
+	public String queryBorrowmanagefeeinfo(Model model, Long id, Long borrowStatus, String tabid) {
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("page", borrowManageFeeDao.queryBorrowmanagefeeinfo(id));
+		return "/admin/borrow/borrowmanagefee/list_details.jsp";
+	}
+
+	
+}

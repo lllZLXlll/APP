@@ -1,0 +1,46 @@
+<script type="text/javascript" src="src/libs/ZeroClipboard.js"></script>
+<div class="account-right-nav">
+	<div class="sub-a-nav">
+		<a href="javascript:void(0);" class="active">资金记录</a>
+	</div>
+	<em></em>
+</div>
+<div class="account-content">
+	<div class="fund-param-list">
+		<p>交易类型：</p>
+		<ul class="cl">
+			<li class="active"><a href="javascript:;">全部</a></li>
+			<li><a href="javascript:;">投资</a></li>
+			<li><a href="javascript:;">充值</a></li>
+			<li><a href="javascript:;">提现</a></li>
+			<li><a href="javascript:;">还款</a></li>
+			<li><a href="javascript:;">奖励</a></li>
+			<li><a href="javascript:;">冻结</a></li>
+		</ul>
+	</div>
+	<div class="account-form cl">
+		<p class="text long">交易时间：</p>
+		<input type="text" class="date icon icon-date"  id="startDate"/>
+		<p class="text">至</p>
+		<input type="text" class="date icon icon-date" id="endDate"/>
+		<!-- <input type="text" placeholder="请输入关键字搜索" class="search icon icon-search" /> -->
+		<button type="button" class="search" id="fundSearch">搜索</button>
+	</div>
+	<div class="account-list">
+			<ul class="fund-list-box list-box">
+				<li class="title">
+					<div class="children0">交易时间</div>
+					<div class="children1">交易类型</div>
+					<div class="children2">交易金额</div>
+					<div class="children3">可用余额</div>
+					<div class="children4">操作</div>
+				</li>
+			</ul>
+			<ul class="fund-list-box listData">
+			
+			</ul>
+			<ul class="paging">
+			
+			</ul>
+		</div>
+</div>

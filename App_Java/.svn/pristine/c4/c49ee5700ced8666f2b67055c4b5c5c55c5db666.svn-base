@@ -1,0 +1,290 @@
+@charset "utf-8";
+* {
+    word-wrap: break-word
+}
+
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+p,
+iframe,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+pre,
+form,
+button,
+input,
+textarea,
+th,
+td,
+fieldset,
+option {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+ul,
+ol,
+dl {
+    list-style-type: none
+}
+
+html,
+body {
+    *position: static
+}
+
+html {
+    font-family: sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%
+}
+
+address,
+caption,
+cite,
+code,
+dfn,
+em,
+th,
+var {
+    font-style: normal;
+    font-weight: normal
+}
+
+input,
+button,
+textarea,
+select,
+optgroup,
+option {
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit
+}
+
+input,
+button {
+    overflow: visible;
+    vertical-align: middle;
+    outline: none
+}
+
+body,
+th,
+td,
+button,
+input,
+select,
+textarea {
+    font-family: "Microsoft Yahei", "Hiragino Sans GB", "Helvetica Neue", Helvetica, tahoma, arial, Verdana, sans-serif, "WenQuanYi Micro Hei", "\5B8B\4F53";
+    font-size: 14px;
+    color: #333;
+    -webkit-font-smoothing: antialiased;
+    -moz-font-smoothing: antialiased
+}
+
+body {
+    line-height: 1.6;
+    background-color:#ffcd00;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: 100%
+}
+
+a,
+area {
+    outline: none;
+    blr: expression(this.onFocus=this.blur())
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+    color: #333;
+}
+
+a:hover {
+    text-decoration: none;
+    outline: none
+}
+
+a.ie6:hover {
+    zoom: 1
+}
+
+a:focus {
+    outline: none
+}
+
+a:hover,
+a:active {
+    outline: none
+}
+
+:focus {
+    outline: none
+}
+
+
+/*img*/
+
+img {
+    border: 0;
+    vertical-align: middle
+}
+
+a img,
+img {
+    -ms-interpolation-mode: bicubic
+}
+/*clearfix*/
+
+.cl:after,
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden
+}
+
+.cl,
+.clearfix {
+    zoom: 1
+}
+
+.wrap {
+    width: 1200px;
+    margin: 0 auto;
+}
+
+/*activity*/
+.activity{
+	width:100%;
+	padding-top:599px;
+	background:#ffcd00 url(../images/activity_03/banner_01.jpg) top center no-repeat;
+}
+.activity-content{
+	width:960px;
+	height:662px;
+	margin:0 auto;
+	padding:102px 150px 0;
+	overflow:hidden;
+	background:url(../images/activity_03/content.jpg) top left no-repeat;
+}
+.prize{
+	width:960px;
+}
+.box-left,.box-right{
+	width:15px;
+	height:121px;
+	background:url(../images/activity_03/border_left.png) top left no-repeat;
+}
+.box-right{
+	background-image:url(../images/activity_03/border_right.png);
+}
+.prize-box>div{
+	float:left;
+	height:121px;
+}
+.prize-box-min{
+	width:470px;
+	float:left;
+	overflow:hidden;
+}
+.prize-box-min+.prize-box-min{
+	margin-left:20px;
+}
+.prize-box-min .box-center{
+	width:440px;
+	background:url(../images/activity_03/border_center.png) top left repeat-x;
+}
+.prize-box-long{
+	width:960px;
+	margin-top:19px;
+	overflow:hidden;
+}
+.prize-box-long .box-center{
+	width:930px;
+	background:url(../images/activity_03/border_center.png) top left repeat-x;
+}
+.prize-box .box-center .img{
+	width:120px;
+	height:121px;
+	float:left;
+}
+.prize-box .box-center .text{
+	float:left;
+	padding:36px 0 0 15px;
+}
+.prize-box .box-center .text span{
+	display:block;
+	line-height:16px;
+	font-size:16px;
+	color:#8a4317;
+}
+.prize-box .box-center .text p{
+	line-height:20px;
+	font-size:20px;
+	color:#bf1204;
+	margin-top:13px;
+}
+.prize-box .box-center .img.jd{
+	background:url(../images/activity_03/jd.png) center center no-repeat;
+}
+.prize-box .box-center .img.xiaomi{
+	background:url(../images/activity_03/xiaomi.png) center center no-repeat;
+}
+.prize-box .box-center .img.ipad{
+	background:url(../images/activity_03/ipad.png) center center no-repeat;
+}
+.prize-box .box-center .img.iphone{
+	background:url(../images/activity_03/iphone.png) center center no-repeat;
+}
+.prize-box .box-center .img.iphone7{
+	background:url(../images/activity_03/iphone7.png) center center no-repeat;
+}
+.footer{
+	width:100%;
+	height:120px;
+	background-color:#feda00;
+}
+.explain{
+	width:1200px;
+	margin:10px auto 0;
+	height:300px;
+}
+.explain h3{
+	font-size:20px;
+	line-height:48px;
+	color:#be120e;
+}
+.explain p{
+	line-height:32px;
+	color:#6c3612;
+}
+.footer>p{
+	height:120px;
+	line-height:120px;
+	text-align:center;
+	color:#6c3612;
+}

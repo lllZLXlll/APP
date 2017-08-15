@@ -1,0 +1,301 @@
+package com.pjzb.controller.front;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.front.FinanceService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 充值、提现、充值记录
+ * 
+ * @author xiaojin
+ * 
+ */
+@Controller
+@RequestMapping(value = "/front")
+public class FrontFinanceController extends BaseController {
+	public static Log log = LogFactory.getLog(FrontFinanceController.class);
+
+	@Autowired
+	private FinanceService financeService;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	/**
+	 * 工具箱，利息计算器
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/frontfinanceTools")
+	@ResponseBody
+	public Map<String, Object> frontfinanceTools() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			double borrowSum = Convert.strToDouble(String.valueOf(jsonObject.get("borrowSum")), -1);
+			double yearRate = Convert.strToFloat(String.valueOf(jsonObject.get("yearRate")), -1);// 接收百分比
+			int borrowTime = Convert.strToInt(String.valueOf(jsonObject.get("borrowTime")), -1);// 接收的数字是月
+			int repayWay = Convert.strToInt(String.valueOf(jsonObject.get("repayWay")), -1);// 还款方式
+			Map<String, Object> toolsCalculateMap = financeService.toolsCalculate(borrowSum, yearRate, borrowTime, repayWay, chosese());
+			jsonMap.putAll(toolsCalculateMap);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "计算成功");
+			return jsonMap;
+		} catch (Exception e) {
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "计算异常");
+			return jsonMap;
+		}
+	}
+
+	/**
+	 * 充值记录
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/rechargeList")
+	@ResponseBody
+	public Map<String, Object> rechargeList() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			// 获取用户的信息
+			Long userId = getSessionUserId();// 获得用户编号
+			String userName = getSessionUserInfo().getUsername();// 获得用户名称
+			Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+			String startTime = Convert.strToStr(jsonObject.getString("startTime"), null);
+			String endTime = Convert.strToStr(String.valueOf(jsonObject.get("endTime")), null);
+			PageBean pageBean = financeService.queryRechargeDetailForPageByRechargeTime(userId, startTime, endTime, curPage, Constants.PAGE_SIZE_10, chosese());
+			jsonMap.put("pageBean", pageBean);
+			jsonMap.put("userName", userName);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "充值记录查询异常，请联系客服:400-606-2079");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 提现初始化
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/queryWithdraw")
+	@ResponseBody
+	public Map<String, Object> queryWithdraw() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			Long userId = getSessionUserId();
+			jsonMap.putAll(financeService.queryWithdraw(userId, chosese()));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("msg", "4");
+			jsonMap.put("msg", "申请提现异常，请联系客服:400-606-2079");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 在线充值
+	 * 
+	 * @return
+	 * @throws
+	 */
+	@RequestMapping(value = "/ipayPayment")
+	@ResponseBody
+	public Map<String, String> ipayPayment() {
+		Map<String, String> jsonMap = new HashMap<String, String>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return null;
+			}
+			jsonMap.putAll(chinapnrService.addRecharge(getSessionUserId(), ConvertUtil.convertString(jsonObject.get("money")), chosese()));
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "在线充值异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 充值初始化
+	 * 
+	 * @return
+	 * @throws
+	 */
+	@RequestMapping(value = "/queryRechargeInit")
+	@ResponseBody
+	public Map<String, Object> queryRechargeInit() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.putAll(financeService.loadRechargeInit(getSessionUserId(), chosese()));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("msg", "3");
+			jsonMap.put("msg", "充值初始化异常");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 计算提现手续费（新版）
+	 * 
+	 * @return
+	 * @throws
+	 */
+	@RequestMapping(value = "/withdrawFee")
+	@ResponseBody
+	public Map<String, Object> withdrawFee() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			Double withdrawMoney = Convert.strToDouble(String.valueOf(jsonObject.get("dealMoney")), Constants.DOUBLE_0);
+			jsonMap.putAll(financeService.queryWithdrawFee(getSessionUserId(), withdrawMoney, chosese()));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("code", "11");
+			jsonMap.put("msg", "提现手续费计算异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	@RequestMapping(value = "/addWithdraw")
+	@ResponseBody
+	public Map<String, Object> addWithdraw() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			String dealpwd = jsonObject.getString("dealpwd");
+			String code = jsonObject.getString("code");
+			String codeType = jsonObject.getString("codeType");
+			Double withdrawMoney = Convert.strToDouble(jsonObject.getString("money"), Constants.DOUBLE_0);
+			String bankId = jsonObject.getString("bankId");
+			jsonMap.putAll(financeService.addWithdraw(getSessionUserId(), dealpwd, code, codeType, withdrawMoney, bankId, chosese(), null, null));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("code", "11");
+			jsonMap.put("msg", "提现异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 提现记录
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/withdrawList")
+	@ResponseBody
+	public Map<String, Object> withdrawList() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			String userName = getSessionUserInfo().getUsername();// 获得用户名称
+			Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+			String startTime = Convert.strToStr(jsonObject.getString("startTime"), null);
+			String endTime = Convert.strToStr(String.valueOf(jsonObject.get("endTime")), null);
+			PageBean pageBean = financeService.queryWithdrawForPageByApplyTime(getSessionUserId(), startTime, endTime, curPage, Constants.PAGE_SIZE_10, chosese());
+			jsonMap.put("pageBean", pageBean);
+			jsonMap.put("userName", userName);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "提现记录查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 
+	 * @describe:取消提现
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteWithdraw")
+	@ResponseBody
+	public Map<String, Object> deleteWithdraw() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			jsonMap.putAll(financeService.deleteWithdraw(getSessionUserId(), jsonObject, getBasePath(), getRemortIp(), chosese()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "取消提现异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+}

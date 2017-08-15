@@ -1,0 +1,20 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Message;
+
+public interface MessageDao {
+	
+	public Message queryMessageByTypeId(@Param(value = "typeId")Integer typeId);
+
+	public List<Map<String, Object>> queryMessageForPage(long l, Long pageSize, boolean b);
+
+	public long queryMessageCount();
+
+	public long updateInfoManageById(Message message);
+
+}

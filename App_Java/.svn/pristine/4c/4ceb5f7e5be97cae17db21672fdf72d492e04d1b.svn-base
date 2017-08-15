@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.ApproveNoticeTemplateDao">
+
+	<!-- t_approve_notice_template表begin -->
+	
+	<update id="updateApproveNoticeTemplateById">
+		update t_approve_notice_template
+		<trim prefix="set" suffixOverrides=",">
+			<if test="noticeId != null">notice_id = #{noticeId},</if>
+			<if test="name != null">`name` = #{name},</if>
+			<if test="template != null">template = #{template},</if>
+			<if test="nid != null">nid = #{nid},</if>
+			<if test="status != null">`status` = #{status},</if>
+		    <if test="sort != null">sort = #{sort},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="queryAllInformTemplate" resultType="java.util.Map">
+		SELECT * FROM t_approve_notice_template
+	</select>
+	
+	
+	<select id="queryApproveNoticeTemplateByNid" resultType="java.lang.String">
+		SELECT a.template FROM t_approve_notice_template a WHERE a.nid=#{nid}
+	</select>
+	
+	
+	<select id="queryApproveNoticeTemplateById" resultType="java.util.Map">
+		SELECT t.id,t.name,t.template,t.nid,t.sort,s.title,t.notice_id ,s.notice_style ,s.id AS sid
+ 		FROM  t_approve_notice_template AS t INNER JOIN  t_approve_notice_style AS s  ON t.notice_id = s.id
+		WHERE s.notice_style = #{0}  AND t.id =#{1}
+	</select>
+	<!-- t_approve_notice_template表end -->
+	
+	
+	<!-- t_approve_notice_style表begin -->
+	<resultMap type="approveNoticeStyle" id="approveNoticeStyleResultMap">
+		<id column="id" property="id" />
+		<result column="notice_style" property="noticeStyle" />
+		<result column="notice_type" property="noticeType" />
+		<result column="title" property="title" />
+		<result column="nid" property="nid" />
+		<result column="status" property="status" />
+		<result column="sort" property="sort" />
+	</resultMap>
+	
+	
+	<update id="updateApproveNoticeStyleById">
+		update t_approve_notice_style
+		<trim prefix="set" suffixOverrides=",">
+			<if test="noticeStyle != null">notice_style = #{noticeStyle},</if>
+			<if test="noticeType != null">notice_type = #{noticeType},</if>
+			<if test="title != null">title = #{title},</if>
+			<if test="nid != null">nid = #{nid},</if>
+			<if test="status != null">`status` = #{status},</if>
+		    <if test="sort != null">sort = #{sort},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="queryApproveNoticeStyleListByType" resultMap="approveNoticeStyleResultMap">
+		SELECT * FROM `t_approve_notice_style` a  WHERE 1=1
+		<if test="param1 > 0">  
+			AND a.notice_style = #{noticeStyle} 
+		</if>
+		ORDER BY a.sort ASC LIMIT #{index}, #{pageSize}
+	</select>
+	
+	
+	<select id="queryApproveNoticeStyleCountByType" resultType="long">
+		SELECT COUNT(1) FROM `t_approve_notice_style` a  WHERE 1=1
+		<if test="param1 > 0">  
+			AND a.notice_style = #{noticeStyle} 
+		</if>
+	</select>
+	
+	
+	<select id="queryApproveNoticeStyleById" resultMap="approveNoticeStyleResultMap">
+		SELECT * FROM `t_approve_notice_style` a WHERE a.id=#{id}
+	</select>
+	
+	
+	<select id="queryApproveNoticeStyleDetailByType" resultType="java.util.Map">
+		SELECT t.id,t.name,t.template,t.nid,t.sort,s.title,t.notice_id ,s.notice_style ,s.id AS sid
+ 		FROM  t_approve_notice_template AS t INNER JOIN  t_approve_notice_style AS s  ON t.notice_id = s.id
+		WHERE s.notice_style = #{0} AND s.id =#{1}  ORDER BY  t.sort ASC LIMIT #{2},#{3}
+	</select>
+	
+		    
+	<select id="queryApproveNoticeStyleDetailCountByType" resultType="long">
+		SELECT COUNT(1) FROM  t_approve_notice_template AS t INNER JOIN  t_approve_notice_style AS s  ON t.notice_id = s.id
+		WHERE s.notice_style = #{0} AND s.id =#{1}
+	</select>
+	
+	
+	
+	<!-- t_approve_notice_style表end -->
+	
+	
+	<!-- t_site_information表begin -->
+	
+	<resultMap type="siteInformation" id="siteInformationResultMap">
+		<id column="id" property="id" />
+		<result column="siteName" property="siteName" />
+		<result column="companyName" property="companyName" />
+		<result column="postcode" property="postcode" />
+		<result column="address" property="address" />
+		<result column="principal" property="principal" />
+		<result column="contact" property="contact" />
+		<result column="telephone" property="telephone" />
+		<result column="cellphone" property="cellphone" />
+		<result column="fax" property="fax" />
+		<result column="emial" property="emial" />
+		<result column="qq" property="qq" />
+		<result column="servicePhone" property="servicePhone" />
+		<result column="certificate" property="certificate" />
+		<result column="regionName" property="regionName" />
+		<result column="adminUrl" property="adminUrl" />
+	</resultMap>
+	
+	
+	<update id="updateSiteInformationById">
+		update t_site_information
+		<trim prefix="set" suffixOverrides=",">
+			<if test="siteName != null">siteName = #{siteName},</if>
+			<if test="companyName != null">companyName = #{companyName},</if>
+			<if test="postcode != null">postcode = #{postcode},</if>
+			<if test="address != null">address = #{address},</if>
+			<if test="principal != null">principal = #{principal},</if>
+			<if test="contact != null">contact = #{contact},</if>
+			<if test="telephone != null">telephone = #{telephone},</if>
+			<if test="cellphone != null">cellphone = #{cellphone},</if>
+			<if test="fax != null">fax = #{fax},</if>
+			<if test="emial != null">emial = #{emial},</if>
+			<if test="qq != null">qq = #{qq},</if>
+			<if test="servicePhone != null">servicePhone = #{servicePhone},</if>
+			<if test="certificate != null">certificate = #{certificate},</if>
+			<if test="regionName != null">regionName = #{regionName},</if>
+			<if test="adminUrl != null">adminUrl = #{adminUrl},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+	
+	<select id="querySiteInformation" resultMap="siteInformationResultMap">
+		SELECT * FROM t_site_information a ORDER BY a.id DESC LIMIT 0,1
+	</select>
+	
+	<!-- t_site_information表end -->
+	
+	
+</mapper>
+
+
+
+
+

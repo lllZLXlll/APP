@@ -1,0 +1,17 @@
+package com.pjzb.dao;
+
+import java.util.Map;
+
+import com.pjzb.entity.Enterprise;
+
+public interface EnterpriseDao {
+	
+	public Map<String, String> queryEnterpriseCountByUserId(Long userId);
+	
+	public Enterprise queryEnterpriseByUserId(Long userId);
+	
+	public void callEnterpriseUserInfoUpdateProcedure(Map<String, Object> map);
+	
+	public Map<String, Object> queryEnterpriseInfoByUserId(Long userId);
+
+}

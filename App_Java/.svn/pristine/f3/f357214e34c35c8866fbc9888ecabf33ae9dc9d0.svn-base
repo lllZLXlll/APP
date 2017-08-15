@@ -1,0 +1,53 @@
+<div>
+    <div class="buttons-tab">
+        <a class="tab-link button" @click="changeIndex(1)" v-bind:class="{ active: isShow[0]}">未使用</a>
+        <a class="tab-link button" @click="changeIndex(2)" v-bind:class="{ active: isShow[1]}">已使用</a>
+        <a class="tab-link button" @click="changeIndex(3)" v-bind:class="{ active: isShow[2]}">已过期</a>
+    </div>
+    <div class="content-block" v-show="isShow[0]">
+        <ul class="card-list">
+            <li v-for="list in list1">
+                <div class="card-list-content flex title20" @click="useCard(list.id)"> <i class="icon">&#xe618;</i>
+                    <p>可用金额</p>
+                    <p>
+                        <span>{{list.money}}</span>
+                        <span>元</span>
+                    </p>
+                </div>
+            </li>
+            <li class="nolist" v-if="isEmpty(1)" >当前无记录</li>
+        </ul>
+        <div class="text-item-submit" v-if="showBtn()">
+            <button class="btn btn-submit" @click="toInvest">立即使用</button>
+        </div>
+    </div>
+    <div class="content-block" v-show="isShow[1]">
+        <ul class="card-list">
+            <li v-for="list in list2">
+                <div class="card-list-content flex titleno"> <i class="icon">&#xe618;</i>
+                    <p>可用金额</p>
+                    <p>
+                        <span>{{list.money}}</span>
+                        <span>元</span>
+                    </p>
+                </div>
+            </li>
+            <li class="nolist" v-if="isEmpty(2)">当前无记录</li>
+        </ul>
+    </div>
+    <div class="content-block" v-show="isShow[2]">
+        <ul class="card-list">
+            <li v-for="list in list3">
+                <div class="card-list-content flex titleno">
+                    <i class="icon">&#xe618;</i>
+                    <p>可用金额</p>
+                    <p>
+                        <span>{{list.money}}</span>
+                        <span>元</span>
+                    </p>
+                </div>
+            </li>
+            <li class="nolist" v-if="isEmpty(3)">当前无记录</li>
+        </ul>
+    </div>
+</div>

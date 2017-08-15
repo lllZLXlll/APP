@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>投资理财_详情</title>
+	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/main_20150820.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body id="detail" class="sel_detail">
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#e04c16">
+		<div class="warp-1000 ">
+			<a href="index.html"><img src="shImages/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+    
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">登录</a></li>
+						<li><a href="#"><i class="ico ico-red-package"></i>注册领红包</a></li>
+						<li><a href="#">我要投资</a></li>
+						<li><a href="#">新手指引</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.html" class="logo"><img src="shImages/logo.png"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li class="">
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	<div>
+		<div class="warp-1000">
+			<div class="mod-loan-detail">
+				<h1>购房贷款0422-01<span>首付标</span></h1>
+				<div class="head">
+					<div class="fl">
+						<div class="num">
+							<div class="item">
+								<h3>贷款年利率</h3>
+								<div class="red">13.00<span>%</span></div>
+							</div>
+							<div class="item">
+								<h3>贷款金额</h3>
+								<div class="">13.00<span>元</span></div>
+							</div>
+							<div class="item">
+								<h3>贷款年期限</h3>
+								<div class="">13.00<span>个月</span></div>
+							</div>
+						</div>
+						<div class="txt">
+							<span>总投标数：1</span>
+							<span>浏览量：16</span>
+							<span>发布时间： 2015-7-11  16：00 </span>
+							<span>还款方式： 按月分期还款</span>
+							<span>最小投标金额：￥10.00元</span>
+							<a href="#">关注此借款</a>
+						</div>
+						<div class="jd">
+							<span>投标进度</span>
+							<div class="process">
+								<div class="bar">
+									<span class="num">60%</span>
+									<span class="bar" style="width:60%"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="border"></div>
+					<div class="fr">
+						<h2>剩余金额：3000元</h2>
+						<p>购买金额（元）：</p>
+						<p class="btn-group">
+							<input placeholder="输入购买金额">
+							<button>+</button>
+							<button>-</button>
+						</p>
+						<p>
+							<a href="#" class="btn">立即购买</a>
+						</p>
+						<p class="footer">
+							预期收益
+							<a href="#">详细收益明细</a>
+						</p>
+					</div>
+				</div>
+				<div class="body">
+					<div class="nav">
+						<ul>
+							<li class="on"><a href="javascript:void(0)" >项目详情</a></li>
+							<li class=""><a href="javascript:void(0)">风险控制</a></li>
+							<li class=""><a href="javascript:void(0)">相关文件</a></li>
+							<li class=""><a href="javascript:void(0)">还款计划</a></li>
+							<li class=""><a href="javascript:void(0)">投资记录</a></li>
+							<li class=""><a href="javascript:void(0)">投客评价</a></li>
+						</ul>
+					</div>
+                    
+                    
+					  <script>
+						$(function() {
+							$('.mod-loan-detail .nav li').click(function() {
+								$('.mod-loan-detail .nav li').removeClass('on');
+								$(this).addClass('on');
+								var index = $('.mod-loan-detail .nav li').index(this);//当前点击tab在该tab序列中的索引值
+								//alert(index);
+								$('.mod-loan-detail .tab').not(0).css({'display':'none'});
+								$('.mod-loan-detail .tab').eq(index).css({'display':'block'});
+							});
+						})
+                    </script>
+            
+                   
+                  <!--项目详情-->
+                  <div class="tab tab_1">
+                  
+                      <div class="content">
+                            <h2>企业信息</h2>
+                            <p>
+                                <span>企业名称：归二科技1</span>
+                                <span>法定人：李二四</span>
+                                <span>注册资金：500000</span>
+                                <span>成立日期：2015-04-21 00:00:00</span>
+                                <span>营业执照号：GE150421</span>
+                                <span>注册地址：深圳</span>
+                                <span>公司电话：0755-3254771</span>    
+                            </p>
+                        </div>
+                        
+                      <div class="content">
+                            <h2>借款原因</h2>
+                            <p>基金111111</p>
+                        </div>
+                        
+                      <div class="content">
+                            <h2>项目描述</h2>
+                            <p>借款企业成立于2003年，注册资本2500余万元，主营业务为移动互联网行业定制应用，是国防科技大学产学研合作单位，中科院信息工程研究所核心合作伙伴，为交通银行、农业银行、浦发银行等几十家银行移动金融解决方案提供商。现该公司需要资金进行资金周转，故委托融金桥平台融资1000万元，用于补充公司流动资金，该公司以法定代表人自有房产作为抵押。 </p>
+                        </div>
+                        
+                  </div>
+                  
+                  <!--风险控制-->
+                  <div class="tab tab_2" style="display:none">
+                  
+                      <div class="content">
+                            <h2>还款来源</h2>
+                            <p>
+                            1、本次借款的还款来源为借款企业的营业收入。<br/>
+                            2、企业提供3套房产（本轮融资抵押物）变现作为第二还款来源，该房产地理位置较好，易于变现。
+                            </p>
+                        </div>
+                        
+                      <div class="content">
+                            <h2>担保公司信息</h2>
+                            <p>
+                            担保公司名称：深圳资安投资管理有限公司<br/>
+                            担保公司简介：暂无担保公司简介
+                            </p>
+                        </div>
+                      
+                      <div class="content">
+                            <h2>二级担保公司信息</h2>
+                            <p>
+                            二级担保公司名称：深圳市证大速贷小额贷款有限公司<br/>
+                            二级担保公司简介：暂无二级担保公司简介
+                            </p>
+                        </div>
+                        
+                      <div class="content">
+                            <h2>贷借款记录</h2>
+                            <p>
+                                <span>发布借款标的：18</span>
+                                <span>成功借款笔数：11</span>
+                                <span>还清笔数：8</span>
+                                <span>逾期次数：3</span>
+                                <span>严重逾期次数：0</span>
+                                <span>共借入：196200.00</span>
+                                <span>待还金额：131748.77</span>
+                                <span>逾期金额：22425.48</span> 
+                                <span>共借出：12500.00</span> 
+                                <span>待收金额：0.00</span> 
+                            </p>
+                        </div>
+                        
+                  </div>
+                                    
+                  <!--相关文件-->
+                  <div class="tab tab_3" style="display:none">
+                    <div class="content">
+                        <table>
+                            <tr>
+                                <th>证件类型</th>
+                                <th>状态</th>
+                                <th>通过时间</th>
+                                <th>操作</th>
+                            </tr>
+                            <tr>
+                                <td>身份认证</td>
+                                <td>审核通过</td>
+                                <td>2015-04-22</td>
+                                <td>查看</td>
+                            </tr>
+                        </table>
+                    </div>
+                  </div>
+                  
+                  <!--还款计划-->
+                  <div class="tab tab_4" style="display:none">
+                      <div class="content">
+                      	<table>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>还款日期</th>
+                                    <th>已还本息</th>
+                                    <th>待还本息</th>
+                                    <th>已付罚息</th>
+                                    <th>待还罚息</th>
+                                    <th>状态</th>
+                                </tr>
+                                <tr>
+                                    <td>1/3</td>
+                                    <td>2015-06-15</td>
+                                    <td>1362.33</td>
+                                    <td>00.0</td>
+                                    <td>00.0</td>
+                                    <td>00.0</td>
+                                    <td>已偿还</td>
+                                </tr>
+                            </table> 
+						</div>
+                  </div>
+                  
+                  <!--投资记录-->
+                  <div class="tab tab_5" style="display:none">
+                      <div class="content">
+                        <p>
+                            <span>目前总投标金额：￥4,000.00</span>
+                            <span>剩余投标金额：￥0.00</span>
+                            <span>剩余时间：1天16时23分40秒</span>
+                        </p>
+                        <br/><br/>
+                      	<table>
+                                <tr>
+                                    <th>投资人</th>
+                                    <th>金额</th>
+                                    <th>投资时间</th>
+                                </tr>
+                                <tr>
+                                    <td>sh**** </td>
+                                    <td>￥2,100.00</td>
+                                    <td>2015-05-05 09:01:28</td>
+                                </tr>
+                            </table> 
+						</div>
+                  </div>
+                  
+                  <!--投客评价-->
+                  <div class="tab tab_6" style="display:none">
+                      <div class="content">
+                        <h2>留言板</h2>
+                        <div class="white-box">
+                            <div class="mod-comment">
+                                <ul>
+                                    <li>
+                                        <div class="face">
+                                            <img src="img/usr_face.jpg">
+                                        </div>
+                                        <div class="main">
+                                            <p>
+                                                shzc02 说：
+                                                <span class="time">2015-05-05 23:00:28</span>
+                                            </p>
+                                            <p>会议审议通过了《关于在部分区域系统推进全面创新改革试验的总体方案》、《检察机关提起公益诉讼改革试点方案》、《关于完善法律援助制度的意见》、《深化科技体制改革实施方案》、《中国科协所属学会有序承接政府转移职能扩大试点工作实施方案》。</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="face">
+                                            <img src="img/usr_face.jpg">
+                                        </div>
+                                        <div class="main">
+                                            <p>
+                                                shzc02 说：
+                                                <span class="time">2015-05-05 23:00:28</span>
+                                            </p>
+                                            <p>会议审议通过了《关于在部分区域系统推进全面创新改革试验的总体方案》、《检察机关提起公益诉讼改革试点方案》、《关于完善法律援助制度的意见》、《深化科技体制改革实施方案》、《中国科协所属学会有序承接政府转移职能扩大试点工作实施方案》。</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="face">
+                                            <img src="img/usr_face.jpg">
+                                        </div>
+                                        <div class="main">
+                                            <p>
+                                                shzc02 说：
+                                                <span class="time">2015-05-05 23:00:28</span>
+                                            </p>
+                                            <p>会议审议通过了《关于在部分区域系统推进全面创新改革试验的总体方案》、《检察机关提起公益诉讼改革试点方案》、《关于完善法律援助制度的意见》、《深化科技体制改革实施方案》、《中国科协所属学会有序承接政府转移职能扩大试点工作实施方案》。</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="mod-page t40 mb-15">
+                                <p>
+                                    <a href="#">首页</a>
+                                    <a href="#">上一页</a>
+                                    <a href="#">1</a>
+                                    <a href="#">2</a>
+                                    <a href="#">3</a>
+                                    <b>......</b>
+                                    <a href="#">10</a>
+                                    <a href="#">尾页</a>
+                                    <input type="text">
+                                    <a href="#">跳转</a>
+                                </p>
+                            </div>
+                            <div class="mod-form replay">
+                                <h2>咨询或评论：(字数在1-120之间)</h2>
+                                <textarea></textarea>
+                                <p>
+                                    <label>验证码 <input type="text"><img src="http://lorempixel.com/95/38/"></label>
+                                    
+                                    <a href="#" class="btn">提交</a>
+                                </p>
+                            </div>
+                        </div>
+						</div>
+                  </div>                  
+                         
+				</div>
+			</div>
+		</div>
+	</div>
+
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="img/cpright_001.png"/></a>
+					<a href="#"><img src="img/cpright_002.png"/></a>
+					<a href="#"><img src="img/cpright_003.png"/></a>
+                  <a href="#"><img src="img/cpright_004.png"/></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->
+<div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-qq"></i></p>
+				<p>客服QQ</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-weichet"></i></p>
+				<p>官方微信</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-feedback"></i></p>
+				<p>意见反馈</p>
+			</a>
+		</li>
+	</ul>
+</div>
+</body>
+</html>

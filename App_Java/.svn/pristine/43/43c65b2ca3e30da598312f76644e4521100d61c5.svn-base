@@ -1,0 +1,251 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Fundrecord entity. @author MyEclipse Persistence Tools
+ */
+
+public class Fundrecord implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private String fundMode;
+	private double handleSum;
+	private double usableSum;
+	private double freezeSum;
+	private double dueinSum;
+	private Long trader;
+	private Date recordTime;
+	private double dueoutSum;
+	private String remarks;
+	private Integer operateType;
+	private double oninvest;
+	private String paynumber;
+	private String paybank;
+	private double cost;
+	private double income;
+	private double spending;
+	private Long borrowId;
+	private Long repaymentId;
+	private double accountSum;
+	private String pageType;
+
+	// Constructors
+
+	/** default constructor */
+	public Fundrecord() {
+	}
+
+	/** full constructor */
+	public Fundrecord(Long userId, String fundMode, double handleSum,
+			double usableSum, double freezeSum, double dueinSum, Long trader,
+			Date recordTime, double dueoutSum, String remarks,
+			Integer operateType, double oninvest, String paynumber,
+			String paybank, double cost, double income, double spending,
+			Long borrowId, Long repaymentId, double accountSum, String pageType) {
+		this.userId = userId;
+		this.fundMode = fundMode;
+		this.handleSum = handleSum;
+		this.usableSum = usableSum;
+		this.freezeSum = freezeSum;
+		this.dueinSum = dueinSum;
+		this.trader = trader;
+		this.recordTime = recordTime;
+		this.dueoutSum = dueoutSum;
+		this.remarks = remarks;
+		this.operateType = operateType;
+		this.oninvest = oninvest;
+		this.paynumber = paynumber;
+		this.paybank = paybank;
+		this.cost = cost;
+		this.income = income;
+		this.spending = spending;
+		this.borrowId = borrowId;
+		this.repaymentId = repaymentId;
+		this.accountSum = accountSum;
+		this.pageType = pageType;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getFundMode() {
+		return this.fundMode;
+	}
+
+	public void setFundMode(String fundMode) {
+		this.fundMode = fundMode;
+	}
+
+	public double getHandleSum() {
+		return this.handleSum;
+	}
+
+	public void setHandleSum(double handleSum) {
+		this.handleSum = handleSum;
+	}
+
+	public double getUsableSum() {
+		return this.usableSum;
+	}
+
+	public void setUsableSum(double usableSum) {
+		this.usableSum = usableSum;
+	}
+
+	public double getFreezeSum() {
+		return this.freezeSum;
+	}
+
+	public void setFreezeSum(double freezeSum) {
+		this.freezeSum = freezeSum;
+	}
+
+	public double getDueinSum() {
+		return this.dueinSum;
+	}
+
+	public void setDueinSum(double dueinSum) {
+		this.dueinSum = dueinSum;
+	}
+
+	public Long getTrader() {
+		return this.trader;
+	}
+
+	public void setTrader(Long trader) {
+		this.trader = trader;
+	}
+
+	public Date getRecordTime() {
+		return this.recordTime;
+	}
+
+	public void setRecordTime(Date date) {
+		this.recordTime = date;
+	}
+
+	public double getDueoutSum() {
+		return this.dueoutSum;
+	}
+
+	public void setDueoutSum(double dueoutSum) {
+		this.dueoutSum = dueoutSum;
+	}
+
+	public String getRemarks() {
+		return this.remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
+	public Integer getOperateType() {
+		return this.operateType;
+	}
+
+	public void setOperateType(Integer operateType) {
+		this.operateType = operateType;
+	}
+
+	public double getOninvest() {
+		return this.oninvest;
+	}
+
+	public void setOninvest(double oninvest) {
+		this.oninvest = oninvest;
+	}
+
+	public String getPaynumber() {
+		return this.paynumber;
+	}
+
+	public void setPaynumber(String paynumber) {
+		this.paynumber = paynumber;
+	}
+
+	public String getPaybank() {
+		return this.paybank;
+	}
+
+	public void setPaybank(String paybank) {
+		this.paybank = paybank;
+	}
+
+	public double getCost() {
+		return this.cost;
+	}
+
+	public void setCost(double cost) {
+		this.cost = cost;
+	}
+
+	public double getIncome() {
+		return this.income;
+	}
+
+	public void setIncome(double income) {
+		this.income = income;
+	}
+
+	public double getSpending() {
+		return this.spending;
+	}
+
+	public void setSpending(double spending) {
+		this.spending = spending;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Long getRepaymentId() {
+		return this.repaymentId;
+	}
+
+	public void setRepaymentId(Long repaymentId) {
+		this.repaymentId = repaymentId;
+	}
+
+	public double getAccountSum() {
+		return this.accountSum;
+	}
+
+	public void setAccountSum(double accountSum) {
+		this.accountSum = accountSum;
+	}
+
+	public String getPageType() {
+		return this.pageType;
+	}
+
+	public void setPageType(String pageType) {
+		this.pageType = pageType;
+	}
+
+}

@@ -1,0 +1,57 @@
+package com.pjzb.entity;
+
+import java.util.Date;
+
+public class FeedBack implements java.io.Serializable {
+	
+	private Long id;
+	private String content;
+	private Long userId;
+	private Date publishTime;
+	
+	public FeedBack() {
+		
+	}
+
+	public FeedBack(Long id, String content, Long userId, Date publishTime) {
+		super();
+		this.id = id;
+		this.content = content;
+		this.userId = userId;
+		this.publishTime = publishTime;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Date getPublishTime() {
+		return publishTime;
+	}
+
+	public void setPublishTime(Date publishTime) {
+		this.publishTime = publishTime;
+	}
+	
+	
+}

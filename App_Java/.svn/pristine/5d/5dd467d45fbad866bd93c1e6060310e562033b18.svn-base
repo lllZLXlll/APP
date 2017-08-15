@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>首页</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span class="line">欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">登录</a></li>
+						<li class="line"><a href="#">注册</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="#" class="logo"><img src="img/logo.png"/></a>
+				<a href="#" class="back-home">盛会资产首页</a>
+			</div>
+		</div>
+	</div>
+	<div class="mod-login">
+		<div class="main warp-1000">
+			<div class="bg"></div>
+			<div class="login-form">
+				<h2>手机注册</h2>
+				<span class="show-login">
+					已有账号
+					<a href="#">登录</a>
+				</span>
+				<form action="#" class="form big">
+					<div class="item">
+						<label>
+							<span>手机号码<em class="red">*</em></span>
+							<input type="text">
+							<span class="placeholder">用户名/邮箱</span>
+						</label>
+						<p class="tip">没有手机<a href="#">邮箱注册</a></p>
+						<div class="error">
+							<i class="ico ico-err"></i>用户名不能为空
+						</div>
+					</div>
+					<div class="item">
+						<label>
+							<span>用户名<em class="red">*</em></span>
+							<input type="text">
+							<span class="placeholder">用户名/邮箱</span>
+						</label>
+						
+						<div class="error">
+							<i class="ico ico-err"></i>用户名不能为空
+						</div>
+					</div>
+					<div class="item">
+						<label>
+							<span>密码<em class="red">*</em></span>
+							<input type="password" placeholder="">
+						</label>
+					</div>
+					<div class="item">
+						<label>
+							<span>确认密码<em class="red">*</em></span>
+							<input type="password" placeholder="">
+						</label>
+					</div>
+					<div class="item">
+						<label>
+							<span>推荐人</span>
+							<input type="text" placeholder="">
+						</label>
+					</div>
+					<div class="item">
+						<label>
+							<span>验证码<em class="red">*</em></span>
+							<a href="#" class="yzm">免费获取短信激活码</a>
+							<input type="text" placeholder="" class="mini">
+						</label>
+						
+					</div>
+					<div class="ct">
+						<label><input type="checkbox">我已阅读并同意<a href="#">《普金资本服务协议》</a></label>
+					</div>
+					<div class="ct sub">
+						<button class="btn">免费注册</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="mod-common-footer">
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+			</div>
+		</div>
+	</div>
+	<script>
+		$('input').focus(function(event) {
+			$(this).parent().children('.placeholder').hide();
+		}).blur(function(event) {
+			if(!$(this).val()) {
+				$(this).parent().children('.placeholder').show();
+			}
+		});
+	</script>
+</body>
+</html>

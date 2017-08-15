@@ -1,0 +1,106 @@
+package com.pjzb.service.admin.system;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.SMSInterfaceDao;
+import com.pjzb.entity.Sms;
+import com.pjzb.entity.vo.SmsVo;
+import com.pjzb.util.Constants;
+
+/**
+ * 邮件短信
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminEmailMessageService extends BaseController {
+
+	@Autowired
+	private SMSInterfaceDao smsInterfaceDao;
+
+	public String querySmsList(Model model, Long pageNum, Long pageSize, String tabid) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		List<Sms> list = smsInterfaceDao.querySmsList((pageNum - 1) * pageSize, pageSize);
+		Long count = smsInterfaceDao.querySmsCount();
+		SmsVo config = smsInterfaceDao.querySMSConfig();
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("config", config);
+		return "/admin/system/emailmessage/list.jsp";
+	}
+
+	public String queryUpdateConfigSmsInit(Model model, Long id, String tabid) {
+		SmsVo smsConfig = smsInterfaceDao.querySMSConfig();
+		List<Sms> list = smsInterfaceDao.querySmsList(0, 100);
+		model.addAttribute("sms", list);
+		model.addAttribute("smsConfig", smsConfig);
+		model.addAttribute("id", id);
+		model.addAttribute("tabid", tabid);
+		return "/admin/system/emailmessage/updateconfigsms.jsp";
+	}
+
+	public Map<String, Object> updateConfigSms(Model model, Sms sms, String tabid) {
+		sms.setId(1);
+		long result = smsInterfaceDao.updateSMS(sms);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "短信运营商配置成功", "true", tabid);
+		} else {
+			return ajaxDoneInfo("300", "短信运营商配置失败", "", "");
+		}
+	}
+
+	public String querySaveOrUpdateSmsInit(Model model, Integer id, String tabid) {
+		Sms sms=null;
+		if(id!=null){
+			 sms=smsInterfaceDao.getSMSById(id);
+		}
+		model.addAttribute("sms", sms);
+		model.addAttribute("tabid", tabid);
+		return "/admin/system/emailmessage/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> saveOrUpdateSms(Model model, Sms sms, String tabid) {
+		sms.setConfigTime(new Date());
+		Integer id = sms.getId();
+		if (id == null) {
+			Integer type = smsInterfaceDao.querySmsMaxType();
+			sms.setType(type+1);
+			long result = smsInterfaceDao.addSms(sms);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "短信运营商增加成功", "true", tabid);
+			} else {
+				return ajaxDoneInfo("300", "短信运营商增加失败", "", "");
+			}
+		} else {
+			long result = smsInterfaceDao.updateSMS(sms);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "短信运营商修改成功", "true", tabid);
+			} else {
+				return ajaxDoneInfo("300", "短信运营商修改失败", "", "");
+			}
+		}
+	}
+	
+	
+	public Map<String, Object> deleteSms(Model model, Integer  id) {
+		long result = smsInterfaceDao.deleteSmsById(id);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "短信运营商删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "短信运营商删除失败", "", "");
+		}
+	}
+	
+	
+
+}

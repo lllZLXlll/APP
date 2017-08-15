@@ -1,0 +1,268 @@
+<%@page import="com.sun.org.apache.xml.internal.serialize.Printer"%>
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@include file="/include/taglib.jsp" %>
+<!-- 添加在线客户系统（网易七鱼）：http://pujinkefu.qiyukf.com/login -->
+<!-- <script src="https://qiyukf.com/script/adc83484a3bd06f5fb13a2b771130c73.js" defer async></script> -->
+
+<script type="text/javascript">
+				/*	$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+					*/
+</script>
+<!--顶部状态栏 开始-->
+
+ <!-- top1 -->
+ <!--
+ 	<div class="mod-adv mod-adv-big" style="background:#ffe000">
+		<div class="warp-1000 ">
+			<a href="index.do"><img src="images/shImg/tips_big.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close-big"></a>
+			<script>
+				$(function() {
+					$('.event-btn-target').css({"display":"none","height":0});
+					$('.mod-adv-big').animate({"margin-top":0},1000);
+					$('.event-btn-close-big').click(function() {
+						$('.mod-adv-big').stop(true,false).animate({"margin-top":-340},1000,function() {
+							$('.event-btn-target').css({"display":"block"});
+							$('.event-btn-target').animate({"height":50},1000);
+						});
+					});
+				});
+			</script>
+		</div>
+	</div>
+
+	<div class="mod-adv top event-btn-target" style="background:#ffe000">
+		<div class="warp-1000 ">
+			<a href="index.do"><img src="images/shImg/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-target').css({'margin-top':-50});
+					$('.event-btn-target').animate({"margin-top":0},1000);
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>-->
+	
+<%--
+ 	<div class="mod-adv top event-btn-target" style="background:#e04c16">
+		<div class="warp-1000">
+			<a href="index.do"><img src="css/shImages/tips.png"></a>
+			<!--<span id="event-btn-close" class="btn btn-close event-btn-close"></span>-->
+			<a class="btn btn-close event-btn-close" href="javascript:void(0);"></a>
+			<script type="text/javascript">
+				$(function() {
+					<!--//显示顶部 宣传栏-->
+					$('.event-btn-target').css({'margin-top':-50});
+					$('.event-btn-target').animate({"margin-top":0},1000);
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').animate({"margin-top":-50},1000);
+					});
+					
+					<!--
+					//隐藏顶部 宣传栏
+					//$('#event-btn-target_id').hide();
+					$('.event-btn-target').hide();
+					-->
+				});
+			</script>
+		</div>
+	</div>
+--%>
+ <!-- top1 -->
+ <!-- top2 -->
+ 		<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="notice clearfix">
+					<p>最新公告</p>
+					<div class="notice_hidden">
+					<ul class="notice_ul">
+						<s:iterator value="#request.newsList" var="bean">
+							<li><a href="frontNewsDetails.do?id=${bean.id }" title="${bean.title }" target="_blank"><shove:shsub value="title" size="40" /></a></li>
+						</s:iterator>
+					</ul>
+					</div>
+				</div>
+				<!-- <div class="fl">
+									
+									<span class="line line_02">
+									   <span>关注我们</span>
+									   <a target="_blank" href="http://weibo.com/pujinziben" class="line_icon line_xl"></a>
+									   <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=b21f94451a224d115c56e3e20626abf75f33fff218f82fd8dd4a04954f80c70d" class="line_icon line_qq"></a>
+									   <a href="javascript:void(0)" class="line_icon line_wx">
+									   		<p class="line_l_h">
+									   			<span class="line_l_sj"></span>
+									   			<span class="line_l_text">关注普金资本公众号</span>
+									   			<span class="line_l_pic"></span>
+									   		</p>
+									   </a>
+									</span>
+					Baidu Button END
+					
+				</div> -->
+				<div class="fr top-bar">
+				<s:if test="%{#session.user==null}">
+					<ul>
+						<li><a class="line_01">&nbsp;&nbsp;&nbsp;400-606-2079</a></li>
+						<li><a href="login.do">登录</a></li>
+						<li><a href="cellPhoneinit.do">注册</a></li>
+						<li><a href="rechargeInit.do">充值</a></li>
+						<li><a href="helpcenter.do">帮助中心</a></li>
+						<li><a href="cellPhoneinit.do"><i class="ico ico-red-package"></i>注册领红包</a></li>
+					</ul>
+				</s:if>
+				<s:else>
+					<a class="line_01">&nbsp;&nbsp;&nbsp;400-606-2079</a>
+					您好！<a href="usercenter.do">[${sessionScope.user.nickName}]</a>&nbsp;&nbsp;&nbsp;&nbsp;
+					<a href="usercenter.do">个人中心</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="helpcenter.do">帮助中心</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="logout.do">退出</a>
+				</s:else>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.do" class="logo"><img src="css/shImages/pujinziben.png"/></a>
+				<ul class="nav-list clearfix">
+					<li id="li_1"><a href="index.do">首页</a></li>
+					<li id="li_2"><!-- class="hover" -->
+						<a href="userfinance.do">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<%--
+							<li><a href="userfinance.do?xx=1"><span style="font-weight:bold;">城投标</span></a></li>
+							<li><a href="userfinance.do?xx=2"><span style="font-weight:bold;">首付标</span></a></li>
+							<li><a href="userfinance.do?xx=3"><span style="font-weight:bold;">抵押标</span></a></li>
+							<li><a href="userfinance.do?xx=4"><span style="font-weight:bold;">供应链标</span></a></li>
+							--%>
+							
+							<s:iterator value="#application.borrowSubTypeUsableList" var="subType" status="myStatus">
+							<li><a href="userfinance.do?xx=${subType.id}">${subType.name}</a></li>
+							</s:iterator>
+							
+							<li id="li_3"><a href="queryFrontAllDebt.do">债权转让</a></li>
+						</ul>
+					</li>
+				<li id="li_4">
+						
+						
+						<li id="li_5"><a href="usersecurity.do">安全保障</a></li>
+						
+					</li>
+<!-- 					<li id="li_6"><a href="usercenter.do">我的账户</a></li>  -->
+					<li id="li_6"><a href="usercenter.do">个人中心</a></li> 
+					<li id="li_8"><a href="aboutCompany.do">关于我们</a>
+					<ul class="children">
+							<li id="li_3"><a href="aboutHzhb.do?xx=1">股东背景</a></li>
+							<li id="li_3"><a href="aboutCompany.do">公司简介</a></li>
+							<li id="li_3"><a href="aboutPtzz.do">平台资质</a></li>
+							<li id="li_3"><a href="aboutTdzs.do">管理团队</a></li>
+							<li id="li_3"><a href="aboutadviser.do">顾问团队</a></li>
+							<li id="li_3"><a href="IndustryNews.do?xx=4">公司动态</a></li>
+							<li id="li_3"><a href="paltreport.do">平台公告</a></li>
+							<li id="li_3"><a href="aboutZxns.do">招贤纳士</a></li>
+							<li id="li_3"><a href="aboutUs.do">联系我们</a></li>
+						</ul>
+					</li>					
+					<!--<li id="li_7"><a href="dzbbsLogin.do" target="_blank">讨论专区</a></li>-->
+					<%--<li><a href="#">债券转让</a></li>--%>
+				</ul>
+				
+			</div>
+		</div>
+	</div>
+<script type="text/javascript">
+var timers=5;
+var tipId;
+
+//定时
+function timer(){
+    if(timers>=1){
+      //定时关闭弹出窗口
+      if(timers==2){
+    	  try{$.jBox.close(true);}catch(error){} 
+      }
+      timers--;
+    }else{
+       window.clearInterval(tipId);
+       $('.event-btn-close-big').click();
+    }
+}
+
+$(function() {
+	$('.nav-list>li').hover(function() {
+		$('.nav-list>li').removeClass('hover');
+		//console.log($(this).children('.children').length)
+		//if($(this).children('.children').length>0) {
+			$(this).addClass('hover');
+		//}
+	}, function() {
+		$('.nav-list>li').removeClass('hover');
+	});
+
+	tipId=window.setInterval(timer,1000);	//1000
+});
+
+</script>	
+ <!-- top2 -->
+ 
+<!--顶部主导航 结束-->
+
+<!-- 平台内测公告 start -->
+<script src="script/jbox/jquery.jBox-2.3.min.js"></script>
+<link href="css/jbox/Blue/jbox.css" rel="stylesheet"/>
+
+<script type="text/javascript">
+var browserInfo="";
+var browserInfoCode="";
+var showAlertFlag=false;
+if(navigator.appName == "Microsoft Internet Explorer"){
+	browserInfoCode=navigator.appVersion .split(";")[1];
+	if(browserInfoCode.indexOf("MSIE 6") != -1){
+		//ie6
+		browserInfo += "系统检测到你使用的浏览器版本（Microsoft Internet Explorer 6.0）比较旧，建议您升级至最新版本（IE9以上版本）或者使用第三方浏览器。";
+		showAlertFlag=true;
+	}else if(browserInfoCode.indexOf("MSIE 7") != -1){
+		//ie7
+		browserInfo += "系统检测到你使用的浏览器版本（Microsoft Internet Explorer 7.0）比较旧，建议您升级至最新版本（IE9以上版本）或者使用第三方浏览器。";
+		showAlertFlag=true;
+	}else if(browserInfoCode.indexOf("MSIE 8") != -1){
+		//ie8
+		//browserInfo += "系统检测到你使用的浏览器版本（Microsoft Internet Explorer 8.0）比较旧，建议您升级至最新版本（IE9以上版本）或者使用第三方浏览器。";
+		//showAlertFlag=true;
+	}
+	if(showAlertFlag){
+		browserInfo = "<hr><p style=\"color:red\">"+browserInfo+"</p>"
+					+ "<p>第三方浏览器下载地址：<a href=\"http://dl.maxthon.cn/mx4/mx4.4.6.2000cn.exe\">傲游浏览器</a></p>"
+	}
+}
+
+showAlertFlag=false;
+
+$(document).ready(function() {
+	browserInfo = '<div style="margin:5px;padding:5px;"><p>平台现在处于内部测试完善中，<br/><br/>内测期间如有任何问题请联系管理员 ，谢谢！<br/><br/>--联系电话：0755-82727753</p>'+browserInfo+'</div>';
+    if(showAlertFlag){
+    	new jBox(	browserInfo		//'post:querytips.do'
+    	    ,{
+			width: 450,
+			height: 250,
+			//attach: $('#myModal'),
+			title: '《${sitemap.siteName}平台内测公告》',
+			buttons: { }
+		});  
+    }
+});
+</script>
+<!-- 平台内测公告 end -->

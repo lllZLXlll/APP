@@ -1,0 +1,118 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * UserVoucher entity. @author MyEclipse Persistence Tools
+ */
+
+public class UserVoucher implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Double rewardMoney;
+	private Date rewardTime;
+	private Double minMoney;
+	private Double maxMoney;
+	private String rbName;
+	private Integer passDate;
+	private Double realMoney;
+
+	// Constructors
+
+	/** default constructor */
+	public UserVoucher() {
+	}
+
+	/** full constructor */
+	public UserVoucher(Long userId, Double rewardMoney, Date rewardTime,
+			Double minMoney, Double maxMoney, String rbName, Integer passDate,
+			Double realMoney) {
+		this.userId = userId;
+		this.rewardMoney = rewardMoney;
+		this.rewardTime = rewardTime;
+		this.minMoney = minMoney;
+		this.maxMoney = maxMoney;
+		this.rbName = rbName;
+		this.passDate = passDate;
+		this.realMoney = realMoney;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Double getRewardMoney() {
+		return this.rewardMoney;
+	}
+
+	public void setRewardMoney(Double rewardMoney) {
+		this.rewardMoney = rewardMoney;
+	}
+
+	public Date getRewardTime() {
+		return this.rewardTime;
+	}
+
+	public void setRewardTime(Date rewardTime) {
+		this.rewardTime = rewardTime;
+	}
+
+	public Double getMinMoney() {
+		return this.minMoney;
+	}
+
+	public void setMinMoney(Double minMoney) {
+		this.minMoney = minMoney;
+	}
+
+	public Double getMaxMoney() {
+		return this.maxMoney;
+	}
+
+	public void setMaxMoney(Double maxMoney) {
+		this.maxMoney = maxMoney;
+	}
+
+	public String getRbName() {
+		return this.rbName;
+	}
+
+	public void setRbName(String rbName) {
+		this.rbName = rbName;
+	}
+
+	public Integer getPassDate() {
+		return this.passDate;
+	}
+
+	public void setPassDate(Integer passDate) {
+		this.passDate = passDate;
+	}
+
+	public Double getRealMoney() {
+		return this.realMoney;
+	}
+
+	public void setRealMoney(Double realMoney) {
+		this.realMoney = realMoney;
+	}
+
+}

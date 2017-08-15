@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.borrow;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 借款额度
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminAmountService extends BaseController{
+
+}

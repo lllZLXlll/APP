@@ -1,0 +1,84 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * BorrowRole entity. @author MyEclipse Persistence Tools
+ */
+
+public class BorrowRole implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Long applyId;
+	private String borrowId;
+	private Integer authStep;
+	private Integer isFirst;
+
+	// Constructors
+
+	/** default constructor */
+	public BorrowRole() {
+	}
+
+	/** full constructor */
+	public BorrowRole(Long userId, Long applyId, String borrowId, Integer authStep, Integer isFirst) {
+		this.userId = userId;
+		this.applyId = applyId;
+		this.borrowId = borrowId;
+		this.authStep = authStep;
+		this.isFirst = isFirst;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getApplyId() {
+		return this.applyId;
+	}
+
+	public void setApplyId(Long applyId) {
+		this.applyId = applyId;
+	}
+
+	public String getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(String borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Integer getAuthStep() {
+		return this.authStep;
+	}
+
+	public void setAuthStep(Integer authStep) {
+		this.authStep = authStep;
+	}
+
+	public Integer getIsFirst() {
+		return this.isFirst;
+	}
+
+	public void setIsFirst(Integer isFirst) {
+		this.isFirst = isFirst;
+	}
+
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>公共弹出框_债权转让</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+    <script>
+    	$(function() {
+			$('.trans-bg').css({'width':$(window).width() , 'height':$(window).height()});
+			$('.mod-lightbox').css({'margin-left':-0.5*$('.mod-lightbox').width() , 'margin-top':-0.5*$('.mod-lightbox').height()});
+			$('.mod-lightbox .title .close').click(function() {
+				$('.trans-bg').css({'display':'none'});
+				$('.mod-lightbox').css({'display':'none'});
+			});
+		});
+    </script>
+</head>
+<body>
+	
+    <!--lightbox start-->
+    dasdfaf
+	<div class="trans-bg"></div>
+    <div class="mod-lightbox mod-lightbox-repayment mod-lightbox-creditor-transform">
+        <div class="title"><h1>简单的债权说明</h1><a class="close" href="#" title="关闭"></a></div>
+        <!--设置容器内容高度-->
+        <div class="box img" style="width:500px; height:350px; overflow-y:auto;">
+			<div class="mod-form ">
+					<div class="item">
+						<span class="name">转让期限<em class="orange">*</em></span>
+						<select>
+							<option>请选择</option>
+							<option>1天</option>
+							<option>2天</option>
+							<option>3天</option>
+							<option>5天</option>
+							<option>7天</option>
+							<option>8天</option>
+						</select>
+					</div>
+                    
+					<div class="item">
+						<label>
+							<span class="name">债权金额</span>
+							<p>1255.56元</p>
+						</label>
+					</div>
+
+					<div class="item">
+						<label>
+							<span class="name">转让价格<em class="orange">*</em></span>
+							<input type="text">
+						</label>
+					</div>
+
+                  	<div class="item">
+						<label>
+							<span class="name">交易密码<em class="orange">*</em></span>
+							<input type="password">
+						</label>
+					</div>
+
+					<div class="item">
+						<label>
+							<span class="name">转让描述<em class="orange">*</em></span>
+							<textarea name="paramMap.details" cols="30" rows="6" class="txt380"></textarea>
+						</label>
+					</div>
+
+					<div class="item">
+						<span class="name"></span><button class="btn">确认</button>　<button class="btn">取消</button>
+					</div>
+			</div>
+        </div>
+    </div>
+    <!--lightbox end-->
+    
+</body>

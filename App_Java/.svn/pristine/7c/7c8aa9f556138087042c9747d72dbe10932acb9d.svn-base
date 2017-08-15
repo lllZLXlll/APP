@@ -1,0 +1,29 @@
+define(function (require,exports,module) {
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			var index = this.$route.query.index;
+			this.$set('index',index);
+			var title = this.$parent.listData[index].name;
+			var questonList = this.$parent.queston[index];
+			this.$set('questonList',questonList);
+			utils.setAppConfig(title,true,false);
+		},
+		data:function(){
+			return {
+				questonList:[],
+				index:''
+			}
+		},
+		methods:{
+			toDetail:function(index){
+				router.go({path:'answer',query:{list:index,index:this.index}});
+			}
+		},
+		template:'<div class="list-block"><ul>'+
+	    '<li class="item-content item-link" v-for="list in questonList" @click="toDetail($index)">'+
+	      '<div class="item-inner">'+
+	        '<div class="item-title">{{list.queston}}</div>'+
+	      '</div></li></ul></div>'
+	});
+	module.exports = VueComponent;
+})

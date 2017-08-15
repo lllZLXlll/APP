@@ -1,0 +1,169 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/login/Regist.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('注册',this.$route.query.show,false);
+			if(this.$route.query.useCode){
+				var useCode = this.$route.query.useCode;
+				this.$set('dataList[2].value',useCode);
+				this.$set('dataList[2].disabled',true);
+				this.$set('useCode',useCode);
+			}
+		},
+		data: function(){
+			return {
+				dataList:[
+					{inputType:'text',iconClass:'icon-username',placeholder:'请输入手机号码',max:11,dataBind:'username',showMsg:false},
+					{inputType:'password',iconClass:'icon-icon-lock',placeholder:'请输入登录密码',max:16,dataBind:'password',showMsg:false},
+					{inputType:'text',iconClass:'icon-icon-invit',placeholder:'请输入邀请码（选填）',max:16,dataBind:'useCode',value:'',disabled:false,showMsg:false},
+					{inputType:'text',iconClass:'icon-icon-msg',placeholder:'请输入短信验证码',max:6,dataBind:'msgCode',showMsg:true}
+				],
+				username:'',password:'',useCode:'',msgCode:'',btnclass:'btn btn-msg',btnText:'获取验证码',
+				JiYan:false,isTrue:false,
+				recivePhone:'',randomCode:'',smsCode:'',clickInit:true,isPhoneRegist:false,agreement:'',closeAgree:false,useCodeDisabled:false
+			}
+		},
+		methods: {
+			getIndex: function(index){
+				if(index==0){
+					this.chosePhone();
+				}
+			},
+			getCode: function(el){
+				var img = el.target;
+				var timenow = new Date();
+			    var src = "../shzc/imageCode.do?pageId=register&d="+timenow;
+			    img.setAttribute('src',src);
+			},
+			chosePhone: function(){
+				var _this = this;
+				var phone = this.username;
+				if(phone == ''){
+					$.toast("请输入手机号码");return;
+				};
+				var param={cellPhone:phone};
+				utils.ajax({
+		            url:'../isExistPhone.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	if(data.error =='0'){
+		            		$.toast('手机号已经注册!');
+		            		_this.$set('isPhoneRegist',true);
+		            	}else if(data.error =='3'){
+		            		_this.$set('isPhoneRegist',false);
+		            	}else{
+			        		$.alert(data.msg);
+			        	}
+		            	
+		            }
+		        });
+			},
+			getSms: function(){
+				if(this.isPhoneRegist){
+					$.toast('手机号已经注册!');return;
+				};
+				utils.getSmsCode(this,'resetPwd');
+			},
+			regist: function(){
+				this.$set('JiYan',false);
+				this.$set('isTrue',true);
+				var param={name:this.username,pwd:this.password,cellPhone:this.username,imgCode:this.imgCode,code:this.msgCode,randomCode:this.randomCode,recivePhone:this.recivePhone,refferee:this.useCode,pageId:'register'}; 
+				utils.ajax({
+		            url:'../front/register.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	if(data.error =='0'){
+		            		$.alert('注册成功！',function(){
+		            			router.go({path:'/login'});
+		            		})
+		            	}else{
+		            		$.alert(data.msg);
+		            	}
+		            }
+		        })
+			},
+			AgreeMent:function(val){
+				var id = '31';
+				if(val == 1){
+					id='12'
+				};
+				var _this = this;
+				var param={TypeId:id};
+				utils.ajax({
+		            url:'../front/querytips.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	if(data.error == '0'){
+		            		_this.$set('agreement',data.content);
+		            		$.popup('.popup');
+		            		_this.$set('closeAgree',true);
+		            	}
+		            }
+		        })
+			},
+			closeAgreement:function(){
+				$.closeModal('.popup');
+				this.$set('closeAgree',false);
+			},
+			handlerPopup:function(captchaObj) {
+				var _this = this;
+				_this.$set('captchaObj',captchaObj);
+			    // 将验证码加到id为captcha的元素里
+			    captchaObj.appendTo("#popup-captcha-mobile");
+			    // 更多接口参考：http://www.geetest.com/install/sections/idx-client-sdk.html
+			},
+			hadler:function(){
+				var _this = this;
+				if(this.password==''){
+					$.toast('请输入密码!');return;
+				};
+				if(this.msgCode==''){
+					$.toast('请输入短信验证码!');return;
+				};
+				if(this.isTrue){
+					_this.regist();
+				}else{
+					_this.$set('JiYan',true);
+					_this.captchaObj.onSuccess(_this.regist);
+				}
+					
+			},
+			hideMask:function(){
+				this.$set('JiYan',false);
+			}
+		},
+		ready:function(){
+			utils.ajax({
+	            url:'../app/isNetworkAction.do',
+	            data:{},
+	            dataType:'json',
+	            success: function(data){
+	            }
+	        });
+			var _this = this;
+			// 验证开始需要向网站主后台获取id，challenge，success（是否启用failback）
+			var url = "../shzc/startCaptchaAction.do?t=" + (new Date()).getTime();
+			utils.ajax({
+			    url: url, // 加随机数防止缓存
+			    type: "get",
+			    dataType: "json",
+			    success: function (data) {
+			        // 使用initGeetest接口
+			        // 参数1：配置参数
+			        // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它做appendTo之类的事件
+			        initGeetest({
+			            gt: data.gt,
+			            challenge: data.challenge,
+			            offline: !data.success // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+			            // 更多配置参数请参见：http://www.geetest.com/install/sections/idx-client-sdk.html#config
+			        }, _this.handlerPopup);
+			    }
+			});
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

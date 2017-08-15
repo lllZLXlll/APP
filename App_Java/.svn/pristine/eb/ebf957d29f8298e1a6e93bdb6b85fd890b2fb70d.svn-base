@@ -1,0 +1,20 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Materialsauth;
+
+public interface MaterialsauthDao {
+	
+	public List<Map<String, Object>> queryEnterprisePictureGroup(Long userId);
+	
+	public List<Map<String, Object>> queryEnterpriseDataListByUserId(Long userId,String flag);
+	
+	public List<Map<String, Object>> queryEnterpriseDataDetail(Long materialsauthid);
+	
+	public Long queryMaterialsauthCountByUserId(Long userId);
+	
+	public Long addMaterialsauth(Materialsauth materialsauth);
+	
+}

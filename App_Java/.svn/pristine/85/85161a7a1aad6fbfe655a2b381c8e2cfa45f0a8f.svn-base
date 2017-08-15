@@ -1,0 +1,33 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Mediareport;
+
+public interface MediareportDao {
+	
+	public List<Mediareport> queryMediaReportPage(Long index,Long number,Integer newsType,String url,String pageType);
+	
+	public Mediareport queryMediaReportById(Long id);
+	
+	public Map<String, Long> queryMediareportCountByNewsType(Integer newsType);
+
+	public List<Map<String, Object>> queryMediaCoverageForPage(long l, Long pageSize, boolean b);
+
+	public long queryMediaCoverageCount();
+
+	public long addMediareport(Mediareport mediareport);
+
+	public long updateMediaReportById(Mediareport mediareport);
+
+	public long updateStickById(Integer stick, Long tabid);
+
+	public long deleteMediareportById(Long id);
+
+	public long deleteMediareportByIds(List<Long> list);
+
+	public Map<String, Object> queryAppToMediaReport(Integer id, Integer newstype2, String basePath);
+
+	
+}

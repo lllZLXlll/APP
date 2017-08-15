@@ -1,0 +1,26 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Apply;
+
+public interface ApplyDao {
+
+	public Long insertApply(Apply apply);
+
+	public Long deleteApplyById(Long id);
+
+	public List<Map<String, Object>> queryborrowfabiao(String state, String tname, String telphone, long pageNum,
+			Long pageSize);
+
+	public Long queryborrowfabiaoCount(String state, String tname, String telphone);
+
+	public long deleteBorrowfabiao(String[] array);
+
+	public Apply queryApplyById(long id);
+
+	public long updateState(long id, int state);
+
+	public List<Map<String, Object>> queryborrowfabiaoExport(String state, String tname, String telphone);
+}

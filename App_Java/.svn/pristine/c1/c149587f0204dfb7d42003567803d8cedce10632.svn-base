@@ -1,0 +1,345 @@
+package com.pjzb.util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Constants {
+
+	// 时间格式
+	public static final String DATELONG = "yyyyMMddHHmmss";
+
+	public static final String DATELONGZEROCLOCK = "yyyy-MM-01 00:00:00";
+
+	public static final String DATELONG23CLOCK = "yyyy-MM-dd 23:59:59";
+
+	// 时间格式
+	public static final String DATESIMPLE = "yyyy-MM-dd HH:mm:ss";
+
+	// 时间格式
+	public static final String DATESHORT = "yyyyMMdd";
+
+	// 时间格式
+	public static final String _DATESHORT = "yyyy-MM-dd";
+
+	// 时间格式
+	public static final String DATEYM = "yyyyMM";
+
+	public static final String DATEYM_MILLI = "YYYYMMddHHmmssSSS";
+
+	// 是否是测试环境
+	public static final String ISDEMO = PropertiesUtil.getProper("isDemo");
+
+	// 1是测试环境
+	public static final String ISDEMO_1 = "1";
+
+	// 2是生产环境
+	public static final String ISDEMO_2 = "2";
+
+	// 手工basePath名称
+	public static final String BASEPATH_FLAG = "basePath";
+
+	// 手工配置basePath路径名称
+	public static final String BASEPATH = PropertiesUtil.getProper(BASEPATH_FLAG);
+	
+	//项目地址
+	public static final String PROJECTREALPATH = PropertiesUtil.getProper("projectRealPath");
+
+	// 管理员session名称
+	public static final String SESSION_ADMIN = "admin";
+
+	// 用户session名称
+	public static final String SESSION_USER = "user";
+	
+	// 管理员application名称
+	public static final String APPLICATION_ADMIN = "applicationAdmin";
+
+	// 债权转让状态标识(1审核中)
+	public static final Integer DEBTSTATUS_1 = 1;
+
+	// 债权转让状态标识(2为竞拍中)
+	public static final Integer DEBTSTATUS_2 = 2;
+
+	// 债权转让状态标识(3竞拍成功)
+	public static final Integer DEBTSTATUS_3 = 3;
+
+	// 债权转让状态标识(4，竞拍失败)
+	public static final Integer DEBTSTATUS_4 = 4;
+
+	// 债权转让状态标识(5，撤销)
+	public static final Integer DEBTSTATUS_5 = 5;
+
+	// 债权转让状态标识(6审核失败)
+	public static final Integer DEBTSTATUS_6 = 6;
+
+	// 债权转让状态标识(7提前还款)
+	public static final Integer DEBTSTATUS_7 = 7;
+
+	// wap端页面类型标识
+	public static final String PHONEPAGE = "phonepage";
+
+	// PC端页面类型标识
+	public static final String PC = "PC";
+
+	// app端页面类型标识
+	public static final String REACTAPP = "reactAPP";
+	
+	public static final String ADMIN = "admin";
+
+	// 发送短信用户ID
+	public static final String SMS_USERID = PropertiesUtil.getProper("sms_userId");
+
+	// 发送短信账户名称
+	public static final String SMS_ACCOUNT = PropertiesUtil.getProper("sms_account");
+
+	// 发送短信账户密码
+	public static final String SMS_PASSWORD = PropertiesUtil.getProper("sms_password");
+
+	// 发送短信账URL
+	public static final String SEND_URL = PropertiesUtil.getProper("send_url");
+
+	// 测试环境验证码
+	public static final String ISDEMOCODE = PropertiesUtil.getProper("isDemoCode");
+
+	// 标的推荐标识
+	public static final Integer RECOMMEND_1 = 1;
+
+	// banner标识 1表示PC端，2表示wap端，3表示app端
+	public static final Integer BANNER_TYPE_1 = 1;
+
+	public static final Integer BANNER_TYPE_2 = 2;
+
+	public static final Integer BANNER_TYPE_3 = 3;
+
+	// 新闻类型 1 表示媒体报道
+	public static final Integer MEDIAREPORT_1 = 1;
+
+	// 新闻类型 2表示公司动态
+	public static final Integer MEDIAREPORT_2 = 2;
+
+	// 每页显示的记录数15条
+	public static final Long PAGE_SIZE_15 = 15L;
+
+	// 每页显示的记录数20条
+	public static final Long PAGE_SIZE_20 = 20L;
+
+	// 每页显示的记录数18条
+	public static final Long PAGE_SIZE_18 = 18L;
+
+	// 下标为0
+	public static final Long BEGIN_INDEX_0 = 0L;
+
+	// 每页显示的记录数10条
+	public static final Long PAGE_SIZE_10 = 10L;
+
+	// 每页显示的记录数3条
+	public static final Long PAGE_SIZE_3 = 3L;
+
+	// 每页显示的记录数4条
+	public static final Long PAGE_SIZE_4 = 4L;
+
+	public static final Long PAGE_SIZE_5 = 5L;
+	
+	public static final Long PAGE_SIZE_2 = 2L;
+
+	// 日志操作类型1表示前台
+	public static final Integer OPERATION_TYPE_1 = 1;
+
+	// 日志操作类型2表示后台
+	public static final Integer OPERATION_TYPE_2 = 2;
+
+	// app请求参数名称
+	public static final String APPPARAMS = "appParams";
+
+	// 债权转让服务费
+	public static final String CREDIT_TRANSFER_FEE_RATE = "creditTransferFeeRate";
+
+	// 新闻类型 1：公司动态
+	public static final Integer NEWSTYPE_1 = 1;
+
+	// 新闻类型 2：媒体报道
+	public static final Integer NEWSTYPE_2 = 2;
+
+	public static final Integer BORROWTYPE_SUBID_3 = 3;
+
+	public static final Integer BORROWTYPE_SUBID_4 = 4;
+
+	public static final Integer BORROWTYPE_SUBID_5 = 5;
+
+	public static final Integer BORROWTYPE_SUBID_6 = 6;
+
+	public static final String REGIST = "regist";
+
+	public static final String _PHONE = "_phone";
+
+	public static final String PAGETYPE_APP = "app端";
+
+	// 长整型1
+	public static final Long LONG_1 = 1L;
+
+	// 长整型0
+	public static final Long LONG_0 = 0L;
+
+	// 整型0
+	public static final Integer INT_0 = 0;
+
+	// 整型0
+	public static final Integer INT_1 = 1;
+
+	// 整型0
+	public static final double DOUBLE_0 = 0.00d;
+
+	// 页数常量
+	public static final String CURPAGE = "curPage";
+
+	// 代金券用：1
+	public static final String REDMONEYTYPE_1 = "1";
+
+	// 现金券用：2
+	public static final String REDMONEYTYPE_2 = "2";
+
+	public static String PRO_GLOBLE_NAME = PropertiesUtil.getProper("pro_globle_name");
+
+	public static final int WITHDRAW_MAX = 50000;// 设置最大提现金额，超过之后要收取手续费
+
+	// 充值状态0表示未成功
+	public static final Integer RECHARGE_RESULT_0 = 0;
+
+	// 充值状态1表示已成功
+	public static final Integer RECHARGE_RESULT_1 = 1;
+
+	public static final String CUSTOMER_MSG = "请联系客服:400-606-2079";
+
+	/**
+	 * 还款状态（1 默认未偿还 2 已偿还 3 偿还中）
+	 */
+	public static final int PAYING_STATUS_NON = 1;
+
+	public static final String PAYING_STATUS_NON_STR = "未偿还";
+
+	public static final int PAYING_STATUS_SUCCESS = 2;
+
+	public static final String PAYING_STATUS_SUCCESS_STR = "已偿还";
+
+	public static final int PAYING_STATUS_PAYING = 3;
+
+	public static final String PAYING_STATUS_PAYING_STR = "偿还中";
+
+	// 是否启用加密
+	public static String ENABLED_PASS = "";
+
+	// 加密字符串
+	public static String PASS_KEY = "";
+
+	// 投资信息管理费率
+	public static final String INVEST_FEE_RATE = "investFeeRate";
+
+	public static final String RESULT_PAGE_PC = "/WEB-PC/result.jsp";
+
+	public static final String RESULT_PAGE_WAP = "/WEB-PC/phonepageResult.jsp";
+
+	public static final String RESULT_PAGE_APP = "/WEB-PC/app_result.jsp";
+	
+	public static final String RESULT_PAGE_ADMIN = "/WEB-PC/admin_result.jsp";
+
+	public static final String STR_0 = "0";
+
+	public static final String SUCCESS = "success";
+
+	public static final String FAIL = "fail";
+
+	// 操作类型，1投资
+	public static final int MONEY_TYPE_1 = 1;
+
+	// 操作类型，2还款
+	public static final int MONEY_TYPE_2 = 2;
+
+	// 用于系统日志
+	public static final int INSERT = 1;
+
+	public static final int UPDATE = 2;
+
+	public static final int DELETE = 3;
+
+	public static final int DOWNLOAD = 4;
+
+	public static final int EXCEL = 5;
+
+	// 借款状态(1 默认等待资料 2 正在招标中 3 已满标 4还款中 5 已还完 6 流标7未开放)
+	public static final Integer BORROWSTATUS_1 = 1;
+
+	public static final Integer BORROWSTATUS_2 = 2;
+
+	public static final Integer BORROWSTATUS_3 = 3;
+
+	public static final Integer BORROWSTATUS_4 = 4;
+
+	public static final Integer BORROWSTATUS_5 = 5;
+
+	public static final Integer BORROWSTATUS_6 = 6;
+
+	public static final Integer BORROWSTATUS_7 = 7;
+
+	public static final String INFORM_TEMPLATE_APPLICATION = "informTemplateApplication";
+
+	public static final List<String> AREALIST() {
+		List<String> list = new ArrayList<String>();
+		list.add("北京");
+		list.add("天津");
+		list.add("河北");
+		list.add("山西");
+		list.add("内蒙");
+		list.add("辽宁");
+		list.add("吉林");
+		list.add("黑龙");
+		list.add("上海");
+		list.add("江苏");
+		list.add("安徽");
+		list.add("江西");
+		list.add("福建");
+		list.add("山东");
+		list.add("台湾");
+		list.add("河南");
+		list.add("湖北");
+		list.add("湖南");
+		list.add("广东");
+		list.add("广西");
+		list.add("海南");
+		list.add("香港");
+		list.add("澳门");
+		list.add("重庆");
+		list.add("四川");
+		list.add("云南");
+		list.add("西藏");
+		list.add("贵州");
+		list.add("陕西");
+		list.add("甘肃");
+		list.add("青海");
+		list.add("宁夏");
+		list.add("甘肃");
+		list.add("新疆");
+		return list;
+	}
+
+	// 登录限制标识 1.不限制登录
+	public static final Integer ISLOGINLIMIT_1 = 1;
+
+	// 2.限制登录
+	public static final Integer ISLOGINLIMIT_2 = 2;
+
+	// 状态( 1 停用 2 启用)
+	public static final Integer BIDSTATUS_1 = 1;
+
+	public static final Integer BIDSTATUS_2 = 2;
+
+	public static final String FEE_APPLICATION = "feeApplication";
+	
+	public static final String _CHECKCODE="_checkCode";
+	
+	public static final String CLOSEWEB="closeWeb";
+	
+	public static final String CLOSEWEBCONTENT="closeWebContent";
+	
+	// 短信配置
+	public static String SENDMSGTYPE = PropertiesUtil.getProper("sendMSGType");
+
+}

@@ -1,0 +1,30 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.NewsDao;
+import com.pjzb.entity.News;
+
+
+@Service
+public class NewsService {
+	@Autowired
+	private NewsDao newsDao;
+	
+	
+	public List<Map<String, Object>> queryNews(Long begin,Long end,String pageType){
+		return newsDao.queryNews(begin, end,pageType);
+	}
+
+	public News queryNewsById(Long userId){
+		return newsDao.queryNewsById(userId);
+	}
+	
+	public Map<String, Long> queryNewsCount(){
+		return newsDao.queryNewsCount();
+	}
+}

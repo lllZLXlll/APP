@@ -1,0 +1,637 @@
+package com.pjzb.service.common;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * pc、wap、app端标的详情等等 公共service
+ * @author xiaojin
+ *
+ */
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.ExGoRepaymentDao;
+import com.pjzb.dao.ExgoBorrowDao;
+import com.pjzb.dao.ExgoInvestDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.RedmoneyrecordDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.ExGoRepayment;
+import com.pjzb.entity.ExgoInvest;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.User;
+import com.pjzb.entity.vo.BorrowDebtVo;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.util.AmountUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.GenerateSequenceNo;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+@Service
+public class BorrowInfoService  extends BaseController{
+	@Autowired
+	private BorrowDao borrowDao ;
+	
+	@Autowired
+	private UserDao userDao;
+	
+	@Autowired
+	private RedmoneyrecordDao redmoneyrecordDao;
+	
+	@Autowired
+	private InvestDao investDao;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private ExgoBorrowDao exgoBorrowDao;
+	
+	@Autowired
+	private ExGoRepaymentDao exGoRepaymentDao;
+	
+	@Autowired
+	private ExgoInvestDao exgoInvestDao;
+	
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	public HashMap<String, Object> queryInvestInitReturnMap(JSONObject jsonObject){
+		HashMap<String, Object> jsonMap = new HashMap<String, Object>();
+
+		long userId = Convert.strToLong(jsonObject.get("uid").toString(), -1);
+		String id = Convert.strToStr(jsonObject.get("id").toString(), "");
+		if (StringUtils.isBlank(id)) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "借款ID不能为空");
+			return jsonMap;
+		}
+		long idLong = Convert.strToLong(id, -1);
+		if (idLong == -1) {
+			// 非法操作直接返回
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", IConstants.ACTOIN_ILLEGAL);
+			return jsonMap;
+		} 
+		Map<String, Object> investMap = borrowDao.getInvestStatus(idLong);
+		
+		String nid_log = "";
+		if (investMap != null && investMap.size() > 0) {
+			Map<String, Object> investDetailMap = borrowDao.queryBorrowInvest(idLong);
+
+			long userid = Convert.strToLong(investDetailMap.get("userId").toString(), -1);
+			if (userid==userId) {
+				// 不满足投标条件,返回
+				jsonMap.put("error", "3");
+				jsonMap.put("msg", "不能投标自己发布的借款");
+				return jsonMap;
+			} 
+			Map<String, Object> userMap = userDao.queryUserMonney(userId);
+			//还未使用的代金券
+			List<Map<String, Object>> mapListCd = redmoneyrecordDao.getUerVocherById(userId);
+			
+			//查询是否有投资记录
+			Map<String, Object> investMap1  = investDao.queryUserIsInvest(userId);
+			if (null!=investMap1 && investMap1.size()>0) {
+				jsonMap.put("investRecord", "0");
+			} 
+
+			nid_log = investMap.get("nid_log").toString();
+			Map<String, Object> typeLogMap = null;
+			if (StringUtils.isNotBlank(nid_log)) {
+				typeLogMap = borrowDao
+						.queryBorrowTypeLogByNid(nid_log.trim());
+				int stauts = Convert.strToInt(typeLogMap
+						.get("subscribe_status").toString(), -1);
+				jsonMap.put("subscribes", stauts);
+				jsonMap.put("investMap",investMap);
+			}
+			String hasPWD = investMap.get("hasPWD").toString() == null ? "-1"
+					: investMap.get("hasPWD").toString();
+			jsonMap.put("mapListCd", mapListCd);
+
+			jsonMap.put("userMap", userMap);
+			investDetailMap.put("nowDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+			jsonMap.put("investDetailMap", investDetailMap);
+			jsonMap.put("hasPWD", hasPWD);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "初始化成功");
+		} else {
+			// 不满足投标条件,返回
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "该借款投标状态已失效");
+			return jsonMap;
+		}
+		return jsonMap; 
+	}
+
+	public HashMap<String, Object> checkBorrowDetailReturnMap(JSONObject jsonObject,User user){
+		HashMap<String, Object> jsonMap = new HashMap<String, Object>();
+
+		long userId = Convert.strToLong(jsonObject.get("uid").toString(), -1);
+		long borrowId = Convert.strToLong(jsonObject.get("borrowId").toString(), -1);
+		
+		if (borrowId == -1) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "借款ID不能为空");
+			return jsonMap;
+		}
+
+		// 借款详细
+		Map<String, Object> borrowDetailMap = borrowDao.queryBorrowDetailById(borrowId);
+		// 查询借款信息得到借款时插入的平台收费标准
+		BorrowDebtVo borrowDebtVo = borrowDao.queryBorrowInfo(borrowId);
+
+		if (borrowDetailMap == null || borrowDetailMap.isEmpty()) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "借款不存在");
+			return jsonMap;
+		}
+		borrowDetailMap.put("borrowId", borrowDetailMap.get("id"));
+		borrowDetailMap.remove("borrowInfo");
+		borrowDetailMap.remove("id");
+
+		double borrowSum = Convert.strToDouble(borrowDetailMap.get("borrowSum") + "", 0);
+		double annualRate = Convert.strToDouble(borrowDetailMap.get("annualRate") + "", 0);
+		int deadline = Convert.strToInt(borrowDetailMap.get("deadline") + "", 0);
+		int paymentMode = Convert.strToInt(borrowDetailMap.get("paymentMode") + "", -1);
+		int isDayThe = Convert.strToInt(borrowDetailMap.get("isDayThe") + "", 1);
+		double investAmount = borrowSum;
+		String earnAmount = "";
+
+		AmountUtil au = new AmountUtil();
+		Map<String, String> earnMap = null;
+
+		JSONObject feeJson = JSONObject.fromObject(borrowDebtVo.getFeelog());
+		double costFee = Convert.strToDouble(feeJson.get(Constants.INVEST_FEE_RATE) + "", 0);
+		if (paymentMode == 1 || paymentMode == 4) {
+			// 按月等额还款
+			earnMap = au.earnCalculateMonth(investAmount, borrowSum, annualRate, deadline, 0, isDayThe, 2,
+					costFee);
+			earnAmount = earnMap.get("msg") + "";
+		} else if (paymentMode == 2) {
+			// 先息后本
+			earnMap = au.earnCalculateSum(investAmount, borrowSum, annualRate, deadline, 0, isDayThe, 2);
+			earnAmount = earnMap.get("msg") + "";
+		} else if (paymentMode == 3) {
+			// 秒还
+			earnMap = au.earnSecondsSum(investAmount, borrowSum, annualRate, deadline, 0, 2);
+			earnAmount = earnMap.get("msg") + "";
+		}
+
+		// 借款人资料
+		Map<String, Object> borrowUserMap = borrowDao.queryUserInfoByBorrowId(borrowId);
+
+		List<Map<String, Object>> mapListCd=null;
+		
+		if(user!=null){
+			Map<String, Object> userMap = userDao.queryUserMonney(userId);
+			jsonMap.put("userMap", userMap);
+			// 还未使用的代金券
+			mapListCd = redmoneyrecordDao.getUerVocherById(userId);
+		}
+
+		jsonMap.put("mapListCd", mapListCd);
+		jsonMap.putAll(borrowDetailMap);
+		jsonMap.put("earnAmount", earnAmount);
+		jsonMap.put("username", borrowUserMap.get("username"));
+		jsonMap.put("publisher", borrowUserMap.get("username"));
+		jsonMap.put("address", borrowUserMap.get("address"));
+		jsonMap.put("credit", borrowUserMap.get("credit"));
+		jsonMap.put("creditrating", borrowUserMap.get("creditrating"));
+		jsonMap.put("createTime", borrowUserMap.get("createTime"));
+		jsonMap.put("lastDate", borrowUserMap.get("lastDate"));
+		jsonMap.put("nativePlace", borrowUserMap.get("nativePlace"));
+		jsonMap.put("vipStatus", borrowUserMap.get("vipStatus"));
+		jsonMap.put("personalHead", borrowUserMap.get("personalHead")); 
+		jsonMap.put("nowDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		jsonMap.put("ipayAccount", borrowUserMap.get("ipayAccount"));
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap; 
+	}
+	
+	
+	/**
+	 * 体验标投标
+	 * @return
+	 */
+	public synchronized Map<String, Object> saveExGoInvest(Long userId,JSONObject jsonObject,String pageType){
+		Long id=Long.parseLong(String.valueOf(jsonObject.get("id")));
+		String amount=Convert.strToStr(jsonObject.get("amount")+"","");
+		String exGoBorrowTime=Convert.strToStr(jsonObject.get("borrowTime")+"","");
+		Map<String, Object> jsonMap = new HashMap<String, Object>();	
+		try { 
+			User user=userDao.queryUserById(userId);
+		    boolean re = userService.checkSign(userId);
+			if(!re){  
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "*您的账号出现异常，请速与管理员联系! "); 
+				return jsonMap; 
+			}
+			Map<String, Object> investDetailMap = exgoBorrowDao.queryExgoBorrowById(id); 
+			double yearRate = -1;// 年利率 
+			String investAmount = "";//可投金额  
+		    if(investDetailMap != null ||investDetailMap.size()>0) { 
+		    	yearRate = Convert.strToFloat(String.valueOf(investDetailMap.get("annualRate")),-1); 
+		    	investAmount = String.valueOf(investDetailMap.get("borrowAmount")); 
+		    } else {
+				jsonMap.put("error", "8");
+				jsonMap.put("msg", "未查询到标的信息");
+				return jsonMap;
+		    } 
+			investAmount = investAmount.replace(",", "");
+			double investAmounttDouble = Convert.strToDouble(investAmount, 0);			
+			amount = amount.replace(",", "");
+			double amountDouble = Convert.strToDouble(amount, 0);
+			if(investAmounttDouble < amountDouble) {
+				jsonMap.put("error", "4");
+				jsonMap.put("msg", "购买金额大于可投标金额，不能投标！");
+				return jsonMap;
+			}
+			
+			if(investAmounttDouble == 0) {
+				jsonMap.put("error", "11");
+				jsonMap.put("msg", "当前体验标的金额已投满，请等待下次体验标发放时间进行投资。");
+				return jsonMap;
+//					} else {
+//						jsonMap.put("error", "11");
+//						jsonMap.put("msg", "今日体验标的金额已投满，请于明日投资新的体验标。");
+//						JSONUtils.printObject(jsonMap); 
+//						return null;
+//					}
+			}
+			
+			int borrowTime = Convert.strToInt(ConvertUtil.filteSqlInfusion(exGoBorrowTime), -1);
+ 
+			//校验数据是否被篡改
+			String accountSum =ConvertUtil.decimalFormat(user.getAccountSum());//账户里面实际的体验金金额
+			accountSum = accountSum.replace(",", "");
+			double accountSumDouble = Convert.strToDouble(accountSum, 0);
+			if(amountDouble != accountSumDouble) {
+				jsonMap.put("error", "6");
+				jsonMap.put("msg", "投标金额与账户实际金额不符！");
+				return jsonMap;
+			}
+		    int status = 2;
+		    int num =0; 
+		    Map<String,Object> map=new HashMap<String, Object>();
+		    map.put("in_bid", id);
+		    map.put("in_uid", userId);
+		    map.put("in_invest_amount", amountDouble);
+		    map.put("in_basepath", getBasePath());
+		    map.put("in_invest_time", new Date());
+		    map.put("in_status", status);
+		    map.put("in_num", num);
+		    map.put("in_billcode", GenerateSequenceNo.generateSequenceNo());
+		    map.put("out_ret", "");
+		    map.put("out_desc", "");
+		    map.put("out_ordid", "");
+		    exgoBorrowDao.callExGoBorrowJoinProcedure(map);
+		    
+		    long resultMSG =Long.parseLong(String.valueOf(map.get("out_ret")));
+			if (resultMSG!=1) {
+				jsonMap.put("error", "9");
+				jsonMap.put("msg", map.get("out_ret"));
+				return jsonMap;
+			} 
+			double yearRateVal = yearRate * 1.0f / 100;
+			Map<String, Object> rateCalculateDayMap = ConvertUtil.rateCalculateDay(amountDouble, yearRateVal, borrowTime); 
+			double monForRate = Convert.strToDouble(rateCalculateDayMap.get("monForRate")+ "",Constants.DOUBLE_0); 
+			long sid = 1;
+			int deadline=0;
+			int isAutoBid=1; 
+			Date date = new Date();
+			Date currTime;
+		    //日期格式化
+			SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+			
+			//方案2，用定时器去直接付款给客户
+			double d=Constants.DOUBLE_0;
+			currTime = ConvertUtil.add(date,Calendar.DATE,borrowTime);
+			ExGoRepayment exGoRepayment =new ExGoRepayment();
+			exGoRepayment.setStillPrincipal(amountDouble);
+			exGoRepayment.setStillInterest(monForRate);
+			exGoRepayment.setBorrowId(userId);
+			exGoRepayment.setRepayDate(currTime);
+			exGoRepayment.setRepayStatus(1);
+			exGoRepayment.setIsLate(1);
+			exGoRepayment.setIsWebRepay(1);
+			exGoRepayment.setHasPi(d);
+			exGoRepayment.setHasFi(d);
+			exGoRepayment.setLateFi(d);
+			exGoRepayment.setLateDay(0);
+			exGoRepayment.setInvestorForpayFi(d);
+			exGoRepayment.setInvestorHaspayFi(d);
+			exGoRepayment.setInterestBalance(d);
+			exGoRepayment.setVersion(0);
+			exGoRepayment.setOrId("-1");
+			exGoRepaymentDao.insertExGoReyment(exGoRepayment);
+			userDao.updateExGoStatus(amountDouble,userId);
+			//需要处理完t_exGo_borrow表后进行更新签名处理
+			exgoBorrowDao.updateExGoMonney(amountDouble,id);
+			ExgoInvest exgoInvest=new ExgoInvest();
+			exgoInvest.setInvestAmount(amountDouble);
+			exgoInvest.setRealAmount(amountDouble);
+			exgoInvest.setMonthRate(yearRate);
+			exgoInvest.setInvestor(userId);
+			exgoInvest.setOriInvestor(userId);
+			exgoInvest.setDeadline(deadline);
+			exgoInvest.setIsAutoBid(isAutoBid);
+			exgoInvest.setInvestTime(new Date());
+			exgoInvest.setRepayStatus(1);
+			exgoInvest.setIsDebt(1);
+			exgoInvest.setCirculationInterest(Constants.DOUBLE_0);
+			exgoInvest.setBorrowId(-1L);
+			exgoInvest.setHasPi(d);
+			exgoInvest.setHasDeadline(0);
+			exgoInvest.setRecievedInterest(d);
+			exgoInvest.setRecivedPrincipal(d);
+			exgoInvest.setHasPrincipal(d);
+			exgoInvest.setHasInterest(d);
+			exgoInvest.setRecivedFi(d);
+			exgoInvest.setHasFi(d);
+			exgoInvest.setReward(d);
+			exgoInvest.setCheckInterest(d);
+			exgoInvest.setCheckPrincipal(d);
+			exgoInvest.setAdjustPrincipal(d);
+			
+			exgoInvestDao.insertExGoInvest(exgoInvest);
+			//添加资金记录					   			 							
+			Date inserttime = new Date();//添加时间
+			//处理截止时间
+			currTime = ConvertUtil.add(inserttime,Calendar.DATE,30);		
+			Fundrecord fundrecord=new Fundrecord();
+			fundrecord.setUserId(userId);
+			fundrecord.setFundMode("体验金");
+			fundrecord.setHandleSum(amountDouble);
+			fundrecord.setUsableSum(user.getUsableSum());
+			fundrecord.setFreezeSum(Constants.DOUBLE_0);
+			fundrecord.setDueinSum(Constants.DOUBLE_0);
+			fundrecord.setTrader(-1L);
+			fundrecord.setRemarks("您投资了<a href='userMeg.do?id="+userId+"' target='_blank'>【"+amountDouble+"元】体验金!");
+			fundrecord.setIncome(Constants.DOUBLE_0);
+			fundrecord.setSpending(amountDouble);
+			fundrecord.setBorrowId(-1L);
+			fundrecord.setRepaymentId(-1L);
+			fundrecord.setOperateType(251);
+			fundrecord.setDueoutSum(0d);
+			fundrecord.setRecordTime(new Date());
+			// 添加资金记录
+			fundrecordDao.insertFundrecord(fundrecord);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+			return jsonMap;				
+		} catch (Exception e) {
+			jsonMap.put("error", "10");
+			jsonMap.put("msg", "体验标投标异常");
+			log.error(e);
+			e.printStackTrace();
+		} finally{
+			userService.updateSign(userId);
+			
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 体验标投标初始化
+	 * @return
+	 */
+	public Map<String, Object> openBorrowInit(Long userId,String pageType){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();	
+		try {
+			User user = userDao.queryUserById(userId);
+			if(StringUtils.isBlank(user.getIpayAccount())){
+				jsonMap.put("error", "1");
+				jsonMap.put("msg", "*亲，您还不是汇付的会员，请先注册汇付会员哦！");
+				return jsonMap;
+			}
+			long id = 1;
+			// 借款详细
+			Map<String, Object> borrowDetailMap = exgoBorrowDao.queryExgoBorrowById(1);
+			if (borrowDetailMap != null && borrowDetailMap.size() > 0) {
+				double borrowSum = Convert.strToDouble(borrowDetailMap.get("borrowSum")+"", 0);
+				double investAmount = 10000;
+				if(borrowSum < investAmount){
+					investAmount = borrowSum;
+				}
+			}
+			// 每次点击借款详情时新增浏览量
+			exgoBorrowDao.addExgoBrowseCount(id);
+			Map<String, Object> userMap = userDao.queryAccountSum(userId);
+			if(pageType.equalsIgnoreCase(Constants.PHONEPAGE)){
+				jsonMap.put("borrowDetailMap", borrowDetailMap);					
+			} else {
+				jsonMap.putAll(borrowDetailMap);
+			}
+			jsonMap.put("userMap", userMap);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		} catch (Exception e) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "体验标初始化异常");
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+	
+	
+	/**
+	 * app、wap、pc投标
+	 * @return
+	 */
+	public Map<String, Object> saveFinanceInvest(Long userId,JSONObject jsonObject,String ourPageType){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			String id = jsonObject.get("borrowId").toString();
+			if (StringUtils.isBlank(id)) {
+				jsonMap.put("error", "1");
+				jsonMap.put("msg", "借款ID不能为空");
+				return jsonMap;
+			}
+			long idLong = Convert.strToLong(id, -1);
+			User userm = userDao.queryUserById(userId);
+			//查询是否有投资记录
+			Map<String, Object> investMap1  = investDao.queryUserIsInvest(userId);
+			//判断是否是新手标，有值就是
+			Map<String, String> NoStandardMap = borrowDao.queryNoviceStandard(idLong);
+
+			if (null!=investMap1 && investMap1.size()>0 && null!=NoStandardMap){
+				//如果是新手标，并且有投资记录，则不能进行投标。 
+				jsonMap.put("error", "3");
+				jsonMap.put("msg", "您已有投标记录，不能再投资新手标");
+				return jsonMap;
+			}
+			
+			String amount = jsonObject.get("amount").toString();
+			if (StringUtils.isBlank(amount)) {
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "金额不能为空");
+				return jsonMap;
+			}
+			boolean re = userService.checkSign(userId);
+			if(!re){
+				jsonMap.put("error", "11");
+				jsonMap.put("msg", "*你的账号出现异常，请速与管理员联系！");
+				return jsonMap;
+			}
+			double amountDouble = Convert.strToDouble(amount, 0);
+            //认购模式是否开启
+			int status = 0;
+			Map<String, Object> investMap = borrowDao.getInvestStatus(idLong);
+			Date bidTime=ConvertUtil.dateConvert(investMap.get("bidTime").toString(), Constants.DATESIMPLE);
+			 if(new Date().getTime()<bidTime.getTime()){
+				// 非法操作直接返回
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "投标时间未到");
+				return jsonMap;
+			 }	
+    	     String nid_log = "";
+			Map<String, Object> typeLogMap = null;
+			if (investMap != null && investMap.size() > 0) {
+				nid_log = Convert.strToStr(investMap.get("nid_log").toString(), "");
+			if (StringUtils.isNotBlank(nid_log)) {
+				typeLogMap = borrowDao
+						.queryBorrowTypeLogByNid(nid_log.trim());
+				 status = Convert.strToInt(typeLogMap
+						.get("subscribe_status").toString(), -1);
+			}
+				if(status==1){
+					jsonMap.put("error", "3");
+					jsonMap.put("msg", "手机版不支持投标认购模式的借款");
+					return jsonMap;
+				}
+			}
+			
+//			String hasPWD = jsonObject.get("hasPwd").toString();
+//			if ("1".equals(hasPWD)) {
+//				String investPWD = jsonObject.get("investPWD").toString() == null ? ""
+//						: jsonObject.get("investPWD").toString();
+//				if (StringUtils.isBlank(investPWD)) {
+//					jsonMap.put("error", "3");
+//					jsonMap.put("msg", "密码不能为空");
+//					return jsonMap;
+//				}
+//				Map<String, Long> investPWDMap = borrowDao.getInvestPWD(idLong, investPWD);
+//				if (investPWDMap == null || investPWDMap.size() == 0) {
+//						jsonMap.put("error", "4");
+//						jsonMap.put("msg", "投标密码错误");
+//						return jsonMap;
+//				}
+//			}
+			
+			Map<String, Object> map = new HashMap<String, Object>();
+			String in_billcode = GenerateSequenceNo.generateSequenceNo();// 生成唯一流水号
+			map.put("in_bid", idLong);
+			map.put("in_uid", userId);
+			map.put("in_basepath", getBasePath());
+			map.put("in_invest_amount", amountDouble);
+			map.put("in_invest_time", new Date());
+			map.put("in_status", status);
+			map.put("in_num", 0);
+			map.put("in_billcode", in_billcode);
+			map.put("out_ret", 0);
+			map.put("out_desc", "");
+			map.put("out_ordid", "");
+			log.info("===========处理前map==============" + map);
+			
+			investDao.addBorrowInvest(map);
+			userService.updateSign(userId);//更换校验码
+			
+			long resultMSG = Convert.strToLong(map.get("out_ret").toString(), -10086) ;
+			if (resultMSG!=1) {  
+				jsonMap.put("error", "5");
+				jsonMap.put("msg", map.get("out_desc") + "");
+				return jsonMap; 
+			}
+			//代金券的ID值 
+			String amtId = jsonObject.get("juanId").toString() == null?"":jsonObject.get("juanId").toString();
+			
+			long amDd = Convert.strToLong(amtId, -1);
+			//代金券金额
+			String money ="";
+			if(jsonObject.get("money").toString() != null && jsonObject.get("money").toString().length() != 0) { 
+				money =jsonObject.get("money").toString();
+			} else {
+				money ="0.00";
+			}
+			String borrowTitle = jsonObject.get("borrowTitle").toString() == null?"":jsonObject.get("borrowTitle").toString();//借款标题
+			
+			double twVocherAmt = Double.parseDouble(money); 
+			DecimalFormat df = new DecimalFormat("0.00");
+            String vocherAmt = df.format(twVocherAmt);
+            double transAmtVo = twVocherAmt+amountDouble; 
+            String transAmt = df.format(transAmtVo);
+			String borrowerRate = ChinapnrConfig.BORROWERRATE;//"1.00";
+			JSONObject json = new JSONObject();
+			String ipayAccount = userm.getIpayAccount();//投资人客户号
+			json.put("BorrowerCustId", jsonObject.get("ipayAccount"));//借款人客户号
+			json.put("BorrowerAmt", transAmt);
+			// 汇付还款总额为借款金额*(1+利率).改为1防止出现手续费过多出现:本次还款金额加上已还金额超过还款总额的情况
+			json.put("BorrowerRate", borrowerRate);
+			// 汇付主动投标		 
+			String html="";
+			String str="";
+			String page="";
+			if(ourPageType.equals(Constants.PHONEPAGE)){
+				str=id+"-"+userId+"-"+amtId+"-"+vocherAmt+"-"+Constants.PHONEPAGE;
+				page="1";
+			}else if(ourPageType.equals(Constants.PC)){
+				str=id+"-"+userId+"-"+amtId+"-"+vocherAmt+"-"+Constants.PC;
+			}else{
+				str=id+"-"+userId+"-"+amtId+"-"+vocherAmt+"-"+Constants.REACTAPP;
+				page="1";
+			}
+			log.info("merPriv:"+str); 
+			if(vocherAmt.equals("0.00")){
+				String ordId = ConvertUtil.convertString(map.get("out_desc"));
+				String retUrl = this.getBasePath() + "WEB-PC/reTenderTrade.do"; // 前台返回
+				String bgRetUrl = this.getBasePath() + "reAsyncFinanceInvestUrl.do"; // 后台返回
+				html = ChinapnrService.initiativeTender(str.replaceAll("\r|\n", "").trim(), ordId, ipayAccount, transAmt+"", "[" + json.toString() + "]",retUrl,bgRetUrl,page,ourPageType);
+
+			}else{
+				String ordId = ConvertUtil.convertString(map.get("out_desc"));
+				String retUrl = this.getBasePath() + "WEB-PC/reTenderTrade.do"; // 前台返回
+				String bgRetUrl = this.getBasePath() + "reAsyncFinanceInvestUrl.do"; // 后台返回
+				html = ChinapnrService.initiativeTenderTwo(str.replaceAll("\r|\n", "").trim(), ordId, ipayAccount, transAmt+"", "[" + json.toString() + "]",retUrl,bgRetUrl,vocherAmt,page,ourPageType);		
+			
+			}
+			if(ourPageType.equals(Constants.PHONEPAGE)|| ourPageType.equals(Constants.PC)){
+				html = html.replace("\"[{", "'[{");
+				html = html.replace("}]\"", "}]'");
+				html = html.replace("\"{", "'{");
+				html = html.replace("}\"", "}'");
+			}
+			jsonMap.put("html", html);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		} catch (Exception e) {
+			jsonMap.put("error", "9");
+			jsonMap.put("msg", "投标借款异常");
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+	
+	
+	
+	
+}

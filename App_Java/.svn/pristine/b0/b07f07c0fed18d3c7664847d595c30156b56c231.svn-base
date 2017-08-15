@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.user;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 用户举报
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminUserReportService extends BaseController {
+
+}

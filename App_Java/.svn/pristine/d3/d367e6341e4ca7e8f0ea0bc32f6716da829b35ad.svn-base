@@ -1,0 +1,306 @@
+jdbc.driver=com.mysql.jdbc.Driver
+jdbc.url=jdbc\:mysql\://rm-wz9lpy3i4438b5w68o.mysql.rds.aliyuncs.com\:3306/pjzb?characterEncoding\=UTF-8&amp;zeroDateTimeBehavior\=convertToNull
+jdbc.username=pjzb
+jdbc.password=Pjzb_160623_\=
+jdbc.pool.maxIdle=10
+jdbc.pool.maxActive=90
+jdbc.pool.initialSize=5
+basePath=http\://www.pujinziben.com/
+mail_host=smtp.pujinziben.com
+mail_username=service@pujinziben.com
+mail_password=Pjzb123456
+mail_from=service@pujinziben.com
+mail_port=25
+
+#支付宝输入编码
+input_charset=utf-8
+#支付宝商户ID
+partnerID=2088101178484721
+#支付宝密钥
+key=438p67m0bkl0xb7wvv96ktcitob42aws
+#支付宝发送邮件
+seller_email=xfwdai@sina.cn
+#
+sign_type=MD5 
+#
+transport=http
+#
+ses_key=11111111111111111
+#
+gateway=https://mapi.alipay.com/gateway.do?
+
+return_url=http\://sp2p.demo.eimslab.cn/alipayReceive.do
+
+#支付宝回调地址
+notify_url=http://sp2p.demo.eimslab.cn/alipayNotify.do
+#产品类型(1 演示  2 正式)
+isDemo=2
+isDemoCode=666666
+
+#法大大字体颜色地址
+fontUrl=/u01/pj/pj_fonts/simsun.ttf
+
+fadada_api_id=000178
+fadada_app_secret=GcIzJr9nvBirEfl5dGX4w6DW
+fadada_v=2.0
+fadada_api_url=http://extapi.fadada.com:9999/api2/
+
+#极验验证id与key
+gee_id=667a0a7c1aef6874a15eb81149965729
+gee_key=7044ef579f78d2458bdef2e240519a08
+
+#创蓝短信平台用户名密码
+chuanglan_url=http://smssh1.253.com/msg/send/json
+chuanglan_account=N2532535
+chuanglan_password=Qs5LWluq2ed075
+
+
+#是否推送数据给融途网  1.否  2.是
+pushToRongtu=1
+#融途网信息 
+rongtuURL=http://shuju.erongtu.com/api/borrow
+#rongtuURL=http://shuju.erongtu.com/api/data
+#rongtuURL=http://shuju.erongtu.com/api/test
+dangan_id=3323
+
+
+#限制一个IP只能注册两个账号   1.不限制， 2.限制
+limitIP=1
+
+#是否定时添加体验金  1.否  2.是
+addExgo=1
+#添加体验金30个名额, 年利率 annualRate
+addExgoNum=50
+addExgoAmount=18888
+annualRate=12
+
+#新注册的用户是否赠送体验金  1.否  2.是
+givingExgo=1
+
+#测试数据库不能给借款人发送催收借款的短信  1.不发送短信，2发送短信
+isSendMessage=2
+
+#测试数据库居间方的ID
+#fadada_middle_customer=1223566858
+fadada_middle_customer=100324
+
+#1 标准的MD5加密  2 启用自定义加载MD5加密
+enabled_pass=2
+
+#自定义MD5key
+pass_key=GDgLwwdK270Qj1w4xho8lyTp
+
+
+#bbs url
+bbs_url=http://sp2p.demo.eimslab.cn/sp2p_bbs/
+#web 服务器测试地址
+#web_url=http://p2p-2.test1.shovesoft.com/sp2p_syqcjr
+#web本地测试地址 
+web_url=http://www.pujinziben.com
+#密码加密
+pwd_ses_key=11111111111111111
+
+#论坛加密
+bbs_ses_key=nKSJNYfaQRHn5PelGmg1dr9
+
+#bbs
+bbs_key=5
+
+
+#国付宝商户ID
+gopay_merchantID=0000003358
+
+#国付宝商户帐号
+gopay_virCardNoIn=0000000001000000584
+
+#国付宝接口正式地址
+#gopay_gateway=https://www.gopay.com.cn/PGServer/Trans/WebClientAction.do?
+#国付宝接口测试地址
+gopay_gateway=https://mertest.gopay.com.cn/PGServer/Trans/WebClientAction.do?
+#
+gopay_version=2.1
+#国付宝支付编码
+gopay_input_charset=UTF-8
+
+gopay_signtype=MD5
+
+#国付宝识别码
+gopay_verficationCode=12345678
+
+#加密key
+gopay_see_key=1EPjNYoc99wUVZZuiCgKN9t6sOI
+
+#国付宝时间戳防钓鱼
+gopay_server_time_url=https://www.gopay.com.cn/PGServer/time
+
+
+#国付宝后台回调
+gopay_backgroundMerUrl=http://sp2p.demo.eimslab.cn/backgroundMerUrl.do
+#国付宝前台回调
+gopay_frontMerUrl=http://sp2p.demo.eimslab.cn/frontMerUrl.do
+
+#环迅支付
+#商户编号
+ipay_mer_code=808801
+
+#前端回调地址 
+ipay_mer_chanurl=http://localhost:8080/sp2p_syqcjr/merChanUrl.do
+
+#后端回调地址
+ipay_server_url=http://localhost:8080/sp2p_syqcjr/merServerUrl.do
+
+#环迅支付网关测试地址
+ipay_gateway=http://p2p.ips.net.cn/CreditWeb/
+#环迅支付webservice接口
+ipay_web_service = http://p2p.ips.net.cn/CreditWS/Service.asmx
+#加密key
+ipay_see_key=F8M8NXwetrbAvjU3Abfe7R
+
+#加密类型
+ipay_order_encode_type=MD5
+
+#环迅支付数字签名信息
+#ipay_certificate=GDgLwwdK270Qj1w4xho8lyTpRQZV9Jm5x4NwWOTThUa4fMhEBK9jOXFrKRT6xhlJuU2FEa89ov0ryyjfJuuPkcGzO5CeVx5ZIrkkt1aBlZV36ySvHOMcNv8rncRiy3DQ
+#MD5证书
+cert_md5=GPhKt7sh4dxQQZZkINGFtefRKNPyAj8S00cgAwtRyy0ufD7alNC28xCBKpa6IU7u54zzWSAv4PqUDKMgpOnM7fucO1wuwMi4RgPAnietmqYIhHXZ3TqTGKNzkxA55qYH
+#RSA公钥(IPS)
+pub_key=-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC0SlytWpJJJ2fdIRXi6obM6hQ/\n9eD4dUo4hzMsMoBDbsPkkdRdbfkyHOqr9aUKIjSbIehS8cwhI9XpShF0t+2uuuni\nzEShjvD2HsGMxSSrE6GaxXtidg9wte9rnZzlaafAzHztThRLoELTE/sx0og1Hwxm\naPSAy3/lm0LPjJNJZQIDAQAB\n-----END PUBLIC KEY-----
+#3des密钥
+des_key	=ICHuQplJ0YR9l7XeVNKi6FMn
+#证书号码
+des_iv=2EDxsEfp
+com.shove.security.License.Cert=123456789
+#序列号
+com.shove.security.License.SerialNumber=MID-22824-47058-95091-87448-87678
+web_app_version=4.0.1
+
+web_app_url=http\://s.demo.eimslab.cn/upload/download/android_p2p.apk
+
+
+#短信测试接口
+sms_url=http\://222.240.233.62/sms/services/sending?WSDL
+
+#身份认证
+#webService访问地址
+gboss_url=http://gboss.id5.cn/services/QueryValidatorServices?wsdl
+#用户名
+pro_globle_name=\u666E\u91D1\u8D44\u672C
+#密码
+gboss_password=sanyijiekou_hr@HZ5SI
+#认证类型（身份证认证）
+gboss_datasource=1A020201
+#认证类型（学历认证）
+gboss_education=1B010101
+
+#汇付商户私钥
+chinapnr_merKeyFile=/u01/pj/pjzb/WEB-INF/hhnchinapnr/MerPrK831213.key
+#汇付商户号
+chinapnr_merCustId=6000060141694317
+#汇付客户号
+chinapnr_merId=831213
+#汇付 公钥
+chinapnr_PgPubkFile=/u01/pj/pjzb/WEB-INF/hhnchinapnr/PgPubk.key
+
+#汇付天下接口地址
+chinapnr_gateway=https\://lab.chinapnr.com/muser/publicRequests
+
+#汇付天下后台回调
+chinapnr_bgRetUrl=backgroundChinaPnrUrl.do
+#汇付天下前台回调
+chinapnr_retUrl=frontChinaPnrUrl.do
+
+#汇付接口版本号
+chinapnr_version=10
+
+#汇付天下支付编码
+chinapnr_input_charset=UTF-8
+
+#普金资本资产基本借记户
+chinapnr_jb=BASEDT
+
+#普金资本专属子账户
+chinapnr_syqcjr=MDT000001
+
+#普金资本保证金账户
+chinapnr_bzj=DEP000001
+
+#普金资本担保账户1
+chinapnr_db=SDT000001
+
+#普金资本风险账户2
+chinapnr_fx=SDT000002
+
+
+#投标最大手续费费率
+MaxTenderRate=0.10
+#借款手续费率
+BorrowerRate=1.00
+#http://mertest.chinapnr.com/muser/reg/regInfoSubmit/confirm
+#过滤白名单地址
+injectionInterceptor.referer.whitelist=https\://lab.chinapnr.com/muser/
+
+sms_userId=4912
+send_url=http\://211.147.242.161\:8888/sms.aspx
+sms_password=pjzb456789
+sms_account=\u666E\u91D1\u8D44\u672C
+
+# -------------------------------------------- 普金资本第一季推广活动 begin --------------------------------------------
+# 活动开始日期: 
+#第几期活动,
+activity_phase=3
+# 测试日期:
+activityStartTime=2017-03-06
+ 
+# 活动结束日期：2017-03-05
+activityEndTime=2030-03-06
+
+# 1)新用户首次投标金额大于500奖励活动：
+# 是否开启活动 1否,2是
+isStartActivity1=2
+
+# 首次投资奖励金额奖励起点为：500.00
+investMoney=500.00
+
+# 2)抢标奖励奖励活动：
+# 是否开启活动 1否,2是
+isStartActivity2=2
+
+# 首投，尾投金额起点为：2000.00
+firstLastInvest=2000.00
+
+# 首投奖励金额
+firstInvestAward=50.00
+
+# 尾投奖励金额
+lastInvestAward=50.00
+
+# 标王奖励金额
+MaxInvestAward=100.00
+
+# 4)邀请好友奖励活动：
+inviteAmount_1=500
+inviteAmount_2=30000
+inviteAmount_3=100000
+
+# 5)累计投资奖励活动：
+# 是否开启活动 1否,2是
+isStartActivity5=2
+
+# 累计投资达到奖励起点1
+investAmount_1=50000
+
+# 累计投资达到奖励起点2
+investAmount_2=100000
+
+# 累计投资达到奖励起点3
+investAmount_3=200000
+
+# 累计投资达到奖励起点4
+investAmount_4=300000
+
+# 累计投资达到奖励起点5
+investAmount_5=400000
+
+# -------------------------------------------- 普金资本第一季推广活动 end --------------------------------------------
+#发送短信类型 junMei表示骏媒、chuangLan表示创蓝、没有配置的话，短信平台交替发送  
+sendMSGType=

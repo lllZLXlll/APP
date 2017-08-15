@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 下载管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminDownloadService extends BaseController {
+
+}

@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.declare;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 图片管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminPictureManageService extends BaseController {
+
+}

@@ -1,0 +1,105 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="queryUserManageInfoIndex.do" method="post">
+        <input type="hidden" name="pageSize" value="${pageBean.pageSize}">
+        <input type="hidden" name="pageCurrent" value="${pageBean.pageNum}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <input type="hidden" name="orderDirection" value="${param.orderDirection}">
+        <div class="bjui-searchBar">
+        	<br/>
+            &nbsp;&nbsp;
+            <label>用户名：</label><input type="text" value="${userName }" name="userName" class="form-control" maxlength="20" size="20">&nbsp;
+            <label>真实姓名：</label><input type="text" id="customNo" value="${realName }" name="realName" maxlength="15" class="form-control" size="20">&nbsp;
+            <label> 推荐人用户名：</label><input type="text" value="${recommendUsernname }" name="recommendUsernname" maxlength="20" class="form-control" size="20">&nbsp;
+            <button type="submit" class="btn-default" data-icon="search">查询</button>&nbsp;
+             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+            <div class="pull-right">
+            
+            </div>
+        </div>
+        <div class="bjui-moreSearch">
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+        <thead>
+            <tr height="25px">
+            	<th align="center">序号</th>
+            	<th align="center">手机号码</th>
+                <th align="center">用户名</th>
+                <th align="center">真实姓名</th>
+                <th align="center">邮箱</th>
+                <th align="center">注册时间</th>
+                <th align="center">最后登录IP</th>
+                <th align="center">最后登录时间</th>
+                <th align="center">推荐人用户名</th>
+                <th align="center">推荐人姓名</th>
+                <th align="center">汇付账号</th>
+                <th align="center">法大大证书号</th>
+                <th align="center" width="16%">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        <c:set var="count" value="${(pageBean.pageNum-1)*pageBean.pageSize}"></c:set> 
+        	<c:forEach items="${pageBean.page }" var="data" varStatus="status">
+              <tr data-id="65" align="center">
+               <td >${status.index+1+count }</td>
+                <td >${data.cellPhone }</td>
+                <td>${data.username }</td>
+                <td>${data.realName }</td>
+                <td>${data.email }</td>
+                <td><fmt:formatDate value="${data.createTime }" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+                <td>${data.lastIP } </td>
+                <td><fmt:formatDate value="${data.lastDate }" pattern="yyyy-MM-dd HH:mm:ss" /> </td>
+                <td>${data.recommendUsername }</td>
+                <td>${data.recommendrealName }</td>
+                <td>${data.ipayAccount }</td>
+                <td>
+                 <c:choose>
+	                	<c:when test="${data.customer_id != null }">
+	                	${data.customer_id }
+	                	</c:when>
+	                	<c:otherwise>
+	                		    <a href="synchFaDaDa.do?userId=${data.id }&tabid=${tabid}" class="btn btn-green" data-toggle="doajax" 
+                    data-confirm-msg="确定要同步法大大吗？">添加法大大证书</a>
+	                	</c:otherwise>
+	                </c:choose>
+                </td>
+                <td>
+                   
+                     <a href="saveOrUpdateUseraliasInit.do?id=${data.id }&tabid=${tabid}&type=save" data-toggle="dialog" data-title="增加${data.username }的别名"
+                   data-id="queryRecommendById" data-mask="true" data-width="600" data-height="500" class="btn btn-green">增加别名</a>
+                  
+                  <a href="queryUserInfo.do?userId=${data.id }&tabid=${tabid}" data-toggle="dialog" 
+                   data-id="queryUserInfo" data-mask="true" data-width="650" data-height="600" class="btn btn-green">查看</a>
+                   
+                     <a href="updateSign.do?userId=${data.id }" class="btn btn-green" data-confirm-msg="确定更改签名吗？" data-toggle="doajax" >更改签名</a>
+                    
+                </td>
+            </tr>
+            </c:forEach>
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+            	<option value="20">20</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 ${pageBean.totalNum } 条， 共 ${pageBean.totalPageNum } 页</span>
+    </div>
+    <div class="pagination-box" data-toggle="pagination" data-total="${pageBean.totalNum }" data-page-size="${pageBean.pageSize }" data-page-current="1">
+    </div>
+</div>
+<script type="text/javascript">
+	
+</script>

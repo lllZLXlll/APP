@@ -1,0 +1,85 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * Select entity. @author MyEclipse Persistence Tools
+ */
+
+public class Select implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long typeId;
+	private Integer selectValue;
+	private String selectName;
+	private String description;
+	private Integer deleted;
+
+	// Constructors
+
+	/** default constructor */
+	public Select() {
+	}
+
+	/** full constructor */
+	public Select(Long typeId, Integer selectValue, String selectName,
+			String description, Integer deleted) {
+		this.typeId = typeId;
+		this.selectValue = selectValue;
+		this.selectName = selectName;
+		this.description = description;
+		this.deleted = deleted;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getTypeId() {
+		return this.typeId;
+	}
+
+	public void setTypeId(Long typeId) {
+		this.typeId = typeId;
+	}
+
+	public Integer getSelectValue() {
+		return this.selectValue;
+	}
+
+	public void setSelectValue(Integer selectValue) {
+		this.selectValue = selectValue;
+	}
+
+	public String getSelectName() {
+		return this.selectName;
+	}
+
+	public void setSelectName(String selectName) {
+		this.selectName = selectName;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Integer getDeleted() {
+		return this.deleted;
+	}
+
+	public void setDeleted(Integer deleted) {
+		this.deleted = deleted;
+	}
+
+}

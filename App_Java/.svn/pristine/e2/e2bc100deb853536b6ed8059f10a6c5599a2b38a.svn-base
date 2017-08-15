@@ -1,0 +1,175 @@
+package com.pjzb.service.admin.declare;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.OperateReportPageDao;
+import com.pjzb.entity.OperateReportPage;
+import com.pjzb.service.common.UploadService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+/**
+ * app运营报告图片
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminAppOperateReportService extends BaseController {
+	
+	@Autowired
+	private OperateReportPageDao operateReportPageDao;
+	
+	@Autowired
+	private UploadService uploadService;
+
+	public String queryAppOperateReportListPageInit(Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = operateReportPageDao.queryAppOperateReportListForPage((pageNum - 1) * pageSize, pageSize,
+					true);
+			long count = operateReportPageDao.queryAppOperateReportCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询app运营图片异常**************************");
+		}
+		return "/admin/declare/appoperatereport/list.jsp";
+	}
+
+	public String addAppOperateReportInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/declare/appoperatereport/add.jsp";
+	}
+
+	public Map<String, Object> addAppOperateReport(OperateReportPage operateReportPage, String tabid) throws RuntimeException{
+		operateReportPage.setUploadTime(new Date());
+		long result = operateReportPageDao.addAppOperateReport(operateReportPage);
+		try {
+			if (result > 0) {
+				return ajaxDoneInfo("200", "报告增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "报告增加失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("******************app报告增加异常*************");
+		}
+	}
+
+	public Map<String, Object> uploadAppOperateReport(MultipartFile file, String dialogId, HttpServletRequest request) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			Calendar cal = Calendar.getInstance();
+			int month = cal.get(Calendar.MONTH) + 1;
+			int year = cal.get(Calendar.YEAR);
+			String fileName = ConvertUtil.dateConvert(new Date(), Constants.DATEYM_MILLI) + ".jpg";
+			String savePath = "upload/operationreport/app/" + year + "/" + month + "/";
+			String uploadResult = uploadService.upload(file, savePath, fileName, dialogId, request);
+			if (uploadResult.equals(Constants.SUCCESS)) {
+				map.put("imgPath", "../" + savePath + fileName);
+				map.put("imgName", fileName);
+				map.put("statusCode", "200");
+				map.put("message", "上传成功");
+			} else {
+				map.put("statusCode", "300");
+				map.put("message", "上传失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************上传图片异常*****************");
+			map.put("statusCode", "300");
+			map.put("message", "上传异常");
+		}
+		return map;
+	}
+
+	public Map<String, Object> deleteAppOperateReportById(Long id) throws RuntimeException{
+		try {
+			long result = operateReportPageDao.deleteAppOperateReportById(id);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**************app删除报告异常****************");
+		}
+	}
+
+	public Map<String, Object> deleteAppOperateReportByIds(String delids) throws RuntimeException{
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量删除App运营报告delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i]+"", 1L));
+			}
+			long result = operateReportPageDao.deleteAppOperateReportByIds(list);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "App运营报告删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "App运营报告删除失败", "", "");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("***************批量删除app运营报告异常******************");
+		}
+	}
+
+	public String updateAppOperateReportByIdInit(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("apporp", operateReportPageDao.queryAppOperateReportById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询app运营异常**************************");
+		}
+		return "/admin/declare/appoperatereport/edit.jsp";
+	}
+
+	public Map<String, Object> updateAppOperateReportById(OperateReportPage operateReportPage, String tabid) throws RuntimeException{
+		operateReportPage.setUploadTime(new Date());
+		long result = operateReportPageDao.updateAppOperateReportById(operateReportPage);
+		try {
+			if (result > 0) {
+				return ajaxDoneInfo("200", "报告修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "报告修改失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("*************修改app运营异常***************");
+		}
+	}
+
+}

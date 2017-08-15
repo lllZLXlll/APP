@@ -1,0 +1,97 @@
+package com.pjzb.service.admin.extend;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.SMSUtil;
+import com.shove.data.DataException;
+import com.shove.web.Utility;
+
+/**
+ * 短信发送
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminSendsmsService extends BaseController {
+
+	@Autowired
+	private PersonDao personDao;
+
+	public String queryUserList(Model model, String tabid, Long pageNum, Long pageSize, String userName, String realName) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+		realName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(realName));
+		List<Map<String, Object>> list = personDao.queryUserList(userName, realName, (pageNum - 1) * pageSize, pageSize);
+		Long count = personDao.queryUserInfoCount(userName, realName);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("realName", realName);
+		return "/admin/extend/sendsms/list.jsp";
+	}
+
+	public String querySendSMSInfo(Model model, String tabid) {
+		Object object = session().getAttribute("sendSMScontents");
+		if (object != null) {
+			request().setAttribute("sendSMScontents", object);
+		}
+		model.addAttribute("tabid", tabid);
+		return "/admin/extend/sendsms/edit.jsp";
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @throws SQLException
+	 * @throws DataException
+	 */
+	public Map<String, Object> addsendSMSContent(Model model, String content, String tabid) {
+		content = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(content));
+		session().setAttribute("sendSMScontents", content);
+		return ajaxDoneInfo("200", "短信内容编辑成功", "dialog", tabid);
+	}
+
+	public Map<String, Object> sendSMSs(Model model, String[] cellPhones) {
+		Object object = session().getAttribute("sendSMScontents");
+		if (object != null) {
+			for (int i = 0; i < cellPhones.length; i++) {
+				String cellPhone = cellPhones[i];
+				String content = "【" + Constants.SMS_ACCOUNT + "】" + object.toString();
+				SMSUtil.sendSMS(Constants.SMS_USERID, Constants.SEND_URL, Constants.SMS_ACCOUNT, Constants.SMS_PASSWORD, content, cellPhone);
+			}
+			return ajaxDoneInfo("200", "短信内容发送成功", "", "");
+
+		} else {
+			return ajaxDoneInfo("300", "请编辑短信内容", "", "");
+		}
+
+	}
+
+	public Map<String, Object> sendAllSMS(Model model) {
+		Object object = session().getAttribute("sendSMScontents");
+		if (object != null) {
+			List<String> cellPhones = personDao.queryUserCellPhoneForSMS();
+			for (String cellPhone : cellPhones) {
+				String content = "【" + Constants.SMS_ACCOUNT + "】" + object.toString();
+				SMSUtil.sendSMS(Constants.SMS_USERID, Constants.SEND_URL, Constants.SMS_ACCOUNT, Constants.SMS_PASSWORD, content, cellPhone);
+			}
+			return ajaxDoneInfo("200", "短信内容发送成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "请编辑短信内容", "", "");
+		}
+	}
+
+}

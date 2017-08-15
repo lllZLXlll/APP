@@ -1,0 +1,144 @@
+.mod-one-column{
+	background: #e8e8e8;
+	padding-bottom: 25px;
+	h2{
+		font-size: 18px;
+		padding: 25px 0;
+	}
+	.tab{
+		ul{
+			border-left:1px solid #3180bf;
+			font-size: 14px;
+		}
+		li{
+			border-top: 1px solid #3180bf;
+			border-bottom: 1px solid #3180bf;
+			position: relative;
+			color: #3180bf;
+			background: #fff;
+			float: left;
+			padding: 0 50px;
+			height: 38px;
+			line-height: 38px;
+			cursor: pointer;
+			&.on{
+				color: #fff;
+				background: #3180bf;
+				b{
+					background: url(../img/step_arr_on.png);
+				}
+			}
+			b{
+				position: absolute;
+				top: -1px;
+				right: -21px;
+				width: 21px;
+				height: 40px;
+				display: block;
+				background: url(../img/step_arr.png);
+				z-index: 1;
+				
+			}
+		}
+	}
+	.main{
+		padding: 35px 125px;
+		background: #fff;
+		border-radius: 4px;
+	}
+	.data{
+		padding-bottom: 0;
+			font-size: 12px;
+			h3{
+				font-size: 18px;
+				padding-top: 20px;
+				padding-bottom: 20px;
+			}
+			table{
+				width: 100%; border-collapse: collapse;border-spacing: 0;
+				table-layout:fixed;
+				margin-bottom: 12px;
+				thead{
+					color: #8d8d8d;
+					td{
+						border:none;border-bottom: 1px solid #cbcbcb;
+						padding-bottom: 10px;
+					}
+				}
+				td{
+					vertical-align:top;
+					text-align: left;
+					padding: 10px 4px;
+					padding-bottom: 40px;
+					a{
+						color: #3180bf;
+					}
+					&:nth-child(2n) {
+						background: #f9f9f9;
+					}
+				}
+				.no-data{
+					td{
+						text-align: center;
+						padding: 40px 0;
+					}
+				}
+			}
+			&.letter{
+				table{
+					thead{
+						td{
+							font-size: 12px;
+						}
+					}
+					td{
+						font-size: 14px;
+						border-bottom: 1px solid #cbcbcb;
+						padding: 0;
+						height: 50px;
+						line-height: 50px;
+						&:nth-child(2n) {
+							background: #fff;
+						}
+					}
+				}
+			}
+		}
+	.half-left{
+		float: left;
+		margin-top: 35px;
+		padding-right: 30px;
+		margin-left: -31px;
+		width: 50%;
+		border-right:1px solid #cbcbcb;
+	}
+	.half-right{
+		width: 500px;
+		margin-top: 35px;
+		margin-right: -148px;
+		float: right;
+		.item .name{width: 50px;}
+	}
+	.vm{
+		vertical-align: bottom;
+	}
+	.mod-form .w-170{
+		width: 170px;
+		margin-top: 0;
+		display: inline-block;
+	}
+	.ct{
+		text-align: center;
+	}
+	.result{
+		font-size: 14px;
+		color: #8d8d8d;
+		line-height: 1.5;
+		em{
+			color: #1e1e1e;
+		}
+	}
+	.btn-inline{
+		font-size: 14px;
+	}
+}

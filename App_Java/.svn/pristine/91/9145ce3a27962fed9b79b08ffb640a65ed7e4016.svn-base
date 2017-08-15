@@ -1,0 +1,63 @@
+<div class="account-right-nav">
+	<div class="sub-a-nav">
+		<a href="javascript:void(0);" class="active">账户总览</a>
+	</div>
+	<em></em>
+</div>
+<div class="account-content">
+	<div class="center-view">
+		<div class="center-header">
+			<img src="src/images/account/header.png" width='120' height='120'/>
+		</div>
+		<div class="center-self">
+			<p class="name">***</p>
+			<p class="safety">安全等级： <span id="safeLevel">低</span></p>
+			<p class="center-icon">
+				<a href="#safe" class="icon icon-c-phone"></a>
+				<a href="#safe" class="icon icon-c-mail"></a>
+			</p>
+			<p id="registpay"></p>
+		</div>
+		<div class="center-user">
+			<p class="amt color"><span id="usableSum">0.00</span>元</p>
+			<p class="text"><i></i>可用余额</p>
+			<p class="link">
+				<a href="#ipay" class="active">充值</a>
+				<a href="#cash">提现</a>
+			</p>
+		</div>
+		<div class="center-profit">
+			<p class="amt"><span id="earnSum">0.00</span>元</p>
+			<p class="text">收益总额</p>
+			<p class="icon icon-quan">代金券 <b id="voucher">0</b> 张，现金券 <b id="cashMap">0</b> 张</p>
+		</div>	
+	</div>
+	<div class="center-main">
+		<div class="canvas">
+			<div id="myChart" style="width:350px;height:350px;"></div>
+			<div class="center-total">
+				<p id="allTotal"></p>
+				<p  class="text">总资产</p>
+			</div>
+		</div>
+		<div class="center-data">
+			<p class="color color1"></p>
+			<p>投资总额：<span id="investSum">0.00元</span></p>
+			<p  class="color color2"></p>
+			<p>冻结金额：<span id="freezeAmount">0.00元</span></p>
+			<p  class="color color3"></p>
+			<p>待收总额：<span id="forPaySum">0.00元</span></p>
+			<p  class="color color4"></p>
+			<p>奖励金额：<span id="otherEarnAmount">0.00元</span></p>
+		</div>
+	</div>
+	<div id="huifuHtml"></div>
+</div>
+<div class="popup regist-box">
+	<p class="title left">注册汇付天下</p>
+	<a href="javascript:void(0);" class="close icon icon-close"></a>
+	<div class="popup-from">
+		<button type="button" class="btn" id="person-submit">个人用户注册</button>
+		<button type="button" class="btn" id="single-submit">企业用户注册</button>
+	</div>
+</div>

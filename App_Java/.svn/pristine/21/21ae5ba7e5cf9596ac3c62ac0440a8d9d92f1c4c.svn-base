@@ -1,0 +1,14 @@
+package com.pjzb.dao;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.BorrowInspection;
+
+public interface BorrowInspectionDao {
+	
+	public void insertBorrowInspection(BorrowInspection borrowInspection);
+	
+	
+	public Long queryBorrowInspectionCount(@Param("loanUserId")Long loanUserId);
+
+}

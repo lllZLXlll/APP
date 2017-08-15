@@ -1,0 +1,27 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.ReleaseAlsoReconciliation;
+
+
+public interface ReleaseAlsoReconciliationDao {
+	
+	public void  deleteReleaseAlsoReconciliationByPnrDate(String PnrDate);
+	
+	public long  insertReleaseAlsoReconciliation(ReleaseAlsoReconciliation releaseAlsoReconciliation);
+
+	public List<Map<String, Object>> queryReconciliationList(long l, Long pageSize, String investCustId, String borrCustId, String queryTransType);
+
+	public long queryReconciliationCount(String investCustId, String borrCustId, String queryTransType);
+
+	public Map<String, Object> queryMoneySum();
+
+	public List<Map<String, Object>> queryDivide_AccountList(long l, Long pageSize, String ordId);
+
+	public long queryDivide_AccountCount(@Param(value="ordId")String ordId);
+	
+}

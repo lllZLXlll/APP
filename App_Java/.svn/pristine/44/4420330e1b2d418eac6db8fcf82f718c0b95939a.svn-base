@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.user;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 意见反馈
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminFeedbackService extends BaseController {
+
+}

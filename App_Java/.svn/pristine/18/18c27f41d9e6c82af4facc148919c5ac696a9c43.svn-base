@@ -1,0 +1,26 @@
+<div class="content content-login">
+        <template v-for="list in dataList">
+        <div class="text-item">
+            <label> <i class="icon icon-color" :class="[list.iconClass]"></i>
+            </label>
+            <input type="{{list.inputType}}" placeholder="{{list.placeholder}}" maxlength="{{list.max}}" v-getvalue="[list.dataBind]" value="{{list.value}}" disabled="{{list.disabled}}" v-on:blur="getIndex($index)">
+            <button type="button" v-if="list.showMsg" v-on:click="getSms" class="{{btnclass}}">{{btnText}}</button>
+        </div>
+        </template>
+        <div class="text-item-submit">
+            <button type="button" @click="regist" class="btn btn-submit">同意协议并注册</button>
+        </div>
+        <div class="text-item-more">
+            <p class="align-left-regist">
+                <a href="javascript:void(0);" @click="AgreeMent(0)">《平台服务协议》</a>
+                <a href="javascript:void(0);" @click="AgreeMent(1)">《风险提示书》</a>
+            </p>
+            <p class="align-right-regist">
+                <a v-link={path:"/login",query:{show:true}} >立即登录</a>
+            </p>
+        </div>
+</div>
+<p class="agreement-btn" v-if="closeAgree" @click="closeAgreement">关闭</p>
+<div class="popup popup-services">
+    <div class="content-block" v-html="agreement"></div>
+</div>

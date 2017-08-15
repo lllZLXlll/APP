@@ -1,0 +1,217 @@
+package com.pjzb.util;
+
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.entity.vo.Message;
+import com.pjzb.entity.vo.SmsSendRequest;
+import com.pjzb.entity.vo.SmsSendResponse;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+public class SMSUtil {
+	private static Log log = LogFactory.getLog(SMSUtil.class);
+
+	private static boolean chooseMSM = false;
+
+	/**
+	 * 发送短信,骏媒短信平台
+	 */
+
+	public static String sendSMS(String userid, String path, String account, String password, String content, String phone, String randomCode) {
+		try {
+			log.info("=========发送的验证码为：" + randomCode);
+			log.info("=========content:" + content);
+			String result = "";
+			log.info("=========发送短信类型：" + Constants.SENDMSGTYPE);
+			if (Constants.ISDEMO.equals(Constants.ISDEMO_2)) {
+				String sendMsgType = ConvertUtil.objToStrConvert(Constants.SENDMSGTYPE);
+				if (sendMsgType != null) {
+					if (Constants.SENDMSGTYPE.trim().equals("junMei")) {
+						result = sendMSMNewPost(userid, path, account, password, content, phone);
+						log.info("=========骏媒短信接口返回结果：" + result);
+						Message m = xmltoBean(result, Message.class);
+						if ("ok".equals(m.getMessage())) {
+							return Constants.SUCCESS;
+						} else {
+							return Constants.FAIL;
+						}
+					} else {
+						result = sendSMSByChuangLan(ChinapnrConfig.CHUANGLAN_ACCOUNT, ChinapnrConfig.CHUANGLAN_PASSWORD, ChinapnrConfig.CHUANGLAN_URL, content, phone, "true");
+						log.info("=========创蓝短信接口返回结果：" + result);
+						if (result.equals("0")) {
+							return "Sucess";
+						} else {
+							return "fail";
+						}
+					}
+
+				} else {
+					if (chooseMSM) {
+						result = sendMSMNewPost(userid, path, account, password, content, phone);
+						log.info("=========骏媒短信接口返回结果：" + result);
+						Message m = xmltoBean(result, Message.class);
+						if ("ok".equals(m.getMessage())) {
+							chooseMSM = false;
+							return Constants.SUCCESS;
+						} else {
+							return Constants.FAIL;
+						}
+					} else {
+						result = sendSMSByChuangLan(ChinapnrConfig.CHUANGLAN_ACCOUNT, ChinapnrConfig.CHUANGLAN_PASSWORD, ChinapnrConfig.CHUANGLAN_URL, content, phone, "true");
+						log.info("=========创蓝短信接口返回结果：" + result);
+						if (result.equals("0")) {
+							chooseMSM = true;
+							return Constants.SUCCESS;
+						} else {
+							return Constants.FAIL;
+						}
+					}
+				}
+			} else {
+				log.info("====测试环境发送验证码成功=====");
+				return Constants.SUCCESS;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Constants.FAIL;
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:创蓝发送短信接口
+	 * @author: xiaojin
+	 * @param account
+	 * @param pswd
+	 * @param sendURL
+	 * @param msg
+	 * @param phone
+	 * @param report
+	 * @return
+	 */
+	public static String sendSMSByChuangLan(String account, String pswd, String sendURL, String msg, String phone, String report) {
+		String result = "-1";
+		try {
+			SmsSendRequest smsSingleRequest = new SmsSendRequest(account, pswd, msg, phone, report);
+			String requestJson = JSONObject.fromObject(smsSingleRequest).toString();
+			log.info("=========创蓝短信接口请求数据:" + requestJson);
+			String response = ChuangLanSmsUtil.sendSmsByPost(sendURL, requestJson);
+			log.info("=========创蓝短信接口返回结果:" + response);
+			SmsSendResponse smsSingleResponse = (SmsSendResponse) JSONObject.toBean(JSONObject.fromObject(response), SmsSendResponse.class);
+			result = smsSingleResponse.getCode();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/**
+	 * 调用http请求进行短信发送
+	 */
+	@SuppressWarnings("unused")
+	public static String sendMSMNewPost(String userid, String path, String account, String Password, String content, String phone) {
+		Map<String, String> map = new HashMap<String, String>();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+		String ScheduleTime = sdf.format(new Date());
+		Random random = new Random();
+		String SerialNumber = generateSequenceNo() + "" + random.nextInt(100);
+		SerialNumber = SerialNumber.substring(0, 19);
+		map.put("account", account);
+		map.put("password", Password);
+		map.put("userid", userid);
+		map.put("content", content);
+		map.put("mobile", phone);
+		// map.put("SerialNumber", SerialNumber);
+		map.put("sendTime", "");
+		map.put("action", "send");
+		map.put("extno", "");
+		// map.put("f", "1");
+		return HttpUtil.http(path, map);
+	}
+
+	/**
+	 * 时间格式生成序列
+	 * 
+	 * @return String
+	 */
+	public static synchronized String generateSequenceNo() {
+		FieldPosition HELPER_POSITION = new FieldPosition(0);
+		Format dateFormat = new SimpleDateFormat("yyyyMMddHHmmssS");
+		int seq = 0;
+		int MAX = 9;
+		Random random = new Random();
+		Calendar rightNow = Calendar.getInstance();
+		StringBuffer sb = new StringBuffer();
+		dateFormat.format(rightNow.getTime(), sb, HELPER_POSITION);
+		if (seq == MAX) {
+			seq = 0;
+		} else {
+			seq++;
+		}
+		sb.append(random.nextInt(90) + 10);
+		sb.append(seq);
+		return sb.toString();
+	}
+
+	// /**
+	// * 发送短信,骏媒短信平台
+	// */
+	// public static String sendSMS(String userid, String path, String account,
+	// String password, String content, String phone, String randomCode) {
+	// String returnResult = null;
+	//
+	// try {
+	// if (randomCode != null) {
+	// // content += randomCode;
+	// System.out.println("=========发送的验证码为：" + randomCode);
+	// }
+	// System.out.println("=========content==" + content);
+	// boolean needstatus = true;// 是否需要状态报告，需要true，不需要false
+	// String extno = null;// 扩展码
+	// if (Constants.ISDEMO.equals(Constants.ISDEMO_2)) {
+	// String result = sendMSMNewPost(userid, path, account, password, content,
+	// phone);
+	// System.out.println("=========骏媒短信接口返回结果：" + result);
+	// MessageInfo m = xmltoBean(result, MessageInfo.class);
+	// if ("ok".equals(m.getMessage())) {
+	// returnResult = Constants.SUCCESS;
+	// } else {
+	// returnResult = Constants.FAIL;
+	// }
+	// log.info("生产环境发送验证码");
+	// } else {
+	// returnResult = Constants.SUCCESS;
+	// log.info("测试环境发送验证码");
+	// }
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// log.error(e);
+	// log.info("*********************发送短信异常*********************");
+	// returnResult = Constants.FAIL;
+	// }
+	// return returnResult;
+	// }
+
+	private static <T> T xmltoBean(String xmlStr, Class<T> cls) {
+		XStream xstream = new XStream(new DomDriver());
+		xstream.processAnnotations(cls);
+		@SuppressWarnings("unchecked")
+		T t = (T) xstream.fromXML(xmlStr);
+		return t;
+	}
+
+}

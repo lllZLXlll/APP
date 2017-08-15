@@ -1,0 +1,974 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.UserDao">
+
+	<select id="queryTotalUser" resultType="java.util.Map">
+		SELECT count(id) AS userTotal FROM t_user t
+	</select>
+
+	<update id="updateUserAmount">
+		update t_user set usableSum = usableSum + #{0} where id =#{1}
+	</update>
+
+
+	<resultMap type="user" id="userResultMap">
+		<id column="id" property="id" />
+		<result column="email" property="email" />
+		<result column="username" property="username" />
+		<result column="vipStatus" property="vipStatus" />
+		<result column="authStep" property="authStep" />
+		<result column="enable" property="enable" />
+		<result column="password" property="password" />
+		<result column="dealpwd" property="dealpwd" />
+		<result column="mobilePhone" property="mobilePhone" />
+		<result column="refferee" property="refferee" />
+		<result column="rating" property="rating" />
+		<result column="creditrating" property="creditrating" />
+		<result column="lastIp" property="lastIp" />
+		<result column="lastDate" property="lastDate" />
+		<result column="vipCreateTime" property="vipCreateTime" />
+		<result column="creditLimit" property="creditLimit" />
+		<result column="headImg" property="headImg" />
+		<result column="createTime" property="createTime" />
+		<result column="content" property="content" />
+		<result column="usableSum" property="usableSum" />
+		<result column="freezeSum" property="freezeSum" />
+		<result column="dueinSum" property="dueinSum" />
+		<result column="dueoutSum" property="dueoutSum" />
+		<result column="kefuId" property="kefuId" />
+		<result column="adminId" property="adminId" />
+		<result column="groupId" property="groupId" />
+		<result column="usableCreditLimit" property="usableCreditLimit" />
+		<result column="creditlimtor" property="creditlimtor" />
+		<result column="vipFee" property="vipFee" />
+		<result column="feeStatus" property="feeStatus" />
+		<result column="loginCount" property="loginCount" />
+		<result column="lockTime" property="lockTime" />
+		<result column="cashStatus" property="cashStatus" />
+		<result column="xmax" property="xmax" />
+		<result column="x" property="x" />
+		<result column="xmin" property="xmin" />
+		<result column="isFirstVip" property="isFirstVip" />
+		<result column="sign" property="sign" />
+		<result column="sign2" property="sign2" />
+		<result column="loginErrorCount" property="loginErrorCount" />
+		<result column="isLoginLimit" property="isLoginLimit" />
+		<result column="isApplyPro" property="isApplyPro" />
+		<result column="ipayAccount" property="ipayAccount" />
+		<result column="regRedBag" property="regRedBag" />
+		<result column="nickname" property="nickname" />
+		<result column="accountSum" property="accountSum" />
+		<result column="accountNum" property="accountNum" />
+		<result column="isEmployeeReferral" property="isEmployeeReferral" />
+		<result column="vocherAmt" property="vocherAmt" />
+		<result column="fiVocherAmt" property="fiVocherAmt" />
+		<result column="teVocherAmt" property="teVocherAmt" />
+		<result column="twVocherAmt" property="twVocherAmt" />
+		<result column="busiCode" property="busiCode" />
+		<result column="legalName" property="legalName" />
+		<result column="legalIdNo" property="legalIdNo" />
+		<result column="loginLimitTime" property="loginLimitTime" />
+		<result column="authTime" property="authTime" />
+		<result column="viewpdf_url" property="viewpdfUrl" />
+		<result column="download_url" property="downloadUrl" />
+		<result column="transaction_id" property="transactionId" />
+		<result column="isBehalf" property="isBehalf" />
+		<result column="isLoanManager" property="isLoanManager" />
+		<result column="registerSource" property="registerSource" />
+		<result column="isAccountSum" property="isAccountSum" />
+		<result column="ipArea" property="ipArea" />
+		<result column="isInvestAmt" property="isInvestAmt" />
+		<result column="android_version" property="androidVersion" />
+		<result column="ios_version" property="iosVersion" />
+	</resultMap>
+
+	<select id="queryUserById" resultMap="userResultMap">
+		SELECT * FROM t_user a
+		WHERE a.id=#{id}
+	</select>
+
+	<select id="queryUserByIpayAccount" resultMap="userResultMap" parameterType="java.lang.String">
+		SELECT * FROM t_user a WHERE
+		a.ipayAccount=#{ipayAccount}
+	</select>
+
+
+	<update id="updateSignById">
+		UPDATE t_user SET sign=#{0},sign2=#{1} WHERE id=#{2}
+	</update>
+
+	<update id="setSign">
+		UPDATE t_user SET sign=#{sign},sign2=#{sign2} WHERE
+		id=#{userId}
+	</update>
+
+	<select id="queryAccountStatisInfo" resultType="java.util.Map" parameterType="java.lang.Long">
+		CALL pr_getUserAmountSumary(#{userId})
+	</select>
+
+	<select id="queryUserIdByPhone" resultType="java.lang.String" parameterType="java.lang.String">
+		select u.id from t_user u left JOIN t_person p on
+		p.userId = u.id
+		LEFT JOIN t_phone_binding_info
+		pb on pb.userId=u.id
+		where u.mobilePhone = #{phone}
+		or pb.mobilePhone = #{phone}
+		or
+		p.cellPhone = #{phone}
+	</select>
+
+	<select id="findUserByUserName" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT username from t_user WHERE username = #{userName}
+	</select>
+
+	<select id="findMobilephone" resultMap="userResultMap" parameterType="java.lang.String">
+		SELECT mobilePhone FROM t_user WHERE mobilePhone =
+		#{mobilephone}
+	</select>
+
+	<select id="queryUserSendCodeByPhone" resultType="java.util.Map" parameterType="java.lang.String">
+		SELECT COUNT(1) AS countCode FROM t_user_sendcode a
+		WHERE datediff(a.sendTime, NOW())=0 AND
+		a.phone = #{phone} AND a.type
+		in ('wapRegist','regist')
+	</select>
+
+	<insert id="addUserSendCode">
+		insert into t_user_sendCode(sendTime, phone, content,
+		status, type, ipArea) values(now(), #{phone}, #{content}, #{status},
+		#{type}, #{ipArea})
+	</insert>
+
+	<select id="isExistEmailORUserName" resultType="java.util.Map">
+		SELECT * FROM
+		t_user WHERE 1=1
+		<if test="email != ''">and email = #{email}</if>
+		<if test="userName != ''">and userName = #{userName}</if>
+
+	</select>
+
+	<select id="queryUserInfoById" resultType="java.util.Map" parameterType="java.lang.Long">
+		select * from t_user where id = #{userId}
+	</select>
+
+	<select id="getDealPwd" resultType="java.util.Map" parameterType="java.lang.Long">
+		select dealpwd from t_user where id = #{userId}
+	</select>
+
+	<update id="updateUserPassword">
+		UPDATE t_user SET password=#{0} WHERE id=#{1}
+	</update>
+
+	<update id="updateUserDealpwd">
+		UPDATE t_user SET dealpwd=#{0} WHERE id=#{1}
+	</update>
+
+	<select id="queryUserByIP" resultType="java.util.Map" parameterType="java.lang.String">
+		select * from t_user where lastIP = #{lastIP}
+	</select>
+
+	<select id="querymaterialsauthtypeCount" resultType="java.util.Map">
+		<![CDATA[
+			select COUNT(*) as cccc from t_materialsauthtype t where t.id < 17
+		]]>
+	</select>
+
+	<select id="queryIdByUser" resultType="java.util.Map" parameterType="java.lang.String">
+		<![CDATA[
+			select * from t_user where username = #{0} or email = #{0} or mobilePhone = #{0}
+		]]>
+	</select>
+
+	<insert id="addUser" useGeneratedKeys="true" keyProperty="id" parameterType="user">
+		insert into t_user (
+		email, userName, password, refferee,
+		lastDate, lastIP, ipArea, dealpwd,
+		mobilePhone, rating, creditrating,
+		vipstatus, vipcreatetime, authstep,
+		headImg, enable, creditLimit,
+		usableCreditLimit, isEmployeeReferral,
+		registerSource, createTime
+		)
+		values(
+		#{email}, #{username}, #{password}, #{refferee}, #{lastDate},
+		#{lastIp},
+		#{ipArea}, #{password},
+		#{mobilePhone}, #{rating},
+		#{creditrating}, #{vipStatus}, #{vipCreateTime},
+		#{authStep},
+		#{headImg}, #{enable}, #{creditLimit}, #{creditLimit},
+		#{isEmployeeReferral},
+		#{registerSource}, now()
+		)
+	</insert>
+
+	<select id="findUserByMobilePhone" resultMap="userResultMap" parameterType="java.lang.String">
+		SELECT a.* FROM t_user a WHERE a.mobilePhone=#{mobilePhone}
+	</select>
+
+
+
+	<insert id="addMaterialsauth1">
+		insert into t_materialsauth(
+		materAuthTypeId, userId
+		)values(
+		#{userId}, #{type}
+		)
+	</insert>
+
+	<select id="selectAccountSum" resultType="java.util.Map" parameterType="java.lang.Long">
+		select * from t_exGoIn where userId = #{userId}
+	</select>
+
+	<update id="addAccountSum">
+		update t_user set accountSum = #{accountSum},isAccountSum = 2 where id = #{userId}
+	</update>
+
+	<select id="queryMaxIdFundById" resultType="java.util.Map" parameterType="java.lang.Long">
+		select * from t_fundrecord where id = (select max(id)
+		from t_fundrecord where userId = #{userId} )
+	</select>
+
+	<update id="addNotes">
+		update t_notice
+		<trim prefix="set" suffixOverrides=",">
+			<if test="message == true">mailNoticeEnable = #{notice_on},</if>
+			<if test="message == false">mailNoticeEnable = #{notice_off},</if>
+			<if test="mail == true">emailNoticeEnable = #{notice_on},</if>
+			<if test="mail == false">emailNoticeEnable = #{notice_off},</if>
+			<if test="notes == true">noteNoticeEnable = #{notice_on},</if>
+			<if test="notes == false">noteNoticeEnable = #{notice_off},</if>
+		</trim>
+		where userId = #{userId}
+	</update>
+
+	<select id="queryNoticeSettingInfo" resultType="java.util.Map">
+		select userId
+		from t_noticecon where userId = #{userId} and noticeMode
+		=
+		#{noticeMode}
+	</select>
+
+	<insert id="addToNotice">
+		insert into t_noticecon(
+		reciveRepayEnable, showSucEnable,
+		loanSucEnable, rechargeSucEnable, capitalChangeEnable
+		)values(
+		<if test="messageReceive == true">${5},</if>
+		<if test="messageReceive == false">${6},</if>
+		<if test="messageDeposit ==  true">${5},</if>
+		<if test="messageDeposit ==  false">${6},</if>
+		<if test="messageBorrow ==  true">${5},</if>
+		<if test="messageBorrow ==  false">${6},</if>
+		<if test="messageRecharge ==  true">${5},</if>
+		<if test="messageRecharge ==  false">${6},</if>
+		<if test="messageChange ==  true">${5}</if>
+		<if test="messageChange ==  false">${6}</if>
+		)
+	</insert>
+
+	<update id="updateToNotice">
+		update t_noticecon
+		<trim prefix="set" suffixOverrides=",">
+			<if test="messageReceive == true">reciveRepayEnable=${5},</if>
+			<if test="messageReceive == false">reciveRepayEnable=${6},</if>
+			<if test="messageDeposit ==  true">showSucEnable=${5},</if>
+			<if test="messageDeposit ==  false">showSucEnable=${6},</if>
+			<if test="messageBorrow ==  true">loanSucEnable=${5},</if>
+			<if test="messageBorrow ==  false">loanSucEnable=${6},</if>
+			<if test="messageRecharge ==  true">rechargeSucEnable=${5},</if>
+			<if test="messageRecharge ==  false">rechargeSucEnable=${6},</if>
+			<if test="messageChange ==  true">capitalChangeEnable=${5},</if>
+			<if test="messageChange ==  false">capitalChangeEnable=${6},</if>
+		</trim>
+		where userId = #{userId} and noticeMode = #{nt1}
+	</update>
+
+	<select id="findUserByMobile" resultType="java.util.Map">
+		select COUNT(1) as
+		userCount from t_user where username = #{mobilephone} or email =
+		#{mobilephone} or mobilePhone = #{mobilephone}
+	</select>
+
+	<select id="queryUserByUserName" resultMap="userResultMap">
+		select * from
+		t_user
+		where username = #{userName} or email = #{userName} or
+		mobilePhone =
+		#{userName}
+	</select>
+
+	<update id="resetUserState">
+		UPDATE t_user SET loginErrorCount=#{param1},
+		<if test="param2==2">
+			loginLimitTime=now(),
+		</if>
+		<if test="param2!=2">
+			loginLimitTime=null,
+		</if>
+		isLoginLimit=#{param2}
+		WHERE id=#{param3}
+	</update>
+
+	<update id="updateUserState1">
+		UPDATE t_user SET loginErrorCount=#{param1},isLoginLimit=#{param2},
+		<if test="param2==2">
+			loginLimitTime=now(),
+		</if>
+		lastDate=#{param3}
+		WHERE id=#{param4}
+	</update>
+
+	<select id="queryUserByUserAndPwd" resultMap="userResultMap">
+		select
+		id,username,headImg,enable,vipStatus,email,authStep,usableSum,freezeSum,isLoginLimit,ipayAccount
+		from t_user where (email
+		=#{0} OR username=#{0} or mobilePhone=#{0})
+		AND password = #{1} AND enable != 2
+	</select>
+
+	<update id="updateloginCount">
+		update t_user set loginCount = loginCount + 1 where
+		id=#{userId}
+	</update>
+
+	<update id="updateBusiCode">
+		update t_user set busiCode = '' where id=#{userId}
+	</update>
+
+	<update id="addipayAccount">
+		update t_user set ipayAccount = #{1} where id=#{0}
+	</update>
+
+	<update id="updateAccountNumByid">
+		update t_user set accountNum = #{param2} where id =
+		#{param1}
+	</update>
+	<update id="updateUserPasspwdByMobilePhone">
+		update t_user set password=#{param2} WHERE
+		mobilePhone= #{param1}
+	</update>
+	<update id="updateUserDealpwdByMobilePhone">
+		update t_user set dealpwd=#{param2} WHERE
+		mobilePhone= #{param1}
+	</update>
+
+	<select id="findIpayAccountByUserId" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT a.ipayAccount FROM t_user a WHERE a.id=#{userId}
+	</select>
+
+	<select id="queryUserMonney" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT convert(usableSum+freezeSum,char(20)) AS
+		totalSum,convert(usableSum,char(20)) AS usableSum FROM
+		t_user a WHERE
+		a.id=#{userId}
+	</select>
+
+	<select id="getUserById" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT username, mobilePhone FROM t_user WHERE id =
+		#{userId}
+	</select>
+
+	<select id="queryUserAmount" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT usableSum FROM t_user WHERE id = #{userId}
+	</select>
+
+	<select id="getUserAddressById" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT f_formatting_username( username) as username,
+		lastDate , createTime , id , address , rating ,
+		creditratingIco ,
+		ratingIco ,creditrating , personalHead
+		FROM v_t_user_address WHERE id =
+		#{userId}
+	</select>
+
+	<select id="queryAccountSum" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT cast(round(accountSum,2) as char(20)) AS accountSum,ipayAccount AS
+		ipayAccount FROM t_user a
+		WHERE a.id=#{userId}
+	</select>
+
+	<select id="getUserInfoById" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT id,username,dealpwd,usableSum,freezeSum,dueinSum
+		FROM t_user a WHERE a.id=#{userId}
+	</select>
+
+	<select id="queryUserByCustId" resultType="user" parameterType="java.lang.Long">
+		SELECT * FROM t_user WHERE ipayAccount = #{usrCustId}
+	</select>
+
+	<update id="updateUser">
+		UPDATE t_user
+		<trim prefix="set" suffixOverrides=",">
+			<if test="email != null and email != '' ">email=#{email},</if>
+			<if test="username != null and username != '' ">username=#{username},</if>
+			<if test="vipStatus != null">vipStatus=#{vipStatus},</if>
+			<if test="authStep != null">authStep=#{authStep},</if>
+			<if test="enable != null">enable=#{enable},</if>
+			<if test="password != null">password=#{password},</if>
+			<if test="dealpwd != null">dealpwd=#{dealpwd},</if>
+			<if test="mobilePhone != null and mobilePhone != '' ">mobilePhone=#{mobilePhone},</if>
+			<if test="refferee != null">refferee=#{refferee},</if>
+			<if test="rating != null">rating=#{rating},</if>
+			<if test="creditrating != null">creditrating=#{creditrating},</if>
+			<if test="lastIp != null">lastIp=#{lastIp},</if>
+			<if test="lastDate != null">lastDate=#{lastDate},</if>
+			<if test="vipCreateTime != null">vipCreateTime=#{vipCreateTime},</if>
+			<if test="creditLimit != null">creditLimit=#{creditLimit},</if>
+			<if test="headImg != null">headImg=#{headImg},</if>
+			<if test="createTime != null">createTime=#{createTime},</if>
+			<if test="content != null">content=#{content},</if>
+			<if test="usableSum != null">usableSum=#{usableSum},</if>
+			<if test="freezeSum != null">freezeSum=#{freezeSum},</if>
+			<if test="dueinSum != null">dueinSum=#{dueinSum},</if>
+			<if test="dueoutSum != null">dueoutSum=#{dueoutSum},</if>
+			<if test="kefuId != null">kefuId=#{kefuId},</if>
+			<if test="adminId != null">adminId=#{adminId},</if>
+			<if test="groupId != null">groupId=#{groupId},</if>
+			<if test="usableCreditLimit != null">usableCreditLimit=#{usableCreditLimit},</if>
+			<if test="creditlimtor != null">creditlimtor=#{creditlimtor},</if>
+			<if test="vipFee != null">vipFee=#{vipFee},</if>
+			<if test="feeStatus != null">feeStatus=#{feeStatus},</if>
+			<if test="loginCount != null">loginCount=#{loginCount},</if>
+			<if test="lockTime != null">lockTime=#{lockTime},</if>
+			<if test="cashStatus != null">cashStatus=#{cashStatus},</if>
+			<if test="xmax != null">xmax=#{xmax},</if>
+			<if test="x != null">x=#{x},</if>
+			<if test="xmin != null">xmin=#{xmin},</if>
+			<if test="isFirstVip != null">isFirstVip=#{isFirstVip},</if>
+			<if test="sign != null">sign=#{sign},</if>
+			<if test="sign2 != null">sign2=#{sign2},</if>
+			<if test="loginErrorCount != null">loginErrorCount=#{loginErrorCount},</if>
+			<if test="isLoginLimit != null">isLoginLimit=#{isLoginLimit},</if>
+			<if test="isApplyPro != null">isApplyPro=#{isApplyPro},</if>
+			<if test="ipayAccount != null and ipayAccount != '' ">ipayAccount=#{ipayAccount},</if>
+			<if test="regRedBag != null">regRedBag=#{regRedBag},</if>
+			<if test="nickname != null">nickname=#{nickname},</if>
+			<if test="accountSum != null">accountSum=#{accountSum},</if>
+			<if test="accountNum != null">accountNum=#{accountNum},</if>
+			<if test="isEmployeeReferral != null">isEmployeeReferral=#{isEmployeeReferral},</if>
+			<if test="vocherAmt != null">vocherAmt=#{vocherAmt},</if>
+			<if test="fiVocherAmt != null">fiVocherAmt=#{fiVocherAmt},</if>
+			<if test="teVocherAmt != null">teVocherAmt=#{teVocherAmt},</if>
+			<if test="twVocherAmt != null">twVocherAmt=#{twVocherAmt},</if>
+			<if test="busiCode != null and busiCode != '' ">busiCode=#{busiCode},</if>
+			<if test="legalName != null and legalName != '' ">legalName=#{legalName},</if>
+			<if test="legalIdNo != null and legalIdNo != '' ">legalIdNo=#{legalIdNo},</if>
+			<if test="loginLimitTime != null">loginLimitTime=#{loginLimitTime},</if>
+			<if test="authTime != null">authTime=#{authTime},</if>
+			<if test="viewpdfUrl != null">viewpdf_url=#{viewpdfUrl},</if>
+			<if test="downloadUrl != null">download_url=#{downloadUrl},</if>
+			<if test="transactionId != null">transaction_id=#{transactionId},</if>
+			<if test="isBehalf != null">isBehalf=#{isBehalf},</if>
+			<if test="isLoanManager != null">isLoanManager=#{isLoanManager},</if>
+			<if test="registerSource != null">registerSource=#{registerSource},</if>
+			<if test="isAccountSum != null">isAccountSum=#{isAccountSum},</if>
+			<if test="ipArea != null">ipArea=#{ipArea},</if>
+			<if test="isInvestAmt != null">isInvestAmt=#{isInvestAmt},</if>
+			<if test="androidVersion != null">android_version=#{androidVersion},</if>
+			<if test="iosVersion != null">ios_version=#{iosVersion},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<select id="queryUserNameById" resultType="java.lang.String" parameterType="java.lang.Long">
+		SELECT username FROM t_user WHERE id = #{0}
+	</select>
+
+	<select id="queryUserUsableSum" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT * FROM t_user WHERE id = #{0} AND usableSum >=
+		0.1
+	</select>
+
+	<select id="queryUserAmountAfterHander" resultType="java.util.Map" parameterType="java.lang.Long">
+		select ifnull(a.usableSum,0)
+		usableSum,ifnull(a.freezeSum,0)
+		freezeSum,ifnull(sum(b.recivedPrincipal+b.recievedInterest-b.hasPrincipal-b.hasInterest),0.0)
+		forPI ,a.lastIP as lastIP
+		from t_user a left join
+		t_invest b on a.id =
+		b.investor where
+		a.id = #{0} group by a.id
+	</select>
+
+	<select id="findUserAccountSumById" resultMap="userResultMap" parameterType="java.lang.Long">
+		SELECT a.accountSum as accountSum,a.ipayAccount AS
+		ipayAccount,a.username AS username FROM t_user
+		a WHERE a.id=#{userId}
+	</select>
+
+	<update id="updateExGoStatus">
+		UPDATE t_user SET accountSum = accountSum-#{0} WHERE
+		id =#{1}
+	</update>
+
+	<select id="queryUserAndPersonByUserId" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT
+		a.id,a.username,b.realName,a.email,b.idNo,a.usableSum,a.mobilePhone,a.accountSum,a.ipayAccount
+		FROM t_user a,t_person b WHERE a.id=b.userId AND a.id=#{userId}
+	</select>
+
+
+	<select id="queryMonthRegistCount" resultType="java.lang.Long">
+		SELECT count(a.id)
+		AS userMonthTotal FROM t_user a WHERE a.createTime
+		between #{0} and
+		#{1}
+	</select>
+
+
+	<select id="queryUserByIsLoginLimit" resultMap="userResultMap" parameterType="java.lang.Integer">
+		SELECT * FROM t_user a WHERE
+		a.isLoginLimit=#{isLoginLimit} ORDER BY a.id DESC
+	</select>
+
+
+	<update id="updateUserIsLoginLimitById">
+		UPDATE t_user SET loginErrorCount=#{0},isLoginLimit=#{1},
+		<choose>
+			<when test="param2==2">
+				loginLimitTime=now(),
+			</when>
+			<otherwise>
+				loginLimitTime=NULL
+			</otherwise>
+		</choose>
+		WHERE id=#{2}
+	</update>
+
+	<update id="updateUsers" parameterType="java.util.Map">
+		UPDATE t_user
+		<trim prefix="set" suffixOverrides=",">
+			<if test="email != null and email != '' ">email=#{email},</if>
+			<if test="username != null and username != '' ">username=#{username},</if>
+			<if test="vipStatus != null">vipStatus=#{vipStatus},</if>
+			<if test="authStep != null">authStep=#{authStep},</if>
+			<if test="enable != null">enable=#{enable},</if>
+			<if test="password != null">password=#{password},</if>
+			<if test="dealpwd != null">dealpwd=#{dealpwd},</if>
+			<if test="mobilePhone != null and mobilePhone != '' ">mobilePhone=#{mobilePhone},</if>
+			<if test="refferee != null">refferee=#{refferee},</if>
+			<if test="rating != null">rating=#{rating},</if>
+			<if test="creditrating != null">creditrating=#{creditrating},</if>
+			<if test="lastIp != null">lastIp=#{lastIp},</if>
+			<if test="lastDate != null">lastDate=#{lastDate},</if>
+			<if test="vipCreateTime != null">vipCreateTime=#{vipCreateTime},</if>
+			<if test="creditLimit != null">creditLimit=#{creditLimit},</if>
+			<if test="headImg != null">headImg=#{headImg},</if>
+			<if test="createTime != null">createTime=#{createTime},</if>
+			<if test="content != null">content=#{content},</if>
+			<if test="usableSum != null">usableSum=#{usableSum},</if>
+			<if test="freezeSum != null">freezeSum=#{freezeSum},</if>
+			<if test="dueinSum != null">dueinSum=#{dueinSum},</if>
+			<if test="dueoutSum != null">dueoutSum=#{dueoutSum},</if>
+			<if test="kefuId != null">kefuId=#{kefuId},</if>
+			<if test="adminId != null">adminId=#{adminId},</if>
+			<if test="groupId != null">groupId=#{groupId},</if>
+			<if test="usableCreditLimit != null">usableCreditLimit=#{usableCreditLimit},</if>
+			<if test="creditlimtor != null">creditlimtor=#{creditlimtor},</if>
+			<if test="vipFee != null">vipFee=#{vipFee},</if>
+			<if test="feeStatus != null">feeStatus=#{feeStatus},</if>
+			<if test="loginCount != null">loginCount=#{loginCount},</if>
+			<if test="lockTime != null">lockTime=#{lockTime},</if>
+			<if test="cashStatus != null">cashStatus=#{cashStatus},</if>
+			<if test="xmax != null">xmax=#{xmax},</if>
+			<if test="x != null">x=#{x},</if>
+			<if test="xmin != null">xmin=#{xmin},</if>
+			<if test="isFirstVip != null">isFirstVip=#{isFirstVip},</if>
+			<if test="sign != null">sign=#{sign},</if>
+			<if test="sign2 != null">sign2=#{sign2},</if>
+			<if test="loginErrorCount != null">loginErrorCount=#{loginErrorCount},</if>
+			<if test="isLoginLimit != null">isLoginLimit=#{isLoginLimit},</if>
+			<if test="isApplyPro != null">isApplyPro=#{isApplyPro},</if>
+			<if test="ipayAccount != null and ipayAccount != '' ">ipayAccount=#{ipayAccount},</if>
+			<if test="regRedBag != null">regRedBag=#{regRedBag},</if>
+			<if test="nickname != null">nickname=#{nickname},</if>
+			<if test="accountSum != null">accountSum=#{accountSum},</if>
+			<if test="accountNum != null">accountNum=#{accountNum},</if>
+			<if test="isEmployeeReferral != null">isEmployeeReferral=#{isEmployeeReferral},</if>
+			<if test="vocherAmt != null">vocherAmt=#{vocherAmt},</if>
+			<if test="fiVocherAmt != null">fiVocherAmt=#{fiVocherAmt},</if>
+			<if test="teVocherAmt != null">teVocherAmt=#{teVocherAmt},</if>
+			<if test="twVocherAmt != null">twVocherAmt=#{twVocherAmt},</if>
+			<if test="busiCode != null">busiCode=#{busiCode},</if>
+			<if test="legalName != null">legalName=#{legalName},</if>
+			<if test="legalIdNo != null">legalIdNo=#{legalIdNo},</if>
+			<if test="loginLimitTime != null">loginLimitTime=#{loginLimitTime},</if>
+			<if test="authTime != null">authTime=#{authTime},</if>
+			<if test="viewpdfUrl != null">viewpdfUrl=#{viewpdfUrl},</if>
+			<if test="downloadUrl != null">downloadUrl=#{downloadUrl},</if>
+			<if test="transactionId != null">transactionId=#{transactionId},</if>
+			<if test="isBehalf != null">isBehalf=#{isBehalf},</if>
+			<if test="isLoanManager != null">isLoanManager=#{isLoanManager},</if>
+			<if test="registerSource != null">registerSource=#{registerSource},</if>
+			<if test="isAccountSum != null">isAccountSum=#{isAccountSum},</if>
+			<if test="ipArea != null">ipArea=#{ipArea},</if>
+			<if test="isInvestAmt != null">isInvestAmt=#{isInvestAmt},</if>
+			<if test="dealset != null">dealset=#{dealset},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateEmalByid">
+		UPDATE t_user set email = #{0} WHERE
+		id =#{1}
+	</update>
+
+	<select id="getInvestorCount" resultType="java.util.Map">
+		SELECT COUNT(1)
+		investorCount FROM (SELECT b.id FROM t_invest a,t_user b WHERE
+		a.investor=b.id GROUP BY a.investor) t
+	</select>
+
+	<update id="updateUsableSumById">
+		UPDATE t_user SET usableSum = usableSum+ #{0} where id = #{1}
+	</update>
+
+
+	<select id="queryPersonById" resultType="java.util.Map">
+		SELECT * FROM t_person WHERE userId = #{0}
+	</select>
+
+	<select id="queryBorrowRoleInfo" resultType="java.util.Map">
+		SELECT userId FROM t_borrow_role where userId = #{userId}
+	</select>
+	<select id="queryEnterpriseInfo" resultType="java.util.Map">
+		SELECT te.companyName,te.businessCode,te.registeredCapital,te.companyPhone FROM
+		t_enterprise te , t_user tu where te.userId =
+		tu.id and te.userId = #{userId}
+	</select>
+
+	<select id="queryUserHeadImg" resultType="java.util.Map">
+		select a.headImg from t_user a WHERE a.id = #{userId}
+	</select>
+
+	<update id="updateUserHeadImg">
+		UPDATE t_user SET headImg=#{1} WHERE id=#{0}
+	</update>
+
+	<select id="queryVUserLoginSessionById" resultType="java.util.Map">
+		SELECT * FROM v_t_user_loginsession_user a WHERE a.id=#{id}
+	</select>
+	<update id="updateUserUsableSum">
+		UPDATE t_user SET usableSum = usableSum + #{1} where id = #{0}
+	</update>
+	<update id="updateUserFreezeSum">
+		UPDATE t_user SET FREEZESUM = freezeSum + #{1} WHERE id = #{0}
+	</update>
+
+	<select id="findRepaymentId" resultType="java.util.Map">
+		SELECT * FROM v_pay_repayment WHERE repaymentId = #{0}
+	</select>
+
+	<update id="updateUseruseableSumByIpayAccount">
+		UPDATE t_user SET usableSum = usableSum + #{1} WHERE ipayAccount = #{0}
+	</update>
+
+	<update id="updateUserFaDaDaInfoByTransactionId">
+		UPDATE t_user SET download_url =#{downloadUrl} ,viewpdf_url = #{viewpdfUrl} , authTime=#{authTime}
+		WHERE transaction_id =#{transactionId}
+	</update>
+
+	<update id="updateUserByIdOrTransactionId">
+		<choose>
+			<when test="userId > 0">
+				UPDATE t_user SET transaction_id = #{transactionId} WHERE id =#{userId}
+			</when>
+			<otherwise>
+				UPDATE t_user SET transaction_id = '' WHERE transaction_id =#{transactionId}
+			</otherwise>
+		</choose>
+	</update>
+
+	<select id="queryUserIp" resultType="java.util.Map">
+		SELECT t.id,t.lastIP FROM t_user t WHERE t.lastIP IS NOT NULL
+		AND t.lastIP NOT IN ('0:0:0:0:0:0:0:1') and t.IpArea is null ORDER BY
+		t.lastIP
+	</select>
+
+	<update id="updateUseripArea">
+		UPDATE t_user SET ipArea = #{1} WHERE id = #{0}
+	</update>
+
+	<select id="queryUserBaseInfo" resultType="java.util.Map">
+		SELECT * FROM v_t_usermanage_baseinfo a WHERE 1=1
+		<if test="param1 != null">
+			AND a.username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND a.realName =#{1}
+		</if>
+		 LIMIT #{2},#{3}
+	</select>
+	
+	<select id="queryUserBaseInfoCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_usermanage_baseinfo a WHERE 1=1
+		<if test="param1 != null">
+			AND a.username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND a.realName =#{1}
+		</if>
+	</select>
+	
+	
+	<select id="queryIsEnableUserList" resultType="java.util.Map">
+		SELECT a.id AS id,a.username AS username,a.createTime AS createTime,a.`enable` AS `enable`,
+		a.loginLimitTime AS lockTime,a.lockTime AS limitTime,b.realName AS realName,a.mobilePhone AS mobilePhone,
+		b.idNo AS idNo,a.createTime AS createTime FROM t_user a LEFT JOIN t_person b ON a.id=b.userId WHERE a.`enable`=#{6}  
+		<if test="param1 != null">
+			AND a.username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND b.realName LIKE CONCAT('%',#{1},'%')
+		</if>
+		
+		<choose>
+		    <when test="param7 == 1">
+		        <if test="param3 != null and param4 != null">
+					AND a.createTime &gt;=#{2} AND a.createTime &lt;=#{3}
+				</if>
+		    </when>
+		    <otherwise>
+		        <if test="param3 != null and param4 != null">
+					AND a.lockTime &gt;=#{2} AND a.lockTime &lt;=#{3}
+				</if>
+		    </otherwise>
+		</choose>
+		ORDER BY a.lockTime DESC LIMIT #{4},#{5}
+	</select>
+	
+	<select id="queryIsEnableUserCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM t_user a LEFT JOIN t_person b ON a.id=b.userId WHERE a.`enable`=#{4} 
+		<if test="param1 != null">
+			AND a.username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND b.realName LIKE CONCAT('%',#{1},'%')
+		</if>
+		<if test="param3 != null and param4 != null">
+			AND a.lockTime &gt;=#{2} AND a.lockTime &lt;=#{3}
+		</if>
+	</select>
+	
+	<update id="updateUserEnableByUserIds">
+		UPDATE t_user SET lockTime=#{lockTime},`enable`=#{enable} WHERE id IN 
+		<foreach item="ids" index="index" collection="ids"
+				open="(" separator="," close=")">
+				#{ids}
+		</foreach>
+	</update>
+	
+	<select id="queryUserInfoList" resultType="java.util.Map">
+		SELECT a.id AS id,a.username AS username,b.realName AS realName,a.lastIP AS lastIP,a.lastDate AS lastDate,
+		a.createTime AS createTime,b.cellPhone AS cellPhone,a.email AS email,a.isEmployeeReferral AS isEmployeeReferral,
+		a.ipayAccount AS ipayAccount,b.qq AS qq,d.customer_id AS customer_id,e.username AS recommendUsername,f.realName AS recommendrealName
+		FROM t_user a LEFT JOIN t_person b ON a.id =b.userId LEFT JOIN t_recommend_user c ON a.id =c.userId LEFT JOIN t_user e 
+		ON c.recommendUserId=e.id LEFT JOIN t_person f ON f.userId=c.recommendUserId LEFT JOIN t_fadada d ON a.id=d.uid WHERE 1=1
+		<if test="param1 != null">
+			AND a.username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND b.realName LIKE CONCAT('%',#{1},'%')
+		</if>
+		
+		<if test="param3 != null">
+			AND e.username LIKE CONCAT('%',#{2},'%')
+		</if>
+		 LIMIT #{3},#{4}
+	</select>
+	
+	<select id="queryUserInfoCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM t_user a LEFT JOIN t_person b ON a.id =b.userId LEFT JOIN t_recommend_user c ON a.id =c.userId LEFT JOIN 
+		t_user e ON c.recommendUserId=e.id LEFT JOIN t_person f ON f.userId=c.recommendUserId LEFT JOIN t_fadada d ON a.id=d.uid WHERE 1=1
+		<if test="param1 != null">
+			AND a.username LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND b.realName LIKE CONCAT('%',#{1},'%')
+		</if>
+		
+		<if test="param3 != null">
+			AND e.username LIKE CONCAT('%',#{2},'%')
+		</if>
+	</select>
+	
+	
+	<!-- t_user_rename ==begin -->
+	<select id="queryUserRenameList" resultType="java.util.Map">
+		SELECT a.userId AS userId,a.id AS id,c.realName AS realName,b.username AS username,a.`rename` AS `rename`,
+		a.startTime AS startTime,a.endTime AS endTime,a.createTime AS createTime FROM t_user_rename a 
+		LEFT JOIN t_user b ON a.userId=b.id LEFT JOIN t_person c ON a.userId=c.userId WHERE 1=1
+		<if test="param1 != null">
+			AND c.realName LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND b.username LIKE CONCAT('%',#{1},'%')
+		</if>
+		
+		<if test="param3 != null">
+			AND a.`rename` LIKE CONCAT('%',#{2},'%')
+		</if>
+		ORDER BY a.id LIMIT #{3},#{4}
+	</select>
+	
+	<select id="queryUserRenameCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM t_user_rename a LEFT JOIN t_user b ON a.userId=b.id LEFT JOIN t_person c ON a.userId=c.userId WHERE 1=1
+		<if test="param1 != null">
+			AND c.realName LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND b.username LIKE CONCAT('%',#{1},'%')
+		</if>
+		
+		<if test="param3 != null">
+			AND a.`rename` LIKE CONCAT('%',#{2},'%')
+		</if>
+	</select>
+	
+	<select id="queryUserRenameInfoById" resultType="java.util.Map">
+		SELECT a.id AS id,c.realName AS realName,b.username AS username,a.`rename` AS `rename`,a.startTime AS startTime,
+		a.endTime AS endTime,a.createTime AS createTime,a.userId AS userId FROM t_user_rename a LEFT JOIN t_user b 
+		ON a.userId = b.id LEFT JOIN t_person c ON a.userId = c.userId WHERE a.id=#{id}
+	</select>
+	
+	<delete id="deleteUserRenameById">
+		DELETE FROM t_user_rename WHERE id=#{id}
+	</delete>
+	
+	<insert id="addUserRename">
+		INSERT INTO t_user_rename(userId,`rename`,startTime,endTime,createTime)
+		VALUES(#{userId},#{rename},#{startTime},#{endTime},#{createTime})
+	</insert>
+	
+	<update id="updateUserRenameById">
+		update t_user_rename
+		<trim prefix="set" suffixOverrides=",">
+			<if test="userId != null">userId = #{userId},</if>
+			<if test="rename != null">`rename` = #{rename},</if>
+			<if test="startTime != null">startTime = #{startTime},</if>
+			<if test="endTime != null">endTime = #{endTime},</if>
+			<if test="createTime != null">createTime = #{createTime},</if>
+		</trim>
+		where id = #{id}
+	</update>
+	
+	<!-- t_user_rename ==end -->
+	
+	
+	<select id="queryUserInfo" resultType="java.util.Map">
+		select tuser.ipayAccount as ipayAccount, tuser.id as id,tuser.username as username,tuser.creditrating as creditrating,
+		tuser.rating as rating ,tuser.createTime as createTime,tp.idNo AS idNo,tp.realName as realName,tp.qq as qq,tuser.email 
+		as email,tuser.lastIP as lastIP,tuser.lastDate as lastDate,tp.cellPhone as cellPhone  from t_user tuser left join t_person tp 
+		on tuser.id = tp.userId where tuser.id =#{userId}
+	</select>
+	
+	
+	<select id="queryUserByUserNames" resultType="java.lang.Long">
+		SELECT A.id AS id FROM t_user a WHERE a.username IN 
+		 <foreach item="userNames" index="index" collection="userNames" open="(" separator="," close=")">  
+		     	#{userNames}
+		 </foreach>  
+	</select>
+
+	<select id="queryUserByUserIds" resultType="java.lang.String">
+		SELECT A.username AS username FROM t_user a WHERE a.id IN 
+		 <foreach item="userIds" index="index" collection="userIds" open="(" separator="," close=")">  
+		     	#{userIds}
+		 </foreach>  
+	</select>
+	
+	
+	<select id="queryLoginStatisForPage" resultType="java.util.Map">
+		SELECT * FROM v_t_login_statis WHERE 1=1 
+		<if test="param3!=null and param3!=''">  
+			AND lastDate &gt;= #{2}
+		</if>
+		<if test="param4!=null and param4!=''">  
+			AND lastDate &lt;= #{3}
+		</if>
+		<if test="param5!=null and param5!=''">  
+			AND username LIKE "%"#{4}"%"
+		</if>
+		<if test="param6!=null and param6!=''">  
+			AND realName LIKE "%"#{5}"%"
+		</if>
+		<if test="param7!=-1">  
+			AND loginCount=#{6}
+		</if>
+		ORDER BY lastDate DESC
+		LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryLoginStatisCount" resultType="java.lang.Long">
+		SELECT COUNT(1) AS loginCounts FROM v_t_login_statis WHERE 1=1 
+		<if test="param1!=null and param1!=''">  
+			AND lastDate &gt;= #{0}
+		</if>
+		<if test="param2!=null and param2!=''">  
+			AND lastDate &lt;= #{1}
+		</if>
+		<if test="param3!=null and param3!=''">  
+			AND username like "%"#{2}"%"
+		</if>
+		<if test="param4!=null and param4!=''">  
+			AND realname like "%"#{3}"%"
+		</if>
+		<if test="param5!=-1">  
+			AND loginCount=#{4}
+		</if>
+	</select>
+
+	<select id="queryAllIpayAccountUser" resultType="map">
+		SELECT id, usableSum, ipayAccount, slbaoTotalAmt, slbaoAccumulatedIncome FROM t_user WHERE ipayAccount IS NOT null AND ipayAccount > 0
+	</select>
+
+	<update id="updateSlBaoAmount">
+		UPDATE t_user SET slbaoTotalAmt = #{0}, slbaoAccumulatedIncome = #{1} WHERE id = #{2}
+	</update>
+	
+	<select id="queryAllExceptionUser" resultType="map">
+		SELECT id,usableSum,ipayAccount,slbaoTotalAmt,slbaoAccumulatedIncome FROM t_user WHERE id IN (SELECT userId FROM t_operation_log WHERE operation_table = 't_slbao_earnings' AND operation_time BETWEEN #{0} and #{0}+1) 
+	</select>
+	
+	<update id="updateUserSLBaoTotalAmt" >
+		update t_user set slbaoAccumulatedIncome = #{3}, slbaoTotalAmt = #{1}, usableSum = #{2} where id = #{0}
+	</update>
+
+	<select id ="queryUserManagePage" resultType="java.util.Map">
+		SELECT * FROM v_t_usermanage_info_recommend WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND username LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND realName LIKE '%' #{3} '%'
+		</if>
+		ORDER BY id LIMIT #{0},#{1}
+	</select>
+	
+	<select id ="queryUserManageCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_usermanage_info_recommend WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND username LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND realName LIKE '%' #{1} '%'
+		</if>
+	</select>
+	
+	<select id ="getAdminNameById" resultType="string">
+		SELECT userName FROM t_admin WHERE id = #{0}
+	</select>
+	
+	<select id ="getUserNameById" resultType="string">
+		SELECT username FROM t_user WHERE id = #{0}
+	</select>
+</mapper>
+
+
+

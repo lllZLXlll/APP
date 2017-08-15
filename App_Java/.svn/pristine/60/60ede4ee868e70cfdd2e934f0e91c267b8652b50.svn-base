@@ -1,0 +1,59 @@
+package com.pjzb.task;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.BorrowDao;
+import com.shove.Convert;
+
+/**
+ * 待发布的借款 定时器
+ * 
+ * @author zlx
+ */
+
+@Service
+public class JobPendingReleaseLoanService extends BaseController {
+	private static Log log = LogFactory.getLog(JobPendingReleaseLoanService.class);
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	/**
+	 * 待发布借款状态更新 updateBorrowStatus
+	 * 
+	 * @autthor zlx
+	 */
+	public void updateWaitPublishBorrow() throws RuntimeException {
+		log.info("--------------处理待发布借款开始--------------");
+		List<Map<String, Object>> waitPublishBorrowList = null;
+		long array[];
+		try {
+			waitPublishBorrowList = borrowDao.queryWaitPublishBorrow();
+			array = new long[waitPublishBorrowList.size()];
+			for (int i = 0; i < waitPublishBorrowList.size(); i++) {
+				long borrowId = Convert.strToLong(waitPublishBorrowList.get(i).get("id") + "", 0);
+				array[i] = borrowId;
+			}
+			if (array.length > 0)
+				borrowDao.updateBorrowStatus(array);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.equals(e);
+			log.info("***********************处理待发布借款异常**************************");
+			throw new RuntimeException("处理待发布借款异常");
+		} finally {
+			array = null;
+			waitPublishBorrowList = null;
+			System.gc();
+		}
+		log.info("--------------处理待发布借款结束--------------");
+	}
+
+}

@@ -1,0 +1,266 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/index/Productlist.html');
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			utils.setAppConfig('投资理财',true,false);
+		},
+		data:function(){
+			return {
+				dataOne:[
+				         {text:'综合排序',value:'1'},
+				         {text:'收益率由高到低',value:'2'},
+				         {text:'收益率由低到高',value:'3'},
+				         {text:'发布时间由新到旧',value:'4'},
+				         {text:'发布时间由旧到新',value:'5'},
+				         {text:'项目期限由长到短',value:'6'},
+				         {text:'项目期限由短到长',value:'7'}
+				         ],
+	            dataTwo:[
+				         {text:'项目期限',value:'0',model:'partTwo'},
+				         {text:'1-3个月',value:'1',model:'partTwo'},
+				         {text:'3-6个月',value:'2',model:'partTwo'},
+				         {text:'6-9个月',value:'3',model:'partTwo'},
+				         {text:'大于9个月',value:'4',model:'partTwo'}
+				         ],
+	            dataThree:[
+				         {text:'年化收益',value:'0',model:'partThree'},
+				         {text:'≤10%',value:'1',model:'partThree'},
+				         {text:'10%-15%',value:'2',model:'partThree'},
+				         {text:'15%-25%',value:'3',model:'partThree'}
+				         ],
+	            dataFour:[
+				         {text:'项目类型',value:'0',model:'dataFour'},
+				         {text:'普金保',value:'4',model:'dataFour'},
+				         {text:'恒金保',value:'6',model:'dataFour'},
+				         {text:'多金宝',value:'3',model:'dataFour'}
+				         ],
+				showData:[false,false,false,false],
+				showText:['综合排序','项目期限','年化收益','项目类型'],
+				showModal:false,
+				partOne:'1',
+				partTwo:'0',
+				partThree:'0',
+				partFour:'0',
+				listNum:1,
+				dataList:[],
+				loading:false,
+				model:false,
+				totalPageNum:'',
+				showLength:false,
+				tt:'0',xx:'0',yy:'0',
+				rates:'',timeers:'',deadlines:'',flages:''
+			}
+		},
+		route:{
+		    data: function(transition){
+		    	var _this = this;
+		    	var param={
+		    			curPage:_this.listNum,
+		    			tt:'',
+		    			yy:'',
+		    			xx:'',
+		    			rates:'',
+		    			timeers:'',
+		    			deadlines:'',
+		    			titles:'',
+		    			flages:''};
+		    	utils.ajax({
+		            url:'../front/financeList.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	if(data.error == '0'){
+		            		_this.$set('dataList',data.pageBean.page);
+		            		_this.$set('totalPageNum',data.pageBean.totalPageNum);
+			        		if(data.pageBean.page.length>0){
+			        			if(data.pageBean.totalNum>10){
+			        				//$.attachInfiniteScroll($('.infinite-scroll'));
+			        			}else{
+			        				//$.detachInfiniteScroll($('.infinite-scroll'));
+			        				_this.$set('model',false);
+			        			}
+			        		}
+		            	}
+		            },
+		            complete:function(){
+		            	transition.next();
+		            }
+		        })
+		    },
+		    waitForData: true
+		},
+		ready: function(){
+			//$.attachInfiniteScroll('.infinite-scroll');
+			var _this = this;
+			$(document).on('infinite',function(){
+				if (_this.loading){return;}
+				_this.$set('model',true);
+				// 设置flag
+				_this.$set('loading',true);
+				var listNum = _this.listNum+1;
+				//如果查询页数大于当前总页数，则返回
+				if(listNum > _this.totalPageNum){
+					$.toast('没有更多记录了哦');
+					_this.$set('model',false);
+					_this.$set('loading',false);
+					return;
+				}
+				_this.$set('listNum',listNum);
+				//无线滚动
+				var param={
+						curPage:_this.listNum,
+						tt:_this.tt,
+						yy:_this.yy,
+						xx:_this.xx,
+						rates:_this.rates,
+						timeers:_this.timeers,
+						deadlines:_this.deadlines,
+		    			titles:'',
+						flages:_this.flages
+					};
+				utils.ajax({
+			        url:'../front/financeList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(data.pageBean.page.length>0){
+			        			if(data.pageBean.page.length<10){
+			        				_this.$set('model',false);
+			        			}
+			        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+			        		}
+			        	}
+			        },complete:function(){
+			        	_this.$set('loading',false);
+			        }
+			    })
+			});
+			$.initPage();
+		},
+		filters:{
+			titleCake:function(value){
+				if(value.length>6){
+					return value.substring(0,6)+'...';
+				}else{
+					return value.substring(0,6);
+				}
+			}
+		},
+		methods:{
+			chose:function(index){
+				var _this = this;
+				_this.$set('showModal',true);
+				switch(index)
+				{
+				case 1:
+					_this.$set('showData',[true,false,false,false]);
+				  break;
+				case 2:
+					_this.$set('showData',[false,true,false,false]);
+				  break;
+				case 3:
+					_this.$set('showData',[false,false,true,false]);
+					break;
+				case 4:
+					_this.$set('showData',[false,false,false,true]);
+					break;
+				default:
+				  return;
+				};
+			},
+			hideCard:function(){
+				var _this = this;
+				_this.$set('showModal',false);
+				_this.$set('showData',[false,false,false,false]);
+			},
+			submit: function(){
+				var _this = this;
+				_this.hideCard();
+				//由于model跟新数据会有一定的延迟
+				setTimeout(function(){
+					if(_this.partOne!='1'){
+						switch(_this.partOne){
+							case '2':
+								_this.$set('rates','1');_this.$set('flages','2');break;
+							case '3':
+								_this.$set('rates','2');_this.$set('flages','1');break;
+							case '4':
+								_this.$set('timeers','1');_this.$set('flages','4');break;
+							case '5':
+								_this.$set('timeers','2');_this.$set('flages','3');break;
+							case '6':
+								_this.$set('deadlines','1');_this.$set('flages','6');break;
+							case '7':
+								_this.$set('deadlines','2');_this.$set('flages','5');break;
+						};
+					};
+					_this.$set('tt',_this.partTwo);
+					_this.$set('yy',_this.partThree);
+					_this.$set('xx',_this.partFour);
+					_this.$set('listNum',1);
+					var param={
+							curPage:_this.listNum,
+							tt:_this.tt,
+							yy:_this.yy,
+							xx:_this.xx,
+							rates:_this.rates,
+							timeers:_this.timeers,
+							deadlines:_this.deadlines,
+			    			titles:'',
+							flages:_this.flage
+						};
+					utils.ajax({
+				        url:'../front/financeList.do',
+				        data:JSON.stringify(param),
+				        dataType:'json',
+				        success: function(data){
+				        	if(data.error == 0){
+				        		_this.$set('dataList',data.pageBean.page);
+				        		if(data.pageBean.page.length>0){
+				        			_this.$set('showLength',false);
+				        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+				        			$('.pro-hot').scrollTop(0);
+				        			if(data.pageBean.totalNum>10){
+				        				$.attachInfiniteScroll($('.infinite-scroll'));
+				        			}else{
+				        				$.detachInfiniteScroll($('.infinite-scroll'));
+				        				_this.$set('model',false);
+				        			}
+				        		}else{
+				        			_this.$set('showLength',true);
+				        		}
+				        	}else{
+				        		$.alert(data.msg)
+				        	}
+				        }
+				    });
+				},200);
+				
+			},
+			thisHtml: function(borrow){
+				if(borrow == 1){
+					return '初审中';
+				}else if(borrow == 2){
+					return '立即投标';
+				}else if(borrow == 3){
+					return '复审中';
+				}else if(borrow == 4){
+					return '还款中';
+				}else if(borrow == 5){
+					return '已还完';
+				}else{
+					return '流标';
+				}
+			},
+			toBid: function(list){
+				this.$root.toFund(list);
+			},
+			toDetail: function(list){
+				router.go({name:'detail',query:{id:list.id,type:'detail'}});
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

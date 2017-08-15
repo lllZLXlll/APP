@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.ReleaseAlsoReconciliationDao">
+
+	<delete id="deleteReleaseAlsoReconciliationByPnrDate" parameterType="java.lang.String">
+		DELETE FROM t_release_also_reconciliation WHERE PnrDate=#{PnrDate}
+	</delete>
+
+	<insert id="insertReleaseAlsoReconciliation">
+		INSERT INTO t_release_also_reconciliation(ordId,ordDate,merCustId,investCustId,borrCustId,transAmt,transStat,pnrDate,pnrSeqId,queryTransType)
+		VALUES(#{ordId},#{ordDate},#{merCustId},#{investCustId},#{borrCustId},#{transAmt},#{transStat},#{pnrDate},#{pnrSeqId},#{queryTransType})
+	</insert>
+	
+	<select id="queryReconciliationList" resultType="java.util.Map">
+		SELECT * FROM v_query_reconciliation WHERE 1=1
+		<if test='param3 != null and param3 != ""'>
+			AND investCustId LIKE '%' #{2} '%'
+		</if>
+		<if test='param4 != null and param4 != ""'>
+			AND borrCustId LIKE '%' #{3} '%'
+		</if>
+		<if test='param5 != null and param5 != ""'>
+			AND queryTransType = #{4}
+		</if>
+		ORDER BY OrdId DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryReconciliationCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_query_reconciliation WHERE 1=1
+		<if test='param1 != null and param1 != ""'>
+			AND investCustId LIKE '%' #{0} '%'
+		</if>
+		<if test='param2 != null and param2 != ""'>
+			AND borrCustId LIKE '%' #{1} '%'
+		</if>
+		<if test='param3 != null and param3 != ""'>
+			AND queryTransType = #{2}
+		</if>
+	</select>
+	
+	<select id="queryMoneySum" resultType="java.util.Map">
+		SELECT SUM(TransAmt) AS TransAmts FROM v_query_reconciliation
+	</select>
+	
+	<select id="queryDivide_AccountList" resultType="java.util.Map">
+		SELECT * FROM (	select a.ordId ordId, b.username divCustId, divAcctId, a.divAmt divAmt from t_divide_account a left JOIN t_user b on a.divCustId = b.ipayAccount ) t
+		WHERE 1=1
+		<if test='param3 != null and param3 != ""'>
+			AND ordId = #{2} 
+		</if>
+		ORDER BY OrdId DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryDivide_AccountCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM (	select a.ordId ordId, b.username divCustId, divAcctId, a.divAmt divAmt from t_divide_account a left JOIN t_user b on a.divCustId = b.ipayAccount ) t
+		WHERE 1=1 
+		<if test='ordId != null and ordId != ""'>
+			AND ordId = #{ordId}
+		</if>
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+

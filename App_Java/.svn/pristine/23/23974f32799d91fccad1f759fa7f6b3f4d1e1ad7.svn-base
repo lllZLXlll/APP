@@ -1,0 +1,54 @@
+package com.pjzb.service.admin.count;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.OperateReportDao;
+import com.pjzb.entity.OperateReport;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 运营数据
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminOperateDataService extends BaseController{
+	
+	@Autowired
+	private OperateReportDao operateReportDao;
+	
+	
+	public String queryOperateReportList(Model model,String beginDate, String endDate,Long pageNum, Long pageSize,String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_2 : pageSize;
+			beginDate=ConvertUtil.objToStrConvert(beginDate);
+			endDate=ConvertUtil.objToStrConvert(endDate);
+			List<OperateReport> list = operateReportDao.queryOperateReportList(beginDate, endDate,(pageNum - 1) * pageSize, pageSize);
+			long count = operateReportDao.queryOperateReportCount(beginDate, endDate);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("beginDate", beginDate);
+			model.addAttribute("endDate", endDate);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询用户投资信息异常**************************");
+		}
+		return "/admin/count/operatereport/list.jsp";
+	}
+	
+
+}

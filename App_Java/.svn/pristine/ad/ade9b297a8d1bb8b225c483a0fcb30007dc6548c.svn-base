@@ -1,0 +1,110 @@
+package com.pjzb.service.admin.loan;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.BorrowInspectionDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.BorrowLoanManager;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 月检管理
+ * 
+ */
+@Service
+public class AdminMonthInspectService extends BaseController {
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private BorrowInspectionDao borrowInspectionDao;
+
+	public String queryloanManageList(Model model, String tabid, Long pageNum, Long pageSize, String userName, String borrowTitle, Long borrowStatus, Long borrowWay, Admin admin) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		userName = ConvertUtil.convertObjToStr(userName);
+		borrowTitle = ConvertUtil.convertObjToStr(borrowTitle);
+		long count = borrowDao.queryBorrowAllByConditionCount(userName, borrowWay, borrowStatus, admin.getLoanUserId(), borrowTitle);
+		List<Map<String, Object>> page = borrowDao.queryBorrowAllByCondition(userName, borrowWay, borrowStatus, admin.getLoanUserId(), borrowTitle, (pageNum - 1) * pageSize,
+				pageSize);
+		List<Map<String, Object>> lists = borrowDao.queryAllWaitingBorrow();
+		Vector<String> ids = new Vector<String>();
+		if (lists != null && lists.size() > 0) {
+			for (Map<String, Object> map : lists) {
+				ids.add(map.get("id").toString());
+			}
+		}
+		if (page != null && page.size() > 0) {
+			for (Map<String, Object> map : page) {
+				if (ids.contains(map.get("id").toString())) {
+					map.put("flag", "0");
+				} else {
+					map.put("flag", "1");
+				}
+			}
+		}
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowTitle", borrowTitle);
+		model.addAttribute("borrowStatus", borrowStatus);
+		model.addAttribute("borrowWay", borrowWay);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, page));
+		return "/admin/loan/monthinspect/list.jsp";
+	}
+
+	public String querySaveOrUpdateBorrowMonthInspectInit(Model model,Long id,Long borrowId,String tabid) {
+		BorrowLoanManager borrowLoanManager=new BorrowLoanManager();
+		if(id!=null){
+			borrowLoanManager=borrowInspectionDao.queryBorrowLoanManagerById(id);
+			model.addAttribute("visitDate", ConvertUtil.dateConvert(borrowLoanManager.getVisitTime(), Constants.DATESIMPLE));
+		}else{
+			Borrow borrow=borrowDao.queryBorrowById(borrowId);
+			borrowLoanManager.setBorrowTitle(borrow.getBorrowTitle());
+		}
+		model.addAttribute("borrowId", borrowId);
+		model.addAttribute("inspect", borrowLoanManager);
+		model.addAttribute("tabid", tabid);
+		return "/admin/loan/monthinspect/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> saveOrUpdateBorrowLoanManager(BorrowLoanManager borrowLoanManager, Long borrowId,String visitDate,Long loanUserId,String tabid) {
+		borrowLoanManager.setVisitTime(ConvertUtil.dateConvert(visitDate, Constants.DATESIMPLE));
+		borrowLoanManager.setOperatingTime(new Date());
+		borrowLoanManager.setLoanUserId(loanUserId);
+		tabid=ConvertUtil.convertObjToStr(tabid);
+		if (borrowLoanManager.getId() == null) {
+			long result = borrowInspectionDao.addBorrowLoanManager(borrowLoanManager);
+			if (result > 0) {
+				if(tabid==null){
+					return ajaxDoneForward("200", "月检记录增加成功", "true", "", "queryBorrowInspectRecord.do?borrowId=" + borrowId);
+				}else{
+					return ajaxDoneInfo("200", "月检记录增加成功", "true", tabid);
+				}
+			} else {
+				return ajaxDoneInfo("300", "月检记录增加失败", "", "");
+			}
+		} else {
+			long result = borrowInspectionDao.updateBorrowLoanManager(borrowLoanManager);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "月检记录修改成功", "true", tabid);
+			} else {
+				return ajaxDoneInfo("300", "月检记录修改失败", "", "");
+			}
+		}
+
+	}
+
+}

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.RepaymentDao">
+
+	<resultMap type="repayment" id="repaymentResultMap">
+		<id column="id" property="id" />
+		<result column="repayDate" property="repayDate" />
+		<result column="realRepayDate" property="realRepayDate" />
+		<result column="repayPeriod" property="repayPeriod" />
+		<result column="hasPI" property="hasPi" />
+		<result column="stillPrincipal" property="stillPrincipal" />
+		<result column="stillInterest" property="stillInterest" />
+		<result column="hasFI" property="hasFi" />
+		<result column="lateFI" property="lateFi" />
+		<result column="lateDay" property="lateDay" />
+		<result column="repayStatus" property="repayStatus" />
+		<result column="borrowId" property="borrowId" />
+		<result column="isLate" property="isLate" />
+		<result column="isWebRepay" property="isWebRepay" />
+		<result column="investorForpayFI" property="investorForpayFi" />
+		<result column="investorHaspayFI" property="investorHaspayFi" />
+		<result column="principalBalance" property="principalBalance" />
+		<result column="interestBalance" property="interestBalance" />
+		<result column="version" property="version" />
+		<result column="executeTime" property="executeTime" />
+		<result column="identify" property="identify" />
+	</resultMap>
+
+
+	<select id="queryWillBorrowerRepaymentInfo" resultMap="repaymentResultMap">
+		select *
+		from t_repayment where datediff(#{date},repayDate) =0 and repayStatus
+		= 1
+	</select>
+
+
+	<select id="queryPaymentInfo" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select c.ipayAccount as ipayAccount, c.id as userId,
+		c.username as username, c.dealpwd as pwd,
+		b.borrowWay,isDayThe,b.nid_log
+		from t_repayment a left join t_borrow b
+		on a.borrowId=b.id left join
+		t_user c on c.id=b.publisher where a.id
+		=#{id}
+	</select>
+
+
+	<select id="callBorrowRepaymentinitProcedure" statementType="CALLABLE"
+		resultType="java.util.Map" parameterType="java.util.Map">
+		{CALL p_borrow_repaymentinit(
+		#{in_bid,jdbcType=BIGINT,mode=IN},
+		#{out_ret,jdbcType=INTEGER,mode=OUT},
+		#{out
+		out_desc,jdbcType=VARCHAR,mode=OUT}
+		)
+		}
+	</select>
+
+
+
+	<select id="queryAllInvestInfo" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT * FROM v_t_chianpnr_repay a WHERE
+		a.payId=#{payId}
+	</select>
+
+
+	<select id="queryRepayInfoByBorrowId" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select a.id,a.investor
+		userId,((a.realAmount/c.borrowAmount)*b.stillPrincipal) principal from
+		t_invest a left join
+		t_repayment b on a.borrowId = b.borrowId left join
+		t_borrow c on a.borrowId =
+		c.id where b.id =#{borrowId}
+	</select>
+
+	<select id="queryRepaymentBorrowIdIdById" resultType="java.lang.Long"
+		parameterType="java.lang.Long">
+		SELECT a.borrowId AS borrowId FROM t_repayment a WHERE
+		a.id=#{id}
+	</select>
+
+	<select id="queryOverDueRepayment" resultType="map"
+		parameterType="string">
+		<![CDATA[
+			SELECT id, repayDate, stillPrincipal, stillInterest
+			, executeTime, borrowId, DATEDIFF(#{0}, executeTime) executeDay
+			, DATEDIFF(#{0},repayDate) overdueDay FROM t_repayment WHERE
+			DATE_FORMAT(repayDate,'%Y-%m-%d') < #{0} AND repayStatus = 1
+		]]>
+	</select>
+
+	<update id="updateOverDueRepayment">
+		UPDATE t_repayment SET isLate = 2, lateDay = #{2},
+		lateFI = #{1}, executeTime = #{3} WHERE id = #{0}
+	</update>
+
+	<insert id="addPreRepament">
+		insert into t_pre_repayment (
+			borrowId, identify, repayPeriod, stillPrincipal,
+			stillInterest, principalBalance, interestBalance, totalSum,
+			totalAmount, mRate, repayDate, sort
+		)
+		values(
+			#{borrowId}, #{identify}, #{repayPeriod}, #{stillPrincipal}, 
+			#{stillInterest},#{principalBalance},#{interestBalance}, #{totalSum},
+			#{totalAmount}, #{mRate},#{repayDate}, #{sort}
+		)		
+	</insert>
+	<select id="queryrRepay" resultType="java.lang.Long"
+		parameterType="java.lang.Long">
+		select * from t_repayment t where id = (select max(t.id) from t_repayment t where t.borrowId=#{id})
+	</select>
+
+</mapper>
+
+
+
+
+
+
+

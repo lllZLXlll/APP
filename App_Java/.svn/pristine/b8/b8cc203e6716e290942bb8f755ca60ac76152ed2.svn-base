@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.FundrecordDao">
+
+
+	<insert id="insertFundrecord" parameterType="fundrecord">
+		INSERT
+		INTO
+		t_fundrecord(userId,fundMode,handleSum,usableSum,freezeSum,dueinSum,trader,recordTime,remarks,income,
+		spending,borrow_id,repayment_id,operateType,dueoutSum)
+		VALUES(#{userId},#{fundMode},#{handleSum},#{usableSum},#{freezeSum},
+		#{dueinSum},#{trader},#{recordTime},#{remarks},#{income},#{spending},#{borrowId},#{repaymentId},#{operateType},#{dueoutSum})
+	</insert>
+
+	<resultMap type="fundrecord" id="fundrecordResultMap">
+		<id column="id" property="id" />
+		<result column="userId" property="userId" />
+		<result column="fundMode" property="fundMode" />
+		<result column="handleSum" property="handleSum" />
+		<result column="usableSum" property="usableSum" />
+		<result column="freezeSum" property="freezeSum" />
+		<result column="dueinSum" property="dueinSum" />
+		<result column="trader" property="trader" />
+		<result column="recordTime" property="recordTime" />
+		<result column="dueoutSum" property="dueoutSum" />
+		<result column="remarks" property="remarks" />
+		<result column="operateType" property="operateType" />
+		<result column="oninvest" property="oninvest" />
+		<result column="paynumber" property="paynumber" />
+		<result column="paybank" property="paybank" />
+		<result column="cost" property="cost" />
+		<result column="income" property="income" />
+		<result column="spending" property="spending" />
+		<result column="borrowId" property="borrowId" />
+		<result column="repaymentId" property="repaymentId" />
+		<result column="accountSum" property="accountSum" />
+		<result column="pageType" property="pageType" />
+	</resultMap>
+
+	<select id="queryMaxIdFundById" resultMap="fundrecordResultMap">
+		select * from
+		t_fundrecord where id = (select max(id) from t_fundrecord where userId
+		=#{userId})
+	</select>
+	
+	<select id="queryMaxIdFundByIdReturnMap" resultType="map">
+		select * from
+		t_fundrecord where id = (select max(id) from t_fundrecord where userId
+		=#{userId})
+	</select>
+	
+	
+	<select id="queryFundrecordListForPage" resultType="java.util.Map">
+		SELECT * FROM v_t_fundrecord_index a WHERE a.userId=#{0}
+		<if test="param2!=null and param3!=null">  
+			AND a.recordTime&gt;= #{1} AND a.recordTime &lt;=#{2}
+		</if>
+		<if test="param4!=null and param5==null">  
+			AND a.fundMode in 
+			 <foreach item="fundMode" index="index" collection="param4" open="(" separator="," close=")">  
+		     	#{fundMode}
+		     </foreach>  
+		</if>
+		
+		<if test="param5!=null and param4==null">  
+			AND a.fundMode like CONCAT('%',#{4},'%') 
+		</if>
+		ORDER BY a.id DESC,a.recordTime DESC LIMIT #{5},#{6};
+	</select>
+	
+	<select id="queryFundrecordCount" resultType="java.util.Map">
+		SELECT COUNT(1) AS fundrecordCount FROM v_t_fundrecord_index a WHERE a.userId=#{0}
+		<if test="param2!=null and param3!=null">  
+			AND a.recordTime &gt;= #{1} AND a.recordTime &lt;=#{2}
+		</if>
+		<if test="param4!=null and param5==null">  
+			AND a.fundMode in 
+			 <foreach item="fundMode" index="index" collection="param4" open="(" separator="," close=")">  
+		     	#{fundMode}
+		     </foreach>  
+		</if>
+		
+		<if test="param5!=null and param4==null">  
+			AND a.fundMode like CONCAT('%',#{4},'%') 
+		</if>
+		
+	</select>
+
+	<insert id="addFundRecord" parameterType="fundrecord">
+		INSERT INTO
+		t_fundrecord (
+		userId, fundMode, handleSum, usableSum, freezeSum,
+		dueinSum, trader,
+		recordTime, dueoutSum, remarks, operateType,
+		oninvest, paynumber,
+		paybank, cost, income,spending, borrow_id,
+		repayment_id, accountSum, pageType
+		) VALUES(
+		#{userId}, #{fundMode},
+		#{handleSum}, #{usableSum}, #{freezeSum}, #{dueinSum}, #{trader},
+		#{recordTime}, #{dueoutSum}, #{remarks}, #{operateType}, #{oninvest},
+		#{paynumber},
+		#{paybank}, #{cost}, #{income}, #{spending}, #{borrowId}, #{repaymentId},
+		#{accountSum}, #{pageType}
+		)
+	</insert>
+
+	<select id="queryFundrecordByUserIdAndFundMode" resultType="java.lang.Long" parameterType="java.lang.Long">
+		SELECT COUNT(1) AS payCount from t_fundrecord f WHERE datediff(f.recordTime,NOW())=0 AND userId=#{userId} AND 
+		fundMode in('平台定向转账(手工转账)','好友邀请奖励','体验金收益')
+	</select>
+
+	<select id="queryUserCashListForPage" resultType="java.util.Map">
+		SELECT * from (select a.id as userId,a.username,IFNULL(f.forRePaySum,0) 
+		as dueoutSum,a.usableSum,a.freezeSum,round(sum(IFNULL(b.recivedPrincipal+b.recievedInterest-b.hasPrincipal-b.hasInterest,0)),2) 
+		as dueinSum,d.realName realName from t_user a left join t_invest b on a.id = b.investor  left join t_person d on d.userId=a.id left join 
+		(select forRePaySum,publisher from (select sum(IFNULL((c.stillPrincipal+c.stillInterest-c.hasPI+c.lateFI-c.hasFI),0)) as forRePaySum,d.publisher 
+		from t_repayment c left join t_borrow d on c.borrowId = d.id where c.repayStatus = 1 GROUP BY d.publisher) t) f 
+		on f.publisher = a.id  group by a.ID,a.usableSum,a.freezeSum,f.forRePaySum,d.realName,a.username) u 
+		where 1=1 
+		<if test="userName != null and userName != ''">
+			AND u.username like '%' #{userName} '%' 
+		</if>	
+		LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryUserCashListCount" resultType="java.lang.Long">
+		SELECT COUNT(1) AS counts FROM (SELECT a.id as userId,a.username,IFNULL(f.forRePaySum,0) 
+		as dueoutSum,a.usableSum,a.freezeSum,round(sum(IFNULL(b.recivedPrincipal+b.recievedInterest-b.hasPrincipal-b.hasInterest,0)),2) 
+		as dueinSum,d.realName realName from t_user a left join t_invest b on a.id = b.investor  left join t_person d on d.userId=a.id left join 
+		(select forRePaySum,publisher from (select sum(IFNULL((c.stillPrincipal+c.stillInterest-c.hasPI+c.lateFI-c.hasFI),0)) as forRePaySum,d.publisher 
+		from t_repayment c left join t_borrow d on c.borrowId = d.id where c.repayStatus = 1 GROUP BY d.publisher) t) f 
+		on f.publisher = a.id  group by a.ID,a.usableSum,a.freezeSum,f.forRePaySum,d.realName,a.username) u 
+		where 1=1 
+		<if test="userName != null and userName != ''">
+			AND u.username like '%' #{userName} '%'
+		</if>
+	</select>
+	
+	<select id="queryUserCashListCounts" resultType="java.util.Map">
+		SELECT sum(u.dueoutSum) as dueoutSums, sum(u.usableSum) as usableSums,sum(u.freezeSum) as freezeSums, 
+		sum(u.dueinSum) as dueinSums from (select a.id as userId,a.username,IFNULL(f.forRePaySum,0) 
+		as dueoutSum,a.usableSum,a.freezeSum,round(sum(IFNULL(b.recivedPrincipal+b.recievedInterest-b.hasPrincipal-b.hasInterest,0)),2) 
+		as dueinSum,d.realName realName from t_user a left join t_invest b on a.id = b.investor  left join t_person d on d.userId=a.id left join 
+		(select forRePaySum,publisher from (select sum(IFNULL((c.stillPrincipal+c.stillInterest-c.hasPI+c.lateFI-c.hasFI),0)) as forRePaySum,d.publisher 
+		from t_repayment c left join t_borrow d on c.borrowId = d.id where c.repayStatus = 1 GROUP BY d.publisher) t) f 
+		on f.publisher = a.id  group by a.ID,a.usableSum,a.freezeSum,f.forRePaySum,d.realName,a.username) u 
+		where 1=1 
+		<if test="userName != null and userName != ''">
+			AND u.username like '%' #{userName} '%'
+		</if>
+	</select>
+</mapper>
+
+
+

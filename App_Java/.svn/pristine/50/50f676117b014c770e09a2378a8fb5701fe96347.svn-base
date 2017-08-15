@@ -1,0 +1,222 @@
+@charset "utf-8";
+*{margin:0;padding:0;border:0;word-wrap: break-word}
+body{
+	background:#fff url(../images/activity_01/activity_bg.jpg) top center /100% no-repeat ;
+	color:#fff;
+	}
+a{
+	text-decoration: none;
+}
+img{
+	display:block;
+}
+ul,li{
+	list-style:none;
+}
+.activity-top{
+	height:4.12rem;
+}
+.activity-top .btn{
+	width:2.16rem;
+	height:0.63rem;	
+	position:absolute;
+	top:3.19rem;
+	left:50%;
+	margin-left:-1.08rem;
+}
+.activity-top .btn img{
+	width:100%;
+}
+.activity{
+	width:100%;
+	height:100%;
+	position:relative;
+}
+.activity-content .activity-one{
+	padding:0.6rem 0.2rem 0;
+}
+.activity-one+.explain{
+	padding:0.3rem 0.2rem 0.3rem;
+	margin:0.5rem 0 0.8rem 0;
+	background-color:#ffddc4;
+}
+.activity-content .title{
+	overflow:hidden;
+}
+.activity-content .title p img,.activity-three .title p img{
+	width:1.2rem;
+	height:1.2rem;
+}
+.activity-content .title p{
+	height:1.2rem;
+	float:left;
+}
+.activity-content .title p.text,.activity-three .title p.text{
+	padding-left:0.2rem;
+	width:4.6rem;
+	color:#ff3a3a;
+}
+.activity-content .title p.text .big{
+	font-size:0.32rem;
+	display:block;
+	line-height:0.74rem;
+}
+.activity-content .title p.text .small{
+	font-size:0.22rem;
+	display:block;
+}
+
+.activity-one .main{
+	height:9.17rem;
+	margin-top:0.3rem;
+	padding-left:0.42rem;
+	background:url(../images/activity_01/line.jpg) left top  no-repeat;
+	background-size:0.42rem 9.17rem;
+}
+.activity-one .main .tips .title{
+	width:100%;
+	height:0.6rem;
+	background-color:#ffddc4;
+	font-size:0.18rem;
+	text-indent:0.2rem;
+	line-height:0.6rem;
+	border-radius:0.04rem;
+	color:#b14508;
+}
+.activity-one .main .tips .list{
+	padding:0 0 0.3rem 0.03rem;
+	overflow:hidden;
+}
+.activity-one .main .tips .list li{
+	width:1.3rem;
+	float:left;
+	margin:0.243rem 0.6rem 0 0;
+	padding-top:0.7rem;
+	background:url(../images/activity_01/20170101_03.png) top center /100% no-repeat;
+}
+.activity-one .main .tips .list li.no{
+	margin-right:0.45rem;
+}
+.activity-one .main .tips .list li p{
+	text-align:center;
+	width:100%;
+}
+.activity-one .main .tips .list li .big{
+	line-height:0.24rem;
+	height:0.24rem;
+	font-size:0.24rem;
+}
+.activity-one .main .tips .list li .small{
+	font-size:0.18rem;
+}
+.activity-one .main .tips .list li .money{
+	font-size:0.18rem;
+	padding-top:0.18rem;
+	color:#b14508;
+}
+.activity-one .main .tips .title span{
+	font-size:0.26rem;
+}
+
+.activity-two{
+	position:relative;
+	height:13.75rem;
+}
+
+.activity-two-border{
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:1;
+	height:12.55rem;
+	border-left: 6.4rem solid #ffdb60;
+	border-top: 0.6rem solid transparent;
+	border-bottom: 0.6rem solid transparent;
+}
+.activity-two-view{
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:2;
+}
+.activity-two-box .activity-two-content{
+	width:1.2rem;
+	height:1.2rem;
+	position:absolute;
+	right:0.2rem;
+	top:-0.08rem;
+}
+.activity-two-inner{
+	padding:1.73rem 0.2rem 0;
+}
+.activity-two-inner-box,.activity-three-main{
+	height:3.6rem;
+	border-radius:0.12rem;
+	background-color:#ff4c3a;
+	box-shadow:2px 2px 0 #dc1414,0.12rem 0.12rem 0 rgba(255,61,58,.1);
+}
+.activity-two-box .activity-two-content img{
+	width:100%;
+}
+.activity-two-main{
+	height:3.6rem;
+}
+.activity-two-main h3{
+	height:1.5rem;
+	line-height:1.5rem;
+	font-size:0.36rem;
+	color:#fff600;
+	text-indent:2.2rem;
+	background:url(../images/activity_01/20170101_05.png) 1.1rem center /15% no-repeat;
+}
+.activity-two-main p,.activity-three-main p{
+	font-size:0.175rem;
+	padding:0 0.24rem;
+}
+.activity-two-main p span{
+	font-size:0.3rem;
+}
+.activity-two-main p span.color{
+	color:#fff600;
+}
+.activity-three{
+	padding:0.54rem 0.2rem 0;
+}
+.activity-three .title{
+	height:1.2rem;
+}
+.activity-three .title p{
+	float:left;
+}
+.activity-three .title p.text{
+	font-size:0.36rem;
+	padding-top:0.1rem;
+	line-height:0.48rem;
+}
+.activity-three-main{
+	height:2.2rem;
+	margin-top:0.4rem;
+}
+.activity-three-main p{
+	padding-top:0.1rem;
+	line-height:0.48rem;
+}
+.activity-three-main p span{
+	font-size:0.3rem;
+	color:#fff600;
+}
+.explain{
+	padding: 0.5rem 0 0.3rem;
+}
+.explain h3{
+	font-size:0.26rem;
+	line-height:0.48rem;
+	color:#b14508;
+}
+.explain p{
+	font-size:0.18rem;
+	line-height:0.32rem;
+	color:#b14508;
+	text-indent:-0.28rem;
+	padding:0.1rem 0 0 0.28rem;
+}

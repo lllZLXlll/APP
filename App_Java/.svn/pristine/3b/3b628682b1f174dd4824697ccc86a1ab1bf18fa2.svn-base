@@ -1,0 +1,96 @@
+body {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #eee;
+}
+*{color:#999999}
+.form-signin {
+  max-width: 430px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin-heading{text-align:center;}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="text"] {
+  margin-bottom: 10px;
+   
+}
+.form-signin input[type="email"] {
+  margin-bottom: 10px;
+  
+}
+.form-signin input[type="tel"] {
+  margin-bottom: 10px;
+   
+}
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  
+}
+.backwhite{background:#fff;}
+.footer {
+  margin-top:100px;
+  padding: 40px 0;
+  color: #999;
+  text-align: center;
+  background-color: #fff;
+  border-top: 1px solid #e5e5e5;
+}
+.footer p:last-child {
+  margin-bottom: 0;
+}
+ 
+.header{
+	padding-top:20px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.header {
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 20px;
+}
+.header h3 {
+    line-height: 40px;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+ @media screen and(min-width: 768px) {
+	.container {
+	    max-width: 730px;
+	}
+}
+ 
+  @media screen and(min-width: 480px) {
+	.container {
+	    max-width: 480px;
+	}
+}
+.pt-t{padding-top:50px;}
+.pt40{ padding:40px 0;}
+.investors{ width:auto; text-align:center;}
+.tips-cx{ width:auto; text-align:center;}
+.tips-cx em,.tips-cx h2,.tips-cx p{ display:block;}
+.tips-cx h2{ color:#666;}
+.tips-cx-a{ text-align:center; padding:30px 0;}
+.tips-cx-a a{display:inline-block; border-radius:10px; text-align:center; padding:10px 50px;
+color:#fff; font-size:14px; cursor:pointer; text-decoration:none;}
+.tips-cx-a .view{background:#337ab7;}
+.tips-cx-a .download{ background:#5eb733;}

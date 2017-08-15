@@ -1,0 +1,15 @@
+define(function (require,exports,module) {
+	var VueComponent = new Vue({
+		  data: { show: false },
+		  methods: {
+				showDialog: function(){
+					this.$set('show',true);
+				},
+				hideDialog: function(){
+					this.$set('show',false);
+				}
+			},
+		  template:'<div v-if="show" class="dialog-loading"><div class="loader-inner"><div></div></div></div>'
+		});
+	module.exports = VueComponent;
+})

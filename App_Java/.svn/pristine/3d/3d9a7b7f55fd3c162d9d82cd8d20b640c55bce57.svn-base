@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.SelectDao">
+
+	
+	<resultMap type="select" id="selectResultMap">
+		<id column="id" property="id"/>
+		<result column="typeId" property="typeId"/>
+		<result column="selectValue" property="selectValue"/>
+		<result column="selectName" property="selectName"/>
+		<result column="description" property="description"/>
+		<result column="deleted" property="deleted"/>
+	</resultMap>
+	
+	<select id="querySelectByTypeIdAndDeleted" resultMap="selectResultMap">
+		SELECT selectValue,selectName from `t_select` where typeId=#{typeId} and deleted = #{deleted}
+	</select>
+
+	<select id="querySelectById" resultMap="selectResultMap">
+		select * from t_select where id = #{id}
+	</select>
+	
+	<select id="querySelectByTypeId" resultMap="selectResultMap">
+		SELECT * FROM `t_select` a WHERE 1=1
+		<if test="typeId > -1">
+			AND a.typeId=#{typeId} 
+		</if>
+		<if test="deleted != null and typeId == 1">
+			AND a.deleted = #{deleted}
+		</if>
+		LIMIT #{index},#{pageSize}
+	</select>
+	
+	<select id="querySelectCountByTypeId" resultType="long">
+		SELECT COUNT(1) AS selectCount FROM `t_select` a WHERE 1=1
+		<if test="typeId > -1">
+			AND a.typeId=#{typeId} 
+		</if>
+		<if test="deleted != null and typeId == 1">
+			AND a.deleted = #{deleted}
+		</if>
+	</select>
+	
+	<insert id="addSelect">
+		INSERT INTO t_select(typeId,selectValue,selectName,description,deleted)
+		VALUES(#{typeId},#{selectValue},#{selectName},#{description},#{deleted})
+	</insert>
+	
+	<update id="updateSelectById">
+		UPDATE t_select
+		<trim prefix="set" suffixOverrides=",">
+			<if test="typeId != null">typeId = #{typeId},</if>
+			<if test="selectValue != null">selectValue = #{selectValue},</if>
+			<if test="selectName != null">selectName = #{selectName},</if>
+			<if test="description != null">description = #{description},</if>
+			<if test="deleted != null">deleted = #{deleted},</if>
+		</trim>
+		WHERE id=#{id}
+	</update>
+
+	<update id="updateSelectDeleteById">
+		UPDATE t_select SET deleted=#{deleted} WHERE id=#{id}
+	</update>
+
+</mapper>
+
+
+
+
+
+
+
+

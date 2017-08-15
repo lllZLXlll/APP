@@ -1,0 +1,9 @@
+<div class="content">
+    <ul class="about-us row no-gutter">
+        <li v-for="list in elmList" class="col-33">
+            <a href="javascript:void(0);" @click="clickEvent($index)"> <i class="icon" v-bind:class="[list.iconClass]"></i>
+                <div class="media-body">{{list.name}}</div>
+            </a>
+        </li>
+    </ul>
+</div>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.ExGoRepaymentDao">
+	<resultMap type="exGoRepayment" id="exGoRepaymentResultMap">
+		<id column="id" property="id"/>
+		<result column="repayDate" property="repayDate"/>
+		<result column="realRepayDate" property="realRepayDate"/>
+		<result column=" hasPI" property=" hasPi"/>
+		<result column="stillPrincipal" property="stillPrincipal"/>
+		<result column="stillInterest" property="stillInterest"/>
+		<result column="hasFI" property="hasFi"/>
+		<result column="lateFI" property="lateFi"/>
+		<result column="lateDay" property="lateDay"/>
+		<result column="repayStatus" property="repayStatus"/>
+		<result column="borrowId" property="borrowId"/>
+		<result column="isLate" property="isLate"/>
+		<result column="isWebRepay" property="isWebRepay"/>
+		<result column="investorForpayFI" property="investorForpayFi"/>
+		<result column="investorHaspayFI" property="investorHaspayFi"/>
+		<result column="principalBalance" property="principalBalance"/>
+		<result column="interestBalance" property="interestBalance"/>
+		<result column="version" property="version"/>
+		<result column="executeTime" property="executeTime"/>
+		<result column="identify" property="identify"/>
+		<result column="orId" property="orId"/>
+	</resultMap>
+	
+	<insert id="insertExGoReyment">
+			INSERT INTO t_exgo_repayment(repayDate,realRepayDate,hasPI,stillPrincipal,
+			stillInterest,hasFI,lateFI,lateDay,repayStatus,borrowId,isLate,isWebRepay,investorForpayFI,
+			investorHaspayFI,principalBalance,interestBalance,version,executeTime,identify,orId)
+			VALUES(#{repayDate},#{realRepayDate},#{hasPi},#{stillPrincipal},#{stillInterest},#{hasFi},#{lateFi}
+			,#{lateDay},#{repayStatus},#{borrowId},#{isLate},#{isWebRepay},#{investorForpayFi},#{investorHaspayFi},
+			#{principalBalance},#{interestBalance},#{version},#{executeTime},#{identify},#{orId})
+	</insert>
+	
+	
+	<select id="queryExgoRepaymentInfo" resultType="java.util.Map" parameterType="java.util.Date">
+		SELECT c.ipayAccount AS ipayAccount, c.id AS userId,c.username AS username,a.stillPrincipal AS stillPrincipal,
+		a.stillInterest AS stillInterest,c.dealpwd AS pwd from t_user c  LEFT JOIN  t_exGo_repayment a ON a.borrowId = c.id 
+		WHERE datediff(#{date},a.repayDate) =0 and a.repayStatus = 1
+	</select>
+
+	<update id="updateExGoOrIdByBorrowId">
+		UPDATE t_exGo_repayment a SET a.orId =#{0},a.repayStatus=2 WHERE a.borrowId =#{1}
+	</update>
+	
+</mapper>
+
+
+
+
+
+

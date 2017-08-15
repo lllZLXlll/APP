@@ -1,0 +1,42 @@
+package com.pjzb.controller.admin;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.loan.AdminMonthInspectService;
+
+/**
+ * 贷后管理
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminLoanController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminLoanController.class);
+
+	@Autowired
+	private AdminMonthInspectService adminMonthInspectService;
+	
+	/**
+	 * 所有借款 
+	 */
+	@RequestMapping(value = "/loanManageInit")
+	public String loanManageInit(Model model, String tabid, Long pageCurrent, Long pageSize, String userName, String borrowTitle, Long borrowStatus, Long borrowWay) {
+		return adminMonthInspectService.loanManageInit(model, tabid, pageCurrent == null ? 1l : pageCurrent, pageSize == null ? 20l : pageSize, userName, borrowTitle, borrowStatus, borrowWay);
+	}
+	
+	/**
+	 * 待处理的月检
+	 */
+	@RequestMapping(value = "/borrowInspectionInit")
+	public String borrowInspectionInit(Model model, String tabid, Long pageCurrent, Long pageSize, String userName, String borrowTitle) {
+		return adminMonthInspectService.borrowInspectionInit(model, tabid, pageCurrent == null ? 1l : pageCurrent, pageSize == null ? 20l : pageSize, userName, borrowTitle);
+	}
+	
+}

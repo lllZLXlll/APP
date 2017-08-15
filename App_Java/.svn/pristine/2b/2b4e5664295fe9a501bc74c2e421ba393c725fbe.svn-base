@@ -1,0 +1,24 @@
+package com.pjzb.service.common;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.QuestionSurveyDao;
+
+
+@Service
+public class QuestionSurveyService {
+	
+	@Autowired
+	private QuestionSurveyDao questionSurveyDao;
+	
+	
+	
+	public Map<String, Long> getSurveyCount(Long userId){
+		return questionSurveyDao.getSurveyCount(userId);
+	}
+	
+
+}

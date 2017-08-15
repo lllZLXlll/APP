@@ -1,0 +1,13 @@
+package com.pjzb.dao;
+
+import java.util.Map;
+
+import com.pjzb.entity.QuestionSurvey;
+
+public interface QuestionSurveyDao {
+	
+	public Map<String, Long> getSurveyCount(Long userId);
+	
+	public void addQuestionSurvey(QuestionSurvey questionSurvey);
+
+}

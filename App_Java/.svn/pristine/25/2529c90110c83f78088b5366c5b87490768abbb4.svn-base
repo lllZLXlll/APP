@@ -1,0 +1,372 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.vo.BorrowDebtVo;
+
+public interface BorrowDao {
+
+	public List<Map<String, Object>> queryLastestBorrow(Integer borrowTypeSubId);
+
+	public BorrowDebtVo queryBorrowInfo(Long id);
+
+	public List<Map<String, Object>> getRecommendBorrow(Integer recommend);
+
+	public List<Map<String, Object>> queryBorrowListByCondition(HashMap<String, Object> map);
+
+	public Map<String, Long> queryBorrowCountByCondition(HashMap<String, Object> map);
+
+	public Map<String, Object> queryBorrowDetailById(Long id);
+
+	/**
+	 * 更新保留时间
+	 * 
+	 * @param borrowId
+	 * @return
+	 */
+	public Long updateRemainTime(Long borrowId);
+	
+
+	/**
+	 * 增加浏览次数
+	 * 
+	 * @param borrowId
+	 * @return
+	 */
+	public Long addBrowseCount(Long borrowId);
+
+	/**
+	 * 根据ID查询借款信息发布者个人信息
+	 * 
+	 * @param borrowId
+	 * @return
+	 */
+	public Map<String, Object> queryUserInfoByBorrowId(Long borrowId);
+
+	/**
+	 * 根据ID查询用户认证信息（后台发布的借款） queryUserIdentifiedByidAdmin
+	 */
+	public List<Map<String, Object>> queryUserIdentifiedByidAdmin(Long borrowId);
+
+	/**
+	 * 根据ID查询用户认证信息（后台发布的借款） queryUserIdentifiedByidAdmin
+	 */
+	public List<Map<String, Object>> findRelatedDocuments(long borrowId, String basePath);
+
+	/**
+	 * 查询用户认证通过的图片
+	 * 
+	 * @param typeId
+	 * @param userId
+	 * @param groupId
+	 * @return
+	 */
+	public List<Map<String, Object>> queryUserImageByid(long typeId, long userId, Integer groupId);
+
+	/**
+	 * 查询用户认证通过的图片
+	 * 
+	 * @param typeId
+	 * @param userId
+	 * @param groupId
+	 * @return
+	 */
+	public List<Map<String, Object>> findOtherData(long typeId, long userId, Integer groupId, String basePath);
+
+	public long queryBorrowerByBorrowId(long borrowId);
+	
+	//流标的借款详情
+	public Map<String, Object> queryBorrowFlowMarkDetailById(long borrowId);
+
+	public Map<String, Object> queryBorrowerImgpath(long borrowId);
+
+	public Map<String, Object> queryBorrowSumMomeny(@Param("borrowId") long borrowId, @Param("invest_id") long invest_id);
+
+	public Borrow queryBorrowById(long borrowId);
+
+	/**
+	 * 获取借款的投标状态,条件是正在招标中
+	 * 
+	 * @param borrowId
+	 * @return
+	 */
+	public Map<String, Object> getInvestStatus(long borrowId);
+
+	/**
+	 * 根据唯一标识名查询标种类型
+	 * 
+	 * @param identifier
+	 * @return
+	 */
+	public Map<String, Object> queryBorrowTypeLogByNid(String identifier);
+
+	/**
+	 * 根据ID获取借款投标中的借款内容
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Map<String, Object> queryBorrowInvest(long id);
+
+	/**
+	 * 根据ID查询本期还款信息
+	 * 
+	 * @param borrowId
+	 * @return
+	 */
+	public List<Map<String, Object>> queryRePayByid(long borrowId);
+
+	public Map<String, String> queryNoviceStandard(Long borrowId);
+
+	/**
+	 * 获取投标密码是否正确
+	 * 
+	 * @param borrowId
+	 * @param investPWD
+	 * @return
+	 */
+	public Map<String, Long> getInvestPWD(Long borrowId, String investPWD);
+
+	public void callAccountJoinBackProcedure(Map<String, Object> map);
+
+	public Map<String, Object> getBorrowById(Long id);
+
+	public List<Long> getBorrowIdByBorrowStatus(Integer borrowStatus);
+
+	public Long queryMaxTime(Date remainTimeEnd, Long borrowId);
+
+	public void updateBorrowRemainTimeStartById(Date remainTimeStart, Long borrowId);
+
+	public Long queryMinTime(Date remainTimeEnd, Long borrowId);
+
+	public Long queryBorrowState(Long borrowId);
+
+	public void updateBorrowState(Integer borrowStatus, Integer sort, Long borrowId);
+
+	public void callBorrowCancelProcedure(Map<String, Object> map);
+
+	public Long queryBorrowPublishById(Long borrowId);
+
+	public List<Map<String, Object>> queryBorrowForInspection();
+
+	public Map<String, String> queryBorrowCost(long id);
+	
+	public Map<String, Object> queryBorrowCostByPayId(long id);
+
+	public List<Map<String, Object>> queryborrowManageForPage(Long userId, String startTime, String endTime, List<Integer> borrowStatus, Long index, Long pageSize);
+
+	public Long queryborrowManageCount(Long userId, String startTime, String endTime, List<Integer> borrowStatus);
+
+	public List<Map<String, Object>> queryMySuccessBorrowList(Long userId, String startTime, String endTime, List<Integer> borrowStatus, Long index, Long pageSize);
+
+	public Long queryMySuccessBorrowCount(Long userId, String startTime, String endTime, List<Integer> borrowStatus);
+
+	public List<Map<String, Object>> queryHetongList(Long borrowId, Long index, Long pageSize);
+
+	public Long queryHetongListCount(@Param("borrowId") Long borrowId);
+
+	public List<Map<String, Object>> queryBorrowInvestorInfo(Long userId, String username, Long index, Long pageSize);
+
+	public Long queryBorrowInvestorCount(Long userId, String username);
+
+	public List<Map<String, Object>> queryPayingDetails(Long borrowId, int status, Long index, Long pageSize);
+
+	public Long queryPayingDetailsCount(Long borrowId, int status);
+
+	public Map<String, Object> findMyPayData(Long payId);
+
+	public Map<String, Object> valideTradePassWord(long userId, String pwd);
+
+	public Map<String, Object> queryBorrowByPayId(Long payId);
+
+	public Map<String, Object> getInvestCountByBorrowTd(Long borrowId);
+
+	public Map<String, Object> getRepamentCountByBorrowId(Long id);
+
+	public Map<String, Object> callBorrowRepaymentinitProcedure(Map<String, Object> map);
+
+	public List<Map<String, Object>> queryAllInvestInfo(long payId);
+
+	public List<Map<String, Object>> queryAssignmentDebtListByInvestId(String investId);
+
+	public Map<String, Object> selectInvestId(long strToLong);
+
+	public Map<String, Object> callBorrowRepaymentProcedure(Map<String, Object> map);
+
+	/**
+	 * 处理积分
+	 * 
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	public List<Map<String, Object>> DisposeIntegral(Long id);
+
+	public String getBorrowTitle(Long debtId);
+
+	public Long getBorrowPublisherById(Long id);
+
+	public List<Map<String, Object>> queryWaitPublishBorrow();
+
+	public void updateBorrowStatus(long[] array);
+
+	public List<Map<String, Object>> queryRelationByUserId(long userId);
+
+	public List<Map<String, Object>> queryRelationByPeopleId(long parentId);
+
+	public Map<String, Object> queryBorrowerById(long id);
+
+	public List<Map<String, Object>> queryInvesterById(long id);
+
+	public List<Map<String, Object>> queryAllDetails(Long userId, String startTime, String endTime, long l, Long pageSize);
+
+	public Long queryAllDetailsCount(Long userId, String startTime, String endTime);
+
+	public Map<String, Object> queryBorrowUserPersonInfoForUnion(long borrowId);
+
+
+	public Map<String, Object> queryAutomaticBid(long userId);
+
+
+	public Map<String, Object> queBorrowInfo(long borrowId);
+
+	public List<Map<String, Object>> queryBorrowAll(String userName, Long borrowWay,Long borrowStatus,long index, long pageSize);
+
+	public long queryBorrowAllCount(String userName, Long borrowWay,Long borrowStatus);	
+	
+	public long queryBorrowerRecommendCount();
+	
+	public List<Map<String, Object>> queryBorrowFullScale(String userName, Long borrowWay,long index, long pageSize);
+	
+	public long queryBorrowFullScaleCount(String userName, Long borrowWay);
+	
+	public List<Map<String, Object>> borrowTenderIn(String userName, Long borrowWay,long index, long pageSize);
+
+	public long borrowTenderInCount(String userName, Long borrowWay);
+	
+	public Map<String, Object> queryBorrowTotalTenderDetail();
+	
+	
+	
+	public List<Map<String, Object>> borrowFlowMark(String userName, Long borrowWay,long index, long pageSize);
+	
+	public long borrowFlowMarkCount(String userName, Long borrowWay);
+	
+	public Map<String, Object> queryBorrowFlowMarkDetail();
+	
+	public Map<String, BigDecimal> queryBorrowTotalAuditAmount();
+	
+	public List<Map<String, Object>> queryEnterpriseApplyList(String name,String telephone,String borrowAmount,long index,long pageSize);
+	
+	public long queryEnterpriseApplyCount(String name,String telephone,String borrowAmount);
+
+	public long updateBorrowerRecommend(Integer recommend,Long borrowId);
+	
+	public Map<String, Object> queryBorrowFullScaleDetailById(Long borrowId);
+	
+	public Map<String, Object> queryBorrowTenderInDetailById(Long borrowId);
+	
+	public Map<String, Object> queryBorrowLoansOk(Long id);
+ 
+	public long updateLoansOk(long id, int loansOk, int unfreeOk);
+	
+	public long updateBorrowManageFee(long borrowId); 
+
+	/**
+	 * 更改审核装状态
+	 * @param borrowId
+	 * @return
+	 */
+	public Long updateAuditStatus(Long borrowId,Long adminId,Integer auditStatus,String auditRemark,String auditOpinion,String basepath,String projectRealPath); 
+	
+	public List<Map<String, Object>> queryBorrowFullScaleInfo();
+	
+	public Map<String,Object> queryBorrowInfoByApplyId(Long applyId);
+	
+	public void callBorrowInitializationProcedure(Map<String, Object> map);
+
+	public void updateBorrowManageFees(Long borrowId, double manageFee);
+  
+	public Long queryBorrowRecommendCount(@Param("recommend")Integer recommend);
+	
+	public List<Long> getRecommendBorrowIdList();
+	
+	public Map<String, Object> queryBorrowMaxIdInfo();
+	
+	public Long updateBorrowPushstate(@Param("pushdate")Date pushdate,@Param("pushstate")String pushstate,@Param("id")Long id);
+	
+	public void callBorrowInitializationAdminProcedure(Map<String, Object> map);
+	
+	public String queryBorrowTitle(@Param("borrowTitle")String borrowTitle);
+
+	public List<Map<String, Object>> queryRebackBorrowTenderIn(Long id);
+
+	public long updateBorrowTender(Borrow borrow);
+
+	/**
+	 * 申请转让中的债权
+	 * @param map
+	 * @return
+	 */
+	public List<Map<String, Object>> queryApplyDebt(HashMap<String, Object> map);
+	
+	public Map<String, Long> queryApplyDebtCount(HashMap<String, Object> map);
+	
+	public Map<String, Long> queryApplyDebtDetail();
+
+	/**
+	 * 查询正在转让中的债权
+	 * @param map
+	 * @return
+	 */
+	public List<Map<String, Object>> queryAssignmentDebt(HashMap<String, Object> map);
+	
+	public Map<String, Long> queryAssignmentDebtCount(HashMap<String, Object> map); 
+	public List<Map<String, Object>> queryBorrowStatisInitForPage(long l, Long pageSize, String beginTime, String endTime, String borrowTitle, String borrower, int borrowWay);
+
+	public long queryInvestBorrowStatisInitCount(String beginTime, String endTime, String borrowTitle, String borrower, int borrowWay);
+
+	public Map<String, Object> queryBorrowStatisAmount(String beginTime, String endTime, String borrowTitle, String borrower, int borrowWayInt);
+
+	public long queryBorrowAllByConditionCount(String userName, Long borrowWay, Long borrowStatus, Long loanUserId,
+			String borrowTitle);
+
+	public List<Map<String, Object>> queryBorrowAllByCondition(String userName, Long borrowWay, Long borrowStatus,
+			Long loanUserId, String borrowTitle, long l, Long pageSize);
+
+	public List<Map<String, Object>> queryAllWaitingBorrow();
+
+	public long queryLateRepayByConditionCount(String userName, Long borrowWay, Long borrowState);
+
+	public Map<String, String> queryLateRepayAmount(String userName, Long borrowWay, Long borrowState);
+
+	public List<Map<String, Object>> queryLateRepayByCondition(String userName, Long borrowWay, Long borrowState,
+			Long pageCurrent, Long pageSize);
+
+	public List<Map<String, Object>> exportLateRepayByCondition(String userName, Long borrowWay, Long borrowState);
+	
+	public List<Map<String, Object>> queryBorrowMonthInspectRecord(long borrowId,String realName,String borrowTitle,Integer status,long index,long pageSize,Long loanUserId);
+	
+	public long queryBorrowMonthInspectRecordCount(long borrowId,String realName,String borrowTitle,Integer status,Long loanUserId);
+
+	public long queryOverduePaymentByConditionCount(String userName, Long borrowWay, Long borrowState);
+
+	public List<Map<String, Object>> queryOverduePaymentByCondition(String userName, Long borrowWay, Long borrowState,
+			long l, long pageSize);
+
+	public Map<String, String> queryOverduePaymentAmount(String userName, Long borrowWay, Long borrowState);
+
+	public List<Map<String, Object>> exportLateOverduePayment(String substring, Long borrowWay, Long borrowState);
+
+	public void callRepaymentOverdueProcedure(Map<String, Object> callMap);
+
+	public List<Map<String, Object>> queryAllOverduePaymentRepayInfo(Long idLong);
+ 
+}

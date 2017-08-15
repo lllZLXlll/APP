@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.InvestRepaymentDao">
+
+	<resultMap type="investRepayment" id="investRepaymentResultMap">
+		<id column="id" property="id" />
+		<result column="repayId" property="repayId" />
+		<result column="repayPeriod" property="repayPeriod" />
+		<result column="repayDate" property="repayDate" />
+		<result column="realRepayDate" property="realRepayDate" />
+		<result column="recivedPrincipal" property="recivedPrincipal" />
+		<result column="recivedInterest" property="recivedInterest" />
+		<result column="hasPrincipal" property="hasPrincipal" />
+		<result column="hasInterest" property="hasInterest" />
+		<result column="interestOwner" property="interestOwner" />
+		<result column="recivedFI" property="recivedFi" />
+		<result column="isLate" property="isLate" />
+		<result column="lateDay" property="lateDay" />
+		<result column="isWebRepay" property="isWebRepay" />
+		<result column="principalBalance" property="principalBalance" />
+		<result column="interestBalance" property="interestBalance" />
+		<result column="invest_id" property="investId" />
+		<result column="owner" property="owner" />
+		<result column="ownerlist" property="ownerlist" />
+		<result column="repayStatus" property="repayStatus" />
+		<result column="imanageFee" property="imanageFee" />
+		<result column="imanageFeeRate" property="imanageFeeRate" />
+		<result column="isDebt" property="isDebt" />
+		<result column="borrow_id" property="borrowId" />
+		<result column="circulationForpayStatus" property="circulationForpayStatus" />
+		<result column="hasFI" property="hasFi" />
+	</resultMap>
+
+
+	<!-- 查询用户15天之内还款金额 -->
+	<select id="queryInvestRepaymentAmountWithin15Days" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT ROUND(ifnull(SUM(a.hasPrincipal+a.hasInterest),
+		0),2) AS repaySum
+		FROM t_invest_repayment a,t_borrow b WHERE
+		a.borrow_id=b.id AND
+		repayStatus=2 AND
+		a.realRepayDate>= date_sub(now()
+		,interval 15 day) AND b.publisher=#{userId}
+	</select>
+
+	<select id="updateInvestDebtStatus">
+		update t_invest_repayment SET owner =
+		#{owner},ownerlist=concat(ownerlist,#{ownerStr}),isDebt=2
+		where
+		invest_id=#{investId} and repayStatus=1
+	</select>
+
+
+	<select id="queryInvestRepaymentMsg" resultType="java.util.Map">
+		SELECT
+		tb.borrowTitle AS borrowTitle, tb.id AS borrowId, tir.id AS
+		investRepayId,tir.repayDate AS repayDate,
+		datediff(tir.repayDate,
+		NOW()) AS days, tir.forTotalSum AS repaySum, tb.publisher AS
+		publisher, u.mobilePhone AS mobilePhone,
+		u.usableSum AS
+		usableSum,tb.loanUserId AS mgrId,tb.loan2UserId AS mgr2Id FROM
+		t_borrow tb, v_t_deuin_list tir,t_user u
+		WHERE tb.borrowStatus = 4 AND
+		tb.id = tir.borrowid AND u.id = tb.publisher
+		AND
+		datediff(tir.repayDate, NOW()) IN (7, 3, 1)
+		GROUP BY tir.id
+	</select>
+
+
+
+	<select id="queryMonthTotalIncome" resultType="java.util.Map">
+		SELECT
+		SUM(hasInterest) AS hasInterest FROM t_invest_repayment WHERE
+		realRepayDate between #{0} and #{1}
+	</select>
+
+
+	<select id="queryUnRepayAmount" resultType="java.math.BigDecimal">
+		SELECT
+		round(SUM(recivedPrincipal),2) AS unRepayAmount FROM
+		t_invest_repayment WHERE repayStatus=1
+	</select>
+
+
+
+	<select id="findUnRepayAmountByBorrowTypeSubId" resultType="java.math.BigDecimal"
+		parameterType="java.lang.Integer">
+		SELECT ifnull(round(SUM(a.recivedPrincipal),2), 0) AS
+		unRepayAmount FROM t_invest_repayment a,t_borrow b
+		WHERE
+		a.borrow_id=b.id AND a.repayStatus=1 AND
+		b.borrowTypeSubId=#{borrowTypeSubId}
+	</select>
+
+
+	<select id="queryInvestRepaymentByRepayId" resultMap="investRepaymentResultMap"
+		parameterType="java.lang.Long">
+		SELECT * FROM t_invest_repayment a WHERE
+		a.repayId=#{repayId}
+	</select>
+
+	<select id="repayAmount" resultType="java.util.Map">
+		SELECT
+		round(SUM(recivedPrincipal),2) AS #{0} FROM t_invest_repayment WHERE
+		repayStatus= #{1}
+	</select>
+
+	<select id="queryOverDueInvestRepayment" resultType="java.util.Map">
+		<![CDATA[
+			SELECT a.id
+			as id,a.repayid AS repayId,b.islate AS isLate,b.lateday AS
+			lateDay,
+			c.borrowWay, c.borrowStatus,
+			a.recivedPrincipal AS recivedPrincipal,a.recivedInterest AS recivedInterest ,b.borrowId
+			AS borrowId FROM
+			t_invest_repayment a LEFT JOIN t_repayment b ON a.repayId=b.id LEFT JOIN t_borrow c ON
+			b.borrowId = c.id
+			WHERE
+			b.repayDate <= #{0} AND b.repayStatus = 1
+		]]>
+	</select>
+
+	<update id="updateOverDueInvestRepayment">
+		UPDATE t_invest_repayment SET isLate = #{4}
+		, lateDay = #{3} ,recivedFI = #{2} WHERE repayId = #{1} AND id= #{0}
+	</update>
+
+
+	<select id="findBorrowForpayDetail" resultType="map">
+		SELECT a.repayPeriod as  repayPeriod ,DATE_FORMAT(a. repayDate,'%Y-%m-%d')  as  repayDate,round(a.recivedPrincipal,2) AS  
+		forpayPrincipal , round(a.recivedInterest,2) AS  forpayInterest , round(a.principalBalance,2) AS  principalBalance , 
+		round(a.iManageFee,2)   AS  manage , a.isLate as  isLate ,a.lateDay as  lateDay ,round(a.recivedFI,2) AS  forFI ,
+		round((a.recivedInterest -a.iManageFee+a.recivedFI ),2) AS earn , c.borrowTitle as borrowTitle ,d.username as  username ,
+		a.isWebRepay as  isWebRepay  from t_invest_repayment a LEFT JOIN t_repayment b on a.repayId=b.id LEFT JOIN t_borrow c on 
+		b.borrowId=c.id LEFT JOIN t_user d on c.publisher=d.id where a.invest_id=#{0} and a.owner =#{1} AND a.isWebRepay=1 
+		ORDER BY a.repayDate 
+	</select>
+	
+	<select id="queryrInvestRepay" resultType="java.util.Map">
+	 	SELECT *  FROM t_invest_repayment WHERE borrow_id = #{0} AND owner = #{1} AND invest_id = #{2} 
+	</select>
+
+	<update id="updateRepament">
+		UPDATE t_invest_repayment set
+		hasPrincipal=recivedPrincipal,hasInterest=recivedInterest,repayStatus=2,realRepayDate=curdate()
+		WHERE id = #{0}
+	</update>
+
+</mapper>
+
+
+
+
+
+

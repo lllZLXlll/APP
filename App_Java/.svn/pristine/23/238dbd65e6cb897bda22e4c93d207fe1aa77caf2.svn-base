@@ -1,0 +1,10 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+
+public interface FeedBackDao {
+
+	long addFeedback(String content, long userId ,Date date);
+
+
+}

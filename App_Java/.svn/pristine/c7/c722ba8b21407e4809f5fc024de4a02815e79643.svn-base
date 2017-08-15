@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.declare;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * app运营报告图片
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminAppOperateReportService extends BaseController {
+
+}

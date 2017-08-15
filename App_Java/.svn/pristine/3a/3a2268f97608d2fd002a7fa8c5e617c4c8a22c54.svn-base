@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.AutomaticRepaymentDao">
+
+		<resultMap type="automaticRepayment" id="automaticRepaymentResultMap">
+			<id column="id" property="id"/>
+			<result column="userId" property="userId"/>
+			<result column="bidStatus" property="bidStatus"/>
+			<result column="bidSetTime" property="bidSetTime"/>
+		</resultMap>
+	
+
+		<select id="queryUserIsSetAutuRepayment" resultMap="automaticRepaymentResultMap">
+			SELECT * FROM t_automaticrepayment a WHERE a.userId=#{0} AND a.bidStatus=#{1}
+		</select>
+
+		
+		
+
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+

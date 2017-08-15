@@ -1,0 +1,106 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/account/Friendfund.html');
+	//首页
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			var userId = this.$route.query.id;
+			var userName = this.$route.query.name;
+			this.$set('userId',userId);
+			this.$set('userName',userName);
+			utils.setAppConfig(''+userName+'明细',true,false);
+		},
+		data:function(){
+			return {
+				listNum:1,
+				loading:false,
+				model:false,
+				showLength:false,
+				listData:[],
+				totalPageNum:0
+			}
+		},
+		route:{
+			data: function(transition){
+				var _this = this;
+				//无线滚动
+				var param={curPage:_this.listNum,userId:_this.userId,username:encodeURI(_this.userName)};
+				utils.ajax({
+			        url:'../front/investRecordInit.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(data.pageBean.page.length>0){
+			        			if(data.pageBean.page.length<10){
+			        				_this.$set('model',false);
+			        			}
+			        			_this.$set('listData',data.pageBean.page);
+				        		_this.$set('totalPageNum',data.pageBean.totalPageNum);
+				        		$('.content-invest').scrollTop(0);
+			        		}else{
+			        			_this.$set('showLength',true);
+			        		}
+			        		
+			        	}
+			        },complete:function(){
+			        	transition.next();
+			        	_this.$set('loading',false);
+			        }
+			    });
+			},waitForData:true
+		},
+		ready: function(){
+			var _this = this;
+			$(document).on('infinite',function(){
+				if (_this.loading){return;}
+				_this.$set('model',true);
+				// 设置flag
+				_this.$set('loading',true);
+				var listNum = _this.listNum+1;
+				//如果查询页数大于当前总页数，则返回
+				if(listNum > _this.totalPageNum){
+					$.toast('没有更多记录了哦');
+					_this.$set('model',false);
+					$.detachInfiniteScroll($('.infinite-scroll'));
+					return;
+				}
+				_this.$set('listNum',listNum);
+				//无线滚动
+				var param={curPage:_this.listNum,userId:_this.userId,username:encodeURI(_this.userName)};
+				utils.ajax({
+			        url:'../front/investRecordInit.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(data.pageBean.page.length>0){
+			        			_this.$set('listData',_this.listData.concat(data.pageBean.page));
+			        			$.refreshScroller();
+			        		}
+			        	}
+			        },complete:function(){
+			        	_this.$set('loading',false);
+			        }
+			    })
+			});
+			$.initPage();
+		},
+		methods: {
+			status:function(borrowStatus){
+				if(borrowStatus == 2){
+					return '<p class="title-log title-red">招标中</p>';
+				}else if(borrowStatus == 3){
+					return '<p class="title-log title-gray">已满标</p>';
+				}else if(borrowStatus == 4){
+					return '<p class="title-log title-blue">还款中</p>';
+				}else if(borrowStatus == 5){
+					return '<p class="title-log title-gray">已还完</p>';
+				}else if(borrowStatus == 6){
+					return '<p class="title-log title-gray">已流标</p>';
+				}
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

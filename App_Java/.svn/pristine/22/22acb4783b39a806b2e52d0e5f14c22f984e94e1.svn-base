@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width; initial-scale=1.0">
+	<title>普金资本--11月01号上线活动</title>
+</head>
+<link rel="stylesheet" type="text/css" href="css/m_1101.css">
+<body>
+	<div class="top"><img src="images/1101/m_1101_01.png" width="100%"></div>
+	<div class="center">
+		<div class="title">
+			<h3>国资系&nbsp;可信赖</h3>
+			<p>首投奖8.88元&nbsp;尾投奖18.88元</p>
+			<p class="inline">注册用户首次投标金额达5000元或10000元获得相应现金奖励，同时立返体验金收益9.63元，奖励将于24小时内通过QQ红包形式发放。
+			</p>
+		</div>
+		<div class="content">
+			<div class="main-left">
+				<img src="images/1101/1101_02.png" width="80%">
+			</div>
+			<div class="main-right">
+				<img src="images/1101/1101_03.png" width="80%">
+			</div>
+		</div>
+		<div class="text">
+			<p>加入官方QQ群:<span style="color:#3195e8;">458358605</span>，红包每天不停！</p>
+			<p>活动时间：11月1日至11月30日</p>
+		</div>
+		<div class="ma">
+			<img src="images/1101/erweima.png" width="60%" />
+		</div>
+		<img src="images/1101/m_1101_04.png" width="100%"/>
+	</div>
+</body>
+</html>

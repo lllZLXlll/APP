@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 红包管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminRedMoneyService extends BaseController {
+
+}

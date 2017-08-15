@@ -1,0 +1,398 @@
+package com.pjzb.controller.admin;
+
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.AppVersion;
+import com.pjzb.entity.CloseNetWork;
+import com.pjzb.entity.MailSet;
+import com.pjzb.entity.PlatFormCost;
+import com.pjzb.entity.Select;
+import com.pjzb.entity.Sms;
+import com.pjzb.service.admin.system.AdminAppVersionService;
+import com.pjzb.service.admin.system.AdminCloseWebService;
+import com.pjzb.service.admin.system.AdminEmailMessageService;
+import com.pjzb.service.admin.system.AdminLinkModParamService;
+import com.pjzb.service.admin.system.AdminPlatformChargeService;
+import com.pjzb.service.admin.system.AdminRedMoneyService;
+
+/**
+ * 系统管理
+ * 
+ * 
+ */
+
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminSystemController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminSystemController.class);
+
+	@Autowired
+	private AdminCloseWebService adminCloseWebService;
+
+	@Autowired
+	private AdminAppVersionService appVersionService;
+
+	@Autowired
+	private AdminEmailMessageService adminEmailMessageService;
+
+	@Autowired
+	private AdminLinkModParamService adminLinkModParamService;
+
+	@Autowired
+	private AdminPlatformChargeService adminPlatformChargeService;
+
+	@Autowired
+	private AdminRedMoneyService adminRedMoneyService;
+
+	/**
+	 * 关闭网站
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/showCloseNetWork")
+	public String showCloseNetWork(Model model, String tabid) {
+		return adminCloseWebService.queryNetWorkById(model, tabid);
+	}
+
+	/**
+	 * 修改网站状态
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateNetWorkById")
+	@ResponseBody
+	public Map<String, Object> updateNetWorkById(Model model, String tabid, CloseNetWork closeNetWork) {
+		return adminCloseWebService.updateNetWorkById(model, tabid, closeNetWork);
+	}
+
+	/**
+	 * app版本管理
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/appVersionInit")
+	public String appVersionInit(Model model, Long pageCurrent, Long pageSize, String tabid, String beginTime, String endTime) {
+		return appVersionService.queryAppVersionForPage(pageCurrent, pageSize, model, tabid, beginTime, endTime);
+	}
+
+	/**
+	 * app版本添加页面
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addAppVersionInit")
+	public String addAppVersionInit(Model model, String tabid) {
+		return appVersionService.addAppVersionInit(model, tabid);
+	}
+
+	/**
+	 * aapp版本添加
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/addAppVersion")
+	public Map<String, Object> addAppVersion(Model model, String tabid, AppVersion appVersion) {
+		try {
+			return appVersionService.addAppVersion(model, tabid, appVersion);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "app版本增加异常", "", "");
+		}
+	}
+
+	/**
+	 * app版本编辑页面
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateAppVersionByIdInit")
+	public String updateAppVersionByIdInit(Model model, String tabid, Long id) {
+		return appVersionService.updateAppVersionByIdInit(model, tabid, id);
+	}
+
+	/**
+	 * app版本修改
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @param appVersion
+	 * @return
+	 * @author Li zeyang
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/updateAppVersionById")
+	public Map<String, Object> updateAppVersionById(String tabid, AppVersion appVersion) {
+		try {
+			return appVersionService.updateAppVersionById(tabid, appVersion);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "app版本修改异常", "", "");
+		}
+	}
+
+	/**
+	 * app版本删除
+	 * 
+	 * @param tabid
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/deleteAppVersionById")
+	public Map<String, Object> deleteAppVersionById(String tabid, Long id) {
+		try {
+			return appVersionService.deleteAppVersionById(tabid, id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "app版本删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:短信邮件初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/emailAndMessageindex")
+	public String updateAppVersionByIdInit(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminEmailMessageService.querySmsList(model, pageCurrent, pageSize, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:修改短信运营商配置初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/updateConfigSmsInit")
+	public String querySaveOrUpdateSmsInit(Model model, Long id, String tabid) {
+		return adminEmailMessageService.queryUpdateConfigSmsInit(model, id, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:修改短信运营商配置
+	 * @author: xiaojin
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/updateConfigSms")
+	public Map<String, Object> updateConfigSms(Model model, Sms sms, String tabid) {
+		try {
+			return adminEmailMessageService.updateConfigSms(model, sms, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "短信运营商配置异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:增加或修改短信运营商初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateSmsInit")
+	public String saveOrUpdateSmsInit(Model model, Integer id, String tabid) {
+		return adminEmailMessageService.querySaveOrUpdateSmsInit(model, id, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:增加或修改短信运营商
+	 * @author: xiaojin
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/saveOrUpdateSms")
+	public Map<String, Object> saveOrUpdateSms(Model model, Sms sms, Long id, String tabid) {
+		try {
+			return adminEmailMessageService.saveOrUpdateSms(model, sms, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "短信运营商增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:删除短信运营商
+	 * @author: xiaojin
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/deleteSms")
+	public Map<String, Object> deleteSms(Model model, Integer id) {
+		try {
+			return adminEmailMessageService.deleteSms(model, id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "短信运营商删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:查询邮件设置
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/queryEmailList")
+	public String queryEmailList(Model model, String tabid) {
+		return adminEmailMessageService.queryEmailList(model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:更改邮件设置
+	 * @author: xiaojin
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/updateMailSet")
+	public Map<String, Object> updateMailSet(Model model, MailSet mailSet, String tabid) {
+		try {
+			return adminEmailMessageService.updateMailSet(model, mailSet, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "邮件设置异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:修改或新增联动初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/linkageinit")
+	public String linkageinit(Model model, Long pageCurrent, Long pageSize, String tabid, Long type) {
+		return adminLinkModParamService.querySelectList(model, tabid, pageCurrent, pageSize, type);
+	}
+
+	/**
+	 * 
+	 * @describe:修改或新增联动选项初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/saveorupdateBorrowPurposeInit")
+	public String querySaveorupdateBorrowPurposeInit(Model model, String tabid, Long id) {
+		return adminLinkModParamService.querySaveorupdateBorrowPurposeInit(model, tabid, id);
+	}
+
+	/**
+	 * 
+	 * @describe:修改或新增联动选项
+	 * @author: xiaojin
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/saveOrUpdateBorrowPurpose")
+	public Map<String, Object> saveOrUpdateBorrowPurpose(Model model, Select select, String tabid) {
+		try {
+			return adminLinkModParamService.saveOrUpdateBorrowPurpose(model, select, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			if (select.getId() == null) {
+				return ajaxDoneInfo("300", "新增异常", "", "");
+			} else {
+				return ajaxDoneInfo("300", "修改异常", "", "");
+			}
+
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:删除下拉框选项
+	 * @author: xiaojin
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/deleteSelect")
+	public Map<String, Object> deleteSelect(Model model, long id, int deleted, Long typeId) {
+		try {
+			return adminLinkModParamService.deleteSelect(model, id, deleted, typeId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "配置异常", "", "");
+
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:平台收费管理初始化查询
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/showPlatformCostInit")
+	public String querySaveorupdateBorrowPurposeInit(Model model, Long pageCurrent, Long pageSize, String tabid, Integer type) {
+		return adminPlatformChargeService.queryPlatFormCostByTypesList(model, tabid, pageCurrent, pageSize, type);
+	}
+
+	/**
+	 * 
+	 * @describe:修改平台收费管理初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/updatePlatFormCostInit")
+	public String queryUpdatePlatFormCostInit(Model model, String tabid, Long id) {
+		return adminPlatformChargeService.queryUpdatePlatFormCostInit(model, tabid, id);
+	}
+
+	/**
+	 * 
+	 * @describe:修改平台收费管理
+	 * @author: xiaojin
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/updatePlatFormCostById")
+	public Map<String, Object> updatePlatFormCostById(Model model, PlatFormCost platFormCost, String tabid) {
+		try {
+			return adminPlatformChargeService.updatePlatFormCostById(model, platFormCost, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "修改异常", "", "");
+
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:红包管理初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/redBagManage")
+	public String redBagManage(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminRedMoneyService.queryRedBagManageList(model, tabid, pageCurrent, pageSize);
+	}
+
+}

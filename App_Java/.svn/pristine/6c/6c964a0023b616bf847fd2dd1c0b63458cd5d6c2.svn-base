@@ -1,0 +1,82 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.BorrowInspection;
+import com.pjzb.entity.BorrowLoanManager;
+import com.pjzb.entity.LoanInspect;
+import com.pjzb.entity.LoanInspectAdvise;
+import com.pjzb.entity.LoanManageFile;
+
+public interface BorrowInspectionDao {
+
+	// t_borrow_inspection 表 begin
+	public void insertBorrowInspection(BorrowInspection borrowInspection);
+
+	public Long queryBorrowInspectionCount(@Param("loanUserId") Long loanUserId);
+
+	public long queryBorrowInspectionForPageByLoanUserIdCount(String userName, String borrowTitle, Long loanUserId);
+
+	public List<Map<String, Object>> queryBorrowInspectionForPageByLoanUserId(String userName, String borrowTitle, Long loanUserId, long index, long pageSize);
+
+	public Map<String, Object> queryBorrowInspectionCountByLoanUserIdAndBorrowTitle(String userName, String borrowTitle, Long loanUserId);
+	
+	public long queryBorrowInspectionCountByBorrowId(long borrowId);
+	
+	public BorrowInspection queryBorrowInspectionById(long id);
+	
+	public List<Map<String, Object>> queryMonthInspectBorrowList(String userName,Integer borrowTypeSubId,Integer borrowStatus,String loanName,String borrowTitle, long index, long pageSize);
+
+	public long queryMonthInspectBorrowCount(String userName,Integer borrowTypeSubId,Integer borrowStatus,String loanName,String borrowTitle);
+	// t_borrow_inspection 表 end
+
+	// t_borrow_loan_manager 表 begin
+	
+	public long addBorrowLoanManager(BorrowLoanManager borrowLoanManager);
+	
+	public long updateBorrowLoanManager(BorrowLoanManager borrowLoanManager);
+	
+	public BorrowLoanManager queryBorrowLoanManagerById(Long id);
+
+	// t_borrow_loan_manager 表 end
+	
+	
+	//t_loanmanage_file 表 begin
+	public List<LoanManageFile> queryLoanManageFileByLoanmanagerId(@Param("loanmanagerId") long loanmanagerId,@Param("type") String type);
+	
+	public long addLoanManageFile(LoanManageFile loanManageFile);
+	
+	public long deleteLoanManageFileById(long id);
+	
+	public long queryLoanManageFileCount(@Param("loanmanagerId") long loanmanagerId,@Param("type") String type);
+	//t_loanmanage_file 表 end
+	
+	
+	
+	//t_loan_inspect 表 begin
+	
+	public long addLoanInspect(LoanInspect loanInspect);
+	
+	public List<Map<String, Object>> queryLoanInspectList(String userName,Integer borrowTypeSubId,Integer borrowStatus,String loanName,String borrowTitle, long index, long pageSize);
+	
+	public long queryLoanInspectCount(String userName,Integer borrowTypeSubId,Integer borrowStatus,String loanName,String borrowTitle);
+	
+	public LoanInspect queryLoanInspectById(long id);
+	
+	public long updateLoanInspect(LoanInspect loanInspect);
+	
+	//t_loan_inspect 表 end
+	
+	
+	//t_loan_inspect_advise 表 begin
+	
+	public LoanInspectAdvise queryLoanInspectAdviseLast(@Param("loanInspectId") long loanInspectId,@Param("type") int type);
+	
+	//t_loan_inspect_advise 表 end
+	
+	
+
+}

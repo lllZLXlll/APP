@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.extend;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 提醒方式
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminRemindModeService extends BaseController {
+
+}

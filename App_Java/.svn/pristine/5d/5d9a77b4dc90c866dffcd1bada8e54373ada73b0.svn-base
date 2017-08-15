@@ -1,0 +1,27 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.BankCard;
+
+public interface BankCardDao {
+	public List<BankCard> queryBankCardByUserId(Long userId);
+
+	public void deleteBanckCardByUserId(@Param(value = "cardNo")String cardNo,@Param(value = "userId")Long userId);
+	
+	public BankCard queryBanckCardByCardNOAndUserId(String cardNo,Long userId);
+	
+	public void addBanckCard(BankCard bankCard);
+	
+	public long addBanckCards(String cardNo, String bankName, String openBankId, String UsrCustId);
+	
+	public List<BankCard> querySuccessBankInfoList(Long userId);
+
+	public List<Map<String, Object>> querySuccessBankInfoLists(long userId);
+
+	public Map<String, Object> queryBanckCard(String cardNo, long suerId);
+
+}

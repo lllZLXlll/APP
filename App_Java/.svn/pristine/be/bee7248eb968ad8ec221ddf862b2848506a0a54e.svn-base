@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.borrow;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 等待资料借款
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminWaiteDataBorrowService extends BaseController{
+
+}

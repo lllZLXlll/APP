@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.fund;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 汇付商户子账户信息查询
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminChinapnrMerchantQueryService extends BaseController {
+
+}

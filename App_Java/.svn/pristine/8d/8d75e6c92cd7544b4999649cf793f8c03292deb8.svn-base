@@ -1,0 +1,64 @@
+<div class="account-right-nav">
+	<div class="sub-a-nav">
+		<a href="javascript:void(0);" class="active played-claimbuy">参与购买的债权</a>
+		<a href="javascript:void(0);" class="success-claimbuy">成功购买的债权</a>
+	</div>
+	<em class="em-line"></em>
+</div>
+<div class="account-content">
+	<!-- 参与购买 -->
+	<div  id="played-claimbuy">
+		<div class="account-form cl">
+			<input type="text" class="date icon icon-date"  id="played-claimbuy-startDate"/>
+			<p class="text">至</p>
+			<input type="text" class="date icon icon-date" id="played-claimbuy-endDate"/>
+			<button type="button" class="search" id="played-claimbuy-Search">搜索</button>
+		</div>
+		<div class="played-claimbuy-list">
+			<ul class="list-box">
+				<li class="title">
+					<div class="children0">标题</div>
+					<div class="children1">借款人</div>
+					<div class="children2">剩余期限</div>
+					<div class="children3">年利率</div>
+					<div class="children4">债权金额</div>
+					<div class="children5">剩余时间</div>
+					<div class="children6">状态</div>
+				</li>
+			</ul>
+			<ul class="ipay-list-box listData">
+			</ul>
+			<ul class="paging">
+			</ul>
+		</div>
+	</div>
+	<!-- 购买成功 -->
+	<div id="success-claimbuy">
+		<div class="account-form cl">
+			<input type="text" class="date icon icon-date"  id="success-claim-startDate"/>
+			<p class="text">至</p>
+			<input type="text" class="date icon icon-date" id="success-claim-endDate"/>
+			<button type="button" class="search" id="success-claim-Search">搜索</button>
+		</div>
+		<div class="played-claimbuy-list">
+			<ul class="list-box">
+				<li class="title">
+					<div class="children0">标题</div>
+					<div class="children1">剩余期限</div>
+					<div class="children2">年利率</div>
+					<div class="children3">债权金额</div>
+					<div class="children4">转让价格</div>
+					<div class="children5">购买时间</div>
+					<div class="children6">合同</div>
+				</li>
+			</ul>
+			<ul class="ipay-list-box listData">
+			
+			</ul>
+			<ul class="paging">
+			
+			</ul>
+		</div>
+	</div>
+</div>
+		

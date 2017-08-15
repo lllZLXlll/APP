@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.BorrowSubTypeDao">
+	
+	<resultMap type="borrowSubType" id="BorrowSubTypeResultMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="typeId" property="typeId"/>
+		<result column="state" property="state"/>
+	</resultMap>
+
+	<select id="queryBorrowtypeinfolist" resultType="java.util.Map">
+		SELECT t1.*,t2.name typeName FROM t_borrow_sub_type t1 LEFT JOIN t_borrow_type t2
+		ON t1.typeId = t2.id LIMIT #{0}, #{1}
+	</select>
+
+	<select id="queryBorrowtypeinfolistCount" resultType="java.lang.Long">
+		SELECT count(id) FROM t_borrow_sub_type
+	</select>
+
+	<update id="updateStateBorrowType">
+		UPDATE t_borrow_sub_type SET state = #{1} WHERE id =#{0}
+	</update>
+	
+	
+	<select id="queryBorrowSubTypeById" resultMap="BorrowSubTypeResultMap">
+		select * from t_borrow_sub_type where id =#{id}
+	</select>
+
+</mapper>
+
+
+
+
+

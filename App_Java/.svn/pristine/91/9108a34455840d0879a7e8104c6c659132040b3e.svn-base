@@ -1,0 +1,21 @@
+package com.pjzb.service.common;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.EnterpriseDao;
+
+@Service
+public class EnterpriseService {
+	
+	@Autowired
+	private EnterpriseDao enterpriseDao;
+	
+	
+	public Map<String, String> queryEnterpriseCountByUserId(Long userId){
+		return enterpriseDao.queryEnterpriseCountByUserId(userId);
+	}
+
+}

@@ -1,0 +1,48 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.WithdrawDao;
+import com.pjzb.util.Constants;
+/**
+ * 汇付取现对账
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminChinapnrWithdrawService extends BaseController {
+
+	@Autowired
+	private WithdrawDao withdrawDao;
+	
+	public String queryCashReconciliationIndex(Model model, String tabid, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = withdrawDao.queryCashReconciliation((pageNum - 1) * pageSize, pageSize);
+			long count = withdrawDao.queryCashReconciliationCount();
+			Map<String, Object> map = withdrawDao.queryMoneySum();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("map", map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************汇付取现对账查询记录异常**************************");
+		}
+		return "/admin/fund/chinapnrwithdraw/list.jsp";
+	}
+
+}

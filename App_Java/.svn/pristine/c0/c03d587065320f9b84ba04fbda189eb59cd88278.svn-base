@@ -1,0 +1,93 @@
+package com.pjzb.controller.admin;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.count.AdminInvestCountService;
+import com.pjzb.service.admin.count.AdminLoginCountService;
+import com.pjzb.service.admin.count.AdminOperateDataService;
+
+/**
+ * 统计管理Controller
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value="/admin")
+public class AdminCountController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminCountController.class);
+	
+	@Autowired
+	private AdminLoginCountService adminLoginCountService;
+	
+	@Autowired
+	private AdminInvestCountService adminInvestCountService;
+	
+	@Autowired
+	private AdminOperateDataService adminOperateDataService;
+	
+	/**
+	 * 登入统计
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param userName
+	 * @param realName
+	 * @param count
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/loginStatisInit")
+	public String loginStatisList(Model model, Long pageCurrent, Long pageSize, String tabid,String beginTime,
+			String endTime,String userName,String realName,String count) {
+		return adminLoginCountService.queryLoginStatisForPage(model,tabid,pageCurrent,pageSize,tabid,beginTime,endTime,userName,realName,count);
+	}
+	
+	/**
+	 * 投资统计
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param radio
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/financeStatisInit")
+	public String financeStatisList(Model model, String tabid,String beginTime,
+			String endTime, String radio) {
+		return adminInvestCountService.queryFinanceStatisForPage(model,tabid,beginTime,endTime,radio);
+	}
+	
+	@RequestMapping(value = "/exportfinanceStatis")
+	@ResponseBody
+	public void exportfinanceStatis(Model model, HttpServletResponse response, String beginTime,
+			String endTime, String radio) {
+		adminInvestCountService.exportfinanceStatis(response,beginTime,endTime,radio);
+	}
+	
+	
+	/**
+	 * 
+	 * @describe:查询运营数据
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/operateReportInit")
+	public String operateReportInit(Model model,String beginDate, String endDate,Long pageCurrent,Long pageSize,String tabid) {
+		return adminOperateDataService.queryOperateReportList(model, beginDate, endDate, pageCurrent, pageSize, tabid);
+	}
+}

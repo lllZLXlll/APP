@@ -1,0 +1,132 @@
+package com.pjzb.service.admin.fund;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RiskDetailDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.RiskDetail;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+import com.shove.web.Utility;
+
+/**
+ * 企业资金记录管理
+ * 
+ * @author zlx
+ * 
+ */
+@Service
+public class AdminEenterpriseFundService extends BaseController {
+
+	@Autowired
+	private RiskDetailDao riskDetailDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryCompanyFundRecordInit(Model model, String tabid, Long pageNum, Long pageSize, String riskInComeStr, String riskSpendingStr, String beginRiskDateStr,
+			String endRiskDateStr, String riskType, String resource) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		String regex = "^(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){0,2})?$";
+		riskInComeStr = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(riskInComeStr));
+		riskSpendingStr = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(riskSpendingStr));
+		resource = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(resource));
+		riskType = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(riskType));
+		beginRiskDateStr = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(beginRiskDateStr));
+		endRiskDateStr = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(endRiskDateStr));
+		Double riskInCome = 0d;
+		if (riskInComeStr != null && riskInComeStr.matches(regex)) {
+			riskInCome = ConvertUtil.objToDoubleConvert(riskInComeStr);
+		}
+		Double riskSpending = 0d;
+		if (riskSpendingStr != null && riskSpendingStr.matches(regex)) {
+			riskSpending = ConvertUtil.objToDoubleConvert(riskSpendingStr);
+		}
+		List<Map<String, Object>> page = riskDetailDao.queryRiskDetailForPage((pageNum - 1) * pageSize, pageSize, riskInCome, riskSpending, beginRiskDateStr, endRiskDateStr,
+				riskType, resource);
+		long count = riskDetailDao.queryRiskDetailCount(riskInCome, riskSpending, beginRiskDateStr, endRiskDateStr, riskType, resource);
+		double currentPageIncome = riskDetailDao.queryRiskDetailSum("收入", riskInCome, riskSpending, beginRiskDateStr, endRiskDateStr, resource, (pageNum - 1) * pageSize, pageSize,
+				riskType).doubleValue();
+		double currentPageSpending = riskDetailDao.queryRiskDetailSum("支出", riskInCome, riskSpending, beginRiskDateStr, endRiskDateStr, resource, (pageNum - 1) * pageSize,
+				pageSize, riskType).doubleValue();
+		double totalIncome = riskDetailDao.queryRiskDetailSum("收入", null, null, null, null, null, null, null, null).doubleValue();
+		double totalSpending = riskDetailDao.queryRiskDetailSum("支出", null, null, null, null, null, null, null, null).doubleValue();
+		model.addAttribute("currentPageIncome", currentPageIncome);
+		model.addAttribute("currentPageSpending", currentPageSpending);
+		model.addAttribute("totalIncome", totalIncome);
+		model.addAttribute("totalSpending", totalSpending);
+		model.addAttribute("riskInCome", riskInComeStr);
+		model.addAttribute("riskSpending", riskSpending == 0 ? "" : riskSpending);
+		model.addAttribute("beginRiskDate", beginRiskDateStr);
+		model.addAttribute("endRiskDate", endRiskDateStr);
+		model.addAttribute("riskType", riskType);
+		model.addAttribute("resource", resource);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, page));
+		return "/admin/fund/enterprisefund/list.jsp";
+	}
+
+	public void exportCompanyFundRecord(HttpServletResponse response) throws IOException {
+		List<Map<String, Object>> page = riskDetailDao.exportCompanyFundRecord();
+		HSSFWorkbook wb = ExcelUtils.exportExcelCommon("企业资金记录管理列表", page, new String[] { "企业资金收入（￥元）", "企业资金支出（￥元）", "记录时间", "企业账户余额（￥元）", "收支类型", "消费来源", "交易方姓名", "备注" },
+				new String[] { "riskInCome", "riskSpending", "riskDate1", "riskBalance", "riskType", "resource", "realName", "remark" });
+		this.export(wb, new Date().getTime() + ".xls", response);
+	}
+
+	public Map<String, Object> addCompanyFundRecord(String tabid, String riskType, String riskInComeStr, String riskSpendingStr, String resource) {
+		String regex = "^(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){0,2})?$";
+		Admin admin = getSessionAdminInfo();
+		riskType = riskType == null ? "" : riskType;
+		resource = resource == null ? "" : resource;
+		if (!riskInComeStr.matches(regex) && riskType.equals("收入")) {
+			return ajaxDoneInfo("300", "请输入正确的收入金额", "", "");
+		}
+
+		if (!riskSpendingStr.matches(regex) && riskType.equals("支出")) {
+			return ajaxDoneInfo("300", "请输入正确的支出金额", "", "");
+		}
+
+		Double riskInCome = Double.parseDouble(riskInComeStr == null || riskInComeStr.trim().length() == 0 ? "0" : riskInComeStr);
+		Double riskSpending = Double.parseDouble(riskSpendingStr == null || riskSpendingStr.trim().length() == 0 ? "0" : riskSpendingStr);
+
+		RiskDetail riskDetail = riskDetailDao.queryRiskDetailMax();
+
+		RiskDetail riskDetail1 = new RiskDetail();
+		riskDetail1.setRiskInCome(riskInCome);
+		riskDetail1.setRiskSpending(riskSpending);
+		riskDetail1.setRiskDate(new Date());
+		riskDetail1.setRiskType(riskType);
+		riskDetail1.setResource(resource.trim());
+		riskDetail1.setRiskBalance(riskInCome == 0 ? riskDetail.getRiskBalance() - riskSpending : riskDetail.getRiskBalance() + riskInCome);
+		riskDetail1.setOperator(admin.getId());
+		riskDetail1.setRemark(resource.trim());
+		Long result = riskDetailDao.insertRiskDetail(riskDetail1);
+
+		operationLogDao.addOperationLog(new OperationLog("t_risk_detail", admin.getUserName(), IConstants.INSERT, admin.getLastIp(), new Date(), 0d,
+				"增加企业资金记录（" + resource + "）信息", 2, admin.getId()));
+
+		if (result > -1) {
+			return ajaxDoneInfo("200", "添加成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("200", "添加失败", "", "");
+		}
+	}
+
+}

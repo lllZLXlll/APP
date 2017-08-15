@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.RechargeDetailDao">
+
+	<resultMap type="rechargeDetail" id="rechargeDetailResultMap">
+		<id column="id" property="id" />
+		<result column="userId" property="userId" />
+		<result column="rechargeTime" property="rechargeTime" />
+		<result column="rechargeType" property="rechargeType" />
+		<result column="bankName" property="bankName" />
+		<result column="rechargeMoney" property="rechargeMoney" />
+		<result column="cost" property="cost" />
+		<result column="result" property="result" />
+		<result column="paynumber" property="paynumber" />
+		<result column="rechargeNumber" property="rechargeNumber" />
+		<result column="buyerEmail" property="buyerEmail" />
+		<result column="rechargeId" property="rechargeId" />
+		<result column="remark" property="remark" />
+		<result column="award" property="award" />
+		<result column="ipAddress" property="ipAddress" />
+		<result column="operatorId" property="operatorId" />
+		<result column="billcode" property="billcode" />
+	</resultMap>
+
+	
+	<select id="queryRechargeList" resultMap="rechargeDetailResultMap">
+		SELECT * FROM t_recharge_detail a WHERE a.userId=#{0}
+		<if test="param2!=null and param3!=null">  
+			AND a.rechargeTime &gt;=#{1} AND a.rechargeTime &lt;=#{2}
+		</if>
+		ORDER BY a.rechargeTime DESC LIMIT #{3},#{4}
+	</select>
+
+	<select id="queryRechargeCountByRechargeTime" resultType="java.util.Map">
+		SELECT COUNT(1) AS rechargeDetailCount FROM t_recharge_detail a WHERE a.userId=#{0}
+		<if test="param2!=null and param3!=null">  
+			AND a.rechargeTime &gt;=#{1} AND a.rechargeTime &lt;=#{2}
+		</if>
+	</select>
+	
+	<insert id="addRechargeDetail" parameterType="rechargeDetail">
+		 INSERT INTO t_recharge_detail (userId, rechargeTime, rechargeType, bankName, rechargeMoney, cost, result, paynumber,
+		 rechargeNumber,buyerEmail,rechargeId,remark,ipAddress,award,operatorId,billcode) 
+		 VALUES (#{userId},#{rechargeTime},#{rechargeType},#{bankName},#{rechargeMoney}, #{cost}, #{result}, #{paynumber}, #{rechargeNumber}
+		 , #{buyerEmail}, #{rechargeId}, #{remark}, #{ipAddress}, #{award}, #{operatorId}, #{billcode})
+		  <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS id
+        </selectKey>
+	</insert>
+
+	<select id="callUseraddmoneyProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL p_useraddmoney(
+			  	 #{in_userid,jdbcType=BIGINT,mode=IN},
+				 #{in_money,jdbcType=DOUBLE,mode=IN},
+				 #{in_paynumber,jdbcType=VARCHAR,mode=IN},
+				 #{in_remarks,jdbcType=VARCHAR,mode=IN},
+				 #{in_pMerBillNo,jdbcType=VARCHAR,mode=IN},
+				 #{in_pIpsBillNo,jdbcType=VARCHAR,mode=IN},
+				 #{returnValue,jdbcType=INTEGER,mode=OUT},
+				 #{returnDescription,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }  
+	</select>  
+	
+	<select id="queryRechargeAmountWithin15Days" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT ifnull(round(sum(a.rechargeMoney),2),0) AS rechargeMoney FROM t_recharge_detail a
+		WHERE a.userId=#{userId} AND a.result = 1 and a.rechargeTime >= date_sub(now() ,interval 15 day)
+	</select>
+	
+	<select id="querySuccessRecharge" resultType="java.util.Map">
+		SELECT SUM(rechargeMoney) AS r_total FROM t_recharge_detail WHERE userId = #{0} AND result = #{1}
+	</select>
+
+	<select id="queryRechargeRecord" resultType="java.util.Map">
+		SELECT * FROM v_t_user_rechargedetails_list WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND username LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND  rechargeTime &gt;=  #{3} 
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND rechargeTime &lt;=  #{4} 
+		</if>
+		<if test="param6 != -100 and param6 != -1">
+			AND rechargeType = #{5}
+		</if>
+		<if test="param7 >= 0">
+			AND result = #{6}
+		</if>
+			ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryInvestStatisCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_user_rechargedetails_list WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND username LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND rechargeTime &gt;=  #{1} 
+		</if>
+		<if test="param3 != null and param3 != ''">
+			AND rechargeTime &lt;=  #{2} 
+		</if>
+		<if test="param4 != -100 and param4 != -1">
+			AND rechargeType = #{3}
+		</if>
+		<if test="param5 >= 0">
+			AND result = #{4}
+		</if>
+	</select>
+	
+	<select id="queryRechargeSum" resultType="java.util.Map">
+		SELECT SUM(rechargeMoney) AS rechargeMoneys,SUM(realMoney) AS realMoneys,rechargeNumber 
+		FROM v_t_user_rechargedetails_list WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND username LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND rechargeTime &gt;=  #{1} 
+		</if>
+		<if test="param3 != null and param3 != ''">
+			AND rechargeTime &lt;=  #{2} 
+		</if>
+		<if test="param4 != -100 and param4 != -1">
+			AND rechargeType = #{3}
+		</if>
+		<if test="param5 >= 0">
+			AND result = #{4}
+		</if>
+	</select>
+	
+	<select id="queryRechargeRecords" resultType="java.util.Map">
+		SELECT (
+			CASE
+				WHEN t.rechargeType=100 THEN ''
+				ELSE '汇付充值'
+			END
+		) AS rechargeTypes,(
+			CASE
+				WHEN t.result=1 THEN '成功'
+				WHEN t.result=0 THEN '失败'
+			END
+		) AS results,t.* FROM v_t_user_rechargedetails_list t WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND username LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND  rechargeTime &gt;=  #{3} 
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND rechargeTime &lt;=  #{4} 
+		</if>
+		<if test="param6 != -100 and param6 != -1">
+			AND rechargeType = #{5}
+		</if>
+		<if test="param7 >= 0">
+			AND result = #{6}
+		</if>
+			ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryRechargeFirstList" resultType="java.util.Map">
+		SELECT * FROM v_t_user_rechargefirst_lists WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND username LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND  first_recharge &gt;=  #{3} 
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND first_recharge &lt;=  #{4} 
+		</if>
+		<if test="param6 != -100 and param6 != -1">
+			AND rechargeType = #{5}
+		</if>
+			ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryRechargeFirstListCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_user_rechargefirst_lists WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND username LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND first_recharge &gt;=  #{1} 
+		</if>
+		<if test="param3 != null and param3 != ''">
+			AND first_recharge &lt;=  #{2} 
+		</if>
+		<if test="param4 != -100 and param4 != -1">
+			AND rechargeType = #{3}
+		</if>
+	</select>
+	
+	<select id="queryRechargeFirsts" resultType="java.util.Map">
+		SELECT (
+			CASE
+				WHEN t.rechargeType=100 THEN ''
+				ELSE '汇付充值'
+			END
+		) AS rechargeTypes,(
+			CASE
+				WHEN t.result=1 THEN '成功'
+				WHEN t.result=0 THEN '失败'
+			END
+		) AS results,t.* FROM v_t_user_rechargedetails_list t WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND username LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND  first_recharge &gt;=  #{3} 
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND first_recharge &lt;=  #{4} 
+		</if>
+		<if test="param6 != -100 and param6 != -1">
+			AND rechargeType = #{5}
+		</if>
+			ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryOneFirstChargeDetails" resultType="java.util.Map">
+		SELECT * FROM v_t_user_rechargedetails_list WHERE id= #{0}
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+

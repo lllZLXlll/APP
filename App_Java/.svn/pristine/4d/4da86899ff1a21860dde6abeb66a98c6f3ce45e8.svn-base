@@ -1,0 +1,25 @@
+<div class="content content-login">
+    <div class="table-view">
+        <div class="text-item flex" @click="bankList">
+            <div class="item-title"> <i class="icon icon-color">&#xe61d;</i>
+                <span>{{bankName}}</span>
+            </div>
+            <div class="item-after">尾号<span v-text="bankNo | bankNumber"></span></div>
+        </div>
+        <div class="table-text">
+            <p>凡是在普金资本充值未投标的用户，15天以内提现收取本金0.5%，15天以后提现免费。禁止信用卡套现。</p>
+        </div>
+    </div>
+    <div class="table-view">
+        <div class="text-item-shadow" v-for="list in listData">
+            <label> <i class="icon icon-color" :class="[list.iconClass]"></i>
+            </label>
+            <input type="{{list.inputType}}" v-getvalue="[list.dataBind]" placeholder="{{list.placeholder}}" maxlength="16" >
+            <button type="button" v-on:click="getSms" v-if="list.msg" class="{{btnclass}}">{{btnText}}</button>
+        </div>
+        <div class="text-item-submit">
+            <button type="button" class="btn btn-submit" @click="submit">确认提交</button>
+        </div>
+        <div id="returnHtml"></div>
+    </div>
+</div>

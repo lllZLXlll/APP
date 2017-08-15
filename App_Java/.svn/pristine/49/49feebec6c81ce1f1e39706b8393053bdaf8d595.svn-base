@@ -1,0 +1,257 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * TLoanInspect entity. @author MyEclipse Persistence Tools
+ */
+
+public class LoanInspect implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Date inspectTime;
+	private String loanManager;
+	private String loanFullName;
+	private String saleIncome;
+	private String flowRate;
+	private String totalAsset;
+	private String quickRate;
+	private String profit;
+	private String assetLiabilitiesRate;
+	private String saleRate;
+	private String accountTurnoverRate;
+	private String fixedAssetChange;
+	private String inventoryTurnoverRate;
+	private String externalInvesChange;
+	private String currentLiabilitiesChange;
+	private String manageAnaly;
+	private String prodManageAnaly;
+	private String pledgeKeepOpinion;
+	private Date recordTime;
+	private Integer status;
+	private String inspectAdvise;
+	private Long borrowId;
+	// Constructors
+
+	/** default constructor */
+	public LoanInspect() {
+	}
+
+	/** full constructor */
+	public LoanInspect(Date inspectTime, String loanManager, String loanFullName, String saleIncome, String flowRate, String totalAsset, String quickRate, String profit,
+			String assetLiabilitiesRate, String saleRate, String accountTurnoverRate, String fixedAssetChange, String inventoryTurnoverRate, String externalInvesChange,
+			String currentLiabilitiesChange, String manageAnaly, String prodManageAnaly, String pledgeKeepOpinion, Date recordTime, Integer status,String inspectAdvise,Long borrowId) {
+		this.inspectTime = inspectTime;
+		this.loanManager = loanManager;
+		this.loanFullName = loanFullName;
+		this.saleIncome = saleIncome;
+		this.flowRate = flowRate;
+		this.totalAsset = totalAsset;
+		this.quickRate = quickRate;
+		this.profit = profit;
+		this.assetLiabilitiesRate = assetLiabilitiesRate;
+		this.saleRate = saleRate;
+		this.accountTurnoverRate = accountTurnoverRate;
+		this.fixedAssetChange = fixedAssetChange;
+		this.inventoryTurnoverRate = inventoryTurnoverRate;
+		this.externalInvesChange = externalInvesChange;
+		this.currentLiabilitiesChange = currentLiabilitiesChange;
+		this.manageAnaly = manageAnaly;
+		this.prodManageAnaly = prodManageAnaly;
+		this.pledgeKeepOpinion = pledgeKeepOpinion;
+		this.recordTime = recordTime;
+		this.status = status;
+		this.inspectAdvise = inspectAdvise;
+		this.borrowId = borrowId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Date getInspectTime() {
+		return this.inspectTime;
+	}
+
+	public void setInspectTime(Date inspectTime) {
+		this.inspectTime = inspectTime;
+	}
+
+	public String getLoanManager() {
+		return this.loanManager;
+	}
+
+	public void setLoanManager(String loanManager) {
+		this.loanManager = loanManager;
+	}
+
+	public String getLoanFullName() {
+		return this.loanFullName;
+	}
+
+	public void setLoanFullName(String loanFullName) {
+		this.loanFullName = loanFullName;
+	}
+
+	public String getSaleIncome() {
+		return this.saleIncome;
+	}
+
+	public void setSaleIncome(String saleIncome) {
+		this.saleIncome = saleIncome;
+	}
+
+	public String getFlowRate() {
+		return this.flowRate;
+	}
+
+	public void setFlowRate(String flowRate) {
+		this.flowRate = flowRate;
+	}
+
+	public String getTotalAsset() {
+		return this.totalAsset;
+	}
+
+	public void setTotalAsset(String totalAsset) {
+		this.totalAsset = totalAsset;
+	}
+
+	public String getQuickRate() {
+		return this.quickRate;
+	}
+
+	public void setQuickRate(String quickRate) {
+		this.quickRate = quickRate;
+	}
+
+	public String getProfit() {
+		return this.profit;
+	}
+
+	public void setProfit(String profit) {
+		this.profit = profit;
+	}
+
+	public String getAssetLiabilitiesRate() {
+		return this.assetLiabilitiesRate;
+	}
+
+	public void setAssetLiabilitiesRate(String assetLiabilitiesRate) {
+		this.assetLiabilitiesRate = assetLiabilitiesRate;
+	}
+
+	public String getSaleRate() {
+		return this.saleRate;
+	}
+
+	public void setSaleRate(String saleRate) {
+		this.saleRate = saleRate;
+	}
+
+	public String getAccountTurnoverRate() {
+		return this.accountTurnoverRate;
+	}
+
+	public void setAccountTurnoverRate(String accountTurnoverRate) {
+		this.accountTurnoverRate = accountTurnoverRate;
+	}
+
+	public String getFixedAssetChange() {
+		return this.fixedAssetChange;
+	}
+
+	public void setFixedAssetChange(String fixedAssetChange) {
+		this.fixedAssetChange = fixedAssetChange;
+	}
+
+	public String getInventoryTurnoverRate() {
+		return this.inventoryTurnoverRate;
+	}
+
+	public void setInventoryTurnoverRate(String inventoryTurnoverRate) {
+		this.inventoryTurnoverRate = inventoryTurnoverRate;
+	}
+
+	public String getExternalInvesChange() {
+		return this.externalInvesChange;
+	}
+
+	public void setExternalInvesChange(String externalInvesChange) {
+		this.externalInvesChange = externalInvesChange;
+	}
+
+	public String getCurrentLiabilitiesChange() {
+		return this.currentLiabilitiesChange;
+	}
+
+	public void setCurrentLiabilitiesChange(String currentLiabilitiesChange) {
+		this.currentLiabilitiesChange = currentLiabilitiesChange;
+	}
+
+	public String getManageAnaly() {
+		return this.manageAnaly;
+	}
+
+	public void setManageAnaly(String manageAnaly) {
+		this.manageAnaly = manageAnaly;
+	}
+
+	public String getProdManageAnaly() {
+		return this.prodManageAnaly;
+	}
+
+	public void setProdManageAnaly(String prodManageAnaly) {
+		this.prodManageAnaly = prodManageAnaly;
+	}
+
+	public String getPledgeKeepOpinion() {
+		return this.pledgeKeepOpinion;
+	}
+
+	public void setPledgeKeepOpinion(String pledgeKeepOpinion) {
+		this.pledgeKeepOpinion = pledgeKeepOpinion;
+	}
+
+	public Date getRecordTime() {
+		return this.recordTime;
+	}
+
+	public void setRecordTime(Date recordTime) {
+		this.recordTime = recordTime;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public String getInspectAdvise() {
+		return inspectAdvise;
+	}
+
+	public void setInspectAdvise(String inspectAdvise) {
+		this.inspectAdvise = inspectAdvise;
+	}
+
+	public Long getBorrowId() {
+		return borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+	
+}

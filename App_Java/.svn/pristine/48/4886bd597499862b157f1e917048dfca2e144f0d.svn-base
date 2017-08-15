@@ -1,0 +1,48 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/App.html');
+	var VueComponent = Vue.extend({
+		data: function(){
+		  	return 	{
+				    left:false,
+				    right:false,
+				    fromUrl:'',
+				    title:'投资',
+				    display: true,
+				    rightText:'',
+				    footerList:[
+				    	{aLink:{path:"/index",activeClass:"active"},name:'投资',iconClass:'icon-investment',notice:false},
+				    	{aLink:{path:"/about",activeClass:"active"},name:'关于',iconClass:'icon-center',notice:false},
+				    	{aLink:{path:"/account",activeClass:"active"},name:'账户',iconClass:'icon-about',notice:false}
+				    ]
+				}
+		},
+		methods:{
+			back: function(){
+				//this.$set('right',false);
+				history.go(-1);
+			},
+			openPanel:function(){
+				var id = this.openPanelId;
+				$.openPanel($('#'+id));
+			},
+			toFund:function(list){
+				if(!Storage.getItem('uid')){
+					$.alert('您未登录，请登录后再投标！',function(){
+						router.go({name:'login',query:{show:true}});
+					})
+					return;
+				};
+				if(!Storage.getItem('ipayAccount')){
+					$.alert('您还未注册汇付，请先注册汇付！',function(){
+						router.go({path:'/registpay'});
+					});
+					return;
+				};
+				if(list.borrowStatus!=2){return};
+				router.go({name:'detail',query:{id:list.id,type:'fund'}});
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

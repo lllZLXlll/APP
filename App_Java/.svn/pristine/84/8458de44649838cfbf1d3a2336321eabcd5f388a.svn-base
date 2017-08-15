@@ -1,0 +1,18 @@
+package com.pjzb.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.BorrowRole;
+
+public interface BorrowRoleDao {
+	
+	public BorrowRole queryBorrowRoleByApplyId(Long applyId);
+
+	public List<BorrowRole> queryBorrowRoleByUserId(Long userId);
+	
+	public Long addBorrowRole(BorrowRole borrowRole);
+	
+	public Long updateBorrowRoleByUserId(@Param("authStep")Integer authStep,@Param("userId")Long userId);
+}

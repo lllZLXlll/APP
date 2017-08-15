@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.NewsDao">
+
+	<resultMap type="news" id="newsResultMap">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="publishTime" property="publishTime" />
+		<result column="sort" property="sort" />
+		<result column="userId" property="userId" />
+		<result column="visits" property="visits" />
+		<result column="state" property="state" />
+		<result column="announcementType" property="announcementType" />
+	</resultMap>
+
+	
+	<select id="queryNews" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT a.id,a.title,a.publishTime,a.sort,a.announcementType,
+		
+		<if test="param3=='PC' || param3=='phonepage'">  
+			substring(a.content,1, 260) AS content
+		</if>
+		
+		<if test="param3=='reactAPP'">  
+			 a.content
+		</if>
+		
+		FROM t_news a,t_admin b WHERE a.userId=b.id ORDER BY a.id DESC LIMIT #{0},#{1};
+	</select>
+	
+
+	<select id="queryNewsById" resultMap="newsResultMap" parameterType="java.lang.Long" >
+	    SELECT * FROM t_news a WHERE a.id=#{id}
+	</select>
+	
+	<select id="queryNewsCount" resultType= "java.util.Map">
+	     SELECT COUNT(1) AS newsCount FROM t_news a
+	</select>
+	
+	<select id="queryNewsListForPage" resultType="java.util.Map">
+	   SELECT * FROM v_t_news_list WHERE state=1 ORDER BY publishTime  DESC LIMIT #{0},#{1}
+	</select>
+
+	<select id="queryNewsListCount" resultType= "java.lang.Long">
+	     SELECT COUNT(1) AS newsCount FROM v_t_news_list
+	</select>
+	
+	<insert id="addNews">
+		INSERT INTO t_news(title,announcementType,content,sort,visits,publishTime,userId) 
+		VALUE(#{title},#{announcementType},#{content},#{sort},#{visits},#{publishTime},#{userId})
+	</insert>
+	
+	<delete id="deleteWebConsultById">
+		DELETE FROM t_news WHERE id = #{0}
+	</delete>
+	
+	<delete id="deleteWebConsultByIds">
+		DELETE FROM t_news WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</delete>
+	
+	<update id="updateWebConsultById">
+		UPDATE t_news SET 
+		sort=#{sort}, title=#{title},announcementType=#{announcementType},visits=#{visits},
+		content=#{content},publishTime=#{publishTime}
+		WHERE id =#{id}
+	</update>
+	
+	<select id="queryAppToAnnouncement" resultType="java.util.Map">
+		SELECT a.id,a.title,a.publishTime,a.sort,a.announcementType,a.content
+		FROM t_news a,t_admin b WHERE a.userId=b.id AND a.id = #{0}
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+

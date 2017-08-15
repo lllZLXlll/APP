@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.AwardDao">
+	<resultMap type="award" id="awardResultMap">
+		<id column="id" property="id"/>
+		<result column="userId" property="userId"/>
+		<result column="level2userId" property="level2userId"/>
+		<result column="level2money" property="level2money"/>
+		<result column="level1userId" property="level1userId"/>
+		<result column="level1money" property="level1money"/>
+		<result column="iorId" property="iorId"/>
+		<result column="status" property="status"/>
+		<result column="addDate" property="addDate"/>
+		<result column="mx" property="mx"/>
+		<result column="mxType" property="mxType"/>
+		<result column="month" property="month"/>
+		<result column="level" property="level"/>
+		<result column="iorType" property="iorType"/>
+	</resultMap>
+
+	<insert id="addAward">
+		INSERT INTO t_award(userId,level2userId,level2money,level1userId,level1money,iorId,status,addDate,mx,mxType,month,level,iorType)
+		VALUES(#{luserId},#{level2userId},#{level2money},#{level1userId},#{level1money},#{iorId},#{status},#{addDate},#{mx},#{mxType},#{month},#{level},#{iorType})
+	</insert>
+	
+</mapper>
+
+
+
+
+
+
+
+

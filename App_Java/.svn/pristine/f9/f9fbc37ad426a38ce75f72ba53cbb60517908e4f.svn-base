@@ -1,0 +1,130 @@
+define(function (require,exports,module) {
+	// input绑定取值
+	Vue.directive('getvalue', {
+	  twoWay: true,
+	  bind: function () {
+	    this.handler = function () {
+	      this.set(this.el.value)
+	    }.bind(this)
+	    this.el.addEventListener('input', this.handler)
+	  },
+	  unbind: function () {
+	    this.el.removeEventListener('input', this.handler)
+	  }
+	});
+	//input绑定取值
+	Vue.directive('currencyDisplay', {
+	  bind: function () {
+	    this.handler = function () {
+	      this.el.value = this.el.value.toFixed(2)
+	    }.bind(this)
+	    this.el.addEventListener('input', this.handler)
+	  },
+	  unbind: function () {
+	    this.el.removeEventListener('input', this.handler)
+	  }
+	});
+	Vue.directive('checkmoney', {
+	  twoWay: true,
+	  bind: function () {
+	    this.handler = function () {
+	    	//alert(/^(([1-9]\d{0,9})|0)(\.\d{1,2})?$/.test(this.el.value));
+	    }.bind(this);
+	    this.el.addEventListener('input', this.handler)
+	  },
+	  unbind: function () {
+	    this.el.removeEventListener('input', this.handler)
+	  }
+	});
+	//filter
+	Vue.filter('bankNumber', function (value) {
+		var i = value.length-4;
+		return value.substr(i);
+	});
+	Vue.directive('touch', {
+	    isFn : true,
+	    acceptStatement: true,
+	    bind : function(fn) {
+	    },
+	    update : function(fn) {
+	    	var self = this; //存下this，方便以后用
+	        //在directive上绑定的属性和方法
+	        self.tapObj = {}; //初始化我们的tap对象
+	        if(self.arg == 'tap'){
+	        	self.tap = function(e) { 
+	    	        e.tapObj = self.tapObj; 
+	    	        fn.call(self,e);
+	    	    };
+	        }
+	        if(self.arg == 'start'){
+			    self.start = function(e) {
+			        e.tapObj = self.tapObj; 
+			        fn.call(self,e);
+			    };
+	        }
+	        if(self.arg == 'end'){
+			    self.end = function(e) {
+			        e.tapObj = self.tapObj; 
+			        fn.call(self,e);
+			    };
+	        }
+	        if(self.arg == 'move'){
+			    self.move = function(e) {
+			        e.tapObj = self.tapObj; 
+			        fn.call(self,e);
+			    };
+	        }
+		    this.el.addEventListener('touchstart',function(e) {
+		    	utils.stopDefault(e);
+		        self.touchstart(e,self);
+		    },false);
+		    this.el.addEventListener('touchend',function(e) {
+		    	utils.stopDefault(e);
+		        self.touchend(e,self,fn);
+		    },false);
+		    this.el.addEventListener('touchmove',function(e) {
+		    	utils.stopDefault(e);
+		        self.touchmove(e,self,fn);
+		    },false);
+	    },
+	    unbind : function() {},
+	    isTap : function() {
+	    	var tapObj = this.tapObj;
+	        return this.time < 150 && Math.abs(tapObj.distanceX) < 2 && Math.abs(tapObj.distanceY) < 2;
+	    },
+	    touchstart : function(e,self) {
+	    	var touches = e.touches[0];
+	        var tapObj = self.tapObj;
+	        tapObj.pageX = touches.pageX;
+	        tapObj.pageY = touches.pageY;
+	        tapObj.clientX = touches.clientX;
+	        tapObj.clientY = touches.clientY;
+	        self.time = +new Date();
+	        if(self.arg == 'start')
+	        self.start(e);
+	    },
+	    touchend : function(e,self) {
+	    	var touches = e.changedTouches[0];
+	        var tapObj = self.tapObj;
+	        self.time = +new Date() - self.time;
+	        tapObj.distanceX = tapObj.pageX - touches.pageX;
+	        tapObj.distanceY = tapObj.pageY - touches.pageY;
+	        if (self.isTap(tapObj)){
+	        	self.tap(e);
+	        }
+	        if(self.arg == 'end')
+	    	self.end(e);
+	            
+	    },
+	    touchmove : function(e,self){
+	    	var touches = e.touches[0];
+	    	var tapObj = self.tapObj;
+	    	tapObj.pageX = touches.pageX;
+	        tapObj.pageY = touches.pageY;
+	        tapObj.clientX = touches.clientX;
+	        tapObj.clientY = touches.clientY;
+	        if(self.arg == 'move')
+	        self.move(e);
+	    }
+	});
+})

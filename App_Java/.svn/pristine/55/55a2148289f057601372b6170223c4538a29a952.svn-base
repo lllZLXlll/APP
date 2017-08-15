@@ -1,0 +1,893 @@
+package com.pjzb.service.front;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.GesturesPasswordDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.PhoneBindingInfoDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.GesturesPassword;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.PhoneBindingInfo;
+import com.pjzb.entity.User;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DesSecurityUtil;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+import com.shove.security.Encrypt;
+/**
+ * pc、wap、app端 安全设置（修改密码、修改交易密码、修改绑定手机号码、绑定邮箱、身份认证）相关公共service
+ * @author xiaojin
+ *
+ */
+@Service
+public class SafeCenterService {
+
+	@Autowired
+	private UserDao userDao;
+	
+	@Autowired
+	private PersonDao personDao;
+	
+	@Autowired
+	private OperationLogDao operationLogDao;
+	@Autowired
+	private GesturesPasswordDao gesturesPasswordDao;
+	@Autowired
+	private PhoneBindingInfoDao phoneBindingInfoDao;
+	
+	@Autowired 
+	private SendMailService sendMailService;
+	
+	@Autowired 
+	private UserInfoService userInfoService;
+	
+	@Autowired 
+	private UserService userService;
+
+	/**
+	 * 查询手势密码
+	 * @param userId
+	 * @return
+	 * @throws Exception
+	 */
+	public GesturesPassword queryGesturesPassword(long userId){
+		GesturesPassword gesturesPassword = gesturesPasswordDao.queryGesturesPassword(userId);
+		User user = userDao.queryUserById(userId);
+
+		OperationLog operationLog = new OperationLog();
+		operationLog.setUserId(userId);
+		operationLog.setOperationTable("t_gestures_password");
+		operationLog.setOperationUser(user.getUsername());
+		operationLog.setOperationIp(user.getLastIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationAround(1);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("查询手势密码");
+		
+		operationLogDao.addOperationLog(operationLog);
+		return gesturesPassword;
+	}
+
+	
+	public long addGesturesPassword(Long userId, String password){
+		// 添加手势密码
+		GesturesPassword gesturesPassword = new GesturesPassword();
+		gesturesPassword.setUserId(userId);
+		gesturesPassword.setPassword(password);	
+		gesturesPassword.setInsertTime(new Date());
+		gesturesPassword.setUpdateTime(new Date());;
+		gesturesPassword.setStatus(1);
+		Long result = gesturesPasswordDao.addGesturesPassword(gesturesPassword);
+		User user = userDao.queryUserById(userId);
+
+		OperationLog operationLog = new OperationLog();
+		operationLog.setUserId(userId);
+		operationLog.setOperationTable("t_gestures_password");
+		operationLog.setOperationUser(user.getUsername());
+		operationLog.setOperationIp(user.getLastIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationAround(1);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("设置手势密码");
+		
+		operationLogDao.addOperationLog(operationLog);
+		return result;
+	} 
+		
+	public long updateGesturesPassword(long userId, String password){
+			// 添加内容
+		Long result = gesturesPasswordDao.updateGesturesPassword(userId,password);
+		User user= userDao.queryUserById(userId);
+
+		OperationLog operationLog = new OperationLog();
+		operationLog.setUserId(userId);
+		operationLog.setOperationTable("t_gestures_password");
+		operationLog.setOperationUser(user.getUsername());
+		operationLog.setOperationIp(user.getLastIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationAround(1);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("更新手势密码");
+		operationLogDao.addOperationLog(operationLog);
+		return result;
+	} 
+	
+	//关闭手势密码
+	public long removeGesturesPassword(long userId){
+		// 添加内容
+		Long result = gesturesPasswordDao.closeGesturesPassword(userId);
+		User user= userDao.queryUserById(userId);
+
+		OperationLog operationLog = new OperationLog();
+		operationLog.setUserId(userId);
+		operationLog.setOperationTable("t_gestures_password");
+		operationLog.setOperationUser(user.getUsername());
+		operationLog.setOperationIp(user.getLastIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationAround(1);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("关闭手势密码");
+		operationLogDao.addOperationLog(operationLog);
+			
+		return result;
+	} 
+
+	//开启手势密码
+	public long modifyGesturesPassword(long userId) {
+
+		// 添加内容
+		Long result = gesturesPasswordDao.openGesturesPassword(userId);
+		User user= userDao.queryUserById(userId);
+
+		OperationLog operationLog = new OperationLog();
+		operationLog.setUserId(userId);
+		operationLog.setOperationTable("t_gestures_password");
+		operationLog.setOperationUser(user.getUsername());
+		operationLog.setOperationIp(user.getLastIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationAround(1);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("开启手势密码");
+		operationLogDao.addOperationLog(operationLog);		 
+		return result;
+	} 
+	/**
+	 * 校验手势密码
+	 * @param userId
+	 * @return
+	 * @throws Exception
+	 */
+	public long updateVerifyErrorCount(long userId, int errorCount,int status){
+
+		// 添加内容
+		Long result = gesturesPasswordDao.updateVerifyErrorCount(userId,errorCount,status);
+		User user= userDao.queryUserById(userId);
+
+		OperationLog operationLog = new OperationLog();
+		operationLog.setUserId(userId);
+		operationLog.setOperationTable("t_gestures_password");
+		operationLog.setOperationUser(user.getUsername());
+		operationLog.setOperationIp(user.getLastIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationAround(1);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("开启手势密码");
+		operationLogDao.addOperationLog(operationLog);	
+		return result;
+	} 
+	
+	
+	public Map<String, Object> checkSafeCenterData(long userId,String tab_type,String yy,String pageType) { 
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		User user = userDao.queryUserById(userId);
+		Person person = personDao.queryPersonByUserId(userId);
+
+		if (tab_type != null) {
+			jsonMap.put("tab_type", tab_type);
+		}
+
+		if (yy != null) {
+			jsonMap.put("yy", yy);
+		}
+		
+		// 判断用户是否已经填写了基本信息
+		String flag = "";
+		if (person != null) {// 用户基本资料有数据但是不一定是已经填写了基本资料信息
+											// 还有可能是上传了个人头像
+			if (!StringUtils.isBlank(person.getRealName())) {// 不为空
+				flag = "2";
+
+				// 页面不显示完整的信息
+				String idNo = person.getIdNo().replace(person.getIdNo().substring(0, 4), "****");
+				idNo = idNo.replace(idNo.substring(7), "***********");
+
+				if (person.getRealName().length() == 2) {
+					person.setRealName(person.getRealName().replace(person.getRealName().substring(0, person.getRealName().length() - 1), "*"));
+				
+				} else {
+					person.setRealName(person.getRealName().replace(person.getRealName().substring(0, person.getRealName().length() - 1), "**"));
+				}
+				person.setIdNo(idNo);
+				person.setIdTpye("身份证");
+			} else {
+				flag = "1";
+			}
+
+			if (!StringUtils.isBlank(person.getCellPhone())) {
+				person.setCellPhone(person.getCellPhone().replace(person.getCellPhone().substring(4, 8), "****"));
+			}
+			jsonMap.put("pass", person.getAuditStatus());
+		} else {
+			flag = "1";
+		}
+		
+		jsonMap.put("map", person);
+		// 假如登录密码与交易密码相同，页面显示为设置。
+		user.setDealset("2");
+		if (user.getPassword().equalsIgnoreCase(user.getDealpwd())) {
+			user.setDealset("1");
+		} else {
+			user.setDealset("2");
+		}
+		if (!StringUtils.isBlank(user.getEmail())) {// 邮箱不为空
+			String emailtemp = user.getEmail().split("@")[0];
+			user.setEmail(user.getEmail().replace(emailtemp.substring(1, emailtemp.length() - 1), "*******"));
+			flag = "3";
+		} else {
+			user.setEmail("");
+		}
+		jsonMap.put("flag", flag);
+		// 资料完善度
+		if (flag.equalsIgnoreCase("1")) {
+			jsonMap.put("informationFinishedDgree", 30);
+		} else if (flag.equalsIgnoreCase("2")) {
+			jsonMap.put("informationFinishedDgree", 50);
+		} else {
+			jsonMap.put("informationFinishedDgree", 100);
+		}
+		jsonMap.put("usermap", user);
+
+		GesturesPassword gestureMap = queryGesturesPassword(userId);  
+		jsonMap.put("gestureMap", gestureMap);
+		
+		// 此处authStep不从session里面取而是从数据库里面查
+		int authStep = user.getAuthStep();
+		if (authStep < 2) {
+			jsonMap.put("person", "0");
+		} else {
+			jsonMap.put("person", "1");
+		}
+		jsonMap.put("ISDEMO", IConstants.ISDEMO);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		
+		
+		return jsonMap; // 返回个人资料详情 
+	}
+
+	
+	public Map<String, Object> checkChangeLoginPassword(JSONObject jsonObject,User user,String pageType) { 
+		
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+
+		String oldPass = Convert.strToStr(String.valueOf(jsonObject.get("oldPassword")), null);
+		String newPass = Convert.strToStr(String.valueOf(jsonObject.get("newPassword")), null);
+		String confirmPass = Convert.strToStr(String.valueOf(jsonObject.get("confirmPassword")), null);
+		String type = Convert.strToStr(String.valueOf(jsonObject.get("type")), null);// 用来标志修改的是登录密码还是交易密码
+		// add by lw 判断交易面的长度 6 - 20
+		if (newPass.length() < 6 || newPass.length() > 20) {
+			jsonMap.put("error", "4");
+			return jsonMap;
+		}
+		// end
+		if (!newPass.endsWith(confirmPass)) {
+			jsonMap.put("error", "1");
+			return jsonMap;
+		}
+		// 获取用户的信息
+		try {
+			Long id = user.getId();// 获得用户编号
+			Map<String, String> map = userDao.getDealPwd(id);
+			boolean re = userService.checkSign(id);
+			if (!re) {
+				jsonMap.put("error", "5");// 账号异常
+				return jsonMap;
+			}
+			String password = null;
+			if (type.endsWith("login")) {
+				password = user.getPassword();
+				if (Encrypt.MD5(newPass + IConstants.PASS_KEY).equals(map.get("dealpwd"))) {
+					jsonMap.put("error", "6");// 登录密码不能和交易密码一样
+					return jsonMap;
+				}
+			} else {
+				// 获得交易密码
+				password = map.get("dealpwd");// 交易密码默认为登录密码
+				if (password == null || password.equals("")) {
+					password = user.getPassword();
+				}
+				if (Encrypt.MD5(newPass + IConstants.PASS_KEY).equals(user.getPassword())) {
+					jsonMap.put("error", "7"); // 交易密码不能和登录密码一样
+					return jsonMap;
+				}
+			}
+			if ("1".equals(IConstants.ENABLED_PASS)) {
+				oldPass = Encrypt.MD5(oldPass);
+			} else {
+				oldPass = Encrypt.MD5(oldPass + IConstants.PASS_KEY);
+			}
+			if (!oldPass.endsWith(password)) {// 旧密码输入错误
+				jsonMap.put("error", "2");
+				return jsonMap;
+			}
+			long result = -1;
+			if (type.endsWith("login")) {
+				result = userDao.updateUserPassword(Encrypt.MD5(newPass + IConstants.PASS_KEY), id);
+			} else {
+				result = userDao.updateUserDealpwd(Encrypt.MD5(newPass + IConstants.PASS_KEY), id);
+			}
+				
+			
+			OperationLog operationLog = new OperationLog();
+			operationLog.setUserId(id);
+			operationLog.setOperationTable("t_user");
+			operationLog.setOperationUser(user.getUsername());
+			operationLog.setOperationIp(user.getLastIp());
+			operationLog.setOperationType(0);
+			operationLog.setOperationAround(1);
+			operationLog.setOperationMoney(0d);
+			operationLog.setOperationRemarks("修改会员登陆密码-"+pageType);
+			
+			operationLogDao.addOperationLog(operationLog);
+			
+			if (result < 0) {
+				jsonMap.put("error", "3");
+				return jsonMap;
+			} else {
+				user.setPassword(Encrypt.MD5(newPass + IConstants.PASS_KEY));
+				jsonMap.put("error", "0");
+				return jsonMap;
+			}
+		} catch (Exception e) {
+			e.printStackTrace(); 
+			jsonMap.put("error", "8");
+			return jsonMap;
+		}
+	}
+
+
+	public Map<String, Object> checkResetLoginPwd(JSONObject jsonObject,String pageType) {
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		try {
+			String password = String.valueOf(jsonObject.get("newPwd"));
+
+			if (password==null || password.equals("")) {
+				jsonMap.put("error", "1");
+				jsonMap.put("msg", "密码不能为空");
+				return jsonMap;
+			}
+
+			// password = com.shove.security.Encrypt.decrypt3DES(password,
+			// IConstants.PASS_KEY);
+			if ("1".equals(IConstants.ENABLED_PASS)) {
+				password = com.shove.security.Encrypt.MD5(password.trim());
+			} else {
+				password = com.shove.security.Encrypt.MD5(password.trim() + IConstants.PASS_KEY);
+			}
+
+			String cellPhone = String.valueOf(jsonObject.get("cellPhone"));
+
+			if (IConstants.ISDEMO.equals("2")) {
+				String code = String.valueOf(jsonObject.get("code"));
+				if (code==null || code.equals("")) {
+					jsonMap.put("error", "2");
+					jsonMap.put("msg", "验证码不能为空");
+					return jsonMap;
+				}
+				String randomCode = String.valueOf(jsonObject.get("randomCode"));
+				if (StringUtils.isBlank(randomCode) || randomCode.equals("null")) {
+					jsonMap.put("error", "3");
+					jsonMap.put("msg", "你还没有获取手机验证码");
+					return jsonMap;
+				}
+				randomCode = Encrypt.decryptSES(randomCode, IConstants.ses_key);
+				// String phone = session().getAttribute("phone") +"";
+				if (!randomCode.equals(code)) {
+					jsonMap.put("error", "3");
+					jsonMap.put("msg", "验证码不正确");
+					return jsonMap;
+				}
+
+				if (!randomCode.equals(code)) {
+					jsonMap.put("error", "4");
+					jsonMap.put("msg", "验证码不正确");
+					return jsonMap;
+				}
+				String recivePhone = String.valueOf(jsonObject.get("recivePhone"));
+				if (StringUtils.isBlank(recivePhone)) {
+					jsonMap.put("error", "7");
+					jsonMap.put("msg", "接收验证码手机号不能为空");
+					return jsonMap;
+				}
+				recivePhone = Encrypt.decryptSES(recivePhone, IConstants.ses_key);
+				if (StringUtils.isNotBlank(cellPhone) && !cellPhone.equals(recivePhone)) {
+					jsonMap.put("error", "5");
+					jsonMap.put("msg", "手机号跟接收验证码手机号不一致");
+					return jsonMap;
+				}
+			}
+
+			String userId = userDao.queryUserIdByPhone(cellPhone);
+			if (userId == null || userId.equals("")) {
+				jsonMap.put("error", "6");
+				jsonMap.put("msg", "手机号与绑定的手机号不一致");
+				return jsonMap;
+			}
+			Long result = -1L;
+
+			User userMap = userDao.findUserByMobilePhone(cellPhone);
+			if (userMap.getDealpwd().equals(password)) {
+				jsonMap.put("error", "10");
+				jsonMap.put("msg", "登录密码不能与交易密码一致");
+				return jsonMap;
+			}
+
+			result = userDao.updateUserPassword(password,Long.parseLong(userId));
+
+			if (result > 0) { 
+				jsonMap.put("error", "0");
+				jsonMap.put("msg", "修改成功");
+				return jsonMap;
+			} else {
+				jsonMap.put("error", "8");
+				jsonMap.put("msg", "修改失败");
+				return jsonMap;
+			}
+		} catch (Exception e) {
+			jsonMap.put("error", "9");
+			jsonMap.put("msg", "修改密码异常");
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+	
+	public Map<String, Object> checkUserdealpwd(JSONObject jsonObject,User user,String pageType) { 
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		try {
+			if(pageType.equals("phonepage")){
+				String mobilePhone = String.valueOf(jsonObject.get("mobilePhone"));
+				String passwd = String.valueOf(jsonObject.get("passwd"));
+				User userMap = userDao.findUserByMobilePhone(mobilePhone);
+				passwd = com.shove.security.Encrypt.MD5(passwd + IConstants.PASS_KEY);
+				if (userMap.getPassword().equals(passwd)) {
+					jsonMap.put("error", "5");
+					jsonMap.put("msg", "交易密码不能与登录密码一致");
+					return jsonMap;
+				}
+				long l = userDao.updateUserDealpwdByMobilePhone(mobilePhone, passwd, "dealpwd");
+				if (l > 0) {
+					jsonMap.put("error", "0");
+					jsonMap.put("msg", "交易设置修改成功");
+	
+					OperationLog operationLog = new OperationLog();
+					operationLog.setUserId(user.getId());
+					operationLog.setOperationTable("t_user");
+					operationLog.setOperationUser(user.getUsername());
+					operationLog.setOperationIp(user.getLastIp());
+					operationLog.setOperationType(0);
+					operationLog.setOperationAround(1);
+					operationLog.setOperationMoney(0d);
+					operationLog.setOperationRemarks("找回交易密码-"+pageType);
+					
+					operationLogDao.addOperationLog(operationLog);
+					return jsonMap;
+				} else {
+					jsonMap.put("error", "4");
+					jsonMap.put("msg", "交易密码设置失败");
+					return jsonMap;
+				}
+			}else{
+				String mobilePhone = String.valueOf(jsonObject.get("mobilePhone"));
+				String passwd = String.valueOf(jsonObject.get("passwd"));
+				String confirmpassword = String.valueOf(jsonObject.get("confirmpassword"));
+				if (!mobilePhone.equals(user.getMobilePhone())) {
+					jsonMap.put("error", "7");
+					jsonMap.put("msg", "请输入本人的手机号码");
+					return jsonMap;
+				}
+				if (passwd == null || passwd.trim().length() == 0) {
+					jsonMap.put("error", "1");
+					jsonMap.put("msg", "请输入新交易密码");
+					return jsonMap;
+				}
+				if (confirmpassword == null || confirmpassword.trim().length() == 0) {
+					jsonMap.put("error", "2");
+					jsonMap.put("msg", "请输入确认交易密码");
+					return jsonMap;
+				}
+				if (!confirmpassword.equals(passwd)) {
+					jsonMap.put("error", "3");
+					jsonMap.put("msg", "交易密码与确认交易密码不一致");
+					return jsonMap;
+				}
+		
+				User userMap = userDao.findUserByMobilePhone(mobilePhone);
+				passwd = com.shove.security.Encrypt.MD5(passwd + IConstants.PASS_KEY);
+				if (userMap.getPassword().equals(passwd)) {
+					jsonMap.put("error", "5");
+					jsonMap.put("msg", "交易密码不能与登录密码一致");
+					return jsonMap;
+				}
+				if (userMap.getDealpwd().equals(passwd)) {
+					jsonMap.put("error", "6");
+					jsonMap.put("msg", "新交易密码不能与原交易密码一致");
+					return jsonMap;
+				}
+		
+				long l = userDao.updateUserDealpwdByMobilePhone(mobilePhone, passwd, "dealpwd");
+				if (l > 0) {
+					jsonMap.put("error", "0");
+					jsonMap.put("msg", "交易密码修改成功");
+	
+					OperationLog operationLog = new OperationLog();
+					operationLog.setUserId(user.getId());
+					operationLog.setOperationTable("t_user");
+					operationLog.setOperationUser(user.getUsername());
+					operationLog.setOperationIp(user.getLastIp());
+					operationLog.setOperationType(0);
+					operationLog.setOperationAround(1);
+					operationLog.setOperationMoney(0d);
+					operationLog.setOperationRemarks("找回交易密码-"+pageType);
+					
+					operationLogDao.addOperationLog(operationLog);
+					return jsonMap;
+				} else {
+					jsonMap.put("error", "4");
+					jsonMap.put("msg", "交易密码修改失败");
+					return jsonMap;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace(); 
+			jsonMap.put("error", "8");
+			jsonMap.put("msg", "修改交易密码异常，请联系客服！");
+			return jsonMap;
+		}
+	}
+	
+	public Map<String, Object> checkBindingMobile(JSONObject jsonObject,String updateMobile,String updateMobileCodeSession,long id,String pageType) { 
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		try {
+			String mobile = Convert.strToStr(String.valueOf(jsonObject.get("mobile")), null);
+			String code = Convert.strToStr(String.valueOf(jsonObject.get("updateMobileCode")), null);
+			if (updateMobileCodeSession != null) {
+				if (code.trim().length() == 0 || code == null) {
+					jsonMap.put("error", "1");
+					jsonMap.put("msg", "请输入新手机验证码");
+					return jsonMap;
+				} else if (updateMobileCodeSession.equals(code)) {
+					if (!updateMobile.equals(mobile.trim())) {
+						jsonMap.put("error", "2");
+						jsonMap.put("msg", "发送手机号码与新手机号码不一致");
+						return jsonMap;
+					}
+					// 手机号码验证
+					Pattern p = Pattern.compile("^((13[0-9])|(15[0-9])|(18[0-9]))\\d{8}$");
+					Matcher m = p.matcher(mobile);
+					if (!m.matches()) {// 手机号码无效
+						jsonMap.put("error", "3");
+						jsonMap.put("msg", "手机号码无效");
+						return jsonMap;
+					}
+					// 获取用户的信息
+					User user =userDao.queryUserById(id);
+					Long result = this.addBindingMobile(mobile, id, IConstants.PHONE_BINDING_ON,"", user.getMobilePhone());
+					if (result < 0) {// 手机变更失败
+						jsonMap.put("error", "4");
+						jsonMap.put("msg", "手机变更失败");
+						return jsonMap;
+					}
+
+					// 添加操作日志
+					OperationLog operationLog = new OperationLog();
+					operationLog.setOperationTable("t_phone_binding_info");
+					operationLog.setOperationUser(user.getUsername());
+					operationLog.setOperationType(IConstants.INSERT);
+					operationLog.setOperationIp(user.getLastIp());
+					operationLog.setOperationRemarks("发布手机变更请求");
+					operationLog.setUserId(user.getId());
+					operationLog.setOperationMoney(0d);
+					operationLog.setOperationAround(1);
+					operationLog.setOperationTime(new Date());
+					
+					jsonMap.put("error", "0");
+					jsonMap.put("msg", "手机号码修改成功");
+					return jsonMap;
+				} else {
+					jsonMap.put("error", "5");
+					jsonMap.put("msg", "新手机号码验证码错误");
+					return jsonMap;
+				}
+			} else {
+				jsonMap.put("error", "6");
+				jsonMap.put("msg", "请获取新手机验证码");
+				return jsonMap;
+			}
+			
+		} catch (Exception e) {
+			jsonMap.put("error", "7");
+			jsonMap.put("msg", "变更手机号码异常，请联系客服！");
+			return jsonMap;
+		}
+	}
+	
+
+	public Long addBindingMobile(String mobile, long userId, int status,
+			String content, String oldPhone){
+		Long result = -1L;
+		
+		Map<String, Object> p_map = phoneBindingInfoDao.queryBindingInfoByUserId(userId);
+		
+		if (p_map == null || p_map.size() <= 0) {// 如果没有记录则插入手机绑定数据，否则进行更新
+			PhoneBindingInfo phoneBindingInfo = new PhoneBindingInfo();
+			phoneBindingInfo.setMobilePhone(mobile);
+			phoneBindingInfo.setUserId(userId);
+			phoneBindingInfo.setStatus(IConstants.PHONE_BINDING_CHECK);
+			phoneBindingInfo.setReason("申请手机绑定");
+			phoneBindingInfo.setRequsetTime(new Date());
+			phoneBindingInfo.setOldPhone(oldPhone);
+			phoneBindingInfo.setType(IConstants.INSERT_BASE_TYPE);
+			result = phoneBindingInfoDao.addBindingMobile(phoneBindingInfo);			
+		} else { 
+			PhoneBindingInfo phoneBindingInfo = new PhoneBindingInfo();
+			phoneBindingInfo.setMobilePhone(mobile);
+			phoneBindingInfo.setUserId(userId);
+			phoneBindingInfo.setStatus(1);
+			phoneBindingInfo.setReason("申请更换手机");
+			phoneBindingInfo.setOldPhone(oldPhone);
+			phoneBindingInfo.setType(1);
+			
+			result = phoneBindingInfoDao.updateBindingMobile(phoneBindingInfo); 
+		}
+
+		User user = userDao.queryUserById(userId);
+		Person person = personDao.queryPersonByUserId(userId);
+		//查看实名信息表是否有数据
+		if (person == null){
+			person = new Person();
+			//如果手机注册用户，用户名和手机号都相同，则两个一起修改
+			if(user.getUsername().equalsIgnoreCase(user.getMobilePhone())) {
+
+				person.setUserId(userId);
+				person.setCellPhone(mobile);
+				personDao.addPerson(person); 
+
+				if (mobile != null && mobile!="") {
+					user.setMobilePhone(mobile);
+					user.setUsername(mobile);
+				}
+				userDao.updateUser(user);
+			} else { 
+				person.setUserId(userId);
+				person.setCellPhone(mobile);
+				personDao.addPerson(person); 
+				if (mobile != null && mobile!="") {
+					user.setMobilePhone(mobile);
+				}
+				userDao.updateUser(user); 
+			}
+			
+		} else {
+			//如果手机注册用户，用户名和手机号都相同，则两个一起修改
+			if(user.getUsername().equalsIgnoreCase(user.getMobilePhone())) { 
+
+				person.setCellPhone(mobile);
+				personDao.updatePersonByUserId(person);
+				
+				if (mobile != null && mobile!="") {
+					user.setMobilePhone(mobile);
+					user.setUsername(mobile);
+				}
+				userDao.updateUser(user);
+			} else { 
+				person.setCellPhone(mobile);
+				personDao.updatePersonByUserId(person);
+				
+				if (mobile != null && mobile!="") {
+					user.setMobilePhone(mobile);
+				}
+				userDao.updateUser(user);
+			}
+		}
+			
+		return result;
+	}
+	
+
+	public Map<String, Object> checkSendEmailForUserSet(JSONObject jsonObject,User user,String basePath,String pageType) { 
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		try {  
+			String email = String.valueOf(jsonObject.get("email"));
+			if (StringUtils.isBlank(email)) {
+				jsonMap.put("mailAddress", "0");
+				return jsonMap;
+			}
+			long result1 = userInfoService.isExistEmailORUserName(email, null);
+			if (result1 > 0) { // email重复
+				jsonMap.put("mailAddress", "4");
+				jsonMap.put("error", "4");
+				jsonMap.put("msg", "该邮箱已被绑定,请重新输入");
+				return jsonMap;
+			}
+			// ===截取emal后面地址
+			int dd = email.indexOf("@");
+			String mailAddress = null;
+			if (dd >= 0) {
+				if (email.substring(dd + 1).equalsIgnoreCase("outlook.com")) {
+					mailAddress = "www.microsoft.com/zh-cn/outlook-com/";
+				} else {
+					mailAddress = "mail." + email.substring(dd + 1);
+				}
+
+			}
+
+			if (user != null) {
+				DesSecurityUtil des = new DesSecurityUtil();
+				String key1 = des.encrypt(user.getId() + "");
+				String key2 = des.encrypt(new Date().getTime() + "");
+				String key3 = email;
+				String Name = user.getUsername();
+				String url = basePath; // request().getRequestURI();
+				String VerificationUrl = url + "WEB-PC/bindEmail.html?key=" + key1 + "-" + key2 + "-" + key3;
+				sendMailService.SendUserEmailSetInUser(VerificationUrl, Name, email);
+				if(pageType.equals("reactAPP")){
+					jsonMap.put("error", "0");
+					jsonMap.put("msg", "邮件发送成功");
+				} else {
+					jsonMap.put("mailAddress", mailAddress);
+				}
+				return jsonMap;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("mailAddress", "2");
+		}
+ 
+		return jsonMap;
+	}
+
+	public Map<String, Object> checkBindingEmail(JSONObject jsonObject,String pageType) { 
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		try {  
+			String key = String.valueOf(jsonObject.get("key"));
+			String[] keys = key.split("-");
+			if (3 == keys.length) {
+				DesSecurityUtil des = new DesSecurityUtil();
+				Long userId = Convert.strToLong(des.decrypt(keys[0].toString()), -1);
+				String dateTime = des.decrypt(keys[1].toString());
+				long curTime = new Date().getTime();
+				String emial = keys[2].toString();
+				Pattern p = Pattern
+						.compile("^\\s*\\w+(?:\\.{0,1}[\\w-]+)*@[a-zA-Z0-9]+(?:[-.][a-zA-Z0-9]+)*\\.[a-zA-Z]+\\s*$");
+				Matcher matcher = p.matcher(emial);
+				if (!matcher.matches()) {
+					jsonMap.put("error", "1");
+					jsonMap.put("msg", "邮箱格式错误");
+					return jsonMap;
+				} else {
+					// 校验邮箱的唯一性
+					long result1 = userInfoService.isExistEmailORUserName(emial, null);
+					if (result1 > 0) { // email重复
+						jsonMap.put("error", "2");
+						jsonMap.put("msg", "该邮箱已被绑定,请重新输入");
+						return jsonMap;
+					} else {
+						// 当用户点击注册时间小于10分钟
+						if (curTime - Long.valueOf(dateTime) < 10 * 60 * 1000) {
+							long result = userDao.updateEmalByid(emial,userId);
+							if (result < 0) {
+								jsonMap.put("error", "3");
+								jsonMap.put("msg", "邮箱绑定失败");
+								return jsonMap;
+							} else {
+								User user = userDao.queryUserById(userId); 
+								jsonMap.put("error", "0");
+								jsonMap.put("user", user);
+								jsonMap.put("msg", "邮箱绑定成功");
+								return jsonMap;
+							}
+						} else {
+							jsonMap.put("error", "4");
+							jsonMap.put("msg", "连接失效,请从新绑定");
+							return jsonMap;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "认证异常,请从新绑定");
+		}
+ 
+		return jsonMap;
+	}
+	
+	
+	/**
+	 * 
+	 * @describe:找回用户登录密码（用户未登录）找回密码的本质其实就是修改密码，修改密码涉及到对数据库表进行修改，
+	 * 为开启事物，根据aop指定方法名开头字符，开启相应事物，故找回登录密码用update开头
+	 * @author: xiaojin
+	 * @return
+	 */
+	public Map<String, Object> updateUserPassword(JSONObject jsonObject,String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+			String mobilePhone =ConvertUtil.convertObjToStr(jsonObject.get("mobilePhone")).trim();
+			String passwd = ConvertUtil.convertObjToStr(jsonObject.get("passwd")).trim();
+			String confirmpassword =ConvertUtil.convertObjToStr(jsonObject.get("confirmpassword")).trim();
+			if (passwd == null) {
+				jsonMap.put("error", "1");
+				jsonMap.put("msg", "请输入密码");
+				return jsonMap;
+			}
+			if (confirmpassword == null) {
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "请输入确认密码");
+				return jsonMap;
+			}
+			if (!confirmpassword.equals(passwd)) {
+				jsonMap.put("error", "3");
+				jsonMap.put("msg", "密码与确认密码不一致");
+				return jsonMap;
+			}
+
+			User user = userDao.findUserByMobilePhone(mobilePhone);
+			passwd = com.shove.security.Encrypt.MD5(passwd + IConstants.PASS_KEY);
+			if (user.getPassword().equals(passwd)) {
+				jsonMap.put("error", "4");
+				jsonMap.put("msg", "新密码不能与原密码一致");
+				return jsonMap;
+			}
+			if (user.getDealpwd().equals(passwd)) {
+				jsonMap.put("error", "5");
+				jsonMap.put("msg", "新密码不能与交易密码一致");
+				return jsonMap;
+			}
+			long l = userDao.updateUserPasspwdByMobilePhone(mobilePhone,passwd, "password");
+			if (l > 0) {
+				jsonMap.put("error", "0");
+				jsonMap.put("msg", "密码修改成功");
+				OperationLog operationLog = new OperationLog();
+				operationLog.setUserId(user.getId());
+				operationLog.setOperationTable("t_user");
+				operationLog.setOperationUser(user.getUsername());
+				operationLog.setOperationIp(user.getLastIp());
+				operationLog.setOperationType(0);
+				operationLog.setOperationAround(1);
+				operationLog.setOperationMoney(0d);
+				operationLog.setOperationRemarks("找回登录密码-"+pageType);
+				operationLog.setOperationTime(new Date());
+				operationLogDao.addOperationLog(operationLog);
+			} else {
+				jsonMap.put("error", "6");
+				jsonMap.put("msg", "密码修改失败");
+			}
+		return jsonMap;
+	}
+	
+}

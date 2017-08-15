@@ -1,0 +1,57 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 操作t_person表
+ *
+ */
+import com.pjzb.entity.Person;
+
+public interface PersonDao {
+
+	public Long addPerson(Person person);
+
+	public Long updatePersonByUserId(Person person);
+
+	public Person queryPersonByUserId(Long userId);
+
+	public Map<String, Object> queryPersonCellPhone(long userId);
+
+	public Long findUserSexCount(String sex, String startTime, String endTime);
+
+	public Map<String, String> findPersonByIdNo(String idNo);
+
+	public Map<String, String> isExistidcard(String idNo);
+
+	public List<Map<String, Object>> queryLoanAfterMgr();
+
+	public List<Map<String, Object>> queryInvestorRepresent();
+
+	public List<Map<String, Object>> queryPersonInfoListForPage(long l, Long pageSize, String userName, String realName, String serviceManName,
+			Integer auditStatus, Integer certificateName, boolean b);
+
+	public long queryPersonInfoListCount(String userName, String realName, String serviceManName, Integer auditStatus, Integer certificateName);
+
+	public Map<String, Object> queryUserAndPersonForUnionByUserId(long userId);
+
+	public List<Map<String, Object>> querytelphonePage(long l, Long pageSize, String userName, String starttime, String endtime);
+
+	public long querytelphonePageCount(String userName, String starttime, String endtime);
+
+	public List<Map<String, Object>> exportupdatephonex(String userName, String starttime, String endtime);
+
+	public List<Map<String, Object>> queryUserManageintegralinfo(String userName, Integer viprecode, Integer creditcode, Long pageNum,
+			Long pageSize);
+
+	public long queryUserManageintegralinfoCount(String userName, Integer viprecode, Integer creditcode);
+
+	public List<Map<String, Object>> exportUserManageintegral(String userName, Integer viprecode, Integer creditcode);
+
+	public List<Map<String, Object>> queryUserList(String userName, String realName, long index, long pageSize);
+
+	public long queryUserInfoCount(String userName, String realName);
+
+	public List<String> queryUserCellPhoneForSMS();
+}

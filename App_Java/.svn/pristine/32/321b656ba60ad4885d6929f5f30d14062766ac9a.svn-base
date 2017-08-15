@@ -1,0 +1,95 @@
+package com.pjzb.service.front;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.RecommendUserDao;
+import com.pjzb.entity.RecommendUser;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DesSecurityUtil;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+@Service
+public class RecommendUserService extends BaseController {
+	public static Log log = LogFactory.getLog(RecommendUserService.class);
+
+	@Autowired
+	private RecommendUserDao recommendUserDao;
+
+	public List<Map<String, Object>> queryRecommendUserRank() {
+		return recommendUserDao.queryRecommendUserRank();
+	}
+
+	/**
+	 * 根据条件查询数据
+	 */
+	public List<Map<String, Object>> queryRecommendUser(@Param("id") Long id, @Param("userId") Long userId,
+			@Param("recommendUserId") Long recommendUserId) {
+		List<Map<String, Object>> list = null;
+		list = recommendUserDao.queryRecommendUser(id, userId, recommendUserId);
+		return list;
+	}
+
+	/**
+	 * 添加用户和推荐人关系
+	 * 
+	 * @param conn
+	 * @param userId
+	 * @param recommendUserId
+	 * @return Long
+	 * @throws Exception
+	 */
+	public Long addRecommendUser(RecommendUser recommendUser) {
+		Long id = -1L;
+		id = recommendUserDao.addRecommendUser(recommendUser);
+		return id;
+	}
+	
+	public Map<String, Object> queryfindRecommendUserPage(JSONObject jsonObject, Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try{
+		String beginTime = Convert.strToStr((jsonObject.get("begin") == null ? "" : jsonObject.get("begin"))+"", "");
+		String endTime = Convert.strToStr((jsonObject.get("end") == null ? "" : jsonObject.get("end"))+"", "");
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE),Constants.LONG_1);
+		Long pageSize;
+		if (pageType.equals(Constants.REACTAPP))
+			pageSize = Convert.strToLong(IConstants.PAGE_SIZE_15+"", 10L);
+		else
+			pageSize = Convert.strToLong(IConstants.PAGE_SIZE_10+"", 10L);
+		List<Map<String, Object>> recommendList = recommendUserDao.queryfindRecommendUserPage(userId, beginTime, endTime, (curPage-1)*pageSize, pageSize);
+		Long counts = recommendUserDao.queryfindRecommendUserCounts(userId, beginTime, endTime);
+		
+		DesSecurityUtil des = new DesSecurityUtil();
+		String userI = des.encrypt(String.valueOf(userId));
+		String uri = getBasePath();
+		PageBean pageBean = new PageBean();
+		pageBean.setPageSize(pageSize);
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(counts);
+		pageBean.setPage(recommendList);
+		jsonMap.put("url", uri);
+		jsonMap.put("userId", userI);
+		jsonMap.put("recommendUserId", userI);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+}

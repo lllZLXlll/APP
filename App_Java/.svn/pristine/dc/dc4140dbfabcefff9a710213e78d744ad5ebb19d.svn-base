@@ -1,0 +1,95 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * ApproveNoticeTemplate entity. @author MyEclipse Persistence Tools
+ */
+
+public class ApproveNoticeTemplate implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long noticeId;
+	private String name;
+	private String template;
+	private String nid;
+	private Integer status;
+	private Integer sort;
+
+	// Constructors
+
+	/** default constructor */
+	public ApproveNoticeTemplate() {
+	}
+
+	/** full constructor */
+	public ApproveNoticeTemplate(Long noticeId, String name, String template,
+			String nid, Integer status, Integer sort) {
+		this.noticeId = noticeId;
+		this.name = name;
+		this.template = template;
+		this.nid = nid;
+		this.status = status;
+		this.sort = sort;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getNoticeId() {
+		return this.noticeId;
+	}
+
+	public void setNoticeId(Long noticeId) {
+		this.noticeId = noticeId;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getTemplate() {
+		return this.template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
+	}
+
+	public String getNid() {
+		return this.nid;
+	}
+
+	public void setNid(String nid) {
+		this.nid = nid;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Integer getSort() {
+		return this.sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+
+}

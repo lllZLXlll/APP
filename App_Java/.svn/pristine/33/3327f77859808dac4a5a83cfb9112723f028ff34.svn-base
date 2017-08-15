@@ -1,0 +1,192 @@
+package com.pjzb.service.admin.declare;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.management.RuntimeErrorException;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.MediareportDao;
+import com.pjzb.entity.Mediareport;
+import com.pjzb.service.front.UploadService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+
+/**
+ * 媒体报道
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminMediaCoverageService extends BaseController{
+	
+	@Autowired
+	private MediareportDao mediaReportDao;
+	
+	@Autowired
+	private UploadService uploadService;
+
+	public String queryMediaCoverageForPage(Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = mediaReportDao.queryMediaCoverageForPage((pageNum - 1) * pageSize, pageSize,
+					true);
+			long count = mediaReportDao.queryMediaCoverageCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询媒体报道异常**************************");
+		}
+		return "/admin/declare/mediacoverage/list.jsp";
+	}
+
+	public String addMediaCoverageInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/declare/mediacoverage/add.jsp";
+	}
+
+	public Map<String, Object> addMediareport(Mediareport mediareport, String tabid) throws RuntimeException{
+		try{
+			long result = mediaReportDao.addMediareport(mediareport);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "媒体报道增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "媒体报道增加失败", "", "");
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**********媒体报道增加异常***************");
+		}
+	}
+
+	public Map<String, Object> updateMediareportById(Mediareport mediareport, String tabid) throws RuntimeException{
+		try{
+			long result = mediaReportDao.updateMediaReportById(mediareport);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "媒体报道修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "媒体报道修改失败", "", "");
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**********媒体报道修改异常***************");
+		}
+	}
+
+	public String queryMediareportByIdInit(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("mediaReport", mediaReportDao.queryMediaReportById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询媒体报道异常**************************");
+		}
+		return "/admin/declare/mediacoverage/edit.jsp";
+	}
+
+	public Map<String, Object> uploadDataMediareport(MultipartFile file, String dialogId, HttpServletRequest request) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		Calendar cal = Calendar.getInstance();
+		int month = cal.get(Calendar.MONTH) + 1;
+		int year = cal.get(Calendar.YEAR);
+		String fileName = ConvertUtil.dateConvert(new Date(), Constants.DATEYM_MILLI) + ".jpg";
+		String savePath = "upload/mediareport/" + year + "/" + month + "/";
+		String uploadResult = uploadService.upload(file, savePath, fileName, dialogId, request);
+		if (uploadResult.equals(Constants.SUCCESS)) {
+			map.put("imgPath", "../" + savePath + fileName);
+			map.put("statusCode", "200");
+			map.put("message", "上传成功");
+		} else {
+			map.put("statusCode", "300");
+			map.put("message", "上传失败");
+		}
+		return map;
+	}
+
+	public Map<String, Object> updateStickById(Integer stick, Long tabid) throws RuntimeException{
+		try {
+			long result = mediaReportDao.updateStickById(stick, tabid);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "设置成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "设置失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**************置顶设置异常****************");
+		}
+	}
+
+	public Map<String, Object> deleteMediareportById(Long id) throws RuntimeException{
+		try {
+			long result = mediaReportDao.deleteMediareportById(id);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************媒体报道删除异常******************");
+		}
+	}
+
+	public Map<String, Object> deleteMediareportByIds(String delids) throws RuntimeException{
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量删除媒体报道delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i]+"", 1L));
+			}
+			long result = mediaReportDao.deleteMediareportByIds(list);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "媒体报道删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "媒体报道删除失败", "", "");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************批量删除媒体报道异常***********");
+		}
+	}
+
+	public String queryMediareportById(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("mediaReport", mediaReportDao.queryMediaReportById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id预览媒体报道异常**************************");
+		}
+		return "/admin/declare/mediacoverage/preView.jsp";
+	}
+}

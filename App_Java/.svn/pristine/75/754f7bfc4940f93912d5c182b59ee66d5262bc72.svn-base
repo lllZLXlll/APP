@@ -1,0 +1,16 @@
+<div id="pjzb_app">
+	<header class="bar bar-nav">
+		<a v-show="left" @click="back" class="pull-left back"><i class="icon">&#xe604;</i></a>
+		<button v-if="right" v-on:click="openPanel" class="button button-link button-nav pull-right">{{rightText}}</button>
+		<h1 class="title">{{title}}</h1>
+	</header>
+	<router-view transition="fadeIn"></router-view>
+	<nav v-show="display"  class="bar bar-tab">
+		<template v-for="list in footerList">
+		<a  v-link="list.aLink" class="tab-item external">
+			<span class="icon icon-color" :class="[list.iconClass]"></span>
+			<span class="tab-label">{{list.name}}</span>
+		</a>
+		</template>
+	</nav>
+</div>

@@ -1,0 +1,21 @@
+define(function (require,exports,module) {
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			utils.setAppConfig('我的赠券',true,false);
+		},
+		data: function(){
+			return {
+				listData:[{name:'我的代金券'},{name:'我的现金券'},{name:'我的体验金'}]
+			}
+		},
+		methods:{
+			showDest: function(index){
+				router.go({path:'taste',append:true,query:{flag:index}});
+			}
+		},
+		template:'<div class="table-view">'+
+			'<div class="text-item-shadow" v-for="list in listData">'+
+			'<a class="icon-list" @click="showDest($index)">{{list.name}}</a></div></div>'
+	});
+	module.exports = VueComponent;
+})

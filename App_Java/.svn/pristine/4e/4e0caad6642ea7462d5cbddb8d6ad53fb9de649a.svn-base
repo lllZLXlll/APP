@@ -1,0 +1,10 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.Award;
+
+public interface AwardDao {
+	
+	public void addAward(Award award);
+	
+
+}

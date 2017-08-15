@@ -1,0 +1,576 @@
+package com.pjzb.task;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.ContextLoader;
+
+import com.pjzb.dao.AssignmentDebtDao;
+import com.pjzb.dao.AuctionDebtDao;
+import com.pjzb.dao.AutomaticRepaymentDao;
+import com.pjzb.dao.AwardDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.RelationDao;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.AssignmentDebt;
+import com.pjzb.entity.AutomaticRepayment;
+import com.pjzb.entity.Award;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Relation;
+import com.pjzb.entity.Repayment;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.SendMessageService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.IAmountConstants;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.IInformTemplateConstants;
+import com.shove.Convert;
+import com.shove.data.DataSet;
+import com.shove.web.Utility;
+
+import net.sf.json.JSONObject;
+
+@Service
+public class JobAutomaticRepayService{
+	private static Log log = LogFactory.getLog(JobAutomaticRepayService.class);
+
+	@Autowired
+	private AssignmentDebtDao assignmentDebtDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private AuctionDebtDao auctionDebtDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private RepaymentDao repaymentDao;
+
+	@Autowired
+	private AutomaticRepaymentDao automaticRepaymentDao;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	@Autowired
+	private RelationDao relationDao;
+
+	@Autowired
+	private AwardDao awardDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private SendMessageService sendMessageService;
+
+	/**
+	 * 自动还款 定时器
+	 * 
+	 * @author xiaojin
+	 */
+
+	@SuppressWarnings("deprecation")
+	public void autoRepayPayment() {
+		log.info("--------------自动还款定时器开始--------------");
+		if (new Date().getHours() == 12 && new Date().getMinutes() >= 15 && new Date().getMinutes() < 20) {
+			// 查询出符合自动还款条件的还款项
+			Date date = ConvertUtil.dateConvert("2017-06-12", Constants._DATESHORT);
+			List<Repayment> list = repaymentDao.queryWillBorrowerRepaymentInfo(date);
+			for (Repayment repayment : list) {
+				// 获取还款Id(payId)
+				long id = repayment.getId();
+				/** 计算出需还总额 ******/
+				double needSum = 0.00; // 需还总额
+				double stillprincipal = repayment.getStillPrincipal(); // 仍需还本金
+				double stillInterest = repayment.getStillInterest(); // 仍需还利息
+				double hasPI = repayment.getHasPi(); // 已还本息
+				double lateFI = repayment.getLateFi(); // 逾期罚息
+				needSum = stillprincipal + stillInterest - hasPI + lateFI;
+				String ipayAccount = "";
+				long userId = -1;
+				String username = "";
+				String pwd = "";
+				Map<String, String> cmap = new HashMap<String, String>();
+				// 通过还款ID查询出对应的该借款人信息
+				Map<String, Object> umap = new HashMap<String, Object>();
+				umap = repaymentDao.queryPaymentInfo(id);
+				if (umap != null) { // 还款人对应的用户信息为空就返回
+					// 获取还款人用户对应的汇付商户号
+					ipayAccount = String.valueOf(umap.get("ipayAccount"));
+					userId = Convert.strToLong(String.valueOf(umap.get("userId")), -1);
+					username = String.valueOf(umap.get("username"));
+					pwd = String.valueOf(umap.get("pwd"));
+
+					// 判断该还款账户是否开启自动还款设置
+					AutomaticRepayment auto = automaticRepaymentDao.queryUserIsSetAutuRepayment(userId, Constants.BIDSTATUS_2);
+					if (auto != null) {
+						/******************** 调用存储过程纠偏还款资金误差开始 ***************************/
+						// 查询出当前还款记录对应的借款记录
+						long borrowId = repayment.getBorrowId();
+						Map<String, String> borrowInit = null;
+						Map<String, String> mapProce = new HashMap<String, String>();
+						mapProce.put("in_bid", String.valueOf(borrowId));
+						mapProce.put("out_ret", "");
+						mapProce.put("out_desc", "");
+						// 调用资金纠偏存储过程
+						repaymentDao.callBorrowRepaymentinitProcedure(mapProce);
+
+						if (Integer.parseInt(String.valueOf(mapProce.get("out_ret"))) > 0) { // 不为空则返回
+							/******************** 调用存储过程纠偏还款资金误差结束 ***************************/
+							JSONObject json = JSONObject.fromObject(ChinapnrInterface.queryBalanceBg(ipayAccount));
+							String AvlBalString = json.getString("AvlBal");// 用户在汇付可用余额
+							AvlBalString = AvlBalString.replaceAll(",", "");
+							double AvlBal = Convert.strToDouble(AvlBalString + "", 0);
+							if (AvlBal >= needSum) { // 可用余额不足时返回
+
+								/***** 上汇付处理还款 *****/
+								cmap = chinapnrService.doNormalRepay(id, ipayAccount, needSum, Constants.BASEPATH);
+
+								if (cmap != null) {
+									int RespCode = Convert.strToInt(cmap.get("result"), -1);
+									String respDesc = cmap.get("respDesc");
+									if (RespCode == 0) {// 当汇付处理不成功时返回
+										log.info("汇付返回处理结果：" + respDesc);
+
+										boolean re = userService.checkSign(userId);
+										log.info(re);
+										if (re) { // 账号出现异常返回
+											Map<String, String> map = dealSubmitPay(id, userId, pwd, Constants.BASEPATH, username, 1);
+											String result = Convert.strToStr(map.get("ret_desc"), "");
+											int ret = Convert.strToInt(map.get("ret"), -1);
+											// if (ret > 0) {
+											// conn.commit();
+											// } else {
+											// conn.rollback();
+											// }
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				userService.updateSign(userId);// 更换校验码
+				// 回收对象
+			}
+		}
+		log.info("--------------自动还款定时器结束--------------");
+	}
+
+	public Map<String, String> dealSubmitPay(long id, long userId, String dealPWD, String basePath, String username, int payType) {
+		dealPWD = Utility.filteSqlInfusion(dealPWD);
+		basePath = Utility.filteSqlInfusion(basePath);
+		username = Utility.filteSqlInfusion(username);
+		// Connection conn = MySQL.getConnection();
+		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> userMap = new HashMap<String, String>();
+		Map<String, String> borrowUserMap = new HashMap<String, String>();
+		List<Long> investorList = new ArrayList<Long>();
+
+		// 自动还款不需要对交易密码进行MD5加密计算
+		// if ("1".equals(IConstants.ENABLED_PASS)) {
+		// dealPWD = com.shove.security.Encrypt.MD5(dealPWD.trim());
+		// } else {
+		// dealPWD = com.shove.security.Encrypt.MD5(dealPWD.trim()
+		// + IConstants.PASS_KEY);
+		// }
+		DataSet ds = new DataSet();
+		List<Object> outParameterValues = new ArrayList<Object>();
+		long ret = -1;
+		try {
+			// String result = paySubmit(conn,id,userId,dealPWD,basePath,
+			// username);
+			// 查询借款信息得到借款时插入的平台收费标准
+			Map<String, Object> mapacc = borrowDao.queryBorrowCostByPayId(id);
+			String feelog = Convert.strToStr(String.valueOf(mapacc.get("feelog")), "");
+			Map<String, Double> feeMap = (Map<String, Double>) JSONObject.toBean(JSONObject.fromObject(feelog), HashMap.class);
+			double investFeeRate = Convert.strToDouble(feeMap.get(Constants.INVEST_FEE_RATE) + "", 0);
+
+			Map<String, Object> proceMap = new HashMap<String, Object>();
+			proceMap.put("in_pid", id);
+			proceMap.put("in_uid", userId);
+			proceMap.put("in_dealpwd", dealPWD);
+			proceMap.put("in_basepath", basePath);
+			proceMap.put("in_pay_time", new Date());
+			proceMap.put("in_ifeerate", investFeeRate);
+			proceMap.put("in_payType", payType);
+			proceMap.put("out_ret", null);
+			proceMap.put("out_desc", null);
+			borrowDao.callBorrowRepaymentProcedure(proceMap);
+			ret = Convert.strToLong(String.valueOf(proceMap.get("out_ret")), -1);
+			map.put("ret", ret + "");
+			map.put("ret_desc", String.valueOf(proceMap.get("out_desc")));
+			if (ret <= 0) {
+				map.put("msg", String.valueOf(proceMap.get("out_desc")));
+			} else {
+				User user = userDao.queryUserById(userId);
+				OperationLog operationLog = new OperationLog();
+				operationLog.setOperationTable("t_repayment");
+				operationLog.setOperationUser(user.getUsername());
+				operationLog.setOperationIp(user.getLastIp());
+				operationLog.setOperationType(2);
+				operationLog.setOperationMoney(Constants.DOUBLE_0);
+				operationLog.setOperationRemarks("用户自动还款-" + "定时器");
+				operationLog.setUserId(userId);
+				operationLog.setOperationTime(new Date());
+				operationLog.setOperationAround(Constants.OPERATION_TYPE_1);
+				operationLogDao.addOperationLog(operationLog);
+				/* //还款成功修改奖励机制 */
+				if ("1".equals(ret + "")) {
+					List<Map<String, Object>> list = repaymentDao.queryRepayInfoByBorrowId(id);
+					for (Map<String, Object> map2 : list) {
+						long uId = Convert.strToLong(map2.get("userId") + "", -1);
+						Object obj = map2.get("principal");
+						BigDecimal amounts = BigDecimal.ZERO;
+						if (obj != null) {
+							amounts = new BigDecimal(obj + "").setScale(2, BigDecimal.ROUND_HALF_UP);
+						}
+						updateMoneyNew(uId, amounts, Constants.MONEY_TYPE_2, id);
+					}
+					queryAssignmentDebtIds(id, basePath);
+				}
+
+			}
+
+			Long borrowPublisher = borrowDao.getBorrowPublisherById(id);
+			if (borrowPublisher != null) {
+				userService.updateSign(borrowPublisher);// 更换校验码
+			}
+			investorList = investDao.queryInvestorByRepaymentId(id);
+			if (investorList != null) {
+				for (Long investor : investorList) {
+					userService.updateSign(investor);// 更换校验码
+				}
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return map;
+	}
+
+	/**
+	 * (新规则) 金额变动
+	 * 
+	 * @param conn
+	 * @param userId用户编号
+	 *            (投资人和理财人)
+	 * @param money变动金额
+	 * @param type1投资2还款
+	 * @param investOrRepaymentId投资
+	 *            /还款明细编号
+	 * @return -1,-2,-3,-4: 0：处理成功 1:此标的不属于实地认证标的，或机构担保标的。
+	 *         2：当前用户已经期满1年，不需要进行奖励了。 3：此用户不是奖励体系的角色。 4：与上一级解除关系了不需要进行奖励。
+	 * @throws Exception
+	 */
+	public int updateMoneyNew(long userId, BigDecimal money, int type, long investOrRepaymentId) {
+		try {
+			List<Relation> relationList = relationDao.queryRelationByUserId(userId);// 查询用户角色
+			if (relationList == null || relationList.size() <= 0) {
+				return 3;// 不在角色关系系统内，
+			}
+			Relation relationMap = relationList.get(0);
+			int level = relationMap.getLevel();// 当前用户级别
+			int enable = relationMap.getEnable();// 是否和上一级解除关系
+			long parentId = relationMap.getParentId();
+			if (enable == 2) {
+				return 4;// 与上一级解除了关联
+			}
+			if (level == 4) {// 理财人
+				// 获得理财人的经纪人
+				List<Relation> list = relationDao.queryRelationByPeopleId(parentId);// 理财人的上级是投资人，投资人的上级是经纪人
+				if (list == null || list.size() <= 0) {
+					return 3;// 不在角色关系系统内，
+				}
+				Relation map = list.get(0);
+				enable = map.getEnable();// 是否和上一级解除关系
+				parentId = map.getParentId();// 投资人的上级是经纪人
+				// 投资人与上级解除关系了跟理财人跟上级的关系无关
+				// if(enable==2){
+				// return 4;//与上一级解除了关联
+				// }
+			}
+			Map<String, Object> platformCostMap = getPlatformCost();
+			// 奖励机制1：
+			addAward1New(userId, null, relationMap, parentId, investOrRepaymentId, level, type, money, platformCostMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		return 5;
+	}
+
+	public int addAward1New(long userId, Map<String, String> userMap, Relation relationMap, long parentId, long investOrRepaymentId, int level, int type, BigDecimal moneys,
+			Map<String, Object> platformCostMap) {
+		try {
+			BigDecimal level2Money = BigDecimal.ZERO;
+			long level2UserId = -1;
+			BigDecimal level1Money = BigDecimal.ZERO;
+			long level1UserId = -1;
+			// 总的待收本金与历史最大待收本金作比较xmax，
+			List<Map<String, Object>> relationLevel1List = relationDao.queryRelationStatus(null, parentId);// 根据经纪人查询是否有关联的团队长
+			Map<String, Object> relationLevel1Map = null;
+			if (relationLevel1List != null && relationLevel1List.size() > 0) {
+				relationLevel1Map = relationLevel1List.get(0);
+			}
+			if (relationLevel1Map != null) {
+				int level2enable = Convert.strToInt(relationLevel1Map.get("level2enable") + "", -1);
+				int level1enable = Convert.strToInt(relationLevel1Map.get("level1enable") + "", -1);
+				level2UserId = parentId;
+				// 团队长奖励比例
+				String longTeamRewardRate = Convert.strToStr(platformCostMap.get(IAmountConstants.LONG_TEAM_REWARD_RATE) + "", "0.0025");
+				// 经纪人奖励比率
+				String agent_reward_rate = Convert.strToStr(platformCostMap.get(IAmountConstants.AGENT_REWARD_RATE) + "", "0.0005");
+				level2Money = moneys.multiply(new BigDecimal(agent_reward_rate));// 经纪人所得奖励
+				// 1奖励给经纪人，2奖励完经纪人后，根据经纪人编号查询是否上面有团队长，如果有则按奖励公式给予团队长进行奖励，并作记录
+				int enable1 = Convert.strToInt(relationLevel1Map.get("enable") + "", -1);// 是否和上一级解除关系
+				if (enable1 == 1) {
+					long parentId1 = Convert.strToLong(relationLevel1Map.get("level1userId") + "", -1);
+					level1UserId = parentId1;
+					level1Money = level2Money.multiply(new BigDecimal(longTeamRewardRate));
+					// MySQL.executeNonQuery(conn, " update t_admin set moneys =
+					// moneys+"+level1Money+" where id =
+					// "+level1UserId);//奖励团队长提成
+				}
+				if (level2enable != 1) {// 如果经纪人被禁用了则不能获得奖励
+					level2Money = BigDecimal.ZERO;
+				}
+				if (level1enable != 1) {// 如果团队长被禁用了则不能获得奖励
+					level1Money = BigDecimal.ZERO;
+				}
+				Award award = new Award();
+				award.setUserId(userId);
+				award.setLevel2userId(level2UserId);
+				award.setLevel2money(level2Money.doubleValue());
+				award.setLevel1userId(level1UserId);
+				award.setLevel1money(level1Money.doubleValue());
+				award.setIorId(investOrRepaymentId);
+				award.setIorType(type);
+				award.setStatus(1);
+				award.setMx(moneys.doubleValue());
+				award.setMxType(IConstants.MX_TYPE_MAX);
+				award.setMonth(-1);
+				award.setLevel(level);
+				award.setAddDate(new Date());
+				awardDao.addAward(award);
+				// 并把当前总的待收本金赋值给历史最大待收本金，并作记录
+				// MySQL.executeNonQuery(conn," update t_user set xmax = "+moneys+"
+				// where id ="+userId);
+			}
+			// 如果当前总的待收本金小于历史最大待收本金，则不作任何处理
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		return 0;
+	}
+
+	public long queryAssignmentDebtIds(long repayId, String basePath) {
+		long result = -1;
+		try {
+			long borrowId = repaymentDao.queryRepaymentBorrowIdIdById(repayId);
+			List<Integer> debtStatus = new ArrayList<Integer>();
+			debtStatus.add(1);
+			debtStatus.add(2);
+			debtStatus.add(-2);
+			List<AssignmentDebt> debtList = assignmentDebtDao.queryAssignmentDebtIds(borrowId, debtStatus);
+			for (AssignmentDebt map : debtList) {
+				long id = map.getId();
+				dealAssignmentDebt(id, 7, basePath);
+				List<Map<String, Object>> list = auctionDebtDao.queryAuctionDebtByDebtId(id);
+				if (list != null) {
+					for (Map<String, Object> m : list) {
+						long uid = Convert.strToLong(m.get("userId") + "", -1);
+						userService.updateSign(uid);
+					}
+				}
+			}
+			result = 1;
+		} catch (Exception e) {
+			log.error(e);
+		}
+		return result;
+	}
+
+	private long dealAssignmentDebt(long debtId, int debtStatus, String basePath) {
+		long result = -1;
+		try {
+			List<Map<String, Object>> auctionList = auctionDebtDao.queryAuctionDebtByDebtIdForUnion(debtId);
+			String borrowTitle = borrowDao.getBorrowTitle(debtId);
+			Map<String, String> updateDebtMap = new HashMap<String, String>();
+			updateDebtMap.put("auctionEndTime", DateUtil.dateToString(new Date()));
+			updateDebtMap.put("debtStatus", debtStatus + "");
+			List<Integer> debtStatusList = new ArrayList<Integer>();
+			debtStatusList.add(-2);
+			debtStatusList.add(1);
+			debtStatusList.add(2);
+			Long updateCount = assignmentDebtDao.updateAssignmentDebtDebtStatus(new Date(), debtStatus, debtId, null, debtStatusList);
+			if (updateCount > 0) {
+				result = 1;
+				if (auctionList != null) {
+					Map<Long, Double> frezeMap = new HashMap<Long, Double>(); // 记录解冻的资金
+					for (Map<String, Object> map : auctionList) {
+						long userId = Convert.strToLong(map.get("userId") + "", -1);
+						User auctionerUserMap = userDao.queryUserById(userId);
+						Map<String, String> userMap = new HashMap<String, String>();
+						double usableSum = auctionerUserMap.getUsableSum();
+						double freezeSum = auctionerUserMap.getFreezeSum();
+						double auctionPrice = Convert.strToDouble(map.get("auctionPrice") + "", 0.0);
+						// 防止解冻重复解冻金额
+						if (frezeMap.containsKey(userId)) {
+							double oldAcutionPrice = frezeMap.get(userId);
+							if (oldAcutionPrice >= auctionPrice) {
+								continue;
+							} else {
+								frezeMap.put(userId, auctionPrice);// 记录该用户最大竞拍值
+								auctionPrice = auctionPrice - oldAcutionPrice;
+							}
+						} else {
+							frezeMap.put(userId, auctionPrice);// 记录该用户竞拍
+						}
+						userMap.put("usableSum", (usableSum + auctionPrice) + "");
+						userMap.put("freezeSum", (freezeSum - auctionPrice) + "");
+						User user = new User();
+						user.setUsableSum(usableSum + auctionPrice);
+						user.setFreezeSum(freezeSum - auctionPrice);
+						user.setId(userId);
+						if (userDao.updateUser(user) > 0) {
+							// 解冻资金操作记录
+							Map<String, Object> userAmountMap = userDao.queryUserAmountAfterHander(userId);
+							if (userAmountMap == null) {
+								userAmountMap = new HashMap<String, Object>();
+							}
+							double usableSumAfter = Convert.strToDouble(userAmountMap.get("usableSum") + "", 0);
+							double freezeSumAfter = Convert.strToDouble(userAmountMap.get("freezeSum") + "", 0);
+							double forPI = Convert.strToDouble(userAmountMap.get("forPI") + "", 0);
+							String remark = "[<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target=_blank>" + borrowTitle + "</a>]竞拍失败解冻";
+							Fundrecord fundrecord = new Fundrecord();
+							fundrecord.setUserId(userId);
+							fundrecord.setFundMode("债权转让竞拍解冻");
+							fundrecord.setHandleSum(auctionPrice);
+							fundrecord.setUsableSum(usableSumAfter);
+							fundrecord.setFreezeSum(freezeSumAfter);
+							fundrecord.setDueinSum(forPI);
+							fundrecord.setTrader(-1L);
+							fundrecord.setRemarks(remark);
+							fundrecord.setIncome(auctionPrice);
+							fundrecord.setSpending(0d);
+							fundrecord.setBorrowId(-1L);
+							fundrecord.setRepaymentId(-1L);
+							fundrecord.setOperateType(202);
+							fundrecord.setDueoutSum(0d);
+							fundrecord.setRecordTime(new Date());
+							// 添加资金记录
+							fundrecordDao.insertFundrecord(fundrecord);
+
+							// 竞拍者消息提醒
+							// 发送通知，通过通知模板
+							Map<String, Object> informTemplateMap = getInformTemplate();
+
+							Map<String, String> noticeMap = new HashMap<String, String>();
+
+							// 消息模版
+							// 站内信
+							String informTemplate = informTemplateMap.get(IInformTemplateConstants.FAIL_BID).toString();
+							// if (informTemplate == null) {
+							// conn.rollback();
+							// return -1L;
+							// }
+							informTemplate = informTemplate.replace("date", DateUtil.dateToString((new Date())));
+							informTemplate = informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + " target=_blank>" + borrowTitle
+									+ "</a>");
+							informTemplate = informTemplate.replace("money", auctionPrice + "");
+							noticeMap.put("mail", informTemplate);
+
+							// 邮件
+							String e_informTemplate = informTemplateMap.get(IInformTemplateConstants.E_FAIL_BID).toString();
+							// if (e_informTemplate == null) {
+							// conn.rollback();
+							// return -1L;
+							// }
+							e_informTemplate = e_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+							e_informTemplate = e_informTemplate.replace("describe", "<a href=" + basePath + "/queryDebtDetail.do?id=" + debtId + ">" + borrowTitle + "</a>");
+							e_informTemplate = e_informTemplate.replace("money", auctionPrice + "");
+							noticeMap.put("email", e_informTemplate);
+
+							// 短信
+							String s_informTemplate = informTemplateMap.get(IInformTemplateConstants.S_FAIL_BID).toString();
+							// if (s_informTemplate == null) {
+							// conn.rollback();
+							// return -1L;
+							// }
+							s_informTemplate = s_informTemplate.replace("userName", auctionerUserMap.getUsername());
+							s_informTemplate = s_informTemplate.replace("date", DateUtil.dateToString((new Date())));
+							s_informTemplate = s_informTemplate.replace("describe", borrowTitle);
+							s_informTemplate = s_informTemplate.replace("money", auctionPrice + "");
+							noticeMap.put("note", e_informTemplate);
+							if (Constants.ISDEMO.equals(Constants.ISDEMO_2)) {
+								sendMessageService.sendNoticeMSG(userId, "债权转让竞拍报告", noticeMap, IConstants.NOTICE_MODE_5);
+							}
+
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		return result;
+	}
+	
+	public Map<String, Object> getPlatformCost(){
+		//获取平台收费
+		Map<String,Object> platformCostMap = (Map<String, Object>) ContextLoader.getCurrentWebApplicationContext().getServletContext().getAttribute(Constants.FEE_APPLICATION);
+        if(platformCostMap == null)
+        	platformCostMap = new HashMap<String, Object>();
+		return platformCostMap;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String,Object> getInformTemplate(){
+		return (Map<String, Object>)
+		ContextLoader.getCurrentWebApplicationContext().getServletContext().getAttribute(IInformTemplateConstants.INFORM_TEMPLATE_APPLICATION);
+	}
+	
+
+}

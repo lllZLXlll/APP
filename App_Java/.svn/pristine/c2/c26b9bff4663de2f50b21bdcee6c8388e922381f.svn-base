@@ -1,0 +1,177 @@
+package com.pjzb.service.admin.count;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ExcelUtils;
+import com.shove.Convert;
+/**
+ * 投标统计
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminBidCountService extends BaseController{
+	
+	@Autowired
+	private InvestDao investDao;
+
+	public String queryInvestStatisForPage(Model model, String tabid, Long pageNum, Long pageSize,String bTitle, String realName, String recommendrealName,
+			String deadline, String borrowWay, String beginTime, String endTime, String isAutoBid, String borrowStatus) {
+		List<Integer> borrowStatuList = new ArrayList<Integer>();
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			bTitle = bTitle == null ? "" :bTitle;
+			realName = realName == null ? "" :realName;
+			recommendrealName = recommendrealName == null ? "" :recommendrealName;
+			deadline = deadline == null ? "" :deadline;
+			int deadlineInt = Convert.strToInt(deadline, -1);
+			borrowWay = borrowWay == null ? "" :borrowWay;
+			int borrowWayInt = Convert.strToInt(borrowWay, -1);
+			beginTime = beginTime == null ? "" :beginTime;
+			endTime = endTime == null ? "" :endTime;
+			isAutoBid = isAutoBid == null ? "" :isAutoBid;
+			int isAutoBidInt = Convert.strToInt(isAutoBid, -1);
+			borrowStatus = borrowStatus == null ? "" :borrowStatus;
+			if ("1".equals(borrowStatus)) {
+				borrowStatuList.add(1);
+				borrowStatuList.add(2);
+				borrowStatuList.add(3);
+				borrowStatuList.add(6);
+			} else if ("2".equals(borrowStatus)) {
+				borrowStatuList.add(4);
+				borrowStatuList.add(5);
+			}else{
+				borrowStatuList = null;
+			}
+			List<Map<String, Object>> list = investDao.queryInvestStatisForPage((pageNum - 1) * pageSize, pageSize,bTitle,realName,recommendrealName,deadlineInt,borrowWayInt,beginTime,endTime,isAutoBidInt,borrowStatuList);
+			long count = investDao.queryInvestStatisCount(bTitle,realName,recommendrealName,deadlineInt,borrowWayInt,beginTime,endTime,isAutoBidInt,borrowStatuList);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("realName", realName);
+			model.addAttribute("recommendrealName", recommendrealName);
+			model.addAttribute("deadline", deadline);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("beginTime", beginTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("isAutoBid", isAutoBid);
+			model.addAttribute("borrowStatus", borrowStatus);
+			model.addAttribute("bTitle", bTitle);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询投标统计异常**************************");
+		}
+		return "/admin/count/bidcount/list.jsp";
+	}
+
+	public void exportInvestStatis(HttpServletResponse response, Long pageNum, Long pageSize, String bTitle, String realName, String recommendrealName, String deadline,
+			String borrowWay, String beginTime, String endTime, String isAutoBid, String borrowStatus) {
+		List<Integer> borrowStatuList = new ArrayList<Integer>();
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			bTitle = bTitle == null ? "" :bTitle;
+			realName = realName == null ? "" :realName;
+			recommendrealName = recommendrealName == null ? "" :recommendrealName;
+			deadline = deadline == null ? "" :deadline;
+			int deadlineInt = Convert.strToInt(deadline, -1);
+			borrowWay = borrowWay == null ? "" :borrowWay;
+			int borrowWayInt = Convert.strToInt(borrowWay, -1);
+			beginTime = beginTime == null ? "" :beginTime;
+			endTime = endTime == null ? "" :endTime;
+			isAutoBid = isAutoBid == null ? "" :isAutoBid;
+			int isAutoBidInt = Convert.strToInt(isAutoBid, -1);
+			borrowStatus = borrowStatus == null ? "" :borrowStatus;
+			if ("1".equals(borrowStatus)) {
+				borrowStatuList.add(1);
+				borrowStatuList.add(2);
+				borrowStatuList.add(3);
+				borrowStatuList.add(6);
+			} else if ("2".equals(borrowStatus)) {
+				borrowStatuList.add(4);
+				borrowStatuList.add(5);
+			}else{
+				borrowStatuList = null;
+			}
+			List<Map<String, Object>> list = investDao.queryExportInvestStatisForPage((pageNum - 1) * pageSize, pageSize,bTitle,realName,recommendrealName,deadlineInt,borrowWayInt,beginTime,endTime,isAutoBidInt,borrowStatuList);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("投标统计表", list, new String[] { "真实姓名", "推荐人姓名", "投标扣除金额(元)", "交易对方", "借款标题", "借款类型", "项目期限（月）", "是否自动投标", "是否投标成功" , "投标时间"}, new String[] {
+					"realName", "recommendrealName", "realAmount", "borrower", "borrowTitle", "borrowWayName", "deadline", "isAutoBid" , "borrowStatus", "investTime"});
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出投标统计异常**************************");
+		}
+	}
+
+	public String queryInvestStatisRankForPage(Model model, String tabid, Long pageNum, Long pageSize, String beginTime, String endTime, String investor, String group) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			investor = investor == null ? "" :investor;
+			group = group == null ? "" :group;
+			int groupInt = Convert.strToInt(group, -1);
+			beginTime = beginTime == null ? "" :beginTime;
+			endTime = endTime == null ? "" :endTime;
+			List<Map<String, Object>> list = investDao.queryInvestStatisRankForPage((pageNum - 1) * pageSize, pageSize,beginTime,endTime,investor,groupInt);
+			long count = investDao.queryInvestStatisRankCount(beginTime,endTime,investor,groupInt);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("beginTime", beginTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("investor", investor);
+			model.addAttribute("group", group);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询投标排名异常**************************");
+		}
+		return "/admin/count/bidcount/rankList.jsp";
+	}
+
+	public void exportInvestStatisRank(HttpServletResponse response, Long pageNum, Long pageSize, String beginTime, String endTime, String investor, String group) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			investor = investor == null ? "" :investor;
+			group = group == null ? "" :group;
+			int groupInt = Convert.strToInt(group, -1);
+			beginTime = beginTime == null ? "" :beginTime;
+			endTime = endTime == null ? "" :endTime;
+			List<Map<String, Object>> list = investDao.queryInvestStatisRankForPage((pageNum - 1) * pageSize, pageSize,beginTime,endTime,investor,groupInt);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("投标排名表", list, new String[] { "用户名","用户组","真实姓名","期间成功投标金额", "期间投标金额总计", "账户总额", "可用金额", "待收总额", "会员积分", "信用积分"}, new String[] {
+					"investor", "groupName", "realName", "realAmount", "realAmount", "totalSum", "usableSum", "forPI" , "rating", "creditrating"});
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出投标排名异常**************************");
+		}
+	}
+
+}

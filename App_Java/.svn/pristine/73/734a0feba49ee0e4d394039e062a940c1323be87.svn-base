@@ -1,0 +1,304 @@
+package com.pjzb.util;
+
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+public class ConvertUtil {
+	
+	public static String dateConvert(Date date,String dateType) {
+		String string=null;
+		try {
+			SimpleDateFormat sdf=new SimpleDateFormat(dateType);
+			string= sdf.format(date);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return string;
+	}
+	
+	public static Date dateConvert(String date,String dateType){
+		Date date2=null;
+		try {
+			SimpleDateFormat sdf=new SimpleDateFormat(dateType);
+			date2= sdf.parse(date);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return date2;
+	}
+	
+	
+	
+	public static Integer convertInteger(String intStr) {
+		Integer integer=0;
+		try {
+			 integer=Integer.parseInt(intStr);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return integer;
+	}
+	
+	public static Long convertLong(String LongStr) {
+		Long long1=0L;
+		try {
+			long1=Long.parseLong(LongStr);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return long1;
+	}
+	
+	public static Double convertDouble(String doubleStr) {
+		Double double1=0d;
+		try {
+			double1=Double.parseDouble(doubleStr);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return double1;
+	}
+	
+	public static String convertString(Object object) {
+		String string="0";
+		try {
+			string=String.valueOf(object);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return string;
+	}
+	
+	/**
+	 * Object转换为String(字符串null，一个""或n个"   ",都转为null)
+	 * @param object
+	 * @return
+	 */
+	public static String convertObjToStr(Object object) {
+		String string=null;
+		try {
+			if(object!=null &&!object.equals("null")){
+				string=String.valueOf(object);
+				if(!StringUtils.isBlank(string)){
+					return string;
+				}else{
+					return null;
+				}
+			}else{
+				return string;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return string;
+		}
+	}
+	
+	//string转换为json对象
+	public static JSONObject convertJsonObject(Object object){
+		JSONObject jsonObject=null;
+		try {
+			jsonObject=JSONObject.fromObject(object);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jsonObject;
+	}
+	
+		
+	public static Date add(Date date, int type, int value) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(type, value);
+		return calendar.getTime();
+	}
+	
+	 // Bean --> Map  
+    public static Map<String, Object> transBeanToMap(Object obj) {  
+        if(obj == null){  
+            return null;  
+        }          
+        Map<String, Object> map = new HashMap<String, Object>();  
+        try {  
+            BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());  
+            PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();  
+            for (PropertyDescriptor property : propertyDescriptors) {  
+                String key = property.getName();  
+  
+                // 过滤class属性  
+                if (!key.equals("class")) {  
+                    // 得到property对应的getter方法  
+                    Method getter = property.getReadMethod();  
+                    Object value = getter.invoke(obj);  
+  
+                    map.put(key, value);  
+                }  
+  
+            }  
+        } catch (Exception e) {  
+            System.out.println("transBean2Map Error " + e);  
+        }  
+        return map;  
+    }  
+    
+    // Bean --> Map  
+    public static Map<String, String> transBeanToMapString(Object obj) {  
+  
+        if(obj == null){  
+            return null;  
+        }          
+        Map<String, String> map = new HashMap<String, String>();  
+        try {  
+            BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());  
+            PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();  
+            for (PropertyDescriptor property : propertyDescriptors) {  
+                String key = property.getName();  
+  
+                // 过滤class属性  
+                if (!key.equals("class")) {  
+                    // 得到property对应的getter方法  
+                    Method getter = property.getReadMethod();  
+                    String value =String.valueOf(getter.invoke(obj));  
+                    map.put(key, value);  
+                }  
+  
+            }  
+        } catch (Exception e) {  
+            System.out.println("transBean2Map Error " + e);  
+        }  
+  
+        return map;  
+    }  
+    
+    public static String decimalFormat(Double d) {
+    	 DecimalFormat df =new DecimalFormat("0.00"); 
+    	return df.format(d);
+	}
+    
+    public static String filteSqlInfusion(String input) {
+		if ((input == null) || (input.trim() == "")) {
+			return "";
+		}
+		if (!StringUtils.isNumeric(input)) {
+			return input.replace("'", "’").replace("update", "ｕｐｄａｔｅ").replace(
+					"drop", "ｄｒｏｐ").replace("delete", "ｄｅｌｅｔｅ").replace("exec",
+					"ｅｘｅｃ").replace("create", "ｃｒｅａｔｅ").replace("execute",
+					"ｅｘｅｃｕｔｅ").replace("where", "ｗｈｅｒｅ").replace("truncate",
+					"ｔｒｕｎｃａｔｅ").replace("insert", "ｉｎｓｅｒｔ");
+		} 
+		return input;
+	}
+    
+    
+    /**
+	 * 天标计算
+	 * 
+	 * @param borrowSum
+	 * @param yearRate
+	 * @param borrowTime
+	 * @return
+	 */
+	public static Map<String, Object> rateCalculateDay(double borrowSum,
+			double yearRate, int borrowTime) {
+		if (borrowSum < 0 || yearRate < 0 || borrowTime < 0) {
+			return null;
+		}
+		DecimalFormat df = new DecimalFormat("#.00");
+		// 月利率
+		double i = yearRate * 1f / 12;
+		// 所借本金
+		double sum = Double.valueOf(df.format(borrowSum));
+
+		// 所还利息
+		double monForRate = Convert.strToDouble(df.format(sum * i * borrowTime
+				/ 30), 0);
+
+		double val = borrowSum + monForRate;
+
+		Map<String, Object> map = addToMap(borrowTime, val, borrowSum,
+				monForRate, 0, i, val);
+
+		return map;
+
+	}
+	
+	/**
+	 * 
+	 * @param mon
+	 *            月份
+	 * @param monPay
+	 *            月还本息
+	 * @param monForA
+	 *            月还本金
+	 * @param monForRate
+	 *            月还利息
+	 * @param payRemain
+	 *            本息余额
+	 * @param monRate
+	 *            月利率
+	 * @param allPay
+	 *            总还本息
+	 * @return
+	 */
+	public static Map<String, Object> addToMap(int mon, double monPay,
+			double monForA, double monForRate, double payRemain,
+			double monRate, double allPay) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("mon", mon);
+		// 保留两位小数，不够两位小数的以0补齐
+		map.put("monForRateA", String.format("%.2f", monPay));
+		map.put("monForA", String.format("%.2f", monForA));
+		map.put("monForRate", String.format("%.2f", monForRate));
+		map.put("rateARemain", String.format("%.2f", payRemain));
+		map.put("monRate", String.format("%.2f", monRate));
+		map.put("allPay", String.format("%.2f", allPay));
+		return map;
+	}
+
+	public static void main(String[] args) throws ParseException {
+		System.out.println(convertJsonObject("{'pageno':'1'}"));
+	}
+	
+	public static String FilteSqlInfusion(String input) {
+		if ((input == null) || (input.trim() == "")) {
+			return "";
+		}
+		if (!StringUtils.isNumeric(input)) {
+			return input.replace("'", "’").replace("update", "ｕｐｄａｔｅ").replace(
+					"drop", "ｄｒｏｐ").replace("delete", "ｄｅｌｅｔｅ").replace("exec",
+					"ｅｘｅｃ").replace("create", "ｃｒｅａｔｅ").replace("execute",
+					"ｅｘｅｃｕｔｅ").replace("where", "ｗｈｅｒｅ").replace("truncate",
+					"ｔｒｕｎｃａｔｅ").replace("insert", "ｉｎｓｅｒｔ");
+		} 
+		return input;
+	}
+	
+	/**
+	 * 计算两个时间之间相差的秒数
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public static long diffTimes(Date startDate,Date endDate){
+		long days = 0;
+		long start = startDate.getTime();
+		long end = endDate.getTime();
+		//一天的毫秒数1000 * 60 * 60 * 24=86400000
+		days = (end - start) / 1000;
+		return days;
+	}
+}

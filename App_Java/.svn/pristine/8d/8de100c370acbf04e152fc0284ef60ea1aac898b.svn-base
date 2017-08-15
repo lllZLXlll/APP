@@ -1,0 +1,126 @@
+package com.pjzb.entity.vo;
+
+import java.util.Date;
+
+public class BorrowDebtVo {
+	private Integer borrowShow;
+	private Double borrowAmount;
+	private Integer deadline;
+	private Integer isDayThe;
+	private Integer borrowWay;
+	private Long publisher;
+	private Date auditTime;
+	private Double annualRate;
+	private String borrowTitle;
+	private String username;
+	private Double frozenMargin;
+	private String feestate;
+	private String feelog;
+	private String realName;
+	private String idNo;
+	private String purpose;
+	private String paymentMode;
+	public Integer getBorrowShow() {
+		return borrowShow;
+	}
+	public void setBorrowShow(Integer borrowShow) {
+		this.borrowShow = borrowShow;
+	}
+	public Double getBorrowAmount() {
+		return borrowAmount;
+	}
+	public void setBorrowAmount(Double borrowAmount) {
+		this.borrowAmount = borrowAmount;
+	}
+	public Integer getDeadline() {
+		return deadline;
+	}
+	public void setDeadline(Integer deadline) {
+		this.deadline = deadline;
+	}
+	public Integer getIsDayThe() {
+		return isDayThe;
+	}
+	public void setIsDayThe(Integer isDayThe) {
+		this.isDayThe = isDayThe;
+	}
+	public Integer getBorrowWay() {
+		return borrowWay;
+	}
+	public void setBorrowWay(Integer borrowWay) {
+		this.borrowWay = borrowWay;
+	}
+	public Long getPublisher() {
+		return publisher;
+	}
+	public void setPublisher(Long publisher) {
+		this.publisher = publisher;
+	}
+	public Date getAuditTime() {
+		return auditTime;
+	}
+	public void setAuditTime(Date auditTime) {
+		this.auditTime = auditTime;
+	}
+	public Double getAnnualRate() {
+		return annualRate;
+	}
+	public void setAnnualRate(Double annualRate) {
+		this.annualRate = annualRate;
+	}
+	public String getBorrowTitle() {
+		return borrowTitle;
+	}
+	public void setBorrowTitle(String borrowTitle) {
+		this.borrowTitle = borrowTitle;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public Double getFrozenMargin() {
+		return frozenMargin;
+	}
+	public void setFrozenMargin(Double frozenMargin) {
+		this.frozenMargin = frozenMargin;
+	}
+	public String getFeestate() {
+		return feestate;
+	}
+	public void setFeestate(String feestate) {
+		this.feestate = feestate;
+	}
+	public String getFeelog() {
+		return feelog;
+	}
+	public void setFeelog(String feelog) {
+		this.feelog = feelog;
+	}
+	public String getRealName() {
+		return realName;
+	}
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+	public String getIdNo() {
+		return idNo;
+	}
+	public void setIdNo(String idNo) {
+		this.idNo = idNo;
+	}
+	public String getPurpose() {
+		return purpose;
+	}
+	public void setPurpose(String purpose) {
+		this.purpose = purpose;
+	}
+	public String getPaymentMode() {
+		return paymentMode;
+	}
+	public void setPaymentMode(String paymentMode) {
+		this.paymentMode = paymentMode;
+	}
+	
+}

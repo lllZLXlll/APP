@@ -1,0 +1,185 @@
+package com.pjzb.util;
+
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.pjzb.entity.MessageInfo;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.SMSInterfaceService;
+import com.pjzb.service.common.SendSmsService;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+
+public class SMSUtil {
+	private static Log log = LogFactory.getLog(SMSUtil.class);
+	
+	/**
+	 * 调用http请求进行短信发送
+	 */
+	public static String sendMSMNewPost(String userid,String path,String account,String Password, String content,String phone){
+		Map<String,String> map = new HashMap<String, String>();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+		String ScheduleTime =sdf.format(new Date());
+		Random random = new Random();
+		String SerialNumber = generateSequenceNo()+""+random.nextInt(100);
+		SerialNumber = SerialNumber.substring(0,19);
+		map.put("account", account);
+		map.put("password", Password);
+		map.put("userid", userid);
+		map.put("content", content);
+		map.put("mobile", phone);
+		//map.put("SerialNumber", SerialNumber);
+		map.put("sendTime","");
+		map.put("action","send");
+		map.put("extno", "");
+		//map.put("f", "1");
+		return HttpUtil.http(path, map);
+	}
+	
+	
+	/**
+	 * 时间格式生成序列
+	 * 
+	 * @return String
+	 */
+	public static synchronized String generateSequenceNo() {
+		 FieldPosition HELPER_POSITION = new FieldPosition(0);
+		Format dateFormat = new SimpleDateFormat("yyyyMMddHHmmssS");
+		 int seq = 0;
+		 int MAX = 9;
+		 Random random=new Random();
+		Calendar rightNow = Calendar.getInstance();
+		StringBuffer sb = new StringBuffer();
+		dateFormat.format(rightNow.getTime(), sb, HELPER_POSITION);
+		if (seq == MAX) {
+			seq = 0;
+		} else {
+			seq++;
+		}
+		sb.append(random.nextInt(90)+10);
+		sb.append(seq);
+		return sb.toString();
+	}
+	
+	
+	/**
+	 * 发送短信,骏媒短信平台
+	 */
+	public static String sendSMS(String userid,String path,String account,String password, String content,
+			String phone,String randomCode) {
+		String returnResult=null;
+		
+		try {
+			if(randomCode != null){
+				//content += randomCode;
+				System.out.println("=========发送的验证码为："+randomCode);
+			}
+			System.out.println("=========content=="+content);
+			boolean needstatus = true;// 是否需要状态报告，需要true，不需要false
+			String extno = null;// 扩展码
+			if(Constants.ISDEMO.equals(Constants.ISDEMO_2)){
+				String result= sendMSMNewPost(userid, path, account, password, content, phone);
+				System.out.println("=========骏媒短信接口返回结果："+result);
+				MessageInfo	m = xmltoBean(result, MessageInfo.class);
+				if("ok".equals(m.getMessage())){ 
+					returnResult=Constants.SUCCESS;
+				}else{
+					returnResult=Constants.FAIL;
+				}
+				log.info("生产环境发送验证码");
+			}else{
+				returnResult=Constants.SUCCESS;
+				log.info("测试环境发送验证码");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************发送短信异常*********************");
+			returnResult=Constants.FAIL;
+		}
+		return returnResult;
+	}
+
+	private static <T> T xmltoBean(String xmlStr, Class<T> cls) {
+		XStream xstream = new XStream(new DomDriver());
+		xstream.processAnnotations(cls);
+		@SuppressWarnings("unchecked")
+		T t = (T) xstream.fromXML(xmlStr);
+		return t;
+	}
+	
+
+	/**
+	 * 发送模板短信
+	 * @author tangjielong
+	 * @return
+	 * @throws Exception
+	 */
+	public static String SendSMSModer(long id,String investSum,int status) throws Exception {		
+		try {
+			
+			// 根据id集合获取用户phone
+			SMSInterfaceService sMSInterfaceService =new SMSInterfaceService();
+			Map<String, String> smsMap = sMSInterfaceService.getSmsIphone(id);
+			String phone = smsMap.get("cellPhone").toString();
+			//或者短信内容
+		    Map<String, String> moderContent = sMSInterfaceService.getSmsConetnt(id, status);
+		    String content =null;
+		    if(status ==1){
+		    	content = moderContent.get("content");
+		    	content = "【"+IConstants.PRO_GLOBLE_NAME+"】"+content;
+		    content = content.replaceAll("investSum", investSum); 
+		    }else if(status ==2){
+		    	content = moderContent.get("content");
+		    	content = "【"+IConstants.PRO_GLOBLE_NAME+"】"+content;
+			    content = content.replaceAll("cash", investSum);
+		    }else if(status ==3){
+		    	content = moderContent.get("content");
+		    }else if(status ==4){
+		    	content = moderContent.get("content");
+		    	content = "【"+IConstants.PRO_GLOBLE_NAME+"】"+content;
+			    content = content.replaceAll("payments", investSum);
+		    }else if(status ==5){
+		    	content = moderContent.get("content");
+		    }else if(status ==6){
+		    	content = moderContent.get("content");
+		    	content = "【"+IConstants.PRO_GLOBLE_NAME+"】"+content;
+			    content = content.replaceAll("auctionBasePrice", investSum);
+		    }
+							
+		    Map<String, String> map = sMSInterfaceService.getSMSById(1);
+
+			String retCode = SMSUtil.sendSMS(map.get("UserID"),map.get("url"),map.get("Account"),map.get("Password"),content, phone, null);
+			if (retCode.equals("Sucess")) {
+				SendSmsService sendSMSService = new SendSmsService();
+				// 添加短信记录
+				@SuppressWarnings("unused")
+				Long result = sendSMSService.SendSMS(content,String.valueOf(id) , phone);
+				
+				return null;
+			} else {
+				SendSmsService sendSMSService = new SendSmsService();
+				// 添加短信记录
+				@SuppressWarnings("unused")
+				Long result = sendSMSService.SendSMS(content,String.valueOf(id) , phone);
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+	
+
+}

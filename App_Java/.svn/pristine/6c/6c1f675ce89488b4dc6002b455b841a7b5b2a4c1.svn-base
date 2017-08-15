@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.BannerDao">
+
+	<resultMap type="banner" id="bannerResultMap">
+		<id column="id" property="id" />
+		<result column="bannerPath" property="bannerPath" />
+		<result column="uploadTime" property="uploadTime" />
+		<result column="bannerName" property="bannerName" />
+		<result column="link" property="link" />
+		<result column="type" property="type" />
+		<result column="sort" property="sort" />
+	</resultMap>
+
+	<select id="queryIndexBannerByType" resultMap="bannerResultMap" parameterType="java.lang.Integer" >
+	   SELECT a.id AS id,a.bannerPath AS bannerPath,a.link AS link,a.sort AS sort FROM t_banner a WHERE a.type = #{bannerType} ORDER BY a.sort
+	</select>
+
+	<select id="queryBannerListForPage" resultType="java.util.Map">
+		SELECT * FROM t_banner ORDER BY type, sort
+	</select>
+	
+	<select id="queryBannerListCount" resultType="java.lang.Long">
+		SELECT count(1) AS counts FROM t_banner
+	</select>
+	
+	<update id="updateSortByid">
+		UPDATE t_banner SET sort=#{1} WHERE id=#{0}
+	</update>
+	
+	<select id="queryBannerById" resultMap="bannerResultMap">
+		SELECT * FROM t_banner WHERE id=#{0}
+	</select>
+	
+	<update id="updateBannerById">
+		UPDATE t_banner SET link=#{link} WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteBannerById">
+		DELETE FROM t_banner WHERE id=#{0}
+	</delete>
+	
+	<insert id="addBanner">
+		INSERT INTO t_banner(bannerPath,uploadTime,bannerName,link,sort,type) 
+		VALUE(#{bannerPath},#{uploadTime},#{bannerName},#{link},#{sort},#{type})
+	</insert>
+</mapper>
+
+
+

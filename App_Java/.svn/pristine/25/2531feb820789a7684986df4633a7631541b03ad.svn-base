@@ -1,0 +1,41 @@
+package com.pjzb.service.front;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.RechargeDetailDao;
+import com.pjzb.entity.RechargeDetail;
+
+@Service
+public class RechargeDetailService extends BaseController{
+	
+	@Autowired
+	private RechargeDetailDao rechargeDetailDao;
+	
+	
+	
+	public List<RechargeDetail> queryRechargeList(Long userId,String startTime, String endTime,Long index,Long num){
+		return rechargeDetailDao.queryRechargeList(userId, startTime, endTime, index, num);
+	}
+
+	public Map<String, Long> queryRechargeCountByRechargeTime(Long userId,String startTime, String endTime){
+		return rechargeDetailDao.queryRechargeCountByRechargeTime(userId, startTime, endTime);
+	}
+	
+	public void addRechargeDetail(RechargeDetail rechargeDetail){
+		rechargeDetailDao.addRechargeDetail(rechargeDetail);
+	}
+	
+	public void callUseraddmoneyProcedure(Map<String, Object> map){
+		 rechargeDetailDao.callUseraddmoneyProcedure(map);
+	}
+	
+	public Map<String, BigDecimal> queryRechargeAmountWithin15Days(Long userId){
+		return rechargeDetailDao.queryRechargeAmountWithin15Days(userId);
+	}
+}

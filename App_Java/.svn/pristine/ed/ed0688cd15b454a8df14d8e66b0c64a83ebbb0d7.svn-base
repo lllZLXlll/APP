@@ -1,0 +1,87 @@
+package com.pjzb.service.admin.system;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.SelectDao;
+import com.pjzb.entity.Select;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 联动模块参数
+ * 
+ */
+@Service
+public class AdminLinkModParamService extends BaseController {
+
+	@Autowired
+	private SelectDao selectDao;
+
+	public String querySelectList(Model model, String tabid, Long pageNum, Long pageSize, Long type) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		type = ConvertUtil.objToLongConvert(type);
+		type = type == 0 ? 1 : type;
+		Object selectTypeIdObj = sessionGetAttribute("selectTypeId");
+		if (selectTypeIdObj != null) {
+			type = Long.parseLong(String.valueOf(selectTypeIdObj));
+			sessionRemoveAttribute("selectTypeId");
+		}
+
+		List<Select> selects = selectDao.querySelectByTypeId(type, 1, (pageNum - 1) * pageSize, pageSize);
+		Long count = selectDao.querySelectCountByTypeId(type, 1);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, selects));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("type", type);
+		return "/admin/system/linkmodparam/list.jsp";
+	}
+
+	public String querySaveorupdateBorrowPurposeInit(Model model, String tabid, Long id) {
+		Select select = null;
+		if (id != null) {
+			select = selectDao.querySelectById(id);
+		}
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("select", select);
+		return "/admin/system/linkmodparam/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> saveOrUpdateBorrowPurpose(Model model, Select select, String tabid) {
+		Long id = select.getId();
+		if (id == null) {
+			select.setTypeId(1L);
+			select.setDeleted(1);
+			long result = selectDao.addSelect(select);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "借款目的增加成功", "true", tabid);
+			} else {
+				return ajaxDoneInfo("300", "借款目的增加失败", "", "");
+			}
+		} else {
+			long result = selectDao.updateSelectById(select);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "借款目的修改成功", "true", tabid);
+			} else {
+				return ajaxDoneInfo("300", "借款目的修改失败", "", "");
+			}
+		}
+	}
+
+	public Map<String, Object> deleteSelect(Model model, Long id, Integer delete, Long typeId) {
+		long result = selectDao.updateSelectDeleteById(delete, id);
+		if (result > 0) {
+			sessionSetAttribute("selectTypeId", typeId);
+			return ajaxDoneInfo("200", "配置成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "配置失败", "", "");
+		}
+	}
+
+}

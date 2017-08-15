@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.BorrowInspectionDao">
+	<resultMap type="borrowInspection" id="borrowInspectionResultMap">
+	<id column="id" property="id"/>
+	<result column="borrowId" property="borrowId"/>
+	<result column="borrowTitle" property="borrowTitle"/>
+	<result column="loanUserId" property="loanUserId"/>
+	<result column="createTime" property="createTime"/>
+	<result column="dealWithStatus" property="dealWithStatus"/>
+	</resultMap>
+	
+	<insert id="insertBorrowInspection">
+		INSERT INTO t_borrow_inspection(borrowId,borrowTitle,loanUserId,createTime,dealWithStatus)
+		VALUES(#{borrowId},#{borrowTitle},#{loanUserId},#{createTime},#{dealWithStatus})
+	</insert>
+	
+	<select id="queryBorrowInspectionCount" resultType="java.lang.Long">
+		SELECT COUNT(1) AS borrowInspectionCount FROM t_borrow_inspection a WHERE a.dealWithStatus=0
+		<if test="loanUserId != -100">
+			AND a.loanUserId=#{loanUserId}
+		</if>
+	</select>
+	
+	
+
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,18 @@
+<div class="swiper-container" data-space-between="10">
+	<div class="swiper-wrapper">
+		<template v-for="img in imgList">
+			<div class="swiper-slide" @click="toDetail(img.href)">
+				<img :src="img.src" alt=""></div>
+		</template>
+	</div>
+	<div class="index-top flex">
+		<p class="flex-1">
+			累计投资：
+			<span>{{accountData[0] | isZero}} 元</span>
+		</p>
+		<p class="flex-1">
+			累计注册：
+			<span>{{accountData[1]  | isZero}} 人</span>
+		</p>
+	</div>
+</div>

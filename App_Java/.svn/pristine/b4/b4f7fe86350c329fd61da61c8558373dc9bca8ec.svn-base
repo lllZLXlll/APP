@@ -1,0 +1,192 @@
+package com.pjzb.service.admin.borrow;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+/**
+ * 最近三天还款
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminLastThreeDayRepayService extends BaseController {
+
+	@Autowired
+	private RepaymentDao repaymentDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryRepayMentList(Model model, Long pageNum, Long pageSize, Integer debtStatus, String userName, String realName, String titles, Integer borrowWay,
+			Integer status, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			debtStatus = debtStatus == null ? -1 : debtStatus;
+			borrowWay = borrowWay == null ? -1 : borrowWay;
+			status = status == null ? -1 : status;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" : userName;
+			realName = realName == null ? "" : realName;
+			titles = titles == null ? "" : titles;
+			SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+			Calendar calendar = Calendar.getInstance();
+			Date dates = null;
+			String date = "";
+			if (debtStatus == -1) {
+				dates = calendar.getTime();
+				date = sf.format(dates);
+			} else if (debtStatus == 1) {
+				calendar.add(calendar.DAY_OF_YEAR, 1);
+				dates = calendar.getTime();
+				date = sf.format(dates);
+			} else if (debtStatus == 2) {
+				calendar.add(calendar.DAY_OF_YEAR, 2);
+				dates = calendar.getTime();
+				date = sf.format(dates);
+			}
+
+			List<Map<String, Object>> list = repaymentDao.queryLastRepayMentByCondition((pageNum - 1) * pageSize, pageSize, userName, borrowWay, realName, titles, status, date);
+			long result = repaymentDao.queryLastRepayMentCount(userName, borrowWay, realName, titles, status, date);
+			Map<String, Object> repaymentMap = repaymentDao.queryRepaymentAmount(userName, borrowWay, realName, titles, status, date);
+
+			double currentAmount = 0;
+			if (list != null) {
+				for (Map<String, Object> map : list) {
+					currentAmount = currentAmount + Convert.strToDouble(map.get("totalSum") + "", 0);
+				}
+			}
+			DecimalFormat fmt = new DecimalFormat("0.00");
+
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPage(list);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(result);
+
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("repaymentMap", repaymentMap);
+			model.addAttribute("currentAmount", fmt.format(currentAmount));
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("debtStatus", debtStatus);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("titles", titles);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("status", status);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询近三天的还款异常********************");
+		}
+		return "/admin/borrow/lastthreedayrepay/list.jsp";
+	}
+
+	public String queryRepaymentNotice(Model model, Long pageNum, Long pageSize, Long id, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = repaymentDao.queryRepaymentNotice((pageNum - 1) * pageSize, pageSize, id);
+			long result = repaymentDao.queryRepaymentNoticeCount(id);
+
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPage(list);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(result);
+
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("id", id);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/borrow/lastthreedayrepay/detail.jsp";
+	}
+
+	public Map<String, Object> addRepayMentNotice(Model model, String tabid, Long id, String content) throws RuntimeException {
+		try {
+			long result = repaymentDao.addRepayMentNotice(id, content, new Date());
+			if (result > 0) {
+				return ajaxDoneInfo("200", "还款沟通记录增加成功", "", tabid);
+			} else {
+				Admin admin = getSessionAdminInfo();
+				OperationLog operationLog = new OperationLog("t_repayment_service", admin.getUserName(), IConstants.INSERT, admin.getLastIp(), new Date(), 0.0, "添加还款沟通记录失败", 2,
+						admin.getId());
+				operationLogDao.addOperationLog(operationLog);
+				return ajaxDoneInfo("300", "还款沟通记录增加失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**********还款沟通记录增加异常***************");
+		}
+	}
+
+	public void exporthasRepay(HttpServletResponse response, Long pageNum, Long pageSize, Integer debtStatus, String userName, String realName, String titles, Integer borrowWay,
+			Integer status) {
+		try {
+			userName = userName.substring(0, userName.indexOf(","));
+			realName = realName.substring(0, realName.indexOf(","));
+			titles = titles.substring(0, titles.indexOf(","));
+			pageNum = pageNum == null ? 1 : pageNum;
+			debtStatus = debtStatus == null ? -1 : debtStatus;
+			borrowWay = borrowWay == null ? -1 : borrowWay;
+			status = status == null ? -1 : status;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == "" ? null : userName;
+			realName = realName == "" ? null : realName;
+			titles = titles == "" ? null : titles;
+
+			SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+			Calendar calendar = Calendar.getInstance();
+			Date dates = null;
+			String date = "";
+			if (debtStatus == -1) {
+				dates = calendar.getTime();
+				date = sf.format(dates);
+			} else if (debtStatus == 1) {
+				calendar.add(calendar.DAY_OF_YEAR, 1);
+				dates = calendar.getTime();
+				date = sf.format(dates);
+			} else if (debtStatus == 2) {
+				calendar.add(calendar.DAY_OF_YEAR, 2);
+				dates = calendar.getTime();
+				date = sf.format(dates);
+			}
+
+			List<Map<String, Object>> list = repaymentDao.queryLastRepayMentByConditions((pageNum - 1) * pageSize, pageSize, userName, borrowWay, realName, titles, status, date);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("已还款详情", list, new String[] { "ID", "借款人", "姓名", "标的类型", "借款标题", "期数/总期数 ", "应还时间 ", "还款时间 ", "应还金额  ", "还款状态" },
+					new String[] { "id", "username", "realName", "borrowWayName", "borrowTitle", "repayPeriod", "repayDate", "realRepayDate", "totalSum", "repayStatu" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出还款记录异常**************************");
+		}
+	}
+
+}

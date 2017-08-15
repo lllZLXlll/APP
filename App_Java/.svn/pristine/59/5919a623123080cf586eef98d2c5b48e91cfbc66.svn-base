@@ -1,0 +1,145 @@
+/**
+ * shulin.wu@pjzb.com
+ * date 11/26
+ */
+$(function(){
+	utils.initPage();
+	utils.initInput();
+	var param={uid:utils.Storage.getItem('uid')};
+	utils.ajax({
+        url:'../front/regIpayEnterprisesApp.do',
+        data:JSON.stringify(param),
+        dataType:'json',
+        success: function(data){
+        	if(data.error == '0' && data.idNo!='' && data.idNo!='null'&& data.idNo!=null){
+        		$('#registEmail').val(data.email);//.attr('disabled',true);
+        		$('#registPhone').val(data.mobilePhone).attr('disabled',true);
+        		$('#regist_idCard').val(data.idNo).attr('disabled',true);
+        		$('#registName').val(data.realName).attr('disabled',true);
+        		$('#idCard_fr').val(data.legalIdNo).attr('disabled',true);
+        		$('#registName_fr').val(data.legalName).attr('disabled',true);
+        		$('#companyTel').val(data.companyPhone).attr('disabled',true);
+        		$('#license_Num').val(data.busiCode).attr('disabled',true);
+        		$('#registName_qy').val(data.companyName).attr('disabled',true);
+        		$('#registMoney').val(data.registeredCap).attr('disabled',true);
+        	} else if(data.error == '0'){ 
+        		$('#registEmail').val(data.email);//
+        		$('#registPhone').val(data.mobilePhone).attr('disabled',true);   
+        		$('#license_Num').val(data.busiCode).attr('disabled',true);  
+        		$('#companyTel').val(data.companyPhone).attr('disabled',true);	
+        		$('#registName_qy').val(data.companyName).attr('disabled',true);	
+        		$('#registMoney').val(data.registeredCap).attr('disabled',true);
+        	}
+        	$('.regist-box').show();
+        }
+    });
+	$('#getMsgCode').click(function(){
+		utils.getSmsCode($(this),$('#registPhone').val(),'resetPwd');
+	});
+	$('.btn').click(function(){
+		submit();
+	})
+});
+
+function submit(){
+	// 邮件
+	var email = $('#registEmail').val();
+	// 电话
+	var phone = $('#registPhone').val();
+	// 验证码
+	var msgCode = $('#msgCode').val();
+	// 注册人身份证
+	var idCard = $('#regist_idCard').val();
+	// 注册人姓名
+	var name = $('#registName').val();
+	// 企业法人身份证
+	var idCard_fr = $('#idCard_fr').val();
+	// 企业法人姓名
+	var name_fr = $('#registName_fr').val();
+	// 企业名称
+	var name_qy = $('#registName_qy').val();
+	// 营业执照号
+	var license_Num = $('#license_Num').val();
+	// 公司电话
+	var companyTel = $('#companyTel').val();
+	// 注册资金
+	var registMoney = $('#registMoney').val();
+
+	if(email==''){
+		showError('请输入邮箱',$('#registEmail'));
+		return;
+	}
+	if(phone==''){
+		showError('请输入电话',$('#registPhone'));
+		return;
+	}
+	if(msgCode==''){
+		showError('请输入验证码',$('#msgCode'));
+		return;
+	}
+	if(idCard==''){
+		showError('请输入身份证',$('#regist_idCard'));
+		return;
+	}
+	if(name==''){
+		showError('请输入注册人姓名',$('#registName'));
+		return;
+	}
+	if(idCard_fr==''){
+		showError('请输入企业法人身份证',$('#idCard_fr'));
+		return;
+	}
+	if(name_fr==''){
+		showError('请输入企业法人姓名',$('#registName_fr'));
+		return;
+	}
+	if(name_qy==''){
+		showError('请输入企业名称',$('#registName_qy'));
+		return;
+	}
+	if(license_Num==''){
+		showError('请输入营业执照号',$('#license_Num'));
+		return;
+	}
+	if(companyTel==''){
+		showError('请输入公司电话',$('#companyTel'));
+		return;
+	}
+	if(registMoney==''){
+		showError('请输入注册资金',$('#registMoney'));
+		return;
+	}
+	
+	if(!$('#getMsgCode').data('randomCode')){
+		utils.alert('请获取短信验证码！');
+		return;
+	};
+	$('.btn').addClass('disabled').text('注册中...').unbind('click');
+	var param={email:email,phone:phone,msgCode:msgCode,idCard:idCard,name:name,idCard_fr:idCard_fr,name_fr:name_fr,
+				name_qy:name_qy,license_Num:license_Num,registMoney:registMoney,companyTel:companyTel};
+
+	utils.ajax({
+        url:'../front/corpRegisterApp.do',
+        data:JSON.stringify(param),
+        dataType:'json',
+        success: function(data){
+        	if(data.error==0){
+        		$('#registPay').html(data.html);
+        	}else{
+        		utils.alert(data.msg);
+        		$('.btn').removeClass('disabled').text('注册').bind('click',function(){
+        			submit();
+        		});
+        	}
+        }
+    });
+}
+//错误提示
+function showError(msg,obj){
+	$('.error-msg').text(msg).addClass('show');
+	obj.parent('.from').addClass('error');
+	obj.focus(function(){
+		obj.parent('.from').removeClass('error');
+		$('.error-msg').removeClass('show');
+	});
+}

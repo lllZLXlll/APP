@@ -1,0 +1,106 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Materialimagedetal entity. @author MyEclipse Persistence Tools
+ */
+
+public class Materialimagedetal implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String imagePath;
+	private Long materialsauthid;
+	private String option;
+	private Date checktime;
+	private Date uploadingTime;
+	private Integer auditStatus;
+	private Integer visiable;
+
+	// Constructors
+
+	/** default constructor */
+	public Materialimagedetal() {
+	}
+
+	/** full constructor */
+	public Materialimagedetal(String imagePath, Long materialsauthid, String option, Date checktime, Date uploadingTime, Integer auditStatus, Integer visiable) {
+		this.imagePath = imagePath;
+		this.materialsauthid = materialsauthid;
+		this.option = option;
+		this.checktime = checktime;
+		this.uploadingTime = uploadingTime;
+		this.auditStatus = auditStatus;
+		this.visiable = visiable;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getImagePath() {
+		return this.imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+	public Long getMaterialsauthid() {
+		return this.materialsauthid;
+	}
+
+	public void setMaterialsauthid(Long materialsauthid) {
+		this.materialsauthid = materialsauthid;
+	}
+
+	public String getOption() {
+		return this.option;
+	}
+
+	public void setOption(String option) {
+		this.option = option;
+	}
+
+	public Date getChecktime() {
+		return this.checktime;
+	}
+
+	public void setChecktime(Date checktime) {
+		this.checktime = checktime;
+	}
+
+	public Date getUploadingTime() {
+		return this.uploadingTime;
+	}
+
+	public void setUploadingTime(Date uploadingTime) {
+		this.uploadingTime = uploadingTime;
+	}
+
+	public Integer getAuditStatus() {
+		return this.auditStatus;
+	}
+
+	public void setAuditStatus(Integer auditStatus) {
+		this.auditStatus = auditStatus;
+	}
+
+	public Integer getVisiable() {
+		return this.visiable;
+	}
+
+	public void setVisiable(Integer visiable) {
+		this.visiable = visiable;
+	}
+
+}

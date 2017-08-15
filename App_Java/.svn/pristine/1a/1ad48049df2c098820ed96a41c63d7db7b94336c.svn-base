@@ -1,0 +1,104 @@
+package com.pjzb.service.common;
+ 
+import java.util.Date;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.SendSmsDao;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.SMSUtil;
+import com.shove.data.ConnectionManager;
+
+@Service
+public class SendSmsService {
+	public static Log log = LogFactory.getLog(SendSmsService.class);
+
+	@Autowired
+	private SendSmsDao sendSmsDao;
+
+	private ConnectionManager connectionManager;
+	
+	@Autowired
+	private SMSInterfaceService sMSInterfaceService;
+	
+	
+	/**
+	 * 发送短信，保存短信
+	 * @param content
+	 * @param splitID
+	 * @param cellPhones
+	 * @return
+	 * @throws Exception
+	 */
+	public Long SendSMS(String content, String splitID, String cellPhones)
+			throws Exception {
+		Long result = -1L;
+		result = sendSmsDao.SendSMS(content, splitID, cellPhones, 2, new Date());
+
+		return result;
+	}
+
+	/**
+	 * 发送模板短信
+	 * @author tangjielong
+	 * @return
+	 * @throws Exception
+	 */
+	public String SendSMSModer(long id,String investSum,int status) throws Exception {		
+		try {
+			
+			// 根据id集合获取用户phone
+			Map<String, Object> smsMap = sMSInterfaceService.getSmsIphone(id);
+			String phone = smsMap.get("cellPhone").toString();
+			//或者短信内容
+		    Map<String, Object> moderContent = sMSInterfaceService.getSmsConetnt(id, status);
+		    String content =null;
+		    if(status ==1){
+		    	content = moderContent.get("content")+"";
+		    	content = "【"+IConstants.PRO_GLOBLE_NAME+"】"+content;
+		    content = content.replaceAll("investSum", investSum); 
+		    }else if(status ==2){
+		    	content = moderContent.get("content")+"";
+		    	content = "【"+IConstants.PRO_GLOBLE_NAME+"】"+content;
+			    content = content.replaceAll("cash", investSum);
+		    }else if(status ==3){
+		    	content = moderContent.get("content")+"";
+		    }else if(status ==4){
+		    	content = moderContent.get("content")+"";
+		    	content = "【"+IConstants.PRO_GLOBLE_NAME+"】"+content;
+			    content = content.replaceAll("payments", investSum);
+		    }else if(status ==5){
+		    	content = moderContent.get("content")+"";
+		    }else if(status ==6){
+		    	content = moderContent.get("content")+"";
+		    	content = "【"+IConstants.PRO_GLOBLE_NAME+"】"+content;
+			    content = content.replaceAll("auctionBasePrice", investSum);
+		    }
+							
+		    Map<String, String> map = sMSInterfaceService.getSMSById(1);
+
+			String retCode = SMSUtil.sendSMS(map.get("UserID"),map.get("url"),map.get("Account"),map.get("Password"),content, phone, null);
+			if (retCode.equals("Sucess")) {
+				// 添加短信记录
+				@SuppressWarnings("unused")
+				Long result = sendSmsDao.SendSMS(content, String.valueOf(id), phone, 2, new Date());
+				
+				return null;
+			} else {
+				// 添加短信记录
+				@SuppressWarnings("unused")
+				Long result = sendSmsDao.SendSMS(content, String.valueOf(id), phone, 2, new Date());
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+	
+}

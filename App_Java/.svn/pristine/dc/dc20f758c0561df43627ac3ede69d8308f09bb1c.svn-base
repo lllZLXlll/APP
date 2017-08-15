@@ -1,0 +1,4 @@
+<div class="content-padded">
+    <div class="answer-queston">{{queston}}</div>
+    <div class="answer-content" v-html="answer"></div>
+</div>

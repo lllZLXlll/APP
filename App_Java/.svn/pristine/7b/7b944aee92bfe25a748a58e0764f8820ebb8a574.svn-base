@@ -1,0 +1,105 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * FaDaDa entity. @author MyEclipse Persistence Tools
+ */
+
+public class FaDaDa implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long uid;
+	private String contractId;
+	private String docType;
+	private String file;
+	private String customerId;
+	private String transationId;
+	private String contractIdEnd;
+
+	// Constructors
+
+	/** default constructor */
+	public FaDaDa() {
+	}
+
+	/** full constructor */
+	public FaDaDa(Long uid, String contractId, String docType, String file,
+			String customerId, String transationId, String contractIdEnd) {
+		this.uid = uid;
+		this.contractId = contractId;
+		this.docType = docType;
+		this.file = file;
+		this.customerId = customerId;
+		this.transationId = transationId;
+		this.contractIdEnd = contractIdEnd;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUid() {
+		return this.uid;
+	}
+
+	public void setUid(Long uid) {
+		this.uid = uid;
+	}
+
+	public String getContractId() {
+		return this.contractId;
+	}
+
+	public void setContractId(String contractId) {
+		this.contractId = contractId;
+	}
+
+	public String getDocType() {
+		return this.docType;
+	}
+
+	public void setDocType(String docType) {
+		this.docType = docType;
+	}
+
+	public String getFile() {
+		return this.file;
+	}
+
+	public void setFile(String file) {
+		this.file = file;
+	}
+
+	public String getCustomerId() {
+		return this.customerId;
+	}
+
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+
+	public String getTransationId() {
+		return this.transationId;
+	}
+
+	public void setTransationId(String transationId) {
+		this.transationId = transationId;
+	}
+
+	public String getContractIdEnd() {
+		return this.contractIdEnd;
+	}
+
+	public void setContractIdEnd(String contractIdEnd) {
+		this.contractIdEnd = contractIdEnd;
+	}
+
+}

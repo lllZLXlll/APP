@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.PlatFormCostDao">
+
+	<resultMap type="platFormCost" id="platFormCostResultMap">
+		<id column="id" property="id"/>
+		<result column="costName" property="costName"/>
+		<result column="costFee" property="costFee"/>
+		<result column="costMode" property="costMode"/>
+		<result column="remark" property="remark"/>
+		<result column="createTime" property="createTime"/>
+		<result column="alias" property="alias"/>
+		<result column="types" property="types"/>
+		<result column="show_view" property="showView"/>
+	</resultMap>
+
+
+	<select id="queryPlatFormCostByView" resultMap="platFormCostResultMap">
+		SELECT * FROM t_platform_cost WHERE show_view =#{showView}
+	</select>
+
+
+
+
+</mapper>
+
+
+
+
+
+
+
+
+

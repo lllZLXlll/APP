@@ -1,0 +1,121 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/account/InvestDetail.html');
+	//投资明细
+	var VueComponent = Vue.extend({
+		compiled: function(){
+		},
+		route:{
+			data: function(transition){
+				var index = this.$route.query.investType;
+				this.$set('showLength',false);
+				this.$set('listData',[]);
+				this.$set('totalPageNum','');
+				this.$set('listNum',1);
+				this.$set('loading',true);
+				this.$set('model',false);
+				if(index == 2){
+					this.$set('borrowTypeSubId','3');
+					this.$parent.$set('activeLink',index);
+				}else if(index == 3){
+					this.$set('borrowTypeSubId','6');
+					this.$parent.$set('activeLink',index);
+				}else{
+					this.$set('borrowTypeSubId','4');
+					this.$parent.$set('activeLink',1);
+				}
+				var _this = this;
+				var param={uid:Storage.getItem('uid'),curPage:_this.listNum,borrowTypeSubId:_this.borrowTypeSubId};
+				utils.ajax({
+			        url:'../front/homeBorrowInvestList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(data.pageBean.totalNum>0){
+			        			_this.$set('listData',data.pageBean.page);
+				        		_this.$set('totalPageNum',data.pageBean.totalPageNum);
+				        		$('.content-invest').scrollTop(0);
+			        		}else{
+			        			_this.$set('showLength',true);
+			        		}
+			        	}
+			        },complete:function(){
+			        	transition.next();
+			        	_this.$set('loading',false);
+			        }
+			    });
+			},waitForData:true
+		},
+		ready: function(){
+			//$.attachInfiniteScroll('.infinite-scroll');
+			var _this = this;
+			$(document).on('infinite',function(){
+				if (_this.loading){return;}
+				_this.$set('model',true);
+				// 设置flag
+				_this.$set('loading',true);
+				var listNum = _this.listNum+1;
+				//如果查询页数大于当前总页数，则返回
+				if(listNum > _this.totalPageNum){
+					$.toast('没有更多记录了哦');
+					_this.$set('model',false);
+					//$.detachInfiniteScroll($('.infinite-scroll'));
+					return;
+				};
+				_this.$set('listNum',listNum);
+				//无线滚动
+				var param={uid:Storage.getItem('uid'),curPage:_this.listNum,borrowTypeSubId:_this.borrowTypeSubId};
+				utils.ajax({
+			        url:'../front/homeBorrowInvestList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(data.pageBean.page.length>0){
+			        			_this.$set('listData',_this.listData.concat(data.pageBean.page));
+			        		}
+			        	}
+			        },complete:function(){
+			        	_this.$set('loading',false);
+			        }
+			    })
+			});
+			$.initPage();
+			//alert(1);
+		},
+		data:function(){
+			return {
+				listNum:1,
+				loading:false,
+				model:false,
+				showLength:false
+			}
+		},
+		methods: {
+			status:function(borrowStatus){
+				if(borrowStatus == 2){
+					return '<p class="title-log title-red">招标中</p>';
+				}else if(borrowStatus == 3){
+					return '<p class="title-log title-gray">已满标</p>';
+				}else if(borrowStatus == 4){
+					return '<p class="title-log title-blue">还款中</p>';
+				}else if(borrowStatus == 5){
+					return '<p class="title-log title-gray">已还完</p>';
+				}else if(borrowStatus == 6){
+					return '<p class="title-log title-gray">已流标</p>';
+				}
+			},
+			showCont:function(borrowStatus){
+				if(borrowStatus == 4){
+					return true;
+				}else if(borrowStatus == 5){
+					return true;
+				}else{
+					return false;
+				}
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

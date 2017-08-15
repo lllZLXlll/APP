@@ -1,0 +1,27 @@
+<!-- top -->
+<div class="wrap">
+	<div class="top-left icon icon-phone">
+		<span>客服热线：</span>400-606-2079 <span>（8:30～17:30）</span>
+	</div>
+	<div class="top-right cl">
+		<ul class="top-list">
+			<li class="first"><a href="regist.html" class="icon icon-person">注册领红包</a></li>
+			<li><a href="account.html#tuijian" class="icon icon-inv">邀请有礼</a></li>
+			<li><a href="about.html#gdbj">关于我们</a></li>
+			<li><a href="help.html">帮助中心</a></li>
+			<li><a href="account.html#ipay" class="pay">充值</a></li>
+			<li id="userName"><a href="login.html">登录</a></li>
+			<li><a href="javascript:;" class="icon icon-app" id="app">APP下载</a></li>
+		</ul>
+		<div id="qrCodeDiv">
+			<div class="CodeDiv">
+				<img src="src/images/qrCode_ios.png"  />
+				<p>IOS下载</p>
+			</div>
+			<div class="CodeDiv">
+				<img src="src/images/qrCode_android.png"  />
+				<p>Android下载</p>
+			</div>
+		</div>
+	</div>
+</div>

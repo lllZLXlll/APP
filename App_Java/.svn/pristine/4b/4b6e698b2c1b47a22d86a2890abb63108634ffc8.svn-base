@@ -1,0 +1,53 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/account/Bankcard.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('我的银行卡',true,false);
+		},
+		route:{
+			data: function(transition){
+				var _this = this;
+				var param={uid:Storage.getItem('uid')};
+				utils.ajax({
+			        url:'../front/queryBankList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		_this.$set('bankList',data.bankList);
+			        	}
+			        },
+			        complete:function(){
+			        	transition.next();
+			        }
+			    })
+			},
+			waitForData: true
+		},
+		methods:{
+			bindCard: function(){
+				if(!Storage.getItem('ipayAccount')){
+					$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+						router.go({path:'/registpay'});
+					});
+					return;
+				};
+				var param={uid:Storage.getItem('uid')};
+				utils.ajax({
+			        url:'../front/addBankInfo.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		$('#addBank').html(data.html);
+			        	}else{
+			        		$.alert(data.msg);
+			        	}
+			        }
+			    })
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

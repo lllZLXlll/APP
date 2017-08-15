@@ -1,0 +1,59 @@
+package com.pjzb.controller.admin;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.index.AdminIndexService;
+import com.pjzb.service.admin.index.AdminMenuService;
+
+/**
+ * 首页管理
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminIndexController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminIndexController.class);
+	
+
+	@Autowired
+	private AdminMenuService adminMenuService;
+	
+	@Autowired
+	private AdminIndexService adminIndexService;
+	
+	
+	@RequestMapping(value = "/getMenu")
+	@ResponseBody
+	public List<Map<String, Object>> getMenu(){
+		return adminMenuService.getMenu(getSessionAdminInfo().getRoleId());
+	}
+	
+	
+	@RequestMapping(value = "/main")
+	public String main(Model model) {
+		 return adminMenuService.queryCountInfo(model, getSessionAdminInfo());
+	}
+
+	
+	@RequestMapping(value = "/updatePasswordInit")
+	public String updatePasswordInit(Model model) {
+		 return adminIndexService.updatePasswordInit(model, getSessionAdminInfo());
+	}
+	
+	@RequestMapping(value = "/updatePassword")
+	@ResponseBody
+	public Map<String, Object> updatePassword(Model model,String oldpassword,String newpassword, String confirmPassword) {
+		 return adminIndexService.updatePassword(model, getSessionAdminInfo(),oldpassword,newpassword, confirmPassword);
+	}
+}

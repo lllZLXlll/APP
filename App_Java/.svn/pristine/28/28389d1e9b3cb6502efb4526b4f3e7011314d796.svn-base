@@ -1,0 +1,17 @@
+package com.pjzb.dao;
+
+import java.util.Map;
+
+import com.pjzb.entity.ExgoInvest;
+
+public interface ExgoInvestDao {
+	
+	public Map<String, Long> queryExgoInvestCountByUserId(Long userId);
+	
+	public Map<String, Long> queryExgoInvestCount();
+	
+	public Map<String, Object> queryUserIsInvestByInvestor(Long investor);
+	
+	public void insertExGoInvest(ExgoInvest exgoInvest);	
+
+}

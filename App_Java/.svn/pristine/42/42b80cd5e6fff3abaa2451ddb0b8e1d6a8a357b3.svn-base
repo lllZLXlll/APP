@@ -1,0 +1,77 @@
+define(function (require,exports,module) {
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			this.$parent.$set('activeClass',2);
+			if(this.$parent.smsCode){
+				this.$set('smsCode',this.$parent.smsCode);
+			}
+		},
+		data: function(){
+			return {
+				smsCode:'',
+				btnclass:'btn',
+				btnText:'获取验证码',
+				clickInit:true
+			}
+		},
+		methods:{
+			getSms: function(){
+				if(!this.clickInit){return;};
+				var _this = this;
+				var phone = _this.$parent.phoneNumber;
+				if(!phone || phone == ''){
+					$.alert('请填写手机号');
+					return;
+				};
+				_this.$set('btnclass','btn btn-disabled');
+				_this.$set('clickInit',false);
+				var i = 60;
+				var time = setInterval(function(){
+					i--;
+					_this.$set('btnText',i+'s');
+					if(i == 0){
+						_this.$set('btnclass','btn');
+						_this.$set('btnText','获取验证码');
+						_this.$set('clickInit',true);
+						clearInterval(time);
+					}
+				},1000);
+				var param={cellPhone:phone,smsType:'resetPwd'};
+				utils.ajax({
+		            url:'../sendSMS.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	console.log(data);
+		            	if(data.error =='0'){
+		            		_this.$parent.$set('recivePhone',data.recivePhone);
+		            		_this.$parent.$set('randomCode',data.randomCode);
+		            	}else{
+		            		$.alert(data.msg);
+		            	}
+		            }
+		        })
+			},
+			nextStep: function(){
+				if(this.smsCode==''){
+					$.toast("请输入短信验证码");return;
+				};
+				this.$parent.$set('smsCode',this.smsCode);
+				router.go({path:'three'});
+			}
+		},
+		template:'<div class="text-item-shadow-msg flex">'+
+		            '<div class="text-item-shadow flex">'+
+		                '<label><i class="icon icon-color">&#xe60d;</i></label>'+
+		                '<input type="text" placeholder="短信验证码" v-getvalue="smsCode" value="{{smsCode}}" maxlength="4">'+
+		            '</div>'+
+		            '<div class="text-item-shadow-submit">'+
+		                '<button type="button" v-on:click="getSms" class="{{btnclass}}">{{btnText}}</button>'+
+		            '</div>'+
+		        '</div>'+
+		        '<div class="text-item-submit">'+
+		            '<button type="button" v-on:click="nextStep" class="btn btn-submit">下一步</button>'+
+		        '</div>'
+	});
+	module.exports = VueComponent;
+})

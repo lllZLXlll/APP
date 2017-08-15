@@ -1,0 +1,558 @@
+package com.pjzb.service.admin.borrow;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.ApplyDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.BorrowRoleDao;
+import com.pjzb.dao.EnterpriseDao;
+import com.pjzb.dao.MaterialimagedetalDao;
+import com.pjzb.dao.MaterialsauthDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.SelectDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Apply;
+import com.pjzb.entity.BorrowRole;
+import com.pjzb.entity.Enterprise;
+import com.pjzb.entity.Materialimagedetal;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.Select;
+import com.pjzb.entity.User;
+import com.pjzb.service.common.UploadService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+/**
+ * 企业融资
+ * 
+ * 
+ */
+@Service
+public class AdminCompanyFinanceService extends BaseController {
+	public static Log log = LogFactory.getLog(AdminCompanyFinanceService.class);
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private MaterialsauthDao materialsauthDao;
+
+	@Autowired
+	private BorrowRoleDao borrowRoleDao;
+
+	@Autowired
+	private UploadService uploadService;
+
+	@Autowired
+	private MaterialimagedetalDao materialimagedetalDao;
+
+	@Autowired
+	private ApplyDao applyDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private EnterpriseDao enterpriseDao;
+	
+	@Autowired
+	private PersonDao personDao;
+	
+	@Autowired
+	private UserDao userDao;
+	
+	@Autowired
+	private SelectDao selectDao;
+	
+
+	public String queryEnterpriseApplyList(String name, String telephone, String borrowAmount, Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			name = ConvertUtil.convertObjToStr(name);
+			telephone = ConvertUtil.convertObjToStr(telephone);
+			borrowAmount = ConvertUtil.convertObjToStr(borrowAmount);
+			List<Map<String, Object>> list = borrowDao.queryEnterpriseApplyList(name, telephone, borrowAmount, (pageNum - 1) * pageSize, pageSize);
+			long count = borrowDao.queryEnterpriseApplyCount(name, telephone, borrowAmount);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("name", name);
+			model.addAttribute("telephone", telephone);
+			model.addAttribute("borrowAmount", borrowAmount);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询企业融资异常**************************");
+		}
+		return "/admin/borrow/companyfinance/list.jsp";
+	}
+
+	/**
+	 * 跳转企业上传资料
+	 * 
+	 * @return
+	 */
+	public String queryDataList(Model model, Long userId, Long applyId, String dialogId) {
+		try {
+			BorrowRole borrowRole = borrowRoleDao.queryBorrowRoleByApplyId(applyId);
+			List<Map<String, Object>> list2 = materialsauthDao.queryEnterprisePictureGroup(borrowRole.getUserId());
+			model.addAttribute("dataList", list2);
+			model.addAttribute("dialogId", dialogId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("****************跳转企业上传资料异常********************");
+		}
+		return "/admin/borrow/companyfinance/datalist.jsp";
+	}
+
+	/**
+	 * 企业资料详细列表（法人身份证，营业执照正副本，企业银行账号）
+	 * 
+	 * @return
+	 */
+	public String queryDataDetail(Model model, Long userId, String dialogId) {
+		try {
+			List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+			Map<String, String> map = new HashMap<String, String>();
+			List<Map<String, Object>> dataList = materialsauthDao.queryEnterpriseDataListByUserId(userId, "");
+			Map<String, Object> dataNameMap = new HashMap<String, Object>();
+			for (int i = 0; i < dataList.size(); i++) {
+				Long materialsauthid = Long.parseLong(String.valueOf(dataList.get(i).get("tmid")));
+				String tmyId = String.valueOf(dataList.get(i).get("tmyid"));
+				String dataName = String.valueOf(dataList.get(i).get("tmyname"));
+				dataNameMap.put("tmyname_" + tmyId, dataName);
+				dataNameMap.put("tmid_" + tmyId, materialsauthid);
+				dataNameMap.put("tmyid_" + tmyId, tmyId);
+				List<Map<String, Object>> detailList = materialsauthDao.queryEnterpriseDataDetail(materialsauthid);
+				Long tmyid = Long.parseLong(String.valueOf(dataList.get(i).get("tmyid")));
+				for (int j = 0; j < detailList.size(); j++) {
+					String tmyname = String.valueOf(detailList.get(j).get("tmyname"));
+					String imagePath = String.valueOf(detailList.get(j).get("imagePath"));
+					String id = String.valueOf(detailList.get(j).get("id"));
+					int index = j + 1;
+					if (tmyid == 17) {
+						// 身份证
+						map.put("id_" + index, tmyname);
+						map.put("imagePath_id_" + index, imagePath);
+						map.put("mid_id_" + index, id);
+					} else if (tmyid == 18) {
+						// 企业营业执照正副本
+						map.put("license_" + index, tmyname);
+						map.put("imagePath_license_" + index, imagePath);
+						map.put("mid_license_" + index, id);
+					} else {
+						// 企业银行账号
+						map.put("bank_" + index, tmyname);
+						map.put("imagePath_bank_" + index, imagePath);
+						map.put("mid_bank_" + index, id);
+					}
+				}
+			}
+			Map<String, String> map1 = new HashMap<String, String>();
+			Map<String, String> map2 = new HashMap<String, String>();
+			Map<String, String> map3 = new HashMap<String, String>();
+			Map<String, String> map4 = new HashMap<String, String>();
+			Map<String, String> map5 = new HashMap<String, String>();
+			int k = 0;
+			for (String key : map.keySet()) {
+				k++;
+				int index = Integer.parseInt(key.substring(key.length() - 1));
+				if (1 == index) {
+					map1.put(key, map.get(key));
+				}
+				if (2 == index) {
+					map2.put(key, map.get(key));
+				}
+				if (3 == index) {
+					map3.put(key, map.get(key));
+				}
+				if (4 == index) {
+					map4.put(key, map.get(key));
+				}
+				if (5 == index) {
+					map5.put(key, map.get(key));
+				}
+			}
+			if (map1.size() > 0) {
+				list.add(map1);
+			}
+			if (map2.size() > 0) {
+				list.add(map2);
+			}
+			if (map3.size() > 0) {
+				list.add(map3);
+			}
+			if (map4.size() > 0) {
+				list.add(map4);
+			}
+			if (map5.size() > 0) {
+				list.add(map5);
+			}
+
+			List<Map<String, String>> list2 = new ArrayList<Map<String, String>>();
+			List<Map<String, Object>> otherDataList = materialsauthDao.queryEnterpriseDataListByUserId(userId, null);
+			Map<String, String> otherDataMap = new HashMap<String, String>();
+			Map<String, Object> otherDataNameMap = new HashMap<String, Object>();
+			for (int i = 0; i < otherDataList.size(); i++) {
+				Long materialsauthid = Long.parseLong(String.valueOf(otherDataList.get(i).get("tmid")));
+				String tmyId = String.valueOf(otherDataList.get(i).get("tmyid"));
+				String dataName = String.valueOf(otherDataList.get(i).get("tmyname"));
+				otherDataNameMap.put("tmyname", dataName);
+				otherDataNameMap.put("tmid", materialsauthid);
+				otherDataNameMap.put("tmyid", tmyId);
+				List<Map<String, Object>> detailList = materialsauthDao.queryEnterpriseDataDetail(materialsauthid);
+				for (int j = 0; j < detailList.size(); j++) {
+					String tmyname = String.valueOf(detailList.get(j).get("tmyname"));
+					String imagePath = String.valueOf(detailList.get(j).get("imagePath"));
+					String id = String.valueOf(detailList.get(j).get("id"));
+					int index = j + 1;
+					// 其他资料
+					otherDataMap.put("otherData_" + index, tmyname);
+					otherDataMap.put("imagePath_otherData_" + index, imagePath);
+					otherDataMap.put("mid_otherData_" + index, id);
+					list2.add(otherDataMap);
+				}
+			}
+			model.addAttribute("list", list);
+			model.addAttribute("otherDataList", list2);
+			model.addAttribute("dialogId", dialogId);
+			model.addAttribute("dataNameMap", dataNameMap);
+			model.addAttribute("otherDataNameMap", otherDataNameMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************企业资料详细列表（法人身份证，营业执照正副本，企业银行账号）查询异常*****************");
+		}
+		return "/admin/borrow/companyfinance/datadetail.jsp";
+	}
+
+	public String queryDataImage(Model model, String imagePath) {
+		model.addAttribute("imagePath", imagePath);
+		return "/admin/borrow/companyfinance/listimage.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:上传法人身份证，营业执照正副本，企业银行账号
+	 * @author: xiaojin
+	 * @param file
+	 * @param dialogId
+	 * @param request
+	 * @param tmid
+	 * @param tmyid
+	 * @return
+	 */
+	public Map<String, Object> uploadData(MultipartFile file, String dialogId, HttpServletRequest request, Long tmid, Long tmyid) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			Calendar cal = Calendar.getInstance();
+			int month = cal.get(Calendar.MONTH) + 1;
+			int year = cal.get(Calendar.YEAR);
+			String fileName = ConvertUtil.dateConvert(new Date(), Constants.DATEYM_MILLI) + ".jpg";
+			String savePath = "upload/companydata/" + year + "/" + month + "/";
+			String uploadResult = uploadService.upload(file, savePath, fileName, dialogId, request);
+			if (uploadResult.equals(Constants.SUCCESS)) {
+				Materialimagedetal materialimagedetal = new Materialimagedetal();
+				materialimagedetal.setImagePath("../" + savePath + fileName);
+				materialimagedetal.setMaterialsauthid(tmid);
+				materialimagedetal.setUploadingTime(new Date());
+				materialimagedetal.setAuditStatus(3);
+				materialimagedetal.setVisiable(1);
+				long result = materialimagedetalDao.insertMaterialimagedetal(materialimagedetal);
+				if (result > 0) {
+					map.put("statusCode", "200");
+					map.put("message", "上传成功");
+					map.put("dialogid", dialogId);
+				} else {
+					map.put("statusCode", "300");
+					map.put("message", "上传失败");
+				}
+			} else {
+				map.put("statusCode", "300");
+				map.put("message", "上传失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************上传图片异常*****************");
+			map.put("statusCode", "300");
+			map.put("message", "上传异常");
+		}
+		return map;
+	}
+
+	/**
+	 * 删除企业资料图片
+	 * 
+	 * @describe:
+	 * @author: xiaojin
+	 * @param id
+	 * @param imagePath
+	 * @return
+	 */
+	public Map<String, Object> deleteDataImgById(Long id, String imagePath, HttpServletRequest request) {
+		try {
+			Long result = materialimagedetalDao.deleteMaterialimagedetalById(id);
+			if (result > 0) {
+				String path = request.getSession().getServletContext().getRealPath(imagePath.substring(3, imagePath.length()));
+				File file = new File(path);
+				file.delete();
+				return ajaxDoneInfo("200", "图片删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "图片删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************删除企业资料图片异常***************************");
+			return ajaxDoneInfo("300", "图片删除异常", "", "");
+		}
+	}
+
+	public String queryborrowfabiao(Model model, long pageNum, long pageSize, String state, String tname,
+			String telphone, String tabid) {
+		try {
+			long count = applyDao.queryborrowfabiaoCount(state, tname, telphone);
+			PageBean pageBean = new PageBean(pageNum, pageSize, count, (count > 0) ? applyDao.queryborrowfabiao(state, tname, telphone, (pageNum - 1) * pageSize, pageSize) : null);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("state", state);
+			model.addAttribute("tname", tname);
+			model.addAttribute("telphone", telphone);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询企业融资申请异常**************************");
+		}
+		return "/admin/borrow/corporateFinanceToApplyFor/list.jsp";
+	}
+
+	public Map<String, Object> deleteBorrowfabiao(Admin admin, String delids) throws RuntimeException {
+		if (delids == null || "".equals(delids))
+			return ajaxDoneInfo("300", "删除企业融资申请失败，未选中任何记录", "", "");
+		try {
+			applyDao.deleteBorrowfabiao(delids.split(","));
+			operationLogDao.addOperationLog(new OperationLog("t_apply", admin.getUserName(), IConstants.DELETE, admin.getLastIp(), new Date(), 0d, "删除id为" + delids + "的企业融资申请表记录",
+					2, admin.getId()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************删除企业融资申请异常**************************");
+			throw new RuntimeException("*********************删除企业融资申请异常**************************");
+		}
+		return ajaxDoneInfo("200", "删除企业融资申请成功", "", "");
+	}
+
+	public String queryCompanyDataById(Model model, Long applyId, String tabid) {
+		try {
+			// Map<String, String> mapWork = new HashMap<String, String>();
+			long userId = -1L;
+			int authStep = -1;
+			// 根据申请id去查询企业是否绑定前台用户
+			BorrowRole userMap = borrowRoleDao.queryBorrowRoleByApplyId(applyId);
+			String registeredTime = null;
+			Enterprise enterprise = enterpriseDao.queryEnterpriseByUserId(userId);
+			if (enterprise != null) {
+				registeredTime = ConvertUtil.dateConvert(enterprise.getRegisteredTime(), Constants._DATESHORT);
+				if (registeredTime != null) {
+					registeredTime = registeredTime.substring(0, 10);
+				}
+			}
+
+			model.addAttribute("enterprise", enterprise);
+			model.addAttribute("registeredTime", registeredTime);
+			model.addAttribute("applyId", applyId);
+			model.addAttribute("authStep", authStep);
+			model.addAttribute("userId", userId);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业信息查看异常***************************");
+		}
+		return "/admin/borrow/companyfinance/edit.jsp";
+	}
+
+	public Map<String, Object> updateEnterpriseUserBaseInfo(Long applyId, Enterprise enterprise, String tabid) {
+		try {
+			// 获取绑定用户后的企业信息
+			BorrowRole map = borrowRoleDao.queryBorrowRoleByApplyId(applyId);
+			Long userId = null;
+			if (map != null) {// 获取企业绑定后的用户
+				userId = map.getUserId();
+			}
+			if (userId == -1) {
+				// 失败
+				return ajaxDoneInfo("300", "请先绑定用户", "", "");
+			}
+			long personId = -1L;
+			Map<String, Object> enterpriseMap = new HashMap<String, Object>();
+			enterpriseMap.put("in_userId", enterprise.getUserId());
+			enterpriseMap.put("in_companyName", enterprise.getCompanyName());
+			enterpriseMap.put("in_legalPerson", enterprise.getLegalPerson());
+			enterpriseMap.put("in_registeredTime", enterprise.getRegisteredTime());
+			enterpriseMap.put("in_registeredCapital", enterprise.getRegisteredCapital());
+			enterpriseMap.put("in_businessCode", enterprise.getBusinessCode());
+			enterpriseMap.put("in_companyAddress", enterprise.getCompanyAddress());
+			enterpriseMap.put("in_companyPhone", enterprise.getCompanyPhone());
+			enterpriseMap.put("in_borrowCause", enterprise.getBorrowCause());
+			enterpriseMap.put("in_applyId", applyId);
+			enterpriseMap.put("out_ret", "");
+			enterpriseMap.put("out_desc", "");
+			enterpriseDao.callEnterpriseUserInfoUpdateProcedure(enterpriseMap);
+			personId = Convert.strToLong(String.valueOf(enterpriseMap.get("out_ret")), -1);
+			if (personId > 0) {
+				return ajaxDoneInfo("200", "企业资料修改成功", "dialog", tabid);
+				// 成功
+			} else {
+				return ajaxDoneInfo("300", "企业资料修改失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业资料修改异常***************************");
+			return ajaxDoneInfo("300", "企业资料修改异常", "", "");
+		}
+	}
+
+	public String addEnterpriseInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/borrow/companyfinance/add.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:增加企业融资
+	 * @author: xiaojin
+	 * @param model
+	 * @param apply
+	 * @param tabid
+	 * @return
+	 */
+	public Map<String, Object> addApply(Model model, Apply apply, String tabid) {
+		try {
+			apply.setState(0);
+			Long result = applyDao.insertApply(apply);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "企业融资增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "企业融资增加失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业融资增加异常***************************");
+			return ajaxDoneInfo("300", "企业融资增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:根据Id删除企业融资
+	 * @author: xiaojin
+	 * @param id
+	 * @return
+	 */
+	public Map<String, Object> deleteApplyById(Long id) {
+		try {
+			long result = applyDao.deleteApplyById(id);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "企业融资删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "企业融资删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************企业融资删除异常********************");
+			return ajaxDoneInfo("300", "企业融资删除异常", "", "");
+		}
+	}
+
+	public String bindUserInit(Model model) {
+		return "/admin/borrow/companyfinance/binduser.jsp";
+	}
+	
+	public String publishborrowInit(Model model,Long id,String conpany,Long userId) {
+		try {
+			String ipayAcount = "";
+			// 发布借款初始化的时候进行基本信息和认证信息的判断，是否完善 by cheney 2015-4-16
+			Person map = personDao.queryPersonByUserId(userId);
+			if (map == null) {// 个人信息未完善
+				getOut().print("<script>alert('请先完善您的个人信息！');window.history.go(-1);</script>");
+				return null;
+			}
+//		// 查询用户认证资料
+//		Map<String, String> mmap = new HashMap<String, String>();
+//		mmap = userService.querymaterialsauthornot(userId);
+//		if (mmap == null) {// 用户基本认证资料未上传
+//			getOut().print("<script>alert('请先上传您的基本认证资料 ！');window.history.go(-1);</script>");
+//			return null;
+//		}
+			// 查询该用户是否已经成功注册汇付
+			User umap = userDao.queryUserById(userId);
+			if (umap != null) {
+				ipayAcount =umap.getIpayAccount();
+				if ("".equals(ipayAcount) || ipayAcount == null || ipayAcount == "") {
+					getOut().print("<script>alert('您还不是汇付天下会员，请先注册汇付 ！');window.history.go(-1);</script>");
+					return null;
+				}
+			}
+			BorrowRole borrowRole = borrowRoleDao.queryBorrowRoleByApplyId(id);
+			List<Map<String, Object>> dataList = materialsauthDao.queryEnterprisePictureGroup(borrowRole.getUserId());
+			List<Map<String, Object>> loanAfterMgrList=personDao.queryLoanAfterMgr();
+			List<Map<String, Object>> investorRepresent=personDao.queryInvestorRepresent();
+			
+			List<Select> contractTemplateList=selectDao.querySelectByTypeIdAndDeleted(8L, 1);
+			List<Select> borrowPurposeList=selectDao.querySelectByTypeIdAndDeleted(1L, 1);
+			model.addAttribute("dataList", dataList);
+			model.addAttribute("loanAfterMgrList", loanAfterMgrList);
+			model.addAttribute("investorRepresentList", investorRepresent);
+			model.addAttribute("contractTemplateList", contractTemplateList);
+			model.addAttribute("borrowPurposeList", borrowPurposeList);
+			model.addAttribute("type", 1);
+			model.addAttribute("userId", userId);
+			model.addAttribute("person", map);
+			model.addAttribute("applyId", id);
+			model.addAttribute("time", new Date().getTime());
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*******************发布借款初始化异常******************");
+		}
+		return "/admin/borrow/companyfinance/publishborrow.jsp";
+	}
+	
+	
+
+}

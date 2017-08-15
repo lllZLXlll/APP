@@ -1,0 +1,251 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * QuestionSurvey entity. @author MyEclipse Persistence Tools
+ */
+
+public class QuestionSurvey implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private String age;
+	private String sex;
+	private String area;
+	private String livingArea;
+	private String professional;
+	private String houseHoldIncome;
+	private String financialTime;
+	private String financialNum;
+	private String financialLong;
+	private String knowNetworkPlatform;
+	private String financialMoney;
+	private String financialMoneyRatio;
+	private String financialMoneySource;
+	private String financialReason;
+	private String financialThinkValue;
+	private String majorFocus;
+	private String financialEarning;
+	private String investWilling;
+	private String financialConvenient;
+	private String knowPujinziben;
+
+	// Constructors
+
+	/** default constructor */
+	public QuestionSurvey() {
+	}
+
+	/** full constructor */
+	public QuestionSurvey(Long userId, String age, String sex, String area,
+			String livingArea, String professional, String houseHoldIncome,
+			String financialTime, String financialNum, String financialLong,
+			String knowNetworkPlatform, String financialMoney,
+			String financialMoneyRatio, String financialMoneySource,
+			String financialReason, String financialThinkValue,
+			String majorFocus, String financialEarning, String investWilling,
+			String financialConvenient, String knowPujinziben) {
+		this.userId = userId;
+		this.age = age;
+		this.sex = sex;
+		this.area = area;
+		this.livingArea = livingArea;
+		this.professional = professional;
+		this.houseHoldIncome = houseHoldIncome;
+		this.financialTime = financialTime;
+		this.financialNum = financialNum;
+		this.financialLong = financialLong;
+		this.knowNetworkPlatform = knowNetworkPlatform;
+		this.financialMoney = financialMoney;
+		this.financialMoneyRatio = financialMoneyRatio;
+		this.financialMoneySource = financialMoneySource;
+		this.financialReason = financialReason;
+		this.financialThinkValue = financialThinkValue;
+		this.majorFocus = majorFocus;
+		this.financialEarning = financialEarning;
+		this.investWilling = investWilling;
+		this.financialConvenient = financialConvenient;
+		this.knowPujinziben = knowPujinziben;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getAge() {
+		return this.age;
+	}
+
+	public void setAge(String age) {
+		this.age = age;
+	}
+
+	public String getSex() {
+		return this.sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public String getArea() {
+		return this.area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
+	public String getLivingArea() {
+		return this.livingArea;
+	}
+
+	public void setLivingArea(String livingArea) {
+		this.livingArea = livingArea;
+	}
+
+	public String getProfessional() {
+		return this.professional;
+	}
+
+	public void setProfessional(String professional) {
+		this.professional = professional;
+	}
+
+	public String getHouseHoldIncome() {
+		return this.houseHoldIncome;
+	}
+
+	public void setHouseHoldIncome(String houseHoldIncome) {
+		this.houseHoldIncome = houseHoldIncome;
+	}
+
+	public String getFinancialTime() {
+		return this.financialTime;
+	}
+
+	public void setFinancialTime(String financialTime) {
+		this.financialTime = financialTime;
+	}
+
+	public String getFinancialNum() {
+		return this.financialNum;
+	}
+
+	public void setFinancialNum(String financialNum) {
+		this.financialNum = financialNum;
+	}
+
+	public String getFinancialLong() {
+		return this.financialLong;
+	}
+
+	public void setFinancialLong(String financialLong) {
+		this.financialLong = financialLong;
+	}
+
+	public String getKnowNetworkPlatform() {
+		return this.knowNetworkPlatform;
+	}
+
+	public void setKnowNetworkPlatform(String knowNetworkPlatform) {
+		this.knowNetworkPlatform = knowNetworkPlatform;
+	}
+
+	public String getFinancialMoney() {
+		return this.financialMoney;
+	}
+
+	public void setFinancialMoney(String financialMoney) {
+		this.financialMoney = financialMoney;
+	}
+
+	public String getFinancialMoneyRatio() {
+		return this.financialMoneyRatio;
+	}
+
+	public void setFinancialMoneyRatio(String financialMoneyRatio) {
+		this.financialMoneyRatio = financialMoneyRatio;
+	}
+
+	public String getFinancialMoneySource() {
+		return this.financialMoneySource;
+	}
+
+	public void setFinancialMoneySource(String financialMoneySource) {
+		this.financialMoneySource = financialMoneySource;
+	}
+
+	public String getFinancialReason() {
+		return this.financialReason;
+	}
+
+	public void setFinancialReason(String financialReason) {
+		this.financialReason = financialReason;
+	}
+
+	public String getFinancialThinkValue() {
+		return this.financialThinkValue;
+	}
+
+	public void setFinancialThinkValue(String financialThinkValue) {
+		this.financialThinkValue = financialThinkValue;
+	}
+
+	public String getMajorFocus() {
+		return this.majorFocus;
+	}
+
+	public void setMajorFocus(String majorFocus) {
+		this.majorFocus = majorFocus;
+	}
+
+	public String getFinancialEarning() {
+		return this.financialEarning;
+	}
+
+	public void setFinancialEarning(String financialEarning) {
+		this.financialEarning = financialEarning;
+	}
+
+	public String getInvestWilling() {
+		return this.investWilling;
+	}
+
+	public void setInvestWilling(String investWilling) {
+		this.investWilling = investWilling;
+	}
+
+	public String getFinancialConvenient() {
+		return this.financialConvenient;
+	}
+
+	public void setFinancialConvenient(String financialConvenient) {
+		this.financialConvenient = financialConvenient;
+	}
+
+	public String getKnowPujinziben() {
+		return this.knowPujinziben;
+	}
+
+	public void setKnowPujinziben(String knowPujinziben) {
+		this.knowPujinziben = knowPujinziben;
+	}
+
+}

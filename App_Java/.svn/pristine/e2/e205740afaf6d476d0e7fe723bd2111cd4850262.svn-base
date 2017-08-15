@@ -1,0 +1,21 @@
+package com.pjzb.service.common;
+
+import java.math.BigDecimal;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.InvestRepaymentDao;
+
+@Service
+public class InvestRepaymentService {
+	
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+	
+	public Map<String, BigDecimal> queryInvestRepaymentAmountWithin15Days(Long userId){
+		return investRepaymentDao.queryInvestRepaymentAmountWithin15Days(userId);
+	}
+
+}

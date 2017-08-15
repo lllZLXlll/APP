@@ -1,0 +1,15 @@
+package com.pjzb.service.common;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.EmpDao;
+
+@Service
+public class EmpService {
+	
+	@Autowired
+	private EmpDao empDao;
+	
+	
+}

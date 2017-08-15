@@ -1,0 +1,189 @@
+package com.pjzb.service.front;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.RecommendUserDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.User;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DesSecurityUtil;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+/**
+ * pc、wap、app端 推荐好友相关公共service
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class FriendsRecommendService extends BaseController {
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private RecommendUserDao recommendUserDao;
+
+	/**
+	 * 加载邀请好友列表
+	 * 
+	 * @param userid
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> queryFriendManagerInit(long userid, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		User user = userService.queryUserById(userid);
+		Long userId = user.getId();
+		Map<String, Object> userMap = userDao.queryUserInfoById(userId);// 根据用户查询用户明细
+		String isEmployeeReferral = Convert.strToStr(userMap.get("isEmployeeReferral") + "", "");
+		Object is = request().getParameter("is");
+		if (is == null) {
+			JSONObject jsonObject;
+			if (pageType.equals(Constants.REACTAPP))
+				jsonObject = requestAppJSONGetAttribute();
+			else
+				jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			jsonMap = queryfindRecommendUserPage(jsonObject, userId, pageType);
+		}
+		jsonMap.put("isEmployeeReferral", isEmployeeReferral);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	/**
+	 * 被推荐人投资情况初始化
+	 * 
+	 * @param jsonObject
+	 * @param userId
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> queryInvestRecordInit(JSONObject jsonObject, int pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String username = Convert.strToStr(String.valueOf(jsonObject.get("username")), null);
+		// 中文乱码转换
+		if (StringUtils.isNotBlank(username)) {
+			try {
+				username = URLDecoder.decode(username, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+		String borrowStatus = "";
+		String title = Convert.strToStr((jsonObject.get("title") == null ? "" : jsonObject.get("title")) + "", "");
+		Long userId = Convert.strToLong(jsonObject.getString("userId"), -1);
+		String publishTimeStart = Convert.strToStr((jsonObject.get("publishTimeStart") == null ? "" : jsonObject.get("publishTimeStart")) + "", "");
+		String publishTimeEnd = Convert.strToStr((jsonObject.get("publishTimeEnd") == null ? "" : jsonObject.get("publishTimeEnd")) + "", "");
+		List<Map<String, Object>> investRecordList = investDao.queryBorrowInvestByCondition("", title, publishTimeStart, publishTimeEnd, borrowStatus, userId, (curPage - 1)
+				* pageSize, pageSize);
+		Long counts = investDao.queryBorrowInvestcount("", title, publishTimeStart, publishTimeEnd, borrowStatus, userId);
+
+		PageBean pageBean = new PageBean();
+		pageBean.setPageSize(pageSize);
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(counts);
+		pageBean.setPage(investRecordList);
+		jsonMap.put("userId", userId);
+		jsonMap.put("username", username);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	/**
+	 * webapp加载邀请好友列表
+	 * 
+	 * @param userid
+	 * @return
+	 * @author Li zeyang
+	 */
+	Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+	public Map<String, Object> queryMyFriendList(long userid) {
+		User user = userService.queryUserById(userid);
+		Long userId = user.getId();
+		Map<String, Object> userMap = userDao.queryUserInfoById(userId);// 根据用户查询用户明细
+		String isEmployeeReferral = Convert.strToStr(userMap.get("isEmployeeReferral") + "", "");
+		JSONObject jsonObject = getAjaxParam();
+		if (jsonObject == null) {
+			jsonMap.put("error", "-1");
+			jsonMap.put("msg", "请求参数为空");
+			return jsonMap;
+		}
+		jsonMap = queryfindRecommendUserPage(jsonObject, userId, chosese());
+		jsonMap.put("isEmployeeReferral", isEmployeeReferral);
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryfindRecommendUserPage(JSONObject jsonObject, Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			String beginTime = Convert.strToStr((jsonObject.get("begin") == null ? "" : jsonObject.get("begin")) + "", "");
+			String endTime = Convert.strToStr((jsonObject.get("end") == null ? "" : jsonObject.get("end")) + "", "");
+			Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+			Long pageSize;
+			if (pageType.equals(Constants.REACTAPP))
+				pageSize = Convert.strToLong(IConstants.PAGE_SIZE_15 + "", 10L);
+			else
+				pageSize = Convert.strToLong(IConstants.PAGE_SIZE_10 + "", 10L);
+			List<Map<String, Object>> recommendList = recommendUserDao.queryfindRecommendUserPage(userId, beginTime, endTime, (curPage - 1) * pageSize, pageSize);
+			Long counts = recommendUserDao.queryfindRecommendUserCounts(userId, beginTime, endTime);
+
+			DesSecurityUtil des = new DesSecurityUtil();
+			String userI = des.encrypt(String.valueOf(userId));
+			String uri = getBasePath();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageSize(pageSize);
+			pageBean.setPageNum(curPage);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(counts);
+			pageBean.setPage(recommendList);
+			jsonMap.put("url", uri);
+			jsonMap.put("userId", userI);
+			jsonMap.put("recommendUserId", userI);
+			jsonMap.put("pageBean", pageBean);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+}

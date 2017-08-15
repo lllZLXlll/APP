@@ -1,0 +1,126 @@
+package com.pjzb.controller.admin;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.RecommendUser;
+import com.pjzb.service.admin.user.AdminRecommendService;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 用户管理Controller
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminUserController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminUserController.class);
+
+	@Autowired
+	private AdminRecommendService adminRecommendService;
+
+	/**
+	 * 
+	 * @describe:分页显示推荐人列表
+	 * @author xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/recommendInit")
+	public String recommendInit(Model model, Long pageCurrent, Long pageSize, String userId, String userName, String recommendUserId, String recommendUsername,String tabid) {
+		return adminRecommendService.queryRecommendUserForPage(userId, ConvertUtil.convertObjToStr(userName), recommendUserId, ConvertUtil.convertObjToStr(recommendUsername),
+				pageCurrent, pageSize, model,tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:根据id查询推荐人
+	 * @author xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/queryRecommendById")
+	public String queryRecommendById(Model model, Long id,String tabid) {
+		return adminRecommendService.queryRecommendUserById(id, model,tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:增加推荐人初始化页面
+	 * @author xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/addRecommendInit")
+	public String addRecommendInit(Model model,String tabid) {
+		return adminRecommendService.addRecommendInit(model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:增加推荐人
+	 * @author xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/addRecommendUser")
+	@ResponseBody
+	public Map<String, Object> addRecommendUser(Model model, RecommendUser recommendUser,String tabid) {
+		return adminRecommendService.addRecommendUser(recommendUser,tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:根据id更改推荐人信息
+	 * @author xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/updateRecommendUserById")
+	@ResponseBody
+	public Map<String, Object> updateRecommendUserById(Model model, RecommendUser recommendUser,String tabid) {
+		return adminRecommendService.updateRecommendUserById(recommendUser,tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:根据id删除推荐人
+	 * @author xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteRecommendById")
+	@ResponseBody
+	public Map<String, Object> deleteRecommendById(Model model, Long id) {
+		return adminRecommendService.deleteRecommendById(id);
+	}
+
+	/**
+	 * 
+	 * @describe:批量删除推荐人
+	 * @author xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteRecommendByIds")
+	@ResponseBody
+	public Map<String, Object> deleteRecommendByIds(Model model, String delids) {
+		return adminRecommendService.deleteRecommendByIds(delids);
+	}
+
+	/**
+	 * 
+	 * @describe:导出推荐人信息
+	 * @author xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/exporRecommendUserInfo")
+	@ResponseBody
+	public void exporRecommendUserInfo(Model model, HttpServletResponse response) {
+		adminRecommendService.queryRecommendUserInfo(response);
+	}
+
+}

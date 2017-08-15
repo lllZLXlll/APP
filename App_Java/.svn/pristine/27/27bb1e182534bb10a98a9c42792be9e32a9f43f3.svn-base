@@ -1,0 +1,416 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<script type="text/javascript">
+	$("#captcha_img").click(function(){
+		$("#captcha_img").attr("src", "../imageCode.do?t="+genTimestamp()+"&pageId=publishBorrow");
+	});
+	
+	function genTimestamp(){
+		var time = new Date();
+		return time.getTime();
+	}
+	
+	
+	/* 
+	$("#daythe").click(function(){
+		var check = $('#daythe').attr('checked');
+	      if(check == 'checked'){
+	        $("#paymentMode").html("<option value='1'>到期还本付息</option>");
+	      }else{
+	      	$("#paymentMode").html("<option value=''>--请选择--</option><option value='1'>等额本息</option><option value='2'>按月付息，到期还本</option><option value='4'>一次性还款</option>");
+	      }
+	});*/
+	
+			$('input[name="setIsDayThe"]').on('ifChanged', function(e) {
+                var checked = $(this).is(':checked'), val = $(this).val();
+                if (checked){
+                   $("#paymentMode").html("<option value='1'>到期还本付息</option>");
+                }else{
+                $("#paymentMode").html("<option value=''>--请选择--</option><option value='1'>等额本息</option><option value='2'>按月付息，到期还本</option><option value='4'>一次性还款</option>");
+                 }
+            });
+	 
+	
+	// alert($('#borrowWay').selectpicker('val'));
+	 $('#contract_id').hide();
+	 $("#contractName").hide();
+	 $("#contract_id").val("-1");
+	 $('#contractTemplateName').hide();
+	 $('#contractTemplate').selectpicker('hide');
+	$("#borrowWay").on('change', function(e) {
+        var borrowWay=$('#borrowWay').selectpicker('val');
+        if(borrowWay==3){
+        	$("#behalfName").show();
+        	$('#behalf').selectpicker('show');
+        	$("#contractName").hide();
+        	$("#contract_id").hide();
+        	$("#contract_id").val("-1");
+        //	 $("#deadLine").attr("value", 1);  
+        	$('#contractTemplateName').hide();
+	 		$('#contractTemplate').selectpicker('hide');
+        	
+        }else if(borrowWay==5){
+        	$("#behalfName").show();
+        	$('#behalf').selectpicker('show');
+        	$("#contractName").show();
+        	$("#contract_id").show();
+        	$("#contract_id").val("");
+        	$('#contractTemplateName').show();
+	 		$('#contractTemplate').selectpicker('show');
+        }else{
+      		$("#behalfName").hide();
+        	$('#behalf').selectpicker('hide');
+        	$("#contractName").show();
+        	$("#contract_id").val("");
+        	$("#contract_id").show();
+        	$('#contractTemplateName').hide();
+	 		$('#contractTemplate').selectpicker('hide');
+        }
+    });
+    
+    $('input[name="setInvestPWD"]').on('ifChanged', function(e) {
+                var checked = $(this).is(':checked'), val = $(this).val();
+                if (checked){
+                   $("#investPWD").removeAttr("readonly");
+                }else{
+                	$("#investPWD").attr("readonly","readonly");
+                //	$("#investPWD").removeAttr("data-rule");
+                 }
+            });
+	
+</script>
+<div class="bjui-pageContent">
+    <form action="publishBorrow.do" id="j_custom_form" data-toggle="validate" data-alertmsg="false">
+        <input type="hidden" name="tabid" value="${tabid }">
+        <input type="hidden" name="publisher" value="${userId }">
+        <input type="hidden" name="applyId" value="${applyId }">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+            	
+            	<tr height="26px" >
+                    <td width="100%" colspan="4">
+                        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                       <span style="font-weight:bold;">借款基本信</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="9%">
+                        &nbsp; &nbsp;<span style="font-weight:bold;">借款类型：</span>
+                      </td>
+                      <td width="41%">  
+                         <input type="text"  value="${type ==1?'个人借款':'企业借款'}"  data-rule="required" size="20" readonly="readonly">
+                         
+                          <input type="hidden" name="borrowType" id="borrowType" value="${type}">
+                    </td>
+                    
+                    <td width="7%">
+                        <span style="font-weight:bold;">借款类型：</span>
+                         </td>
+                      <td width="43%">  
+           			 <select name="borrowTypeSubId" id="borrowWay" data-toggle="selectpicker" data-rule="required">
+                <option value="">请选择</option>
+                <option value="2" ${borrowWay ==2?'selected':''}>体验标</option>
+                <option value="3" ${borrowWay ==3?'selected':''}>多金宝</option>
+                <option value="4" ${borrowWay ==4?'selected':''}>普金宝</option>
+                <option value="5" ${borrowWay ==5?'selected':''}>新手标</option>
+                <option value="6" ${borrowWay ==6?'selected':''}>恒金宝</option>
+            </select>&nbsp;
+            
+                    </td>
+                    </tr>
+                       <tr>
+                    <td >
+                       &nbsp; &nbsp;<span style="font-weight:bold;">选择企业资料：</span>
+                         </td>
+                      <td >  
+                         <select name="groupid"  data-toggle="selectpicker" data-rule="required">
+                			<option value="">请选择</option>
+                			<c:forEach items="${dataList }" var="data" >
+                				<option value="${data.groupid }">${data.companyname }</option>
+                			</c:forEach>
+            			</select>
+                    </td>
+                    
+                     <td >
+                      <span style="font-weight:bold;">借款标题：</span>
+                       </td>
+                      <td >  
+                        <input type="text" name="borrowTitle" id="borrowTitle"   data-rule="required" size="20">
+                    </td>
+                </tr>
+                
+                    
+                    <tr>
+                    <td>
+                       &nbsp; &nbsp;<span id="contractName" style="font-weight:bold;">合同编码：</span>
+                       </td>
+                       <td>
+                       
+                        <input type="text" name="contractId" id="contract_id"  data-rule="required" size="20">
+                     
+                    </td>
+                      <td>
+                        <span style="font-weight:bold;">贷后维护经理：</span>
+                          </td>
+                       <td>
+                       <select name="loanUserId" id="loanUserId" data-toggle="selectpicker" data-rule="required">
+						    <option value="">--请选择--</option>
+						   <c:forEach items="${loanAfterMgrList }" var="data"> 
+						   	 <option value="${data.loanUserId }">${data.loanRealName }</option>
+						   </c:forEach>
+						   
+					</select>
+                    </td>
+                    
+                </tr>
+                
+                
+                 <tr>
+                 
+                 <td>
+                        &nbsp; &nbsp;<span style="font-weight:bold;">借款期限：</span>
+                          </td>
+                       <td>
+                        <select name="deadline" id="deadline" data-toggle="selectpicker" data-rule="required">
+						    <option value="">--请选择--</option>
+						    <option value="1">1个月</option>
+						    <option value="2">2个月</option>
+						    <option value="3">3个月</option>
+						    <option value="4">4个月</option>
+						    <option value="5">5个月</option>
+						    <option value="6">6个月</option>
+						    <option value="7">7个月</option>
+						    <option value="8">8个月</option>
+						    <option value="9">9个月</option>
+						    <option value="10">10个月</option>
+						    <option value="11">11个月</option>
+						    <option value="12">12个月</option>
+						    <option value="13">13个月</option>
+					</select>
+                    </td>
+                    
+                   
+                    <td>
+                        <span style="font-weight:bold;">借款目的：</span>
+                          </td>
+                       <td>
+                       <select name="purpose" id="purpose" data-toggle="selectpicker" data-rule="required">
+						    <option value="">--请选择--</option>
+						   <c:forEach items="${borrowPurposeList }" var="data"> 
+						   	 <option value="${data.selectValue }">${data.selectName }</option>
+						   </c:forEach>
+					</select>
+                    </td>
+                </tr>
+                
+                  <tr>
+                  
+                    <td>
+                       &nbsp; &nbsp; <span id="behalfName" style="font-weight:bold;">投资人代表：</span>
+                         </td>
+                       <td>
+                       <select name="behalfUserId" id="behalf" data-toggle="selectpicker" data-rule="required">
+						    <option value="-1">--请选择--</option>
+						    <c:forEach items="${investorRepresentList }" var="data"> 
+						   	 <option value="${data.behalfUserId }">${data.behalfRealName }</option>
+						   </c:forEach>
+					</select>
+                    </td>
+                  
+<!--                     <td> -->
+<!--                        &nbsp; &nbsp;<span style="font-weight:bold;">置为天标：</span> -->
+<!--                          </td> -->
+<!--                        <td> -->
+<!--                        	<input type="checkbox" name="setIsDayThe" id="isDayThe" data-toggle="icheck"  value="true" > -->
+<!--                     </td> -->
+                   
+                     <td>
+                       <span style="font-weight:bold;">还款方式：</span>
+                          </td>
+                       <td>
+                        <select name="paymentMode" id="paymentMode" data-toggle="selectpicker" data-rule="required" >
+						    <option value="">--请选择--</option>
+						    <option value="1">等额本息</option>
+						    <option value="2">按月付息，到期还本</option>
+						    <option value="4">一次性还款</option>
+						</select>
+                      
+                    </td>
+                </tr>
+                
+                
+                <tr>
+                    <td>
+                       &nbsp; &nbsp;<span style="font-weight:bold;">借款总额(￥元)：</span>
+                         </td>
+                       <td>
+                       		 <input type="text" name="borrowAmount" id="borrowAmount"   data-rule="required" size="20">
+                    </td>
+                    
+                    <td>
+                     <span style="font-weight:bold;">年利率：</span>
+                         </td>
+                       <td>
+                        <input type="text" name="annualRate" id="annualRate"   data-rule="required" size="10">%
+                    </td>
+                    
+                </tr>
+                
+                
+                
+                <tr>
+                    <td>
+                       &nbsp; &nbsp;<span style="font-weight:bold;">展示利率：</span>
+                         </td>
+                       <td>
+                       		 <input type="text" name="showRate" id="showRate"   data-rule="required" size="10">%
+                    </td>
+                    
+                    <td>
+                      <span style="font-weight:bold;">项目地址：</span>
+                         </td>
+                       <td>
+                        <input type="text" name="projectAddress" id="projectAddress"   data-rule="required" size="35">
+                    </td>
+                    
+                </tr>
+                
+                <tr>
+                    
+                    <td>
+                       &nbsp; &nbsp;<span style="font-weight:bold;">最低投标金额：</span>
+                         </td>
+                       <td>
+                       <select name="minTenderedSum" id="minTenderedSum" data-toggle="selectpicker" data-rule="required">
+						    <option value="">--请选择--</option>
+						    <option value="50">50</option>
+						    <option value="100">100</option>
+						    <option value="200">200</option>
+					</select>
+                    </td>
+                    
+                     <td>
+                      <span style="font-weight:bold;">最高投标金额：</span>
+                         </td>
+                       <td>
+                       <select name="maxTenderedSum" id="maxTenderedSum" data-toggle="selectpicker" >
+                       		<option value="">没有限制</option>
+						    <option value="1000">1000</option>
+						    <option value="2000">2000</option>
+						    <option value="5000">5000</option>
+						     <option value="10000">10000</option>
+					</select>
+                    </td>
+                </tr>
+                
+                
+                 <tr>
+                    <td>
+                       &nbsp; &nbsp;<span style="font-weight:bold;">筹标期限：</span>
+                         </td>
+                       <td>
+                       		<input type="text"   data-rule="required" size="20" value="无期限" readonly="readonly">
+                       		<input type="hidden" name="raiseTerm" id="raiseTerm" value="">
+                    </td>
+                    
+                    <td>
+                       <span style="font-weight:bold;">项目评级：</span>
+                         </td>
+                       <td>
+                        <select name="projectScore" id="projectScore" data-toggle="selectpicker" data-rule="required">
+						    <option value="">--请选择--</option>
+						    <option value="104">A</option>
+						    <option value="105">B</option>
+						    <option value="106">C</option>
+						    <option value="107">D</option>
+						    <option value="108">E</option>
+					</select>
+                    </td>
+                    
+                </tr>
+                
+                 <tr>
+                    <td>
+                       &nbsp; &nbsp;<span style="font-weight:bold;">可投标时间：</span>
+                         </td>
+                       <td>
+                       
+                       <input type="text" name="bidTimeStr" id="bidTime"  data-toggle="datepicker"
+                       data-pattern="yyyy-MM-dd HH:mm:ss" data-rule="required;datetime" size="20">
+                    </td>
+                      <td>
+                      <span style="font-weight:bold;">投标密码：</span>
+                         </td>
+                       <td>
+                       <input type="password" name="investPWD" id="investPWD"  size="20" readonly="readonly">
+                       &nbsp;&nbsp;
+                       <input type="checkbox" name="setInvestPWD" id="setInvestPWD" data-toggle="icheck"  value="true" >
+                    </td>
+                </tr>
+                
+                 <tr>
+                      <td >
+                       &nbsp; &nbsp;<span style="font-weight:bold;">验证码：</span>
+                         </td>
+                       <td>
+                        <input type="text" name="code" id="code"   data-rule="required" maxlength="4" size="15">&nbsp;&nbsp;
+                        <img id="captcha_img" alt="点击更换" title="点击更换" src="../imageCode.do?t=${time }&pageId=publishBorrow" class="m">
+                    </td>
+                      <td>
+                     <span id="contractTemplateName" style="font-weight:bold;">合同模板：</span>
+                         </td>
+                       <td>
+                        <select name="hetong" id="contractTemplate" data-toggle="selectpicker" data-rule="required">
+						    <option value="-1">--请选择--</option>
+						   <c:forEach items="${contractTemplateList }" var="data"> 
+						   	 <option value="${data.selectValue }">${data.selectName }</option>
+						   </c:forEach>
+						   
+					</select>
+                    </td>
+                  </tr>
+                    
+                   
+                    
+                 <tr>
+                    <td>
+                        <label for="j_custom_name" class="control-label x85">项目描述：</label>
+                        </td>
+                       <td>
+                       <textarea name="detail" id="detail"  data-toggle="autoheight" data-rule="required" cols="40" rows="8"></textarea>
+                    </td>
+                    
+                    <td>
+                        <label for="j_custom_name" class="control-label x85">还款来源：</label>
+                        </td>
+                       <td>
+                       <textarea name="retsource" id="retsource"  data-toggle="autoheight" data-rule="required" cols="40" rows="8"></textarea>
+                    </td>
+                </tr>
+                
+                 <tr>
+                    <td>
+                        <label for="j_custom_name" class="control-label x90">借款人介绍：</label>
+                        </td>
+                       <td>
+                       <textarea name="projectIntro" id="projectIntro"  data-toggle="autoheight" data-rule="required" cols="40" rows="8"></textarea>
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x85">保障措施：</label>
+                        </td>
+                       <td>
+                       <textarea name="safeMeasures" id="safeMeasures"  data-toggle="autoheight" data-rule="required" cols="40" rows="8"></textarea>
+                    </td>
+                    
+                </tr>
+                
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save">保存</button></li>
+    </ul>
+</div>

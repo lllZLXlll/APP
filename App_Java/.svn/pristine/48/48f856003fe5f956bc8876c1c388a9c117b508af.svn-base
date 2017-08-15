@@ -1,0 +1,71 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.TrfReconciliationDao;
+import com.pjzb.util.Constants;
+/**
+ * 汇付商户扣款对账
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminChinapnrDebitAccountsService extends BaseController {
+	
+	@Autowired
+	private TrfReconciliationDao trfReconciliationDao;
+	
+	public String trfReconciliationList(Model model, String tabid, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = trfReconciliationDao.queryTrfReconciliationList((pageNum - 1) * pageSize, pageSize);
+			long count = trfReconciliationDao.queryTrfReconciliationCount();
+			Map<String, Object> map = trfReconciliationDao.queryMoneySum();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("map", map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************汇付商户扣款对账查询记录异常**************************");
+		}
+		return "/admin/fund/chinapnrdebitaccounts/list.jsp";
+	}
+
+	public String experGoldDeduction(Model model, String tabid, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = trfReconciliationDao.queryExperGoldList((pageNum - 1) * pageSize, pageSize);
+			long count = trfReconciliationDao.queryExperGoldCount();
+			Map<String, Object> map = trfReconciliationDao.queryTyjMoneySum();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("map", map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************体验金扣款对账查询记录异常**************************");
+		}
+		return "/admin/fund/chinapnrdebitaccounts/listTY.jsp";
+	}
+
+}

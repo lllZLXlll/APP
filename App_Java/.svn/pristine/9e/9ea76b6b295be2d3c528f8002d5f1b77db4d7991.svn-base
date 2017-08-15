@@ -1,0 +1,51 @@
+package com.pjzb.service.admin.count;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.LoginStatisDao;
+import com.pjzb.util.Constants;
+import com.shove.Convert;
+
+/**登录统计
+ * 
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminLoginCountService extends BaseController {
+	
+	@Autowired 
+	private LoginStatisDao loginStatisDao;
+	
+	public String queryLoginStatisForPage(Model model, String tabid, Long pageNum, Long pageSize, String tabid2, String beginTime, String endTime, String userName,
+			String realName, String counts) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			int countInt = Convert.strToInt(counts, -1);
+			List<Map<String, Object>> list = loginStatisDao.queryLoginStatisForPage((pageNum - 1) * pageSize, pageSize,
+					beginTime,endTime,userName,realName,countInt,true);
+			long count = loginStatisDao.queryLoginStatisCount(beginTime,endTime,userName,realName,countInt);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询登入统计异常**************************");
+		}
+		return "/admin/count/logincount/list.jsp";
+	}
+
+}

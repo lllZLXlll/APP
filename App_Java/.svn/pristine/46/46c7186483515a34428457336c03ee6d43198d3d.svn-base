@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.count;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 运营数据
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminOperateDataService extends BaseController{
+
+}

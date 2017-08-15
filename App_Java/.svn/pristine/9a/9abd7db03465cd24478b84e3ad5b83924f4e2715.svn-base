@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<!-- 不识别邮件和不把数字识别为电话号码 -->
+	<meta name="format-detection" content="telephone=no; email=no" />
+	<link rel="stylesheet" type="text/css" href="css/sm.css">
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_1471051760_052928.css">
+	<title>普金资本-投资</title>
+</head>
+<body>
+    <!-- 标题栏 -->
+    <header class="bar bar-nav">
+        <!-- <a class="pull-left back"><i class="icon">&#xe604;</i></a> -->
+        <h1 class="title">投资</h1>
+    </header>
+    <!-- 这里是页面内容区 -->
+    <div class="content">
+      <!-- Slider -->
+      <div class="swiper-container" data-space-between='10'>
+        <div class="swiper-wrapper">
+          <div class="swiper-slide"><img src="images/banner.png" alt=""></div>
+          <div class="swiper-slide"><img src="images/banner.png" alt=""></div>
+          <div class="swiper-slide"><img src="images/banner.png" alt=""></div>
+        </div>
+        <div class="index-top flex">
+          <p class="flex-1">累计投资：<span>123,000 元</span></p><p class="flex-1">累计注册：<span>3,000 人</span></p>
+        </div>
+      </div>
+      <div class="index-notice flex">
+        <i class="icon icon-color">&#xe605;</i>
+        <ul><li><a href="">邀请好友注册，送大礼！</a></li></ul>
+        <p><a href="">更多>></a></p>
+      </div>
+      <div class="index-logo">
+        <div class="row no-gutter">
+          <div class="col-33">
+            <i class="icon">&#xe60a;</i>
+            <p>实力雄厚</p>
+            <span>国资背景</span>
+          </div>
+          <div class="col-33">
+            <i class="icon">&#xe60c;</i>
+            <p>安全稳健</p>
+            <span>资金保障</span>
+          </div>
+          <div class="col-33">
+            <i class="icon">&#xe60b;</i>
+            <p>新手福利</p>
+            <span>注册有奖</span>
+          </div>
+        </div>
+      </div>
+      <div class="index-pro">
+        <div class="pro-content">
+          <ul class="flex row no-gutter">
+            <li class="col-40"><p>理财体验标</p><span>首次注册用户专享</span></li>
+            <li class="col-25"><p>8%</p><span>年利率</span></li>
+            <li class="col-33"><p>10<em>天</em></p><span>投资期限</span></li>
+          </ul>
+          <div class="flex pro-submit">
+            <p class="flex"><i class="pro-line"><em class="pro-line-em" title=""></em></i><span class="line-num">70%</span></p>
+            <p class=""><a href="javascript:void(0);" class="btn btn-buy">立即投标</a></p>
+          </div>
+          <img class="pro-img" src="images/ty.png" alt="">
+        </div>
+        <div class="pro-content pro-content-new">
+          <ul class="flex row no-gutter">
+            <li class="col-40"><p>理财体验标</p><span>首次注册用户专享</span></li>
+            <li class="col-25"><p>8%</p><span>年利率</span></li>
+            <li class="col-33"><p>10<em>天</em></p><span>投资期限</span></li>
+          </ul>
+          <div class="flex pro-submit">
+            <p class="flex"><i class="pro-line"><em class="pro-line-em" title=""></em></i><span class="line-num">70%</span></p>
+            <p class=""><a href="javascript:void(0);" class="btn btn-buy btn-blue">立即投标</a></p>
+          </div>
+          <img class="pro-img" src="images/xs.png" alt="">
+        </div>
+      </div>
+      <div class="pro-hot">
+        <h3 class="pro-hot-title">热门推荐</h3>
+        <div class="pro-content">
+          <ul class="flex row no-gutter">
+            <li class="col-50"><p><span class="pro-group">普金宝</span>-PJ201601</p><span>融资金额：100万</span></li>
+            <li class="col-20"><p>8%</p><span>年利率</span></li>
+            <li class="col-33"><p>10<em>天</em></p><span>投资期限</span></li>
+          </ul>
+          <div class="flex pro-submit">
+            <p class="flex"><i class="pro-line"><em class="pro-line-em" title=""></em></i><span class="line-num">70%</span></p>
+            <p class=""><a href="javascript:void(0);" class="btn btn-buy">立即投标</a></p>
+          </div>
+        </div>
+        <div class="pro-content pro-orange">
+          <ul class="flex row no-gutter">
+            <li class="col-50"><p><span class="pro-group">多金宝</span>-PJ201601</p><span>融资金额：100万</span></li>
+            <li class="col-20"><p>8%</p><span>年利率</span></li>
+            <li class="col-33"><p>10<em>天</em></p><span>投资期限</span></li>
+          </ul>
+          <div class="flex pro-submit">
+            <p class="flex"><i class="pro-line"><em class="pro-line-em" title=""></em></i><span class="line-num">70%</span></p>
+            <p class=""><a href="javascript:void(0);" class="btn btn-buy btn-orange">立即投标</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav class="bar bar-tab"><a class="tab-item external active" href="#!/index"><span class="icon icon-color icon-investment"></span><span class="tab-label">投资</span></a><a class="tab-item external" href="#!/about"><span class="icon icon-color icon-about"></span><span class="tab-label">关于</span></a><a class="tab-item external" href="#!/account"><span class="icon icon-color icon-center"></span><span class="tab-label">账户</span></a></nav>
+</body>
+<script type="text/javascript" src="script/zepto.min.js"></script>
+<script type="text/javascript" src="script/sm.min.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $(".swiper-container").swiper({
+        speed: 400,
+        spaceBetween:0,
+        autoplay: 2000
+    });
+  })
+</script>
+</html>

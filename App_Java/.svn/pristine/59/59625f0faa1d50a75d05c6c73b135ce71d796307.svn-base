@@ -1,0 +1,72 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.Date;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.ExgoBorrowDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.IConstants;
+
+/**
+ * 体验金标的修改
+ * 
+ * @author zlx
+ * 
+ */
+@Service
+public class AdminExGoldBorrUpdateService extends BaseController {
+
+	@Autowired
+	private ExgoBorrowDao exgoBorrowDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryExGoAccount(Model model, Long pageNum, Long pageSize, String tabid) {
+		PageBean pageBean = new PageBean();
+		long count = exgoBorrowDao.queryEditAccountCount();
+		pageBean.setTotalNum(count);
+		pageBean.setPage(count > 0 ? exgoBorrowDao.queryEditAccount((pageNum - 1) * pageSize, pageSize) : null);
+		pageBean.setPageSize(pageSize);
+		pageBean.setPageNum(pageNum);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("pageBean", pageBean);
+		return "/admin/borrow/exgoldborrupdate/list.jsp";
+	}
+
+	public String queryExGoAccountById(Model model, Long id, String tabid) {
+		Map<String, Object> item = exgoBorrowDao.queryExGoAccountById(id);
+		model.addAttribute("id", id);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("item", item);
+		return "/admin/borrow/exgoldborrupdate/update.jsp";
+	}
+
+	public Map<String, Object> updateExGoAccount(String tabid, Long id, String detail, Double annualRate, Double borrowAmount, Integer deadline) {
+		long result = -1;
+		try {
+			result = exgoBorrowDao.updateExGoBorrowAccount(detail, annualRate, borrowAmount, deadline, id);
+			if (result < 0) {
+				throw new RuntimeException("*************修改体验金额度信息失败**************");
+			} else {
+				Admin admin = getSessionAdminInfo();
+				operationLogDao.addOperationLog(new OperationLog("t_exGo_borrow", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), borrowAmount, "修改体验标额度类型",
+						2, admin.getId()));
+				return ajaxDoneInfo("200", "*************修改体验金额度信息成功**************", "dialog", tabid);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			throw new RuntimeException("*************修改体验金额度信息异常**************");
+		}
+	}
+
+}

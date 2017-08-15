@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.CashReconciliationDao">
+
+
+	<insert id="insertCashReconciliation">
+		INSERT INTO t_cash_reconciliation(OrdId,MerCustId,UsrCustId,CardId,TransAmt,TransStat,PnrDate,PnrSeqId,ServFee,ServFeeAcctId,FeeAmt,
+		FeeCustId,FeeAcctId,InDate,FeeObj)
+		VALUES(#{ordId},#{merCustId},#{usrCustId},#{cardId},#{transAmt},#{transStat},#{pnrDate},#{pnrSeqId},
+		#{servFee},#{servFeeAcctId},#{feeAmt},#{feeCustId},#{feeAcctId},#{inDate},#{feeObj})
+	</insert>
+	
+	<delete id="deleteCashReconciliation" parameterType="string">
+		DELETE FROM t_cash_reconciliation WHERE PnrDate = #{0}
+	</delete>
+	
+
+	
+</mapper>
+
+
+
+
+
+
+
+
+

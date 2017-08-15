@@ -1,0 +1,74 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * Relation entity. @author MyEclipse Persistence Tools
+ */
+
+public class Relation implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long peopleId;
+	private Long parentId;
+	private Integer level;
+	private Integer enable;
+
+	// Constructors
+
+	/** default constructor */
+	public Relation() {
+	}
+
+	/** full constructor */
+	public Relation(Long peopleId, Long parentId, Integer level, Integer enable) {
+		this.peopleId = peopleId;
+		this.parentId = parentId;
+		this.level = level;
+		this.enable = enable;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getPeopleId() {
+		return this.peopleId;
+	}
+
+	public void setPeopleId(Long peopleId) {
+		this.peopleId = peopleId;
+	}
+
+	public Long getParentId() {
+		return this.parentId;
+	}
+
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
+	}
+
+	public Integer getLevel() {
+		return this.level;
+	}
+
+	public void setLevel(Integer level) {
+		this.level = level;
+	}
+
+	public Integer getEnable() {
+		return this.enable;
+	}
+
+	public void setEnable(Integer enable) {
+		this.enable = enable;
+	}
+
+}

@@ -1,0 +1,116 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * PlatFormCost entity. @author MyEclipse Persistence Tools
+ */
+
+public class PlatFormCost implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String costName;
+	private Double costFee;
+	private Integer costMode;
+	private String remark;
+	private Date createTime;
+	private String alias;
+	private Integer types;
+	private Integer showView;
+
+	// Constructors
+
+	/** default constructor */
+	public PlatFormCost() {
+	}
+
+	/** full constructor */
+	public PlatFormCost(String costName, Double costFee, Integer costMode, String remark, Date createTime, String alias, Integer types, Integer showView) {
+		this.costName = costName;
+		this.costFee = costFee;
+		this.costMode = costMode;
+		this.remark = remark;
+		this.createTime = createTime;
+		this.alias = alias;
+		this.types = types;
+		this.showView = showView;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getCostName() {
+		return this.costName;
+	}
+
+	public void setCostName(String costName) {
+		this.costName = costName;
+	}
+
+	public Double getCostFee() {
+		return this.costFee;
+	}
+
+	public void setCostFee(Double costFee) {
+		this.costFee = costFee;
+	}
+
+	public Integer getCostMode() {
+		return this.costMode;
+	}
+
+	public void setCostMode(Integer costMode) {
+		this.costMode = costMode;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getAlias() {
+		return this.alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	public Integer getTypes() {
+		return this.types;
+	}
+
+	public void setTypes(Integer types) {
+		this.types = types;
+	}
+
+	public Integer getShowView() {
+		return this.showView;
+	}
+
+	public void setShowView(Integer showView) {
+		this.showView = showView;
+	}
+
+}

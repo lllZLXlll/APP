@@ -1,0 +1,76 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.InvestRepayment;
+
+public interface InvestRepaymentDao {
+	
+	public Map<String, BigDecimal> queryInvestRepaymentAmountWithin15Days(Long userId);
+
+	public void updateInvestDebtStatus(@Param("investId") long investId,@Param("owner") long owner, @Param("ownerStr") String ownerStr);
+	
+	public List<Map<String, Object>> queryInvestRepaymentMsg();
+	
+	public Map<String, BigDecimal> queryMonthTotalIncome(String startTime,String endTime);
+	
+	public BigDecimal queryUnRepayAmount();
+	
+	public BigDecimal findUnRepayAmountByBorrowTypeSubId(Integer borrowTypeSubId);
+	
+	public InvestRepayment queryInvestRepaymentByRepayId(Long repayId);
+
+	public Map<String, Object> repayAmount(String string, int i);
+	
+	public void updateInvestDebtStatus(long owner,String ownerlist,long investId);
+
+	public List<Map<String, Object>> queryOverDueInvestRepayment(String date);
+
+	public void updateOverDueInvestRepayment(long id, long repayId, double lateFee, int lateDay, int isLate);
+	
+	public List<Map<String, Object>> findBorrowForpayDetail(long investId,long owner);
+	
+	public List<Map<String, Object>> queryrInvestRepay(long borrow_id,String investor,String investId);
+
+	public void updateRepament(Long repaymentId);
+
+	public List<Map<String, Object>> queryRepayMentList(long l, Long pageSize, Integer borrowWay, String investor, String titles, Integer group, String timeStart, String timeEnd);
+
+	public long queryRepayMentCount(Integer borrowWay, String investor, String titles, Integer group, String timeStart, String timeEnd);
+
+	public Map<String, Object> queryRepayMentAmount(Integer borrowWay, String investor, String titles, Integer group, String timeStart, String timeEnd);
+
+	public List<Map<String, Object>> queryforPaymentList(long l, Long pageSize, Integer borrowWay, String investor, String titles, Integer group, String timeStart, String timeEnd);
+
+	public long queryforPaymentCount(Integer borrowWay, String investor, String titles, Integer group, String timeStart, String timeEnd);
+
+	public List<Map<String, Object>> queryForPaymentTotalList(long l, Long pageSize, Integer deadline, String investor, String titles, Integer group, String timeStart,
+			String timeEnd);
+
+	public long queryForPaymentTotalCount(Integer deadline, String investor, String titles, Integer group, String timeStart, String timeEnd);
+
+	public Map<String, Object> queryForPaymentTotalAmount(Integer deadline, String investor, String titles, Integer group, String timeStart, String timeEnd);
+
+	public List<Map<String, Object>> queryHasRepayList(long l, Long pageSize, Integer deadline, Integer borrowWay, String userName, String timeStart, String timeEnd,
+			String timeStart1, String timeEnd1);
+
+	public long queryHasRepayCount(Integer deadline, Integer borrowWay, String userName, String timeStart, String timeEnd, String timeStart1, String timeEnd1);
+
+	public Map<String, Object> queryHasRePayAmount(Integer deadline, Integer borrowWay, String userName, String timeStart, String timeEnd, String timeStart1, String timeEnd1);
+
+	public List<Map<String, Object>> queryByrepayIdDueId(Long id);
+
+	public List<Map<String, Object>> queryByRepayId(Long id);
+
+	public List<Map<String, Object>> queryRepayMentLists(long l, Long pageSize, Integer borrowWay, String investor, String titles, Integer group, String timeStart, String timeEnd);
+
+	public List<Map<String, Object>> queryForPaymentTotalLists(long l, Long pageSize, Integer deadline, String investor, String titles, Integer group, String timeStart,
+			String timeEnd);
+
+	public List<Map<String, Object>> queryHasRepayLists(long l, Long pageSize, Integer deadline, Integer borrowWay, String userName, String timeStart, String timeEnd,
+			String timeStart1, String timeEnd1);
+}

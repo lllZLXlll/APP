@@ -1,0 +1,46 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<!-- 	
+<div class="side-bar">
+	<div class="menu">
+	
+	   <dl class="dl_0">
+			<dt><span><img src="css/shImages/sidebar_icon_1.png"/></span><a href="javascript:void(0);">资金信息</a></dt>
+			<dd id="dd_101"><a href="usercenter.do">账户总览</a></dd>
+			<dd id="dd_2"><a href="rechargeInit.do">充值</a></dd>
+			<dd id="dd_3"><a href="withdrawLoad.do">提现</a></dd>
+			<dd id="dd_4"><a href="queryFundrecordInit.do">资金记录</a></dd>
+			<dd id="dd_100"><a href="yhbound.do">银行卡设置</a></dd>
+		</dl>
+		<dl class="dl_1">
+			<dt><span><img src="css/shImages/sidebar_icon_1.png"/></span><a href="javascript:void(0);">账户设置</a></dt>
+			<dd id="dd_5"><a href="userrzManage.do">认证管理</a></dd>
+			<dd id="dd_6"><a href="mailNoticeInit.do">消息中心</a></dd>
+			<dd id="dd_7"><a href="owerInformationInit.do">个人设置</a></dd>
+			<dd id="dd_9"><a href="friendManagerInit.do">好友推荐</a></dd>
+		</dl>
+		<dl class="dl_2">
+			<dt><span><img src="css/shImages/sidebar_icon_2.png"/></span><a href="javascript:void(0);">投资管理</a></dt>
+			<dd id="dd_13"><a href="homeBorrowInvestList.do">我的投标</a></dd>
+			<dd id="dd_14"><a href="borrowConcernList.do">我关注的借款</a></dd>
+			<dd id="dd_15"><a href="financeStatisInit.do">投资统计</a></dd>
+			<dd id="dd_16"><a href="automaticBidInit.do">自动投标管理</a></dd>
+		</dl>
+		<dl class="dl_3">
+			<dt><span><img src="css/shImages/sidebar_icon_3.png"/></span><a href="javascript:void(0);">融资管理</a></dt>
+			<dd id="dd_11"><a href="homeBorrowingList.do">我的借款</a></dd>
+			<dd id="dd_10"><a href="queryMyPayingBorrowList.do">还款管理</a></dd>
+			<dd id="dd_12"><a href="loanStatisInit.do">贷款统计</a></dd>
+			<dd id="dd_19"><a href="autoRepaymentInit.do">自动还款管理</a></dd>
+		</dl>
+		<dl class="dl_4 last">
+			<dt><span><img src="css/shImages/sidebar_icon_4.png"/></span><a href="javascript:void(0);">债权转让</a></dt>
+			<dd id="dd_17"><a href="queryCanAssignmentDebt.do">债权转让</a></dd>
+			<dd id="dd_18"><a href="queryBuyingDebt.do">债权购买</a></dd>
+		</dl> 
+		
+	</div>
+</div>
+-->
+<script type="text/javascript">
+
+</script>

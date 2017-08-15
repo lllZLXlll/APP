@@ -1,0 +1,80 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.AssignmentDebt;
+
+public interface AssignmentDebtDao {
+
+	public List<AssignmentDebt> queryDueDebt();
+
+	public AssignmentDebt queryDueDebtById(Long id);
+
+	public List<Map<String, Object>> queryAllDebt(@Param("debtStatus") String debtStatus,
+			@Param("idArray") String[] idArray, @Param("borrowTitle") String borrowTitle,
+			@Param("deadlinestart") String deadlinestart, @Param("deadlineend") String deadlineend,
+			@Param("rateend") String rateend, @Param("ratestart") String ratestart,
+			@Param("borrowWay") String borrowWay, @Param("debtSum") long debtSum,
+			@Param("auctionBasePrice") long auctionBasePrice, @Param("auctionMode") long auctionMode,
+			@Param("isLate") long isLate, @Param("publishDays") long publishDays, @Param("flages") String flages,
+			@Param("begin") long begin, @Param("end") long end);
+
+	public long queryAllDebtTotal(@Param("debtStatus") String debtStatus, @Param("idArray") String[] idArray,
+			@Param("borrowTitle") String borrowTitle, @Param("deadlinestart") String deadlinestart,
+			@Param("deadlineend") String deadlineend, @Param("rateend") String rateend,
+			@Param("ratestart") String ratestart, @Param("borrowWay") String borrowWay, @Param("debtSum") long debtSum,
+			@Param("auctionBasePrice") long auctionBasePrice, @Param("auctionMode") long auctionMode,
+			@Param("isLate") long isLate, @Param("publishDays") long publishDays);
+
+	public Map<String, Object> getAssignmentDebt(long id);
+
+	public long updateAssignmentDebt(Map<String, Object> map);
+
+	public Map<String, Object> queryAssignmentDebt(long debtId);
+
+	public List<Map<String, Object>> queryAssignmentDebtListByInvestId(long investId);
+
+	public void p_borrow_debt_add(Map<String, Object> map);
+
+	public Map<String, Object> queryDebtUserName(long parseLong);
+
+	public long updateAssignmentDebtById(AssignmentDebt assignmentDebt);
+	
+	public List<AssignmentDebt> findAssignmentDebtListByInvestId(Long investId);
+	
+	public List<AssignmentDebt> queryAssignmentDebtIds(Long borrowId,List<Integer> debtStatus);
+	
+	public Long updateAssignmentDebtDebtStatus(Date auctionEndTime,Integer debtStatus,Long id,Double manageFee,List<Integer> debtStatusList);
+	
+	public AssignmentDebt getAssignmentDebtById(Long id);
+
+	public long isDebtInStatus(@Param(value = "debtId")long debtId, List<Integer> list);
+
+	public String getBorrowTitle(long debtId);
+
+	public List<Map<String, Object>> queryAssignmentDebtIdss(long borrowId, List<Integer> string);
+
+	public String queryUserNameById(long userId);
+
+	public Map<String, Object> queryAdminById(long userId);
+
+	public List<Map<String, Object>> queryCanAssignmentDebt(@Param("userId")Long userId, @Param("borrowTitle")String borrowTitle, @Param("borrowerName")String borrowerName, @Param("l")long l, @Param("pageSize")Long pageSize);
+
+	public Long queryCanAssignmentDebtCount(@Param("userId")Long userId, @Param("borrowTitle")String borrowTitle, @Param("borrowerName")String borrowerName);
+
+	public List<Map<String, Object>> queryAuctingDebt(@Param("userId")Long userId, @Param("borrowTitle")String borrowTitle, @Param("borrowerName")String borrowerName, @Param("debtStatus")List<Integer> debtStatus, @Param("l")long l, @Param("pageSize")Long pageSize);
+
+	public Long queryAuctingDebtCount(@Param("userId")Long userId, @Param("borrowTitle")String borrowTitle, @Param("borrowerName")String borrowerName, @Param("debtStatus")List<Integer> debtStatus);
+
+	public long isHaveAssignmentDebt(long strToLong, long strToLong2);
+
+	public long addAssignmentDebt(Map<String, Object> paramMap);
+
+	public long addUserDynamic(long strToLong, String cotent, Date date);
+	
+
+}

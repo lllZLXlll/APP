@@ -1,0 +1,107 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="queryUserManageBaseInfoindex.do" method="post">
+        <input type="hidden" name="pageSize" value="${pageBean.pageSize}">
+        <input type="hidden" name="pageCurrent" value="${pageBean.pageNum}">
+        <input type="hidden" name="orderField" value="${param.orderField}">
+        <input type="hidden" name="orderDirection" value="${param.orderDirection}">
+        <div class="bjui-searchBar">
+        	<br/>
+            &nbsp;&nbsp;
+            <label>用户名：</label><input type="text" id="customNo" value="${username }" name="username" maxlength="20" class="form-control" size="20">&nbsp;
+            <label>真实姓名：</label><input type="text" value="${realName }" name="realName" class="form-control" maxlength="15" size="15">&nbsp;&nbsp;
+            <button type="submit" class="btn-default" data-icon="search">查询</button>&nbsp;
+             <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+            <div class="pull-right">
+            </div>
+        </div>
+        <div class="bjui-moreSearch">
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+        <thead>
+            <tr >
+            	<th align="center">序号</th>
+                <th align="center">用户名</th>
+                <th align="center">真实姓名</th>
+                <th align="center">信用积分</th>
+                <th align="center">会员积分</th>
+                <th align="center">身份证</th>
+                <th align="center">投资总额（元）</th>
+                <th align="center">个人信息</th>
+                <th align="center">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        <c:set var="count" value="${(pageBean.pageNum-1)*pageBean.pageSize}"></c:set> 
+        	<c:forEach items="${pageBean.page }" var="data" varStatus="status">
+              <tr data-id="65" align="center">
+               <td >${status.index+1+count }</td>
+                <td >${data.username }</td>
+                <td>${data.realName }</td>
+                <td>${data.creditrating }</td>
+                <td>${data.rating }</td>
+                <td>${data.idNo }</td>
+                <td>
+                  <c:choose>
+					<c:when test="${data.totalAmount != null }">
+						<fmt:formatNumber value="${data.totalAmount }" type="currency" pattern="#,##0.00"/>
+					</c:when>
+					<c:otherwise>
+						0.00
+					</c:otherwise>
+				</c:choose>
+				
+            </td>
+                <td>
+                	 <c:choose>
+					<c:when test="${data.tpauditStatus !=null }">
+						基本信息完整
+					</c:when>
+					<c:otherwise>
+						基本信息未填写
+					</c:otherwise>
+				</c:choose>
+                </td>
+                
+                
+                <td>
+                   
+<!--                    <a href="queryRecommendById.do?id=${recommendUser.id }&tabid=${tabid}" data-toggle="dialog" data-id="queryRecommendById"  -->
+<!--                    data-mask="true" data-width="600" data-height="500" class="btn btn-blue">基本信息 </a>&nbsp; -->
+                   
+<!--                     <a href="queryRecommendById.do?id=${recommendUser.id }&tabid=${tabid}" data-toggle="dialog" data-id="queryRecommendById"  -->
+<!--                    data-mask="true" data-width="600" data-height="500" class="btn btn-blue">工作信息</a>&nbsp; -->
+                   
+                    <a href="queryUserInvestorInfo.do?userId=${data.id }&tabid=${tabid}" data-toggle="navtab" data-id="investInfo" 
+                   data-title="${data.realName }的投资信息" class="btn btn-blue">投资信息</a>
+                  
+                </td>
+            </tr>
+            </c:forEach>
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+            	<option value="20">20</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 ${pageBean.totalNum } 条， 共 ${pageBean.totalPageNum } 页</span>
+    </div>
+    <div class="pagination-box" data-toggle="pagination" data-total="${pageBean.totalNum }" data-page-size="${pageBean.pageSize }" data-page-current="1">
+    </div>
+</div>
+<script type="text/javascript">
+	
+</script>

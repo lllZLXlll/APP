@@ -1,0 +1,33 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.MediareportDao;
+import com.pjzb.entity.Mediareport;
+
+@Service
+public class MediareportService {
+	
+	@Autowired
+	private MediareportDao mediareportDao;
+	
+	
+	public List<Mediareport> queryMediaReportPage(Long index,Long number,Integer newsType,String url,String pageType){
+		return mediareportDao.queryMediaReportPage(index, number,newsType,url,pageType);
+		
+	}
+	
+	public Mediareport queryMediaReportById(Long id){
+		return mediareportDao.queryMediaReportById(id);
+	}
+	
+	
+	public Map<String, Long> queryMediareportCountByNewsType(Integer newsType){
+		return mediareportDao.queryMediareportCountByNewsType(newsType);
+	}
+
+}

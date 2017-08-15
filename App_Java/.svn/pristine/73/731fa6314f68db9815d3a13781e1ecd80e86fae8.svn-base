@@ -1,0 +1,311 @@
+package com.pjzb.service.admin.borrow;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+/**
+ * 收还款
+ * @author xiaojin
+ *
+ */
+
+@Service
+public class AdminGetRepayService extends BaseController{
+	
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+	
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryPaymentDueList(Model model, Long pageNum, Long pageSize, Integer debtStatus, String userName, String investor, String titles, Integer borrowWay,
+			Integer group, Integer deadline, String timeStart, String timeEnd, String timeStart1, String timeEnd1, String tabid) {
+		PageBean pageBean=new PageBean();
+		@SuppressWarnings("unused")
+		Map<String, Object> repaymentMap = new HashMap<String, Object>();
+		double repayAmount = 0;
+		DecimalFormat fmt = new DecimalFormat("0.00");
+		try { 
+			pageNum = pageNum == null ? 1 : pageNum;
+			debtStatus = debtStatus == null ? -1 : debtStatus;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" : userName;
+			if(debtStatus == -1){
+				borrowWay = borrowWay == null ? -1 : borrowWay;
+				group = group == null ? -1 : group;
+				investor = investor == null ? "" : investor;
+				titles = titles == null ? "" : titles;
+				timeStart = timeStart == null ? "" : timeStart;
+				timeEnd = timeEnd == null ? "" : timeEnd;
+				
+				List<Map<String, Object>> list = investRepaymentDao.queryRepayMentList((pageNum - 1) * pageSize,pageSize,
+						borrowWay, investor, titles, group,timeStart,timeEnd);
+				long result = investRepaymentDao.queryRepayMentCount(borrowWay, investor, titles, group,timeStart,timeEnd);
+				repaymentMap = investRepaymentDao.queryRepayMentAmount(borrowWay, investor, titles, group,timeStart,timeEnd);
+				if (list != null) {
+					for (Map<String, Object> map : list) {
+						repayAmount = repayAmount
+								+ Convert.strToDouble(map.get("forTotalSum") + "", 0);
+					}
+				}
+				pageBean.setPageNum(pageNum);
+				pageBean.setPage(list);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(result);
+			}else if(debtStatus == 1){
+				borrowWay = borrowWay == null ? -1 : borrowWay;
+				group = group == null ? -1 : group;
+				investor = investor == null ? "" : investor;
+				titles = titles == null ? "" : titles;
+				timeStart = timeStart == null ? "" : timeStart;
+				timeEnd = timeEnd == null ? "" : timeEnd;
+				
+				List<Map<String, Object>> list = investRepaymentDao.queryforPaymentList((pageNum - 1) * pageSize,pageSize,
+						borrowWay, investor, titles, group,timeStart,timeEnd);
+				long result = investRepaymentDao.queryforPaymentCount(borrowWay, investor, titles, group,timeStart,timeEnd);
+				repaymentMap = investRepaymentDao.queryRepayMentAmount(borrowWay, investor, titles, group,timeStart,timeEnd);
+				if (list != null) {
+					for (Map<String, Object> map : list) {
+						repayAmount = repayAmount
+								+ Convert.strToDouble(map.get("forTotalSum") + "", 0);
+					}
+				}
+				pageBean.setPageNum(pageNum);
+				pageBean.setPage(list);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(result);
+			}else if(debtStatus == 2){
+				deadline = deadline == null ? -1 : deadline;
+				group = group == null ? -1 : group;
+				investor = investor == null ? "" : investor;
+				titles = titles == null ? "" : titles;
+				timeStart = timeStart == null ? "" : timeStart;
+				timeEnd = timeEnd == null ? "" : timeEnd;
+				
+				List<Map<String, Object>> list = investRepaymentDao.queryForPaymentTotalList((pageNum - 1) * pageSize,pageSize,
+						deadline, investor, titles, group,timeStart,timeEnd);
+				long result = investRepaymentDao.queryForPaymentTotalCount(deadline, investor, titles, group,timeStart,timeEnd);
+				repaymentMap = investRepaymentDao.queryForPaymentTotalAmount(deadline, investor, titles, group,timeStart,timeEnd);
+				if (list != null) {
+					for (Map<String, Object> map : list) {
+						repayAmount = repayAmount
+								+ Convert.strToDouble(map.get("forTotalSum") + "", 0);
+					}
+				}
+				pageBean.setPageNum(pageNum);
+				pageBean.setPage(list);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(result);
+			}else if(debtStatus == 3){
+				deadline = deadline == null ? -1 : deadline;
+				borrowWay = borrowWay == null ? -1 : borrowWay;
+				userName = userName == null ? "" : userName;
+				timeStart = timeStart == null ? "" : timeStart;
+				timeEnd = timeEnd == null ? "" : timeEnd;
+				timeStart1 = timeStart1 == null ? "" : timeStart1;
+				timeEnd1 = timeEnd1 == null ? "" : timeEnd1;
+				
+				List<Map<String, Object>> list = investRepaymentDao.queryHasRepayList((pageNum - 1) * pageSize,pageSize,
+						deadline,borrowWay, userName, timeStart,timeEnd, timeStart1,timeEnd1);
+				long result = investRepaymentDao.queryHasRepayCount(deadline,borrowWay, userName, timeStart,timeEnd, timeStart1,timeEnd1);
+				repaymentMap = investRepaymentDao.queryHasRePayAmount(deadline,borrowWay, userName, timeStart,timeEnd, timeStart1,timeEnd1);
+				if (list != null) {
+					for (Map<String, Object> map : list) {
+						repayAmount = repayAmount
+								+ Convert.strToDouble(map.get("hasPI") + "", 0);
+					}
+				}
+				pageBean.setPageNum(pageNum);
+				pageBean.setPage(list);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(result);
+			}
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("debtStatus", debtStatus);
+			model.addAttribute("userName", userName);
+			model.addAttribute("investor", investor);
+			model.addAttribute("deadline", deadline);
+			model.addAttribute("timeStart", timeStart);
+			model.addAttribute("timeEnd", timeEnd);
+			model.addAttribute("timeStart1", timeStart1);
+			model.addAttribute("timeEnd1", timeEnd1);
+			model.addAttribute("titles", titles);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("group", group);
+			model.addAttribute("repaymentMap", repaymentMap);
+			model.addAttribute("repayAmount", fmt.format(repayAmount));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询收还款异常********************");
+		}
+		return "/admin/borrow/getrepay/list.jsp";
+	}
+
+	public String queryByrepayIdDueId(Model model, Long id, String tabid) {
+		List<Map<String, Object>> borrow = new ArrayList<Map<String,Object>>();
+		try{
+			borrow = investRepaymentDao.queryByrepayIdDueId(id);
+			model.addAttribute("borrow", borrow); 
+			model.addAttribute("tabid", tabid);
+		}catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/borrow/getrepay/repaymentDetail.jsp";
+	}
+
+	public String queryByRepayId(Model model, Long id, String tabid) {
+		List<Map<String, Object>> borrow = new ArrayList<Map<String,Object>>();
+		try{
+			borrow = investRepaymentDao.queryByRepayId(id);
+			model.addAttribute("borrow", borrow); 
+			model.addAttribute("tabid", tabid);
+		}catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/borrow/getrepay/investDetail.jsp";
+	}
+
+	public void exportForPayment(HttpServletResponse response, Long pageNum, Long pageSize, Integer debtStatus, String userName, String investor, String titles,
+			Integer borrowWay, Integer group, Integer deadline, String timeStart, String timeEnd, String timeStart1, String timeEnd1) {
+		try { 
+			pageNum = pageNum == null ? 1 : pageNum;
+			debtStatus = debtStatus == null ? -1 : debtStatus;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			if(debtStatus == -1){
+				investor = investor.substring(0, investor.indexOf(","));
+				titles = titles.substring(0, titles.indexOf(","));
+				timeStart = timeStart.substring(0, timeStart.indexOf(","));
+				timeEnd = timeEnd.substring(0, timeEnd.indexOf(","));
+				borrowWay = borrowWay == null ? -1 : borrowWay;
+				group = group == null ? -1 : group;
+				investor = investor == null ? "" : investor;
+				titles = titles == null ? "" : titles;
+				timeStart = timeStart == null ? "" : timeStart;
+				timeEnd = timeEnd == null ? "" : timeEnd;
+				
+				List<Map<String, Object>> list = investRepaymentDao.queryRepayMentLists((pageNum - 1) * pageSize,pageSize,
+						borrowWay, investor, titles, group,timeStart,timeEnd);
+				HSSFWorkbook wb = ExcelUtils.exportExcelCommon("待还款列表", list, new String[] { "借款人",
+						"姓名","借款标题", "用户组", "借款时间", "标旳类型", "是否天标 ", "期数/总期数  ",
+						"应还时间 ", "应还金额  "  }, new String[] { "username",
+								"realNames", "borrowTitle", "groupName", "publishTime",
+								"borrowWayName", "isDayThe", "repayPeriod", "repayDate",
+								"forTotalSum" });
+				this.export(wb, new Date().getTime() + ".xls", response);
+				Admin admin = getSessionAdminInfo();
+				OperationLog oLog = new OperationLog("v_t_deuin_list", admin
+						.getUserName(), IConstants.EXCEL, admin.getLastIp(), new Date(),0.0,
+						"导出待还款列表", 2,admin.getId());
+				operationLogDao.addOperationLog(oLog);
+			}else if(debtStatus == 1){
+				investor = investor.substring(0, investor.indexOf(","));
+				titles = titles.substring(0, titles.indexOf(","));
+				timeStart = timeStart.substring(0, timeStart.indexOf(","));
+				timeEnd = timeEnd.substring(0, timeEnd.indexOf(","));
+				borrowWay = borrowWay == null ? -1 : borrowWay;
+				group = group == null ? -1 : group;
+				investor = investor == null ? "" : investor;
+				titles = titles == null ? "" : titles;
+				timeStart = timeStart == null ? "" : timeStart;
+				timeEnd = timeEnd == null ? "" : timeEnd;
+				
+				List<Map<String, Object>> list = investRepaymentDao.queryforPaymentList((pageNum - 1) * pageSize,pageSize,
+						borrowWay, investor, titles, group,timeStart,timeEnd);
+				HSSFWorkbook wb = ExcelUtils.exportExcelCommon("应收款列表", list, new String[] { "投资人", "姓名",
+					"用户组","标的类型", "投资时间","应收时间", "还款期数/总期数", "金额"  }, new String[] { "investor", "realName", "groupName", 
+								"borrowWayName","investTime", "repayDate", "repayPeriod", "forTotalSum" });
+				this.export(wb, new Date().getTime() + ".xls", response);
+				Admin admin = getSessionAdminInfo();
+				OperationLog oLog = new OperationLog("v_t_forpayment_h", admin
+						.getUserName(), IConstants.EXCEL, admin.getLastIp(), new Date(),0.0,
+						"导出应收款列表", 2,admin.getId());
+				operationLogDao.addOperationLog(oLog);
+			}else if(debtStatus == 2){
+				investor = investor.substring(0, investor.indexOf(","));
+				timeStart = timeStart.substring(0, timeStart.indexOf(","));
+				timeEnd = timeEnd.substring(0, timeEnd.indexOf(","));
+				deadline = deadline == null ? -1 : deadline;
+				group = group == null ? -1 : group;
+				investor = investor == null ? "" : investor;
+				timeStart = timeStart == null ? "" : timeStart;
+				timeEnd = timeEnd == null ? "" : timeEnd;
+				
+				List<Map<String, Object>> list = investRepaymentDao.queryForPaymentTotalLists((pageNum - 1) * pageSize,pageSize,
+						deadline, investor, titles, group,timeStart,timeEnd);
+				HSSFWorkbook wb = ExcelUtils.exportExcelCommon("待收款列表", list, new String[] { "投资人", "姓名", "用户组", "投资金额",
+						"投资占比", "借款时间", "标旳总金额 ", "标旳类型 ", "是否天标", "期数/总期数",
+						"应收时间", "应收金额 "  }, new String[] { "investor", "realName",
+								"groupName", "investAmount", "scale", "publishTime",
+								"borrowAmount", "borrowWayName", "isDayThe", "repayPeriod",
+								"repayDate", "forTotalSum" });
+				this.export(wb, new Date().getTime() + ".xls", response);
+				Admin admin = getSessionAdminInfo();
+				OperationLog oLog = new OperationLog("v_t_forpayment_h", admin
+						.getUserName(), IConstants.EXCEL, admin.getLastIp(), new Date(),0.0,
+						"导出待收款总计列表", 2,admin.getId());
+				operationLogDao.addOperationLog(oLog);
+			}else if(debtStatus == 3){
+				userName = userName.substring(0, userName.indexOf(","));
+				timeStart = timeStart.substring(0, timeStart.indexOf(","));
+				timeEnd = timeEnd.substring(0, timeEnd.indexOf(","));
+				timeStart1 = timeStart1.substring(0, timeStart1.indexOf(","));
+				timeEnd1 = timeEnd1.substring(0, timeEnd1.indexOf(","));
+				deadline = deadline == null ? -1 : deadline;
+				borrowWay = borrowWay == null ? -1 : borrowWay;
+				userName = userName == null ? "" : userName;
+				timeStart = timeStart == null ? "" : timeStart;
+				timeEnd = timeEnd == null ? "" : timeEnd;
+				timeStart1 = timeStart1 == null ? "" : timeStart1;
+				timeEnd1 = timeEnd1 == null ? "" : timeEnd1;
+				
+				List<Map<String, Object>> list = investRepaymentDao.queryHasRepayLists((pageNum - 1) * pageSize,pageSize,
+						deadline,borrowWay, userName, timeStart,timeEnd, timeStart1,timeEnd1);
+				HSSFWorkbook wb = ExcelUtils.exportExcelCommon("已还款列表", list, new String[] { "ID", "借款人", "姓名",
+						"借款时间", "标旳类型", "借款标题", "是否天标", "期数/总期数 ", "应还时间 ",
+						"还款时间 ", "应还金额  "  }, new String[] { "id",
+								"username", "realName", "publishTime",
+								"borrowWay", "borrowTitle", "isDayThe", "repayPeriod",
+								"repayDate", "realRepayDate", "hasPI" });
+				this.export(wb, new Date().getTime() + ".xls", response);
+				Admin admin = getSessionAdminInfo();
+				OperationLog oLog = new OperationLog("v_t_hasrepay_h", admin
+						.getUserName(), IConstants.EXCEL, admin.getLastIp(), new Date(),0.0,
+						"导出已还款列表", 2,admin.getId());
+				operationLogDao.addOperationLog(oLog);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询收还款异常********************");
+		}
+	}
+
+}

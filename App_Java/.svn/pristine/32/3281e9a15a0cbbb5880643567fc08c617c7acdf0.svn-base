@@ -1,0 +1,88 @@
+@charset "utf-8";
+*{margin:0;padding:0;border:0;word-wrap: break-word}
+body{background-color:#ffcd00;}
+.activity{width:100%;height:100%;}
+.activity>img{width:100%;}
+.prize{padding:0 0.2rem;}
+.prize-box{
+	height:1.21rem;
+	box-sizing:border-box;
+	border-radius:13px;
+	padding:1px;
+	margin-bottom:0.2rem;
+	background:-webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0,#ffc001),
+		color-stop(1,#ffc001)
+	),-webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0,#ffe166),
+		color-stop(0.2,#ffc001),
+		color-stop(0.8,#ffc001),
+		color-stop(1,#feb302)
+	);
+	background-clip:content-box,padding-box;
+}
+.prize-box .img{
+	width:1.56rem;
+	height:100%;
+	float:left;
+}
+.prize-box .text{
+	width:4.3rem;
+	float:left;
+	padding-top:0.36rem;
+}
+.prize-box .text.no{
+	padding-top:0.15rem;
+}
+.prize-box .text span{
+	display:block;
+	line-height:0.16rem;
+	font-size:0.16rem;
+	color:#8a4317;
+}
+.prize-box .text p{
+	line-height:0.2rem;
+	font-size:0.2rem;
+	color:#bf1204;
+	margin-top:0.13rem;
+}
+.prize-box .text.no p{
+	line-height:0.35rem;
+	margin-top:0.06rem;
+}
+.prize-box .img.jd{
+	background:url(../images/activity_03/jd.png) center center /75% no-repeat;
+}
+.prize-box .img.xiaomi{
+	background:url(../images/activity_03/xiaomi.png) center center /55% no-repeat;
+}
+.prize-box .img.ipad{
+	background:url(../images/activity_03/ipad.png) center center /66% no-repeat;
+}
+.prize-box .img.iphone{
+	background:url(../images/activity_03/iphone.png) center center /30% no-repeat;
+}
+.prize-box .img.iphone7{
+	background:url(../images/activity_03/iphone7.png) center center /48% no-repeat;
+}
+.explain{
+	padding: 0.2rem 0.2rem 0.3rem;
+}
+.explain h3{
+	font-size:0.26rem;
+	line-height:0.48rem;
+	color:#be120e;
+}
+.explain p{
+	font-size:0.18rem;
+	line-height:0.32rem;
+	color:#6c3612;
+	text-indent:-0.28rem;
+	padding-left:0.28rem;
+}

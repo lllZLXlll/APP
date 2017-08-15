@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.QuestionSurveyDao">
+
+	
+	<select id="getSurveyCount" resultType="java.util.Map" parameterType="java.lang.Long">
+	SELECT COUNT(1) AS surveyCount FROM t_question_survey a WHERE a.userId=#{userId};
+	</select>
+	
+	
+	<resultMap type="questionSurvey" id="redmoneyrecordResultMap">
+		<id column="id" property="id" />
+		<result column="userId" property="userId" />
+		<result column="age" property="age" />
+		<result column="sex" property="sex" />
+		<result column="area" property="area" />
+		<result column="livingArea" property="livingArea" />
+		<result column="professional" property="professional" />
+		<result column="houseHoldIncome" property="houseHoldIncome" />
+		<result column="financialTime" property="financialTime" />
+		<result column="financialNum" property="financialNum" />
+		<result column="financialLong" property="financialLong" />
+		<result column="knowNetworkPlatform" property="knowNetworkPlatform" />
+		<result column="financialMoney" property="financialMoney" />
+		<result column="financialMoneyRatio" property="financialMoneyRatio" />
+		<result column="financialMoneySource" property="financialMoneySource" />
+		<result column="financialReason" property="financialReason" />
+		<result column="financialThinkValue" property="financialThinkValue" />
+		<result column="majorFocus" property="majorFocus" />
+		<result column="financialEarning" property="financialEarning" />
+		<result column="investWilling" property="investWilling" />
+		<result column="financialConvenient" property="financialConvenient" />
+		<result column="knowPujinziben" property="knowPujinziben" />
+	</resultMap>
+	
+	
+	<insert id="addQuestionSurvey" parameterType="questionSurvey" >
+		insert into t_question_survey(userId,age,sex,area,professional,houseHoldIncome,financialTime,financialNum,financialLong,knowNetworkPlatform,
+		financialMoney,financialMoneyRatio,financialMoneySource,financialReason,financialThinkValue,majorFocus,financialEarning,investWilling,
+		financialConvenient,knowPujinziben) values(#{userId},#{age},#{sex},#{area},#{professional},#{houseHoldIncome},#{financialTime},#{financialNum},
+		#{financialLong},#{knowNetworkPlatform},#{financialMoney},#{financialMoneyRatio},#{financialMoneySource},#{financialReason},
+		#{financialThinkValue},#{majorFocus},#{financialEarning},#{investWilling},#{financialConvenient},#{knowPujinziben})
+	</insert>
+	
+	
+
+	
+</mapper>
+
+
+
+
+
+
+

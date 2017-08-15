@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.AdminDao">
+
+	<resultMap type="admin" id="adminResultMap">
+		<id column="id" property="id" />
+		<result column="userName" property="userName" />
+		<result column="password" property="password" />
+		<result column="enable" property="enable" />
+		<result column="lastTime" property="lastTime" />
+		<result column="lastIP" property="lastIp" />
+		<result column="roleId" property="roleId" />
+		<result column="realName" property="realName" />
+		<result column="telphone" property="telphone" />
+		<result column="qq" property="qq" />
+		<result column="email" property="email" />
+		<result column="img" property="img" />
+		<result column="isLeader" property="isLeader" />
+		<result column="sex" property="sex" />
+		<result column="card" property="card" />
+		<result column="summary" property="summary" />
+		<result column="nativePlacePro" property="nativePlacePro" />
+		<result column="nativePlaceCity" property="nativePlaceCity" />
+		<result column="address" property="address" />
+		<result column="addDate" property="addDate" />
+		<result column="moneys" property="moneys" />
+		<result column="loginErrorCount" property="loginErrorCount" />
+		<result column="isLoginLimit" property="isLoginLimit" />
+		<result column="isFirstLogin" property="isFirstLogin" />
+		<result column="loanUserId" property="loanUserId" />
+	</resultMap>
+
+	<select id="queryAdminByUserName" resultMap="adminResultMap" parameterType="java.lang.String">
+		SELECT * FROM t_admin a WHERE a.userName=#{userName}
+	</select>
+
+	<update id="updateAdminById">
+		update t_admin
+		<trim prefix="set" suffixOverrides=",">
+			<if test="userName != null">userName = #{userName},</if>
+			<if test="password != null">password = #{password},</if>
+			<if test="enable != null">enable = #{enable},</if>
+			<if test="lastTime != null">lastTime = #{lastTime},</if>
+			<if test="lastIp != null">lastIP = #{lastIp},</if>
+			<if test="roleId != null">roleId = #{roleId},</if>
+			<if test="realName != null">realName = #{realName},</if>
+			<if test="telphone != null">telphone = #{telphone},</if>
+			<if test="qq != null">qq = #{qq},</if>
+			<if test="email != null">email = #{email},</if>
+			<if test="img != null">img = #{img},</if>
+			<if test="isLeader != null">isLeader = #{isLeader},</if>
+			<if test="sex != null">sex = #{sex},</if>
+			<if test="card != null">card = #{card},</if>
+			<if test="summary != null">summary = #{summary},</if>
+			<if test="nativePlacePro != null">nativePlacePro = #{nativePlacePro},</if>
+			<if test="nativePlaceCity != null">nativePlaceCity = #{nativePlaceCity},</if>
+			<if test="address != null">address = #{address},</if>
+			<if test="addDate != null">addDate = #{addDate},</if>
+			<if test="moneys != null">moneys = #{moneys},</if>
+			<if test="loginErrorCount != null">loginErrorCount = #{loginErrorCount},</if>
+			<if test="isLoginLimit != null">isLoginLimit = #{isLoginLimit},</if>
+			<if test="isFirstLogin != null">isFirstLogin = #{isFirstLogin},</if>
+			<if test="loanUserId != null">loanUserId = #{loanUserId},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+	<select id="queryAdminByUserNameAndPassword" resultMap="adminResultMap">
+		SELECT * FROM t_admin a WHERE a.userName=#{userName} AND `password`=#{password}
+	</select>
+	
+	
+	<select id="callExamineProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL pr_examine(#{adminId,jdbcType=BIGINT,mode=IN}
+			 )
+		  }  
+	</select>  
+	
+	<select id="queryAdminById" resultType="java.util.Map">
+		SELECT * FROM t_admin WHERE id = #{0}
+	</select>
+	
+	
+	<select id="queryAdminList" resultType="java.util.Map">
+		SELECT a.id AS id,a.`enable` AS `enable`,a.lastIP AS lastIP,a.lastTime AS lastTime,a.`password` AS `password`,a.roleId AS roleId,
+		a.userName AS userName,b.`name` AS roleName FROM t_admin a LEFT JOIN t_role b ON a.roleId=b.id WHERE 1=1
+		<if test="param1 != null">
+			AND a.userName LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 > 0 and param2 != null">
+			AND a.`enable` =#{1}
+		</if>
+		<if test="param3 > -2 and param3 !=null">
+			AND a.roleId=#{2}
+		</if>
+		    LIMIT #{3},#{4}
+	</select>
+	
+	<select id="queryAdminCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM t_admin a LEFT JOIN t_role b ON a.roleId=b.id WHERE 1=1
+		<if test="param1 != null">
+			AND a.userName LIKE CONCAT('%',#{0},'%')
+		</if>
+		<if test="param2 != null">
+			AND a.`enable` =#{1}
+		</if>
+		<if test="param3 != null">
+			AND a.roleId=#{2}
+		</if>
+	</select>
+	
+	
+</mapper>
+
+
+
+
+

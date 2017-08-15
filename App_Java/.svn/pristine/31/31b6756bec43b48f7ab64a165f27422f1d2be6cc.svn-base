@@ -1,0 +1,56 @@
+define(function (require,exports,module) {
+	//首页
+	var VueComponent = Vue.extend({
+		ready:function(){
+			this.$set('listData',this.$parent.tableData);
+		},
+		data: function(){
+			return {
+				listData:[]
+			}
+		},
+		methods:{
+			toBid: function(list){
+				this.$root.toFund(list);
+			},
+			toDetail: function(list){
+				router.go({name:'detail',query:{id:list.id,type:'detail'}});
+			},
+			thisHtml: function(borrow){
+				if(borrow == 1){
+					return '初审中';
+				}else if(borrow == 2){
+					return '立即投标';
+				}else if(borrow == 3){
+					return '复审中';
+				}else if(borrow == 4){
+					return '还款中';
+				}else if(borrow == 5){
+					return '已还完';
+				}else{
+					return '流标';
+				}
+			},
+			showXinshou:function(){
+				if(this.listData.length>0){
+					return false;
+				}else{
+					return true;
+				}
+			}
+		},
+		template:'<div class="pro-content pro-content-new" v-if="showXinshou()">'+
+	          '<ul class="row no-gutter">'+
+	            '<li class="col-40"><p @click="toDetail(listData)">新手专享标</p><span>首次注册用户专享</span></li>'+
+	            '<li class="col-25"><p>{{listData.annualRate}}%</p><span>年利率</span></li>'+
+	            '<li class="col-33"><p>{{listData.deadline}}<em>月</em></p><span>投资期限</span></li>'+
+	          '</ul>'+
+	          '<div class="pro-submit">'+
+	            '<p><i class="pro-line"><em class="pro-line-em" :style={width:listData.schedules+"%"}></em></i><span class="line-num">{{listData.schedules}}%</span></p>'+
+	            '<p class=""><button @click="toBid(listData)" class="btn btn-buy btn-blue" v-bind:class="{ btnDisabled:listData.borrowStatus!=2}" v-html="thisHtml(listData.borrowStatus)"></button></p>'+
+	          '</div>'+
+	          '<img class="pro-img" src="images/xs.png" alt="">'+
+	        '</div>'
+	});
+	module.exports = VueComponent;
+})

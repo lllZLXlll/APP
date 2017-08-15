@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.GesturesPasswordDao">
+
+	<resultMap type="gesturesPassword" id="gesturesPasswordMap">
+		<id column="id" property="id" />
+		<result column="userId" property="userId" />
+		<result column="insertTime" property="insertTime" />
+		<result column="updateTime" property="updateTime" />
+		<result column="password" property="password" />
+		<result column="status" property="status" />
+		<result column="verifyErrorCount" property="verifyErrorCount" />
+	</resultMap>
+	
+	<select id="queryGesturesPassword" resultMap="gesturesPasswordMap">
+		SELECT * FROM t_gestures_password WHERE  status in (1,2) and userId = #{userId}
+	</select>
+	
+	<insert id="addGesturesPassword" useGeneratedKeys="true" keyProperty="id" parameterType="com.pjzb.entity.GesturesPassword">
+		insert into t_gestures_password (
+			userId, insertTime, updateTime, password, status
+		) values(
+			#{userId}, #{insertTime}, #{updateTime}, #{password}, #{status}
+		)
+	</insert>
+
+	<update id="updateGesturesPassword">
+		update t_gestures_password set updateTime = now(), password = #{param2} where  status = 1 and userId = #{param1}
+	</update>
+
+	<update id="closeGesturesPassword">
+		update t_gestures_password set updateTime = now(), status = 2 where  status = 1 and userId = #{param1}
+	</update>
+
+	<update id="openGesturesPassword">
+		update t_gestures_password set updateTime = now(), status = 1 where  status = 2 and userId = #{param1}
+	</update>
+
+	<update id="updateVerifyErrorCount">		
+		update t_gestures_password set updateTime = now(),verifyErrorCount= #{param2}, status =  #{param3} where status = 1 and userId = #{param1}
+	</update>
+
+</mapper>
+
+
+
+
+

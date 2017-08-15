@@ -1,0 +1,37 @@
+<div class="content content-login">
+    <template v-for="list in listData">
+        <div class="text-item-shadow" v-if="list.Msg">
+            <label> <i class="icon icon-color" :class="[list.iconClass]"></i>
+            </label>
+            <input type="text" placeholder="{{list.placeholder}}" v-getvalue="[list.name]" value="{{list.value}}" disabled="{{list.disabled}}" maxlength="{{list.max}}"></div>
+        <div class="text-item-shadow-msg flex" v-else>
+            <div class="text-item-shadow flex">
+                <label> <i class="icon icon-color" :class="[list.iconClass]"></i>
+                </label>
+                <input type="text" placeholder="{{list.placeholder}}" v-getvalue="[list.name]" maxlength="{{list.max}}"></div>
+            <div class="text-item-shadow-submit">
+                <button type="button" v-on:click="getSms" class="{{btnclass}}">{{btnText}}</button>
+            </div>
+        </div>
+    </template>
+    <div class="text-item-shadow">
+		<label class="fl"> <i class="icon icon-color">&#xe636;</i>
+		</label>
+		<div class="radio">
+			<label>
+				<input type="radio" value="男" :checked="man" v-model="sex" name="sex"/>
+				<i class="icon">&#xe635;</i>
+				<p>男</p>
+			</label>
+			<label>
+				<input v-model="sex" value="女" type="radio" :checked="woman" name="sex"/>
+				<i class="icon">&#xe635;</i>
+				<p>女</p>
+			</label>
+		</div>
+	</div>
+    <div class="text-item-submit">
+        <button type="button" v-on:click="registPay" class="btn btn-submit">确认提交</button>
+    </div>
+    <div id="registPay"></div>
+</div>

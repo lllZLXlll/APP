@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.AssignmentDebtDao">
+
+
+	<resultMap type="assignmentDebt" id="assignmentDebtResultMap">
+		<id column="id" property="id" />
+		<result column="debtSum" property="debtSum" />
+		<result column="auctionBasePrice" property="auctionBasePrice" />
+		<result column="debtLimit" property="debtLimit" />
+		<result column="auctionMode" property="auctionMode" />
+		<result column="publishTime" property="publishTime" />
+		<result column="viewCount" property="viewCount" />
+		<result column="details" property="details" />
+		<result column="auctionDays" property="auctionDays" />
+		<result column="debtStatus" property="debtStatus" />
+		<result column="alienatorId" property="alienatorId" />
+		<result column="auctionerId" property="auctionerId" />
+		<result column="auctionHighPrice" property="auctionHighPrice" />
+		<result column="auctionEndTime" property="auctionEndTime" />
+		<result column="applyTime" property="applyTime" />
+		<result column="manageFee" property="manageFee" />
+		<result column="investId" property="investId" />
+		<result column="buyTime" property="buyTime" />
+		<result column="ordId" property="ordId" />
+		<result column="pageType" property="pageType" />
+		<result column="download_url" property="downloadUrl" />
+		<result column="viewpdf_url" property="viewpdfUrl" />
+		<result column="contract_id" property="contractId" />
+	</resultMap>
+
+	<select id="queryDueDebt" resultMap="assignmentDebtResultMap">
+		SELECT a.id AS id,a.debtStatus AS debtStatus FROM t_assignment_debt a WHERE
+		date_add(a.publishTime, interval a.auctionDays day)&lt;=now() and a.debtStatus=2
+	</select>
+
+	<select id="queryDueDebtById" resultMap="assignmentDebtResultMap"
+		parameterType="java.lang.Long">
+		SELECT * FROM t_assignment_debt WHERE id=#{id}
+	</select>
+
+	<select id="queryAllDebt" resultType="java.util.Map">
+		SELECT id , debtSum,actionTime ,f_formatting_username( alienatorName)
+		as alienatorName , auctionBasePrice ,debtLimit , auctionMode ,
+		alienatorId , auctionerId , publishTime , auctionDays , debtStatus ,
+		borrowId , borrowTitle ,publisher , annualRate ,
+		f_formatting_username( borrowerName ) as borrowerName , auctionerName
+		, auctionHighPrice , creditratingIco , isLate ,
+		personalHead,borrowWay, deadline, isDayThe, paymentMode,
+		borrowTypeSubId, borrowWayName
+		FROM v_t_debt_borrow_person
+		WHERE 1=1
+		<if test="debtStatus != null and debtStatus != ''">
+			AND debtStatus IN
+			<foreach item="item" index="index" collection="idArray" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="borrowTitle != null and borrowTitle != ''">
+			AND borrowTitle like #{borrowTitle}
+		</if>
+		<if test="deadlinestart != null and deadlinestart != ''">
+			<![CDATA[ AND deadline >= #{deadlinestart}]]>
+			<if test="deadlineend != null and deadlineend != ''">
+				<![CDATA[ AND deadline <= #{deadlineend}]]>
+			</if>
+		</if>
+		<if test="rateend != null and rateend != ''">
+			<![CDATA[ AND annualRate <= #{rateend}]]>
+			<if test="ratestart != null and ratestart != ''">
+				<![CDATA[ AND annualRate >= #{ratestart}]]>
+			</if>
+		</if>
+		<if test="borrowWay != null and borrowWay != ''">
+			<![CDATA[ AND borrowTypeSubId = #{borrowWay}]]>
+		</if>
+		<if test="debtSum > 0">
+			<if test="debtSum == 1">
+				<![CDATA[ AND  debtSum  < 3000]]>
+			</if>
+			<if test="debtSum == 2">
+				<![CDATA[ AND  debtSum  >= 3000 and  debtSum  < 5000]]>
+			</if>
+			<if test="debtSum == 3">
+				<![CDATA[ AND  debtSum  >= 5000 and  debtSum  < 10000]]>
+			</if>
+			<if test="debtSum == 4">
+				<![CDATA[ AND  debtSum  >= 10000 and  debtSum  < 20000]]>
+			</if>
+			<if test="debtSum == 4">
+				<![CDATA[ AND  debtSum  >= 20000 and  debtSum  < 50000]]>
+			</if>
+			<if test="debtSum == 5">
+				<![CDATA[ AND  debtSum  >= 50000]]>
+			</if>
+		</if>
+		<if test="auctionBasePrice > 0">
+			<if test="auctionBasePrice == 1">
+				<![CDATA[ AND  auctionBasePrice  < 3000]]>
+			</if>
+			<if test="auctionBasePrice == 2">
+				<![CDATA[ AND  auctionBasePrice  >= 3000 AND auctionBasePrice  < 5000]]>
+			</if>
+			<if test="auctionBasePrice == 3">
+				<![CDATA[ AND  auctionBasePrice  >= 5000 AND auctionBasePrice  < 10000]]>
+			</if>
+			<if test="auctionBasePrice == 4">
+				<![CDATA[ AND  auctionBasePrice  >= 10000 AND auctionBasePrice  < 20000]]>
+			</if>
+			<if test="auctionBasePrice == 4">
+				<![CDATA[ AND  auctionBasePrice  >= 20000 AND auctionBasePrice  < 50000]]>
+			</if>
+			<if test="auctionBasePrice == 5">
+				<![CDATA[ AND  auctionBasePrice  >= 50000]]>
+			</if>
+		</if>
+		<if test="auctionMode > 0">
+			<![CDATA[ AND  auctionMode = #{auctionMode}]]>
+		</if>
+		<if test="isLate > 0">
+			<![CDATA[ AND  isLate  = #{isLate}]]>
+		</if>
+		<if test="publishDays > 0">
+			<if test="publishDays > 30">
+				<![CDATA[ AND datediff(now(),publishTime) >= #{publishDays}]]>
+			</if>
+			<if test="publishDays $lt;= 30">
+				<![CDATA[ AND datediff(now(),publishTime) <=  #{publishDays}]]>
+			</if>
+		</if>
+		<choose>
+			<when test="flages == 1">
+				ORDER BY annualRate ASC, publishTime DESC
+			</when>
+			<when test="flages == 2">
+				ORDER BY annualRate DESC, publishTime DESC
+			</when>
+			<when test="flages == 3">
+				ORDER BY publishTime ASC
+			</when>
+			<when test="flages == 4">
+				ORDER BY publishTime DESC
+			</when>
+			<when test="flages == 5">
+				ORDER BY deadline ASC, publishTime DESC
+			</when>
+			<when test="flages == 6">
+				ORDER BY deadline DESC, publishTime DESC
+			</when>
+			<otherwise>
+				GROUP BY debtStatus, publishTime DESC
+			</otherwise>
+		</choose>
+		LIMIT #{begin}, #{end}
+	</select>
+
+	<select id="queryAllDebtTotal" resultType="java.lang.Long">
+		SELECT COUNT(1) totalNum
+		FROM v_t_debt_borrow_person
+		WHERE 1=1
+		<if test="debtStatus != null and debtStatus != ''">
+			AND debtStatus IN
+			<foreach item="item" index="index" collection="idArray" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="borrowTitle != null and borrowTitle != ''">
+			AND borrowTitle like #{borrowTitle}
+		</if>
+		<if test="deadlinestart != null and deadlinestart != ''">
+			<![CDATA[ AND deadline >= #{deadlinestart}]]>
+			<if test="deadlineend != null and deadlineend != ''">
+				<![CDATA[ AND deadline <= #{deadlineend}]]>
+			</if>
+		</if>
+		<if test="rateend != null and rateend != ''">
+			<![CDATA[ AND annualRate <= #{rateend}]]>
+			<if test="ratestart != null and ratestart != ''">
+				<![CDATA[ AND annualRate >= #{ratestart}]]>
+			</if>
+		</if>
+		<if test="borrowWay != null and borrowWay != ''">
+			<![CDATA[ AND borrowTypeSubId = #{borrowWay}]]>
+		</if>
+		<if test="debtSum > 0">
+			<if test="debtSum == 1">
+				<![CDATA[ AND  debtSum  < 3000]]>
+			</if>
+			<if test="debtSum == 2">
+				<![CDATA[ AND  debtSum  >= 3000 and  debtSum  < 5000]]>
+			</if>
+			<if test="debtSum == 3">
+				<![CDATA[ AND  debtSum  >= 5000 and  debtSum  < 10000]]>
+			</if>
+			<if test="debtSum == 4">
+				<![CDATA[ AND  debtSum  >= 10000 and  debtSum  < 20000]]>
+			</if>
+			<if test="debtSum == 4">
+				<![CDATA[ AND  debtSum  >= 20000 and  debtSum  < 50000]]>
+			</if>
+			<if test="debtSum == 5">
+				<![CDATA[ AND  debtSum  >= 50000]]>
+			</if>
+		</if>
+		<if test="auctionBasePrice > 0">
+			<if test="auctionBasePrice == 1">
+				<![CDATA[ AND  auctionBasePrice  < 3000]]>
+			</if>
+			<if test="auctionBasePrice == 2">
+				<![CDATA[ AND  auctionBasePrice  >= 3000 AND auctionBasePrice  < 5000]]>
+			</if>
+			<if test="auctionBasePrice == 3">
+				<![CDATA[ AND  auctionBasePrice  >= 5000 AND auctionBasePrice  < 10000]]>
+			</if>
+			<if test="auctionBasePrice == 4">
+				<![CDATA[ AND  auctionBasePrice  >= 10000 AND auctionBasePrice  < 20000]]>
+			</if>
+			<if test="auctionBasePrice == 4">
+				<![CDATA[ AND  auctionBasePrice  >= 20000 AND auctionBasePrice  < 50000]]>
+			</if>
+			<if test="auctionBasePrice == 5">
+				<![CDATA[ AND  auctionBasePrice  >= 50000]]>
+			</if>
+		</if>
+		<if test="auctionMode > 0">
+			<![CDATA[ AND  auctionMode = #{auctionMode}]]>
+		</if>
+		<if test="isLate > 0">
+			<![CDATA[ AND  isLate  = #{isLate}]]>
+		</if>
+		<if test="publishDays > 0">
+			<if test="publishDays > 30">
+				<![CDATA[ AND datediff(now(),publishTime) >= #{publishDays}]]>
+			</if>
+			<if test="publishDays $lt;= 30">
+				<![CDATA[ AND datediff(now(),publishTime) <=  #{publishDays}]]>
+			</if>
+		</if>
+	</select>
+
+	<select id="getAssignmentDebt" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT * FROM t_assignment_debt WHERE id = #{id}
+	</select>
+	
+	<select id="getAssignmentDebtById" resultMap="assignmentDebtResultMap" parameterType="java.lang.Long">
+		SELECT * FROM t_assignment_debt WHERE id = #{id}
+	</select>
+
+	<update id="updateAssignmentDebt" parameterType="java.util.Map">
+		UPDATE t_assignment_debt
+		<trim prefix="set" suffixOverrides=",">
+			<if test="debtSum != null">debtSum=#{debtSum},</if>
+			<if test="auctionBasePrice != null">auctionBasePrice=#{auctionBasePrice},</if>
+			<if test="debtLimit != null">debtLimit=#{debtLimit},</if>
+			<if test="auctionMode != null">auctionMode=#{auctionMode},</if>
+			<if test="publishTime != null">publishTime=#{publishTime},</if>
+			<if test="viewCount != null">viewCount=#{viewCount},</if>
+			<if test="details != null">details=#{details},</if>
+			<if test="auctionDays != null">auctionDays=#{auctionDays},</if>
+			<if test="debtStatus != null">debtStatus=#{debtStatus},</if>
+			<if test="borrowId != null">borrowId=#{borrowId},</if>
+			<if test="alienatorId != null">alienatorId=#{alienatorId},</if>
+			<if test="auctionerId != null">auctionerId=#{auctionerId},</if>
+			<if test="auctionHighPrice != null">auctionHighPrice=#{auctionHighPrice},</if>
+			<if test="auctionEndTime != null">auctionEndTime=#{auctionEndTime},</if>
+			<if test="applyTime != null">applyTime=#{applyTime},</if>
+			<if test="manageFee != null">manageFee=#{manageFee},</if>
+			<if test="investId != null ">investId=#{investId},</if>
+			<if test="buyTime != null">buyTime=#{buyTime},</if>
+			<if test="ordId != null">ordId=#{ordId},</if>
+			<if test="pageType != null">pageType=#{pageType},</if>
+			<if test="downloadUrl != null">download_url=#{downloadUrl},</if>
+			<if test="viewpdfUrl != null">viewpdf_url=#{viewpdfUrl},</if>
+			<if test="contractId != null">contract_id=#{contractId},</if>
+		</trim>
+		WHERE id = #{id}
+		AND debtStatus IN
+		<foreach item="item" index="index" collection="array" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</update>
+	<select id="queryAssignmentDebt" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT
+		a.investId,
+		tb.ipayAccount SellCustId,a.debtSum
+		CreditAmt,b.billcode
+		BidOrdId,b.investTime
+		BidOrdDate,tbb.ipayAccount,b.hasPrincipal,
+		round(b.realAmount-b.hasPrincipal,2) BidCreditAmt FROM
+		t_assignment_debt a LEFT JOIN t_invest b ON a.investId=b.id LEFT JOIN
+		t_user tb ON a.alienatorId = tb.id left join t_borrow bb on
+		b.borrowId=bb.id left join t_user tbb on tbb.id=bb.publisher where
+		a.id = #{debtId}
+	</select>
+
+	<select id="queryAssignmentDebtListByInvestId" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		<![CDATA[
+			SELECT id, alienatorId, buyTime, auctionerId, ordId FROM
+			t_assignment_debt WHERE id in (select max(id) from t_assignment_debt
+			WHERE investId = #{investId} AND debtStatus = 3)
+			ORDER BY applyTime DESC
+		]]>
+	</select>
+
+	<select id="p_borrow_debt_add" statementType="CALLABLE" parameterType="java.util.Map" resultType="java.util.Map">
+		{
+			CALL p_borrow_debt_add(
+				#{in_debt_id,jdbcType=BIGINT,mode=IN},
+				#{in_uid,jdbcType=BIGINT,mode=IN},
+				#{in_aucion_price,jdbcType=DECIMAL,mode=IN},
+				#{in_debt_pwd,jdbcType=VARCHAR,mode=IN},
+				#{in_basePath,jdbcType=VARCHAR,mode=IN},
+				#{in_investId,jdbcType=VARCHAR,mode=IN},
+				#{trxId,jdbcType=VARCHAR,mode=IN},
+				#{in_pageType,jdbcType=VARCHAR,mode=IN},
+				#{out_ret,jdbcType=INTEGER,mode=OUT},
+				#{out_desc,jdbcType=VARCHAR,mode=OUT}
+			)
+		}
+	</select>
+
+	<select id="queryDebtUserName" resultType="java.util.Map">
+		SELECT * FROM v_t_assignment_debt_username WHERE id = #{0}
+	</select>
+
+	<update id="updateAssignmentDebtById" parameterType="assignmentDebt">
+		UPDATE t_assignment_debt
+		<trim prefix="set" suffixOverrides=",">
+			<if test="debtSum != null">debtSum=#{debtSum},</if>
+			<if test="auctionBasePrice != null and auctionBasePrice != '' and auctionBasePrice != 0">auctionBasePrice=#{auctionBasePrice},</if>
+			<if test="debtLimit != null and debtLimit != '' and debtLimit != 0">debtLimit=#{debtLimit},</if>
+			<if test="auctionMode != null and auctionMode != '' and auctionMode != 0">auctionMode=#{auctionMode},</if>
+			<if test="publishTime != null">publishTime=#{publishTime},</if>
+			<if test="viewCount != null and viewCount != '' and viewCount != 0">viewCount=#{viewCount},</if>
+			<if test="details != null and details != ''">details=#{details},</if>
+			<if test="auctionDays != null and auctionDays != '' and auctionDays != 0">auctionDays=#{auctionDays},</if>
+			<if test="debtStatus != null and debtStatus != '' and debtStatus != 0">debtStatus=#{debtStatus},</if>
+			<if test="borrowId != null and borrowId != '' and borrowId != 0">borrowId=#{borrowId},</if>
+			<if test="alienatorId != null and alienatorId != '' and alienatorId != 0">alienatorId=#{alienatorId},</if>
+			<if test="auctionerId != null and auctionerId != '' and auctionerId != 0">auctionerId=#{auctionerId},</if>
+			<if test="auctionHighPrice != null and auctionHighPrice != '' and auctionHighPrice != 0">auctionHighPrice=#{auctionHighPrice},</if>
+			<if test="auctionEndTime != null">auctionEndTime=#{auctionEndTime},</if>
+			<if test="applyTime != null">applyTime=#{applyTime},</if>
+			<if test="manageFee != null and manageFee != '' and manageFee != 0">manageFee=#{manageFee},</if>
+			<if test="investId != null and investId != '' and investId != 0">investId=#{investId},</if>
+			<if test="buyTime != null">buyTime=#{buyTime},</if>
+			<if test="ordId != null and ordId != ''">ordId=#{ordId},</if>
+			<if test="pageType != null and pageType != ''">pageType=#{pageType},</if>
+			<if test="downloadUrl != null and downloadUrl != ''">download_url=#{downloadUrl},</if>
+			<if test="viewpdfUrl != null and viewpdfUrl != '' ">viewpdf_url=#{viewpdfUrl},</if>
+			<if test="contractId != null and contractId != ''">contract_id=#{contractId},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findAssignmentDebtListByInvestId" resultMap="assignmentDebtResultMap" parameterType="java.lang.Long">
+		SELECT id, alienatorId, buyTime, auctionerId, ordId FROM t_assignment_debt WHERE id in (select max(id) from 
+		t_assignment_debt  where investId =#{investId} and debtStatus = 3) ORDER BY applyTime DESC
+	</select>
+	
+	
+	<select id="queryAssignmentDebtIds" resultMap="assignmentDebtResultMap">
+		SELECT a.id AS id FROM t_assignment_debt a WHERE a.borrowId= #{0} AND a.debtStatus in 
+		<foreach item="debtStatus" index="index" collection="param2" open="(" separator="," close=")">  
+		     #{debtStatus}
+		 </foreach>  
+	</select>
+	
+	
+	<select id="queryUnionAuctionDebtByDebtId" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT a.id AS id,a.debtId AS debtId,a.auctionTime AS auctionTime,a.auctionPrice AS auctionPrice,f_formatting_username(a.username) 
+		AS username,a.userId  AS userId FROM v_t_auction_debt_user a WHERE a.debtId=#{debtId}
+	</select>
+	
+	
+	<update id="updateAssignmentDebtDebtStatus">
+		UPDATE t_assignment_debt a SET a.auctionEndTime=#{0},a.debtStatus=#{1}
+		<if test="param4 != null">
+		,a.manageFee=#{3}
+		</if>
+		 WHERE a.id=#{2} AND a.debtStatus IN 
+		<foreach item="debtStatus" index="index" collection="param4" open="(" separator="," close=")">  
+		     #{debtStatus}
+		 </foreach>  
+	</update>
+	
+	<select id="queryAuctionDebtByDebtId" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT id,debtId,auctionTime,auctionPrice,f_formatting_username(username) as username,userId 
+		FROM v_t_auction_debt_user WHERE id=#{debtId}
+	</select>
+	
+	<select id="queryAssignmentDebtIdss" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT id FROM t_assignment_debt WHERE id=#{0}
+	</select>
+	
+	<select id="isDebtInStatus" resultType="java.lang.Long">
+		select count(1) as counts FROM t_assignment_debt WHERE id =#{debtId} and debtStatus in
+		<foreach item="list" index="index" collection="param2" open="(" separator="," close=")">  
+		     #{list}
+		 </foreach> 
+	</select>
+
+	<select id="getBorrowTitle" resultType="java.lang.String">
+		SELECT borrowTitle FROM t_borrow WHERE id = (select borrowId from t_assignment_debt t where t.id=#{0})
+	</select>
+	
+	<select id="queryUserNameById" resultType="java.lang.String">
+		SELECT username FROM t_user WHERE id =#{0} 
+	</select>
+	
+	<select id="queryAdminById" resultType="java.util.Map">
+		SELECT * FROM t_admin WHERE id =#{0} 
+	</select>
+	
+	<select id="queryCanAssignmentDebt" resultType="java.util.Map">
+		
+		SELECT a.* FROM v_t_can_assignment_borrow a,t_invest_repayment c
+		WHERE  a.investId=c.invest_id
+		AND  DATEDIFF(c.repayDate,NOW()) > 0 
+		<if test="userId > 0">  
+			AND a.investor = #{userId} 
+		</if>
+		<if test="borrowTitle!=null">
+			AND a.borrowTitle LIKE "%"#{borrowTitle}"%" 
+		</if>
+		<if test="borrowerName!=null">  
+			AND a.borrowerName LIKE "%"#{borrowerName}"%" 
+		</if>
+		<![CDATA[
+			AND a.remainDay > 3 and a.deadline > 3 and ((a.deadline < 6 and a.hasRepaymentMonth >= 2) or 
+			(a.deadline >= 6 and a.hasRepaymentMonth >= 3))
+		]]>
+		GROUP BY a.investId  LIMIT #{pageNum}, #{pageSize}
+
+	</select>
+	
+	<select id="queryCanAssignmentDebtCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM ( SELECT a.* FROM v_t_can_assignment_borrow a,t_invest_repayment c
+		WHERE  a.investId=c.invest_id AND DATEDIFF(c.repayDate,NOW())>0 GROUP BY a.investId ) t WHERE 
+ 		<![CDATA[ t.remainDay > 3
+ 		and t.deadline > 3 and ((t.deadline < 6 and t.hasRepaymentMonth >= 2) or 
+		(t.deadline >= 6 and t.hasRepaymentMonth >= 3)) ]]> 
+		<if test="userId > 0">  
+			AND t.investor = #{userId} 
+		</if>
+		<if test="borrowTitle!=null">
+			AND t.borrowTitle LIKE "%"#{borrowTitle}"%" 
+		</if>
+		<if test="borrowerName!=null">  
+			AND t.borrowerName LIKE "%"#{borrowerName}"%" 
+		</if>
+		
+		
+	</select>
+	
+	<select id="queryAuctingDebt" resultType="java.util.Map">
+		SELECT * FROM v_t_auction_assignmentdebt WHERE debtStatus  in
+		<foreach item="debtStatus" index="index" collection="debtStatus" open="(" separator="," close=")">  
+		     	#{debtStatus}
+		</foreach> 
+		<if test="userId > 0">  
+			and alienatorId = #{userId} 
+		</if>
+		<if test="borrowTitle!=null and borrowTitle!=''">
+			and borrowTitle like "%"#{borrowTitle}"%" 
+		</if>
+		<if test="borrowerName!=null and borrowerName!=''">  
+			and borrowerName like "%"#{borrowerName}"%" 
+		</if>
+			limit #{l},#{pageSize}
+	</select>
+	
+	<select id="queryAuctingDebtCount" resultType="java.lang.Long">
+		SELECT count(1) count FROM v_t_auction_assignmentdebt WHERE debtStatus  in
+		<foreach item="debtStatus" index="index" collection="debtStatus" open="(" separator="," close=")">  
+		     	#{debtStatus}
+		</foreach> 
+		<if test="userId > 0">  
+			and alienatorId = #{userId} 
+		</if>
+		<if test="borrowTitle!=null and borrowTitle!=''">
+			and borrowTitle like "%"#{borrowTitle}"%" 
+		</if>
+		<if test="borrowerName!=null and borrowerName!=''">  
+			and borrowerName like "%"#{borrowerName}"%" 
+		</if>
+	</select>
+
+	<select id="isHaveAssignmentDebt" resultType="java.lang.Long">
+		SELECT count(1) count FROM t_assignment_debt WHERE
+		debtStatus  in (1,2,3) 
+		and investId = #{0} and alienatorId = #{1}
+	</select>
+	
+	<insert id="addAssignmentDebt">
+		INSERT INTO t_assignment_debt(auctionBasePrice,alienatorId,applyTime,auctionDays,borrowId,investId,debtSum,debtLimit,details) 
+		VALUES(#{auctionBasePrice},#{alienatorId},#{applyTime},#{auctionDays},#{borrowId},#{investId},#{debtSum},#{debtLimit},#{details})
+	</insert>
+	
+	<insert id="addUserDynamic">
+		INSERT INTO t_user_recorelist(userId,url,time) 
+		VALUES (#{0},#{1},#{2})
+	</insert>
+</mapper>

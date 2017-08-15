@@ -1,0 +1,561 @@
+package com.pjzb.controller.admin;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Apply;
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.Enterprise;
+import com.pjzb.service.admin.borrow.AdminAllborrowService;
+import com.pjzb.service.admin.borrow.AdminBorrowManageFeeService;
+import com.pjzb.service.admin.borrow.AdminBorrowStyleService;
+import com.pjzb.service.admin.borrow.AdminCompanyFinanceFormService;
+import com.pjzb.service.admin.borrow.AdminCompanyFinanceService;
+import com.pjzb.service.admin.borrow.AdminExpGoldAddMoneyService;
+import com.pjzb.service.admin.borrow.AdminFullBorrowService;
+import com.pjzb.service.admin.borrow.AdminManualBorrowService;
+import com.pjzb.service.admin.borrow.AdminManualRepayService;
+import com.pjzb.util.IConstants;
+
+/**
+ * 借款管理相关Controller
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminBorrowController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminBorrowController.class);
+
+	@Autowired
+	private AdminAllborrowService adminAllborrowService;
+
+	@Autowired
+	private AdminFullBorrowService adminFullBorrowService;
+
+	@Autowired
+	private AdminCompanyFinanceService adminCompanyFinanceService;
+
+	@Autowired
+	private AdminBorrowStyleService adminBorrowStyleService;
+
+	@Autowired
+	private AdminManualBorrowService adminManualBorrowService;
+
+	@Autowired
+	private AdminBorrowManageFeeService adminBorrowManageFeeService;
+
+	@Autowired
+	private AdminCompanyFinanceFormService adminCompanyFinanceFormService;
+
+	@Autowired
+	private AdminManualRepayService adminManualRepayService;
+
+	@Autowired
+	private AdminExpGoldAddMoneyService adminExpGoldAddMoneyService;
+
+	/**
+	 * 
+	 * @describe:所有借款查询
+	 * @author: yuluosheng
+	 * @return
+	 */
+	@RequestMapping(value = "/borrowAll")
+	public String borrowAll(Model model, Long pageCurrent, Long pageSize, String userName, Long borrowWay, Long borrowStatus) {
+		return adminAllborrowService.queryBorrowAll(model, pageCurrent, pageSize, userName, borrowWay, borrowStatus);
+	}
+
+	/**
+	 * @describe:设置为推荐标的
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param userName
+	 * @param borrowWay
+	 * @param borrowStatus
+	 * @return
+	 */
+	@RequestMapping(value = "/isRecommendBorrow")
+	@ResponseBody
+	public Map<String, Object> isRecommendBorrow(Model model, Long borrowId, Integer recommend) {
+		return adminAllborrowService.updateBorrowerRecommend(model, borrowId, recommend);
+	}
+
+	/**
+	 * 
+	 * @describe:满标借款查询
+	 * @author: yuluosheng
+	 * @return
+	 */
+	@RequestMapping(value = "/borrowFullScale")
+	public String borrowFullScale(Model model, Long pageCurrent, Long pageSize, String userName, Long borrowWay) {
+		return adminFullBorrowService.borrowFullScale(model, pageCurrent, pageSize, userName, borrowWay);
+	}
+
+	/**
+	 * 
+	 * @describe:借款审核满标复审详情
+	 * @author: yuluosheng
+	 * @return
+	 */
+	@RequestMapping(value = "/borrowFullScaleDetail")
+	public String borrowFullScaleDetail(Model model, Long borrowId, String tabid) {
+		return adminFullBorrowService.borrowFullScaleDetail(model, borrowId, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:审核借款中的满标记录
+	 * @author: yuluosheng
+	 * @return
+	 */
+	@RequestMapping(value = "/updateBorrowFullScale")
+	@ResponseBody
+	public Map<String, Object> updateBorrowFullScale(Model model, Long id, Integer status, String auditOpinion, String tabid) {
+		return adminFullBorrowService.updateBorrowFullScale(model, id, status, auditOpinion, tabid, session());
+	}
+
+	/**
+	 * 
+	 * @describe:撤销标的
+	 * @author: yuluosheng
+	 * @return
+	 */
+	// @RequestMapping(value = "/reBackBorrowTenderIn")
+	// public String reBackBorrowTenderIn(Model model, Long pageCurrent, Long
+	// pageSize, String userName, Long borrowWay) {
+	// return adminFullBorrowService.reBackBorrowTenderIn(model, pageCurrent,
+	// pageSize, userName, borrowWay);
+	// }
+
+	/**
+	 * 
+	 * @describe:企业融资查询
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/enterpriseAddBorrowInit")
+	public String enterpriseAddBorrowInit(Model model, Long pageCurrent, Long pageSize, String name, String telephone, String borrowAmount, String tabid) {
+		return adminCompanyFinanceService.queryEnterpriseApplyList(name, telephone, borrowAmount, pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:资料列表
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/enterpriseUserUploadInit")
+	public String enterpriseUserUploadInit(Model model, String dialogId, Long userId, Long applyId) {
+		return adminCompanyFinanceService.queryDataList(model, userId, applyId, dialogId);
+	}
+
+	/**
+	 * 
+	 * @describe:查询企业资料列表
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/queryDataDetail")
+	public String queryDataDetail(Model model, Long userId, String dialogId) {
+		return adminCompanyFinanceService.queryDataDetail(model, userId, dialogId);
+	}
+
+	/**
+	 * 
+	 * @describe:查看企业资料图片
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/queryDataImage")
+	public String queryDataImage(Model model, String imagePath) {
+		return adminCompanyFinanceService.queryDataImage(model, imagePath);
+	}
+
+	/**
+	 * 
+	 * @describe:上传法人身份证，营业执照正副本，企业银行账号
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/uploadData")
+	@ResponseBody
+	public Map<String, Object> uploadData(MultipartFile file, String dialogId, Long tmid, Long tmyid) {
+		return adminCompanyFinanceService.uploadData(file, dialogId, request(), tmid, tmyid);
+	}
+
+	/**
+	 * 
+	 * @describe:根据id删除企业资料图片
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteDataImgById")
+	@ResponseBody
+	public Map<String, Object> deleteDataImgById(Model model, Long id, String imagePath, HttpServletRequest request) {
+		return adminCompanyFinanceService.deleteDataImgById(id, imagePath, request);
+	}
+
+	/**
+	 * 企业融资申请 查询
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/borrowfabiao")
+	public String queryborrowfabiao(Model model, Long pageCurrent, Long pageSize, String state, String tname, String telphone, String tabid) {
+		return adminCompanyFinanceFormService.queryborrowfabiao(model, pageCurrent == null ? 1l : pageCurrent, pageSize == null ? 20l : pageSize, state, tname, telphone, tabid);
+	}
+
+	/**
+	 * 企业融资申请 删除
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/deleteBorrowfabiao")
+	@ResponseBody
+	public Map<String, Object> deleteBorrowfabiao(Model model) {
+		try {
+			return adminCompanyFinanceFormService.deleteBorrowfabiao((Admin) sessionGetAttribute(IConstants.SESSION_ADMIN), requestGetParameter("delids"));
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "删除企业融资申请异常", "", "");
+		}
+	}
+
+	/**
+	 * 企业融资申请 初始化查询
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/queryCompanyById")
+	public String queryCompanyById(Model model, String id, String tabid) {
+		model.addAttribute("item", adminCompanyFinanceFormService.queryCompanyById(model, Long.parseLong(id), tabid));
+		return "/admin/borrow/companyfinanceform/update.jsp";
+	}
+
+	/**
+	 * 企业融资申请 修改状态
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/updateState")
+	@ResponseBody
+	public Map<String, Object> updateState(Model model, Long id, Integer state, String tabid) {
+		try {
+			Long result = adminCompanyFinanceFormService.updateState(id, state);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "企业融资申请修改状态成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "企业融资申请修改状态失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "企业融资申请修改状态异常", "", "");
+		}
+
+	}
+
+	/**
+	 * 企业融资申请 导出
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/exportinborrowfa")
+	@ResponseBody
+	public void exportinborrowfa(Model model, HttpServletResponse response) {
+		adminCompanyFinanceFormService.exportinborrowfa(response);
+	}
+
+	/**
+	 * 标的类型 修改
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/updateStateBorrowType")
+	@ResponseBody
+	public Map<String, Object> updateStateBorrowType(Model model, Long id, Integer state, String tabid) {
+
+		try {
+			long result = adminBorrowStyleService.updateStateBorrowType(id, state);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "标的类型修改状态成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "标的类型修改状态失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "标的类型修改状态异常", "", "");
+		}
+	}
+
+	/**
+	 * 标的类型 查询
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/borrowtypeinitlist")
+	public String borrowtypeinfolist(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminBorrowStyleService.queryBorrowtypeinfolist(model, pageCurrent == null ? 1l : pageCurrent, pageSize == null ? 20l : pageSize, tabid);
+	}
+
+	/**
+	 * 手工放款 跳转
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/handloansindex")
+	public String handloanslist(Model model) {
+		return "/admin/borrow/manualborrow/index.jsp";
+	}
+
+	/**
+	 * 手工放款 放款
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/updateHandloanslist")
+	@ResponseBody
+	public Map<String, Object> updateHandloanslist(Model model, String billcode) {
+		try {
+			return adminManualBorrowService.updateHandloanslist(model, billcode);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "手工放款异常", "", "");
+		}
+	}
+
+	/**
+	 * 标的融资管理费 查询
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/borrowmanagefeeindex")
+	public String borrowmanagefeeindex(Model model, Long pageCurrent, Long pageSize, String userName, Long borrowWay, String tabid) {
+		return adminBorrowManageFeeService.queryBorrowmanagefeeindex(model, pageCurrent == null ? 1l : pageCurrent, pageSize == null ? 20l : pageSize, userName, borrowWay, tabid);
+	}
+
+	/**
+	 * 标的融资管理费 详情
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/borrowmanagefeeinfo")
+	public String borrowmanagefeeinfo(Model model, Long id, String tabid) {
+		return adminBorrowManageFeeService.queryBorrowmanagefeeinfo(model, id, tabid);
+	}
+
+	/**
+	 * 标的融资管理费 修改初始化
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/updateManageFeeInit")
+	public String updateManageFeeInit(Model model, Long id, String tabid) {
+		return adminBorrowManageFeeService.updateManageFeeInit(model, id, tabid);
+	}
+
+	/**
+	 * 标的融资管理费 修改
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/updateManagefeeInfo")
+	@ResponseBody
+	public Map<String, Object> updateManagefeeInfo(Model model, Long id, String platUseFee, String borrowFee, String borrowManageFee, String instGuaranteeFee, String tabid) {
+		try {
+			return adminBorrowManageFeeService.updateManagefeeInfo(model, id, platUseFee, borrowFee, borrowManageFee, instGuaranteeFee, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "修改标的融资管理费异常", "dialog", tabid);
+		}
+	}
+
+	/**
+	 * 手工还款 跳转
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/handrepaymentindex")
+	public String handrepaymentindex(Model model) {
+		return "/admin/borrow/manualrepay/index.jsp";
+	}
+
+	/**
+	 * 手工还款 还款
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/handrepaymentlist")
+	@ResponseBody
+	public Map<String, Object> handrepaymentlist(Model model, Long id) {
+		try {
+			return adminManualRepayService.handrepaymentlist(model, id);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "手工还款异常", "", "");
+		}
+	}
+
+	/**
+	 * 体验金添加金额 跳转
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/addExGoAccount")
+	public String addExGoAccount(Model model, String tabid) {
+		return adminExpGoldAddMoneyService.addExGoAccount(model, tabid);
+	}
+
+	/**
+	 * 体验金添加金额 修改
+	 * 
+	 * @author: zlx
+	 */
+	@RequestMapping(value = "/updateExGoSum")
+	@ResponseBody
+	public Map<String, Object> updateExGoSum(Model model, double invmAmount, String tabid) {
+		try {
+			return adminExpGoldAddMoneyService.updateExGoSum(model, invmAmount, tabid);
+		} catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "修改体验金金额异常", "", "");
+		}
+	}
+
+	/**
+	 * @describe:根据id查询企业信息
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/queryCompanyDataById")
+	public String queryCompanyDataById(Model model, Long id, String tabid) {
+		return adminCompanyFinanceService.queryCompanyDataById(model, id, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:修改企业信息
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/updateEnterpriseUserBaseInfo")
+	@ResponseBody
+	public Map<String, Object> updateEnterpriseUserBaseInfo(Model model, Enterprise enterprise, String tabid, Long applyId) {
+		try {
+			long result = adminCompanyFinanceService.updateEnterpriseUserBaseInfo(applyId, enterprise, tabid);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "企业资料修改成功", "dialog", tabid);
+				// 成功
+			} else {
+				return ajaxDoneInfo("300", "企业资料修改失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*************企业资料修改异常**************");
+			return ajaxDoneInfo("300", "企业资料修改异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:增加企业融资初始化
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/addEnterpriseInit")
+	public String addEnterpriseInit(Model model, Long id, String tabid) {
+		return adminCompanyFinanceService.addEnterpriseInit(model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:增加企业融资
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/addApply")
+	@ResponseBody
+	public Map<String, Object> addApply(Model model, Apply apply, String tabid) {
+		try {
+			apply.setState(0);
+			Long result = adminCompanyFinanceService.addApply(apply);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "企业融资增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "企业融资增加失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业融资增加异常***************************");
+			return ajaxDoneInfo("300", "企业融资增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:根据id删除企业融资 t_apply表
+	 * @author: xiaojin
+	 * @param model
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteApplyById")
+	@ResponseBody
+	public Map<String, Object> deleteApplyById(Model model, Long id) {
+		try {
+			long result = adminCompanyFinanceService.deleteApplyById(id);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "企业融资删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "企业融资删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************企业融资删除异常********************");
+			return ajaxDoneInfo("300", "企业融资删除异常", "", "");
+		}
+	}
+
+	@RequestMapping(value = "/bindUserInit")
+	public String bindUserInit(Model model, Long id, String tabid) {
+		return adminCompanyFinanceService.bindUserInit(model);
+	}
+
+	@RequestMapping(value = "/publishborrowInit")
+	public String publishborrowInit(Model model, Long id, String tabid, String conpany, Long userId) {
+		return adminCompanyFinanceService.publishborrowInit(model, id, conpany, userId, tabid);
+	}
+
+	@RequestMapping(value = "/publishBorrow")
+	@ResponseBody
+	public Map<String, Object> publishBorrow(Model model, Borrow borrow, String tabid, String code, Long applyId, String companyData, Long behalf, Double sum, String setInvestPWD,
+			String setIsDayThe) {
+		try {
+			return adminCompanyFinanceService.addBorrow(model, borrow, tabid, code, session(), applyId, companyData, behalf, sum, getRemortIp(), setInvestPWD, getBasePath(),
+					setIsDayThe);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "发布借款异常", "", "");
+		}
+	}
+
+}

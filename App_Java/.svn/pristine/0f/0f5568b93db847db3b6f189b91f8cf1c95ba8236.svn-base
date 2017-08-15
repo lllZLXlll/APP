@@ -1,0 +1,220 @@
+package com.pjzb.task;
+
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.AssignmentDebtDao;
+import com.pjzb.dao.AuctionDebtDao;
+import com.pjzb.dao.AutomaticRepaymentDao;
+import com.pjzb.dao.AwardDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.InvestRepayMessageDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.RelationDao;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.InvestRepayMessage;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.SendMessageService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.SMSUtil;
+import com.shove.Convert;
+
+/**
+ * 距还款日期有7、3、1天且用户余额不足时，发短信提醒用户定时器
+ * 
+ * @author xiaojin
+ * 
+ */
+
+@Service
+public class JobSendRepayInfoToBorrowerService {
+	private static Log log = LogFactory.getLog(JobSendRepayInfoToBorrowerService.class);
+
+	@Autowired
+	private AssignmentDebtDao assignmentDebtDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private AuctionDebtDao auctionDebtDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private InvestRepayMessageDao investRepayMessageDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private RepaymentDao repaymentDao;
+
+	@Autowired
+	private AutomaticRepaymentDao automaticRepaymentDao;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	@Autowired
+	private RelationDao relationDao;
+
+	@Autowired
+	private AwardDao awardDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private SendMessageService sendMessageService;
+
+	/**
+	 * 距还款日期有7、3、1天且用户余额不足时，发短信提醒用户
+	 * 
+	 * @author xiaojin
+	 */
+	@SuppressWarnings("deprecation")
+	public void sendMsgToBorrow() {
+		log.info("--------------距还款日期有7、3、1天且用户余额不足时，发短信提醒用户开始--------------");
+		if (new Date().getHours() >= 7 && new Date().getHours() < 10) {
+			List<Map<String, Object>> list = null;
+			// 查询离还款日期还差 7、3、1天的还款信息
+			list = investRepaymentDao.queryInvestRepaymentMsg();
+			if (list.size() > 0) {
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> map = list.get(i);
+					// 借款人余额
+					Double usableSum = Double.parseDouble(String.valueOf(map.get("usableSum")));
+					// 借款人应还本金与利息
+					Double repaySum = Double.parseDouble(String.valueOf(map.get("repaySum")));
+					// 还款金额大于用户账户余额发送短信
+					if (usableSum < repaySum) {
+						User user = userDao.queryUserById(Long.parseLong(String.valueOf(map.get("mgrId"))));
+						Long userId = Long.parseLong(String.valueOf(map.get("publisher")));
+						Long borrowId = Long.parseLong(String.valueOf(map.get("borrowId")));
+						String userMobie = String.valueOf(map.get("mobilePhone"));
+						String mgrMobie = user.getMobilePhone();
+						Long investRepayId = Long.parseLong(String.valueOf(map.get("investRepayId")));
+						Long mgrId = user.getId();
+						String repayDate = String.valueOf(map.get("repayDate"));
+						String borrowTitle = String.valueOf(map.get("borrowTitle"));
+						Person person = personDao.queryPersonByUserId(userId);
+						String realName = person.getRealName();
+						DecimalFormat df = new DecimalFormat("0.00");
+						// 判断贷后管理员是否有两名
+						long mgr2Id = Convert.strToLong(String.valueOf(map.get("mgr2Id")), 0);
+
+						if (Integer.parseInt(String.valueOf(map.get("days"))) == 7) {
+							sendMessageToInvestorAndManager(borrowId, userId, userMobie, investRepayId, mgrId, mgrMobie, 7, 1, 2, borrowTitle,
+									repayDate, df.format(repaySum), realName, mgr2Id);
+						}
+
+						if (Integer.parseInt(String.valueOf(map.get("days"))) == 3) {
+							sendMessageToInvestorAndManager(borrowId, userId, userMobie, investRepayId, mgrId, mgrMobie, 3, 1, 2, borrowTitle,
+									repayDate, df.format(repaySum), realName, mgr2Id);
+						}
+
+						if (Integer.parseInt(String.valueOf(map.get("days"))) == 1) {
+							sendMessageToInvestorAndManager(borrowId, userId, userMobie, investRepayId, mgrId, mgrMobie, 1, 1, 2, borrowTitle,
+									repayDate, df.format(repaySum), realName, mgr2Id);
+						}
+					}
+				}
+			}
+		}
+		log.info("--------------距还款日期有7、3、1天且用户余额不足时，发短信提醒用户结束--------------");
+
+	}
+
+	public void sendMessageToInvestorAndManager(Long borrowId, Long investorId, String userMobilePhone, Long investRepayId, Long managerId,
+			String managerMobilePhone, Integer dataType, Integer investorUserType, Integer managerUserType, String borrowTitle,
+			String repayDate, String repaySum, String realName, Long mgr2Id) {
+		// 发信息之前查询该借款信息ID在当天7-10点是否给借款人发过提醒还款前7、3、1天的信息
+		Long messCount = investRepayMessageDao.queryInvestRepayMessageCountByBorrowId(borrowId, dataType, investorId, investorUserType, 1);
+		String investorSendStatus = null;
+		String managerSendStatus = null;
+		// 拼装发送消息内容
+		String borrowerContent = "尊敬的" + realName + "（先生/女士）：您好，您的借款《" + borrowTitle + "》将在" + dataType + "天之后(" + repayDate
+				+ ")到期需还款，本次需还款金额为：" + repaySum + "元,您的平台账户余额不足还款金额，请及时充值平台账户进行还款，避免逾期罚息。" + "【" + Constants.PRO_GLOBLE_NAME + "】";
+		if (messCount == Constants.LONG_0) {
+			log.info(" 借款信息人的手机号码：" + userMobilePhone);
+			log.info(" 维护经理人的手机号码：" + managerMobilePhone);
+			log.info(borrowerContent);
+			// 发送通知信息给借款人
+			investorSendStatus = SMSUtil.sendSMS(Constants.SMS_USERID, Constants.SEND_URL, Constants.SMS_ACCOUNT, Constants.SMS_PASSWORD,
+					borrowerContent, userMobilePhone);
+			// 保存发送内容
+			InvestRepayMessage investRepayMessage = new InvestRepayMessage();
+			investRepayMessage.setInvestRepayId(investRepayId);
+			investRepayMessage.setMessageContent(borrowerContent);
+			investRepayMessage.setBorrowId(borrowId);
+			investRepayMessage.setDataType(dataType);
+			investRepayMessage.setSendTime(new Date());
+			investRepayMessage.setUserId(investorId);
+			investRepayMessage.setUserType(investorUserType);
+			investRepayMessage.setMesageSendStatus(investorSendStatus.equals(Constants.SUCCESS) ? 1 : 2);
+			investRepayMessageDao.insertInvestRepayMessage(investRepayMessage);
+		}
+		// 发信息之前查询该借款信息ID在当天7-10点是否给贷后经理发过还款前7、3、1天的信息
+		Long mgrCount = investRepayMessageDao.queryInvestRepayMessageCountByBorrowId(borrowId, dataType, managerId, managerUserType, 1);
+		if (mgrCount == Constants.LONG_0) {
+			// 发送通知信息给维护经理
+			managerSendStatus = SMSUtil.sendSMS(Constants.SMS_USERID, Constants.SEND_URL, Constants.SMS_ACCOUNT, Constants.SMS_PASSWORD,
+					borrowerContent, managerMobilePhone);
+			InvestRepayMessage investRepayMessage = new InvestRepayMessage();
+			investRepayMessage.setInvestRepayId(investRepayId);
+			investRepayMessage.setMessageContent(borrowerContent);
+			investRepayMessage.setBorrowId(borrowId);
+			investRepayMessage.setDataType(dataType);
+			investRepayMessage.setSendTime(new Date());
+			investRepayMessage.setUserId(managerId);
+			investRepayMessage.setUserType(managerUserType);
+			investRepayMessage.setMesageSendStatus(managerSendStatus.equals("1") ? 1 : 2);
+			investRepayMessageDao.insertInvestRepayMessage(investRepayMessage);
+			if (mgr2Id > 0) {
+				User user = userDao.queryUserById(mgr2Id);
+				managerSendStatus = SMSUtil.sendSMS(Constants.SMS_USERID, Constants.SEND_URL, Constants.SMS_ACCOUNT, Constants.SMS_PASSWORD,
+						borrowerContent, user.getMobilePhone());
+				InvestRepayMessage investRepayMessage2 = new InvestRepayMessage();
+				investRepayMessage2.setInvestRepayId(investRepayId);
+				investRepayMessage2.setMessageContent(borrowerContent);
+				investRepayMessage2.setBorrowId(borrowId);
+				investRepayMessage2.setDataType(dataType);
+				investRepayMessage2.setSendTime(new Date());
+				investRepayMessage2.setUserId(mgr2Id);
+				investRepayMessage2.setUserType(managerUserType);
+				investRepayMessage2.setMesageSendStatus(managerSendStatus.equals("1") ? 1 : 2);
+				investRepayMessageDao.insertInvestRepayMessage(investRepayMessage2);
+			}
+		}
+	}
+
+}

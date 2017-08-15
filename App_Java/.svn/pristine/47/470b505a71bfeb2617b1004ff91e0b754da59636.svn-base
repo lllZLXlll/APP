@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>注册汇付天下-普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<link rel="stylesheet" href="src/css/public.css">
+	<link rel="stylesheet" href="src/css/login.css">
+</head>
+<body>
+	<!--[if lt IE 8]>
+    <div class="show-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  	<![endif]-->
+	<!-- top -->
+	<div class="top" id="top">
+	</div>
+	<!-- nav -->
+	<div class="nav">
+		<div class="wrap cl">
+			<div class="logo"><a href="index.html"><img src="src/images/logo.png" alt="普金资本"></a></div>
+			<div class="nav-bar">
+				<ul>
+					<li class="icon icon-acc"><a href="account.html">我的账户</a></li>
+					<!-- <li><a href="javascript:void(0);">信息披露</a></li> -->
+					<li><a href="about.html">信息披露</a></li>
+					<!-- <li><a href="javascript:void(0);" onclick="newPointer()">新手指导</a></li> -->
+					<li><a href="safety.html">安全保障</a></li>
+					<li>
+						<a href="invest_list.html">投资理财</a>
+						<div class="sub-nav">
+							<a href="invest_list.html#006">恒金保</a>
+							<a href="invest_list.html#004">普金保</a>
+							<a href="invest_list.html#003">多金宝</a>
+							<a href="creditor_list.html">债权转让</a>
+							<p class="left"></p>
+							<p class="right"></p>
+						</div>
+					</li>
+					<li><a href="index.html">首页</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="registpay-content">
+		<div class="regist-box">
+			<img class="hf-logo" src="src/images/huifu.png" width="120" height="40" />
+			<h3>注册汇付天下</h3>
+			<p class="error-msg icon icon-error"></p>
+			<div class="from">
+				<label for="Name" class="icon icon-user"></label>
+				<input type="text" name="Name" id="Name" maxlength="18" placeholder="输入真实姓名"/>
+			</div>
+			<div class="from">
+				<label for="idCard" class="icon icon-idcard"></label>
+				<input type="text" name="" id="idCard"  maxlength="18" placeholder="输入身份证号"/>
+			</div>
+			<div class="from">
+				<label for="phone" class="icon icon-mobile"></label>
+				<input type="text" name="" id="phone" maxlength="11" placeholder="输入手机号"/>
+			</div>
+			<div class="from">
+				<label for="email" class="icon icon-email"></label>
+				<input type="text" name="" id="email" maxlength="30" placeholder="输入邮箱"/>
+			</div>
+			<div class="from from-msg">
+				<label for="msgcode" class="icon icon-msg"></label>
+				<input type="text" name="" id="msgcode" maxlength="6" placeholder="输入短信验证码"/>
+				<div class="msg-btn">
+					<button type="button" id="getMsgCode">获取验证码</button>
+				</div>
+			</div>
+			<button class="btn" type="button">注册</button>
+		</div>
+		<div id="registPay" style="display:none;"></div>
+	</div>
+	<div id="ajaxFooter"></div>
+	<script type="text/javascript" src="src/libs/jquery.js"></script>
+	<script type="text/javascript" src="src/libs/public.js"></script>
+	<!-- 客服QQ -->
+	<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php"></script>
+	<script type="text/javascript" src="scripts/registpay.js"></script>
+</body>
+</html>

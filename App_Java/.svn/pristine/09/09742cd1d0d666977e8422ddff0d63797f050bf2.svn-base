@@ -1,0 +1,13 @@
+package com.pjzb.dao;
+
+import java.util.Map;
+
+public interface UserintegraldetailDao {
+
+	long addserintegraldetail(Map<String, Object> map);
+
+	Map<String, Object> queryUserIntegral(long userId, String string);
+
+	long updateUserIntegral(long l, long minId);
+
+}

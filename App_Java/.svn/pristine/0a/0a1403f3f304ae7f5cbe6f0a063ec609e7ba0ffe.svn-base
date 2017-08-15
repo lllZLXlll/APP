@@ -1,0 +1,180 @@
+package com.pjzb.controller.admin;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.AppVersion;
+import com.pjzb.entity.CloseNetWork;
+import com.pjzb.entity.Sms;
+import com.pjzb.service.admin.system.AdminAppVersionService;
+import com.pjzb.service.admin.system.AdminCloseWebService;
+import com.pjzb.service.admin.system.AdminEmailMessageService;
+
+/**
+ * 系统管理
+ * 
+ * 
+ */
+
+@Controller
+@RequestMapping(value="/admin")
+public class AdminSystemController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminSystemController.class);
+	
+	@Autowired
+	private AdminCloseWebService adminCloseWebService;
+	
+	@Autowired
+	private AdminAppVersionService appVersionService;
+	
+	@Autowired
+	private AdminEmailMessageService adminEmailMessageService;
+
+	/**
+	 * 关闭网站
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/showCloseNetWork")
+	public String showCloseNetWork(Model model,String tabid) {
+		return adminCloseWebService.queryNetWorkById(model,tabid);
+	}
+	
+	/**
+	 * 修改网站状态
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateNetWorkById")
+	@ResponseBody
+	public Map<String, Object> updateNetWorkById(Model model,String tabid,CloseNetWork closeNetWork) {
+		return adminCloseWebService.updateNetWorkById(model,tabid,closeNetWork);
+	}
+	
+	/**
+	 * app版本管理
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/appVersionInit")
+	public String appVersionInit(Model model, Long pageCurrent, Long pageSize, String tabid,String beginTime,String endTime) {
+		return appVersionService.queryAppVersionForPage(pageCurrent, pageSize, model, tabid,beginTime,endTime);
+	}
+	
+	/**
+	 * app版本添加页面
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addAppVersionInit")
+	public String addAppVersionInit(Model model ,String tabid) {
+		return appVersionService.addAppVersionInit(model, tabid);
+	}
+	
+	/**
+	 * aapp版本添加
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/addAppVersion")
+	public Map<String, Object> addAppVersion(Model model ,String tabid,AppVersion appVersion) {
+		try{
+			return appVersionService.addAppVersion(model, tabid,appVersion);
+		}catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "app版本增加异常", "", "");
+		}
+	}
+	
+	/**
+	 * app版本编辑页面
+	 * @param model
+	 * @param tabid
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/updateAppVersionByIdInit")
+	public String updateAppVersionByIdInit(Model model ,String tabid,Long id) {
+		return appVersionService.updateAppVersionByIdInit(model, tabid,id);
+	}
+	
+	/**
+	 * app版本修改
+	 * @param model
+	 * @param tabid
+	 * @param appVersion
+	 * @return
+	 * @author Li zeyang
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/updateAppVersionById")
+	public Map<String, Object> updateAppVersionById(String tabid,AppVersion appVersion) {
+		try{
+			return appVersionService.updateAppVersionById(tabid,appVersion);
+		}catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "app版本修改异常", "", "");
+		}
+	}
+	
+	/**
+	 * app版本删除
+	 * @param tabid
+	 * @param id
+	 * @return
+	 * @author Li zeyang
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/deleteAppVersionById")
+	public Map<String, Object> deleteAppVersionById(String tabid,Long id) {
+		try{
+			return appVersionService.deleteAppVersionById(tabid,id);
+		}catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "app版本删除异常", "", "");
+		}
+	}
+	
+	@RequestMapping(value = "/emailAndMessageindex")
+	public String updateAppVersionByIdInit(Model model, Long pageCurrent, Long pageSize,String tabid) {
+		return adminEmailMessageService.querySmsList(model, pageCurrent, pageSize, tabid);
+	}
+	
+	@RequestMapping(value = "/updateConfigSmsInit")
+	public String querySaveOrUpdateSmsInit(Model model, Long id,String tabid) {
+		return adminEmailMessageService.queryUpdateConfigSmsInit(model, id, tabid);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/updateConfigSms")
+	public Map<String, Object> updateConfigSms(Model model, Sms sms, String tabid) {
+		try{
+			return adminEmailMessageService.updateConfigSms(model, sms, tabid);
+		}catch (Exception e) {
+			log.info(e);
+			return ajaxDoneInfo("300", "短信运营商配置异常", "", "");
+		}
+	}
+}

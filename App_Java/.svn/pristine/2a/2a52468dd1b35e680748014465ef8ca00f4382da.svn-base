@@ -1,0 +1,250 @@
+package com.pjzb.service.admin.user;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.MenuDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Role;
+import com.pjzb.entity.RoleRights;
+import com.pjzb.entity.vo.Higher;
+import com.pjzb.util.Constants;
+
+/**
+ * 管理组
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminManageGroupService extends BaseController {
+
+	@Autowired
+	private MenuDao menuDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	/**
+	 * 
+	 * @describe:分页查询管理组
+	 * @author: xiaojin
+	 * @param pageNum
+	 * @param pageSize
+	 * @param model
+	 * @param tabid
+	 * @return
+	 */
+	public String queryRoleList(Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Role> list = menuDao.queryRoleList((pageNum - 1) * pageSize, pageSize, true);
+			long count = menuDao.queryRoleCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询管理组异常**************************");
+		}
+		return "/admin/user/managegroup/list.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:增加或修改管理组初始化
+	 * @author: xiaojin
+	 * @param model
+	 * @param id
+	 * @param type
+	 * @param tabid
+	 * @return
+	 */
+	public String querySaveOrUpdateRoleInit(Model model, Long id, String type, String tabid) {
+		Role role = null;
+		if (id != null) {
+			role = menuDao.queryRoleById(id);
+		}
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("id", id);
+		model.addAttribute("role", role);
+		model.addAttribute("type", type);
+		return "/admin/user/managegroup/saveorupdate.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:增加或修改管理组
+	 * @author: xiaojin
+	 * @param role
+	 * @param tabid
+	 * @param menu
+	 * @param admin
+	 * @param ip
+	 * @return
+	 */
+	public Map<String, Object> saveOrUpdateRole(Role role, String tabid, String menu, Admin admin, String ip) {
+		if (menu.length() <= 2) {
+			return ajaxDoneInfo("300", "请分配权限", "", "");
+		}
+		Long roleId = role.getId();
+		if (roleId == null) {
+			Role role2 = menuDao.queruRoleByName(role.getName().trim());
+			if (role2 != null) {
+				return ajaxDoneInfo("300", "该管理组已经存在", "", "");
+			}
+			menuDao.insertRole(role);
+			long result = 0;
+			JSONArray jsonArray = JSONArray.fromObject(menu);
+			for (int i = 0; i < jsonArray.size(); i++) {
+				JSONObject job = jsonArray.getJSONObject(i);
+				RoleRights roleRights = new RoleRights();
+				roleRights.setRoleId(role.getId());
+				roleRights.setRightsId(Long.parseLong(String.valueOf(job.get("menu"))));
+				result = menuDao.insertRoleRights(roleRights);
+			}
+			if (result > 0) {
+				OperationLog operationLog = new OperationLog();
+				operationLog.setOperationTable("t_admin");
+				operationLog.setOperationUser(admin.getUserName());
+				operationLog.setOperationIp(ip);
+				operationLog.setOperationType(0);
+				operationLog.setOperationMoney(0d);
+				operationLog.setOperationRemarks("新增管理组-" + role.getName());
+				operationLog.setUserId(admin.getId());
+				operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+				operationLog.setOperationTime(new Date());
+				operationLogDao.addOperationLog(operationLog);
+				return ajaxDoneInfo("200", "管理组增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "管理组增加失败", "", "");
+			}
+		} else {
+			long result1 = menuDao.updateRoleById(role);
+			long result2 = menuDao.deleteRoleRightsByRoleId(roleId);
+			if (result1 > 0 && result2 > 0) {
+				long result = 0;
+				JSONArray jsonArray = JSONArray.fromObject(menu);
+				for (int i = 0; i < jsonArray.size(); i++) {
+					JSONObject job = jsonArray.getJSONObject(i);
+					RoleRights roleRights = new RoleRights();
+					roleRights.setRoleId(role.getId());
+					roleRights.setRightsId(Long.parseLong(String.valueOf(job.get("menu"))));
+					result = menuDao.insertRoleRights(roleRights);
+				}
+				if (result > 0) {
+					OperationLog operationLog = new OperationLog();
+					operationLog.setOperationTable("t_admin");
+					operationLog.setOperationUser(admin.getUserName());
+					operationLog.setOperationIp(ip);
+					operationLog.setOperationType(0);
+					operationLog.setOperationMoney(0d);
+					operationLog.setOperationRemarks("修改管理组-" + role.getName());
+					operationLog.setUserId(admin.getId());
+					operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+					operationLog.setOperationTime(new Date());
+					operationLogDao.addOperationLog(operationLog);
+					return ajaxDoneInfo("200", "管理组修改成功", "dialog", tabid);
+				} else {
+					return ajaxDoneInfo("300", "管理组修改失败", "", "");
+				}
+			} else {
+				return ajaxDoneInfo("300", "管理组修改失败", "", "");
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:获取权限树
+	 * @author: xiaojin
+	 * @param id
+	 * @return
+	 */
+	public List<Higher> getPermissionsMenu(Long id) {
+		List<RoleRights> roleRightsList = menuDao.queryRoleRightsByRoleId(id);
+		Map<Long, Long> map = new HashMap<Long, Long>();
+		for (RoleRights roleRights : roleRightsList) {
+			map.put(roleRights.getRightsId(), roleRights.getId());
+		}
+		List<Higher> list3 = new ArrayList<Higher>();
+		List<Map<String, Object>> list = menuDao.getMenu(-1L);
+		for (Map<String, Object> menuMap : list) {
+			Integer roleId = Integer.parseInt(String.valueOf(menuMap.get("id")));
+			Higher higher = new Higher();
+			higher.setId(roleId);
+			higher.setName(String.valueOf(menuMap.get("summary")));
+			higher.setOpen(false);
+			higher.setpId(0);
+			if (map.containsKey(Long.parseLong(String.valueOf(roleId)))) {
+				higher.setChecked(true);
+			}
+			list3.add(higher);
+			List<Map<String, Object>> list2 = menuDao.getMenuByParentID(-1L, roleId);
+			for (Map<String, Object> menu2 : list2) {
+				Integer roleId2 = Integer.parseInt(String.valueOf(menu2.get("id")));
+				Higher higher2 = new Higher();
+				higher2.setId(roleId2);
+				higher2.setName(String.valueOf(menu2.get("summary")));
+				higher2.setOpen(false);
+				higher2.setpId(roleId);
+				if (map.containsKey(Long.parseLong(String.valueOf(roleId2)))) {
+					higher2.setChecked(true);
+				}
+				list3.add(higher2);
+			}
+		}
+		return list3;
+	}
+
+	/**
+	 * 
+	 * @describe:删除管理组
+	 * @author: xiaojin
+	 * @param id
+	 * @param admin
+	 * @param ip
+	 * @return
+	 */
+	public Map<String, Object> deleteRoleById(Long id, Admin admin, String ip) {
+		long result1 = menuDao.deleteRoleById(id);
+		long result2 = menuDao.deleteRoleRightsByRoleId(id);
+		if (result1 > 0 && result2 > 0) {
+			OperationLog operationLog = new OperationLog();
+			operationLog.setOperationTable("t_admin");
+			operationLog.setOperationUser(admin.getUserName());
+			operationLog.setOperationIp(ip);
+			operationLog.setOperationType(0);
+			operationLog.setOperationMoney(0d);
+			operationLog.setOperationRemarks("删除管理组");
+			operationLog.setUserId(admin.getId());
+			operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+			operationLog.setOperationTime(new Date());
+			operationLogDao.addOperationLog(operationLog);
+			return ajaxDoneInfo("200", "管理组删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "管理组删除失败", "", "");
+		}
+	}
+
+}

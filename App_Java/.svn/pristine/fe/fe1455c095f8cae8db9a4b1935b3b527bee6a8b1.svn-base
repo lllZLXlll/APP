@@ -1,0 +1,95 @@
+package com.pjzb.service.admin.user;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Person;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DesSecurityUtil;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 
+ * @describe：管理员给用户充值
+ */
+@Service
+public class AdminManagerForUserRechargeService extends BaseController  {
+
+	@Autowired
+	private UserDao userDao;
+	
+	@Autowired
+	private ChinapnrService chinapnrService;
+	
+	@Autowired
+	private PersonDao personDao;
+	
+	public String queryUserManageIndex(Model model, String tabid, String userName, String realName, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" :userName;
+			realName = realName == null ? "" :realName;
+			List<Map<String, Object>> lists = userDao.queryUserManagePage((pageNum - 1) * pageSize, pageSize,userName,realName);
+			long count = userDao.queryUserManageCount(userName,realName);
+			if (lists != null) {
+				Iterator<Map<String, Object>> iter = lists.iterator();
+				DesSecurityUtil ds = new DesSecurityUtil();
+				int i = 0;
+				while (iter.hasNext()) {
+					Map<String, Object> maps = iter.next();
+					lists.get(i).put("ids", ds.encrypt(maps.get("id").toString()));
+					i++;
+				}
+			}
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(lists);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询管理员给用户充值异常**************************");
+		}
+		return "/admin/user/manageruserrecharge/list.jsp";
+	}
+	
+	public String queryRechangeUserInfoInit(Model model, String tabid, String userid, String realName, String username, String ipayAccount, String cellPhone) {
+		try {
+			long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userid), 0);
+			HashMap<String, Object> usermap = new HashMap<String, Object>();
+			Person person=personDao.queryPersonByUserId(userId);
+			usermap.put("userId", userId);	 	  
+			usermap.put("realName", person.getRealName());	 	  
+			usermap.put("ipayAccount", ipayAccount);	 	  
+			usermap.put("username", username);	 	  
+			usermap.put("cellPhone", cellPhone);
+			model.addAttribute("usermap", usermap);
+		}catch(Exception e){			
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************加载用户充值异常**************************");
+		}
+		return "/admin/user/manageruserrecharge/add.jsp";
+	}
+
+}

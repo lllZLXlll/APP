@@ -1,0 +1,139 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Enterprise entity. @author MyEclipse Persistence Tools
+ */
+
+public class Enterprise implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String companyName;
+	private String legalPerson;
+	private Date registeredTime;
+	private Long registeredCapital;
+	private String businessCode;
+	private String companyAddress;
+	private String companyPhone;
+	private String borrowCause;
+	private Long userId;
+	private Integer auditStatus;
+
+	// Constructors
+
+	/** default constructor */
+	public Enterprise() {
+	}
+
+	/** full constructor */
+	public Enterprise(String companyName, String legalPerson,
+			Date registeredTime, Long registeredCapital,
+			String businessCode, String companyAddress, String companyPhone,
+			String borrowCause, Long userId, Integer auditStatus) {
+		this.companyName = companyName;
+		this.legalPerson = legalPerson;
+		this.registeredTime = registeredTime;
+		this.registeredCapital = registeredCapital;
+		this.businessCode = businessCode;
+		this.companyAddress = companyAddress;
+		this.companyPhone = companyPhone;
+		this.borrowCause = borrowCause;
+		this.userId = userId;
+		this.auditStatus = auditStatus;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getCompanyName() {
+		return this.companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
+	public String getLegalPerson() {
+		return this.legalPerson;
+	}
+
+	public void setLegalPerson(String legalPerson) {
+		this.legalPerson = legalPerson;
+	}
+
+	public Date getRegisteredTime() {
+		return this.registeredTime;
+	}
+
+	public void setRegisteredTime(Date registeredTime) {
+		this.registeredTime = registeredTime;
+	}
+
+	public Long getRegisteredCapital() {
+		return this.registeredCapital;
+	}
+
+	public void setRegisteredCapital(Long registeredCapital) {
+		this.registeredCapital = registeredCapital;
+	}
+
+	public String getBusinessCode() {
+		return this.businessCode;
+	}
+
+	public void setBusinessCode(String businessCode) {
+		this.businessCode = businessCode;
+	}
+
+	public String getCompanyAddress() {
+		return this.companyAddress;
+	}
+
+	public void setCompanyAddress(String companyAddress) {
+		this.companyAddress = companyAddress;
+	}
+
+	public String getCompanyPhone() {
+		return this.companyPhone;
+	}
+
+	public void setCompanyPhone(String companyPhone) {
+		this.companyPhone = companyPhone;
+	}
+
+	public String getBorrowCause() {
+		return this.borrowCause;
+	}
+
+	public void setBorrowCause(String borrowCause) {
+		this.borrowCause = borrowCause;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Integer getAuditStatus() {
+		return this.auditStatus;
+	}
+
+	public void setAuditStatus(Integer auditStatus) {
+		this.auditStatus = auditStatus;
+	}
+
+}

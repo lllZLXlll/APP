@@ -1,0 +1,396 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/index/Prodetail.html');
+	var timeInterval;
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('标的详情',true,false);
+			this.$parent.$set('activeClass',1);
+		},
+		route:{
+			data:function(transition){
+				var _this = this;
+				if(_this.$parent.type=='fund'){
+					var param={uid:Storage.getItem('uid'),id:this.$route.query.id};
+					var url = '../front/financeInvestInit.do';
+					var fund = true;
+				}else if(_this.$parent.type=='detail'){
+					if(Storage.getItem('uid')){
+						var param={uid:Storage.getItem('uid'),borrowId:this.$route.query.id};
+					}else{ 
+						var param={uid:'',borrowId:this.$route.query.id};
+					}
+					var url = '../front/queryBorrowDetail.do'
+					var detail = true;
+				}else{
+					_this.$set('taste',false);//体验标进度条
+					_this.$set('isTiyan',false);
+					/*var url = '../front/InvestExGoInit.do';
+					var param={"auth":"{uid:'"+Storage.getItem('uid')+"'}"};*/
+
+					var url = '../front/experBorrowInit.do';
+					var param={uid:Storage.getItem('uid')};
+				};
+				utils.ajax({
+			        url:url,
+			        data:param,
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(detail){
+			        			_this.$set('productDetail',data);
+			        			if(Storage.getItem('uid')){
+			        				_this.$set('userMap',data.userMap);
+				        			_this.$set('hasPWD',data.hasPWD);
+				        			_this.$set('mapListCd',data.mapListCd);
+				        			_this.$set('canUseSum',data.userMap.usableSum);//可用余额
+			        			}
+			        		}else if(fund){
+			        			_this.$set('productDetail',data.investDetailMap);
+			        			_this.$set('productDetail.bidTime',data.investMap.bidTime);
+			        			_this.$set('productDetail.detail',data.investMap.detail);
+			        			_this.$set('productDetail.safeMeasures',data.investMap.safeMeasures);
+			        			//发标时间
+			        			_this.$set('productDetail.publishTime',data.investMap.publishTime);
+			        			_this.$set('userMap',data.userMap);
+				        		_this.$set('hasPWD',data.hasPWD);
+				        		_this.$set('subscribes',data.subscribes);
+				        		_this.$set('mapListCd',data.mapListCd);
+				        		_this.$set('canUseSum',data.userMap.usableSum);//可用余额
+			        		}else{
+			        			_this.$set('productDetail',data.borrowDetailMap);
+			        			_this.$set('userMap',data.userMap);
+			        			_this.$set('money',data.accountSum);
+			        			_this.$set('canUseSum',data.userMap.accountSum);//可用余额
+			        			if(data.borrowDetailMap.residue == '0.00'){
+			        				$.alert('当前体验标的金额已投满，请等待下次体验标发放时间进行投资。');
+			        			};
+			        		}
+			        		//是否为新手标
+			        		if(_this.productDetail.borrowTypeSubId == 5){
+			        			_this.$set('isNewsPro',true);
+			        			if(data.investRecord && data.investRecord=='0'){
+				        			_this.$set('productDetail.borrowStatus','99');
+				        		}
+			        		};
+			        		//体验标投资判断
+			        		if(_this.$parent.type == 'tiyan' && _this.canUseSum == 0){
+			        			_this.$set('productDetail.borrowStatus','99');
+			    			};
+			    			//初始化投标状态
+			    			_this.thisHtml(_this.productDetail.borrowStatus);
+			    			//非体验标进入倒计时
+			    			if(_this.$parent.type != 'tiyan'){
+				    			if(_this.productDetail.borrowStatus == '2'){
+				    				_this.initFundTime();
+				    			}
+			    			}
+			        	}else if(data.error == 1){
+			        		$.alert(data.msg,function(){
+			        			router.go({path:'/registpay'});
+			        		});
+			        	}else{
+			        		$.alert(data.msg,function(){
+			        			router.go({path:'/index'});
+			        		});
+			        	}
+			        },complete: function(){
+			        	transition.next();
+			        }
+			    });
+			},waitForData:true
+		},
+		methods:{
+			maxTender:function(a){
+				if(a>0){
+					return false;
+				}else{
+					return true;
+				}
+			},
+			submit: function(status){
+				if(status == '100'){
+					$.toast('还没到投标时间！请耐心等待！');
+					return;
+				}
+				if(status!=2){return};
+				if(!Storage.getItem('uid')){
+					$.alert('您还未登录，请先登录！',function(){
+						router.go({path:'/login',query:{show:true}});
+					});
+					return;
+				};
+				var _this = this;
+				if(parseFloat(this.canUseSum) == 0 || parseFloat(this.canUseSum) == 0){
+					$.confirm('您当前可用余额为0，如需继续投资，请充值!', function () {
+						if(!Storage.getItem('ipayAccount')){
+							$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+								router.go({path:'/registpay'});
+							});
+						}else{
+							router.go({name:'ipay'});
+						}
+				     });
+					return;
+				}
+				if(this.money == ''){
+					$.toast('请输入投资金额');
+					return;
+				}
+				if(!AmtRegExp.test(this.money)){
+					$.toast('金额格式不正确');
+					return;
+				}
+				if(this.isTiyan && parseFloat(this.canUseSum) < parseFloat(this.money)){
+					$.toast('投资金额不能大于可用金额');
+					return;
+				}
+				//当前输入金额
+				var inputMoney = parseFloat(this.money);
+				//剩余可投金额
+				var residue = parseFloat(this.productDetail.residue.replace(/,/g,''));
+				//最小投资金额
+				var minTendSum = parseFloat(this.productDetail.minTenderedSum.replace(/,/g,''));
+				//最大投资金额
+				var maxTenderedSum = this.productDetail.maxTenderedSum>0?parseFloat(this.productDetail.maxTenderedSum.replace(/,/g,'')):9999999999;
+				//剩余可投金额小于
+				if(inputMoney > residue){
+					$.toast('投资金额不能大于剩余可投金额');
+					return;
+				};
+				//剩余可投50>最小投资100
+				if(residue>minTendSum){
+					//当前输入金额60
+					if(inputMoney < minTendSum){
+						$.toast('投资金额不能小于最小投资金额');
+						return;
+					}
+				};
+				if(inputMoney>maxTenderedSum){
+					$.toast('投资金额不能大于最大投资金额');
+					return;
+				};
+				if(this.hasPWD >0 && this.password==''){
+					$.toast('请输入投资密码');
+					return;
+				};
+				var url = '';
+				if(!this.isTiyan){
+					url = '../front/exGoInvest.do';
+					var param = {uid:Storage.getItem('uid'),id:this.$route.query.id,investAmount:this.productDetail.residue,amount:this.userMap.accountSum,borrowSum:this.productDetail.borrowSum,yearRate:this.productDetail.annualRate,borrowTime:this.productDetail.deadline}
+				}else{
+					url = '../front/financeInvest.do';
+					var param = {uid:Storage.getItem('uid'),id:this.$route.query.id,amount:this.money,money:this.voucherAmt,juanId:this.voucherId,subscribes:this.subscribes,hasPwd:this.hasPWD,investPWD:this.password,ipayAccount:this.productDetail.ipayAccount,borrowTitle:encodeURI(this.productDetail.borrowTitle)}
+				};
+				utils.ajax({
+					url:url,
+					data:JSON.stringify(param),
+					dataType:'json',
+					success: function(data){
+						if(data.error=='0'){
+							if(!_this.isTiyan){
+								$.alert('投标成功！',function(){
+									router.go({path:'/index'});
+								});
+								return;
+							};
+							var html = data.html.replace('target="_blank"','');
+							$('#productDetail').html(html);
+						}else{
+							$.alert(data.msg);
+						}
+					}
+				})
+			},
+			pwdInput: function(){
+				if(this.hasPWD >0){
+					return true;
+				}else{
+					return false;
+				}
+			},
+			paymentMode: function(val){
+				if(val==4){
+					return '还款方式： 一次性还款';
+				}else if(val==1){
+					return '还款方式：等额本息';
+				}else{
+					return '还款方式：按月付息，到期还本';
+				}
+			},
+			isLoginOrIn: function(){
+				if(!Storage.getItem('uid')){
+					return '<a href="#!/login?show=true">登录后查看</a>'
+				}else{
+					return this.userMap.usableSum;
+				}
+			},
+			thisHtml: function(borrow){
+				var _this = this;
+				if(borrow == 1){
+					_this.$set('btnText','初审中');
+				}else if(borrow == 2){
+					_this.$set('btnText','立即投标');
+				}else if(borrow == 3){
+					_this.$set('btnText','复审中');
+				}else if(borrow == 4){
+					_this.$set('btnText','还款中');
+				}else if(borrow == 5){
+					_this.$set('btnText','已还完');
+				}else if(borrow == 99){
+					_this.$set('btnText','已投资');
+				}else{
+					_this.$set('btnText','流标');
+				}
+			},
+			voucher:function(){
+				var _this = this;
+				if(!Storage.getItem('uid')){
+					$.toast('请先登录！');
+					return;
+				}
+				if(!(_this.mapListCd.length>0)){
+					$.toast('您暂时没有可用的代金券！');
+					return;
+				};
+				if(_this.cantVoucher){
+					$.toast('请先输入投资金额');
+					return;
+				};
+				var cardList = [],cardId = [],cardMoney=[];
+				for(var i=0;i<_this.mapListCd.length;i++){
+					cardList.push(_this.mapListCd[i].rbName);
+					cardId.push(_this.mapListCd[i].id);
+					cardMoney.push({id:_this.mapListCd[i].id,money:_this.mapListCd[i].money});
+				};
+				cardList.push('不使用代金券');
+				cardId.push('0');
+				cardMoney.push({id:0,money:0});
+				$(this).picker({
+				  toolbarTemplate: '<header class="bar bar-nav bar-picker">\
+				  <button class="button button-link pull-right close-picker">确定</button>\
+				  <h1 class="title">请选择优惠券</h1>\
+				  </header>',
+				  cols: [
+				    {
+				      textAlign: 'center',
+				      displayValues:cardList,
+				      values: cardId
+				    }
+				  ],
+				  onClose: function(obj){
+					   _this.$set('voucherChose',true);
+					   _this.$set('voucherValue',obj.displayValue[0]);
+					   _this.$set('voucherId',obj.value[0]);
+					   var voucherAmt = '';
+					   for(var i=0;i<cardMoney.length;i++){
+						   if(cardMoney[i].id==obj.value[0]){
+							   voucherAmt = cardMoney[i].money;
+							   break;
+						   }
+					   }
+					   _this.$set('voucherAmt',voucherAmt);
+				  }
+				});
+				$(this).picker('open');
+			},
+			borrowTitle:function(title,id){
+				if(id=='3'){
+					return '多金宝-'+title
+				}else if(id=='4'){
+					return '普金保-'+title
+				}else if(id=='5'){
+					return '新手标-'+title
+				}else if(id=='6'){
+					return '恒金保-'+title
+				}else{
+					return '体验标';
+				}
+			},
+			initFundTime:function (){
+				var _this = this;
+				clearInterval(timeInterval);
+				var didTime = _this.productDetail.bidTime.replace(/-/g,'/');
+				var everTime = _this.productDetail.nowDate.replace(/-/g,'/');
+				var EndTime= new Date(didTime);
+				var NowTime = new Date(everTime);
+				var t =EndTime.getTime() - NowTime.getTime();
+				timeInterval = setInterval(function(){
+					t = t-1000;
+				    var d=0;
+				    var h=0;
+				    var m=0;
+				    var s=0;
+				    if(t>0){
+				      d=Math.floor(t/1000/60/60/24);
+				      h=Math.floor(t/1000/60/60%24);
+				      m=Math.floor(t/1000/60%60);
+				      s=Math.floor(t/1000%60);
+				      _this.$set('btnText',d+'天'+h+'时'+m+'分'+s+'秒');
+				      _this.$set('productDetail.borrowStatus','100');
+				    }else{
+				      _this.$set('btnText','立即投标');
+				      _this.$set('productDetail.borrowStatus','2');
+				      clearInterval(timeInterval);
+				    }
+				},1000);
+			 },
+			 AgreeMent:function(val){
+				this.$parent.AgreeMent(val);
+			 },
+			 closeAgreement:function(){
+				this.$parent.closeAgreement();
+			 }
+		},
+		data:function(){
+			return {
+				agreement:'',
+				closeAgree:false,
+				money:'',
+				btnText:'立即投标',
+				password:'',
+				taste:true,
+				subscribes:'',
+				hasPwd:'',
+				investPWD:'',
+				ipayAccount:'',
+				isTiyan:true,
+				minvoucherAmt:99,//优惠券最低使用金额
+				voucherChose:false,//是否显示优惠券
+				voucherValue:'',//优惠券显示字段
+				voucherAmt:'',//优惠券金额
+				voucherId:'',
+				canUseSum:0,//客户可用余额
+				cantVoucher:true,//优惠券是否可操作
+				isNewsPro:false//是否是新手标
+			}
+		},
+		filters:{
+			reckon: function(value,voucherAmt){
+				if(value && value>this.minvoucherAmt){
+					this.$set('cantVoucher',false);
+				}else{
+					this.$set('cantVoucher',true);
+				};
+				if(this.productDetail && !isNaN(value)){
+					if(this.$parent.type == 'tiyan'){
+						var moeny = (this.productDetail.annualRate/1200) * (this.productDetail.deadline/30) * this.userMap.accountSum;
+					}else{
+						if(voucherAmt){
+							var moeny = (this.productDetail.annualRate/1200) * this.productDetail.deadline * (parseFloat(value)+parseFloat(voucherAmt));
+						}else{
+							var moeny = (this.productDetail.annualRate/1200) * this.productDetail.deadline * value;
+						}
+					};
+					return moeny.toFixed(2);
+				}else{
+					return 0.00;
+				}
+			}
+		},
+		ready:function(){
+			$(".detial-layou").scroller('refresh');
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

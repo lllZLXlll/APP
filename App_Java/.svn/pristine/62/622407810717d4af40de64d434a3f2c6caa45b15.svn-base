@@ -1,0 +1,138 @@
+package com.pjzb.service.admin.declare;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.NewsDao;
+import com.pjzb.entity.News;
+import com.pjzb.util.Constants;
+import com.shove.Convert;
+
+/**
+ * 网站咨询
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminWebConsultService extends BaseController {
+
+	@Autowired
+	private NewsDao newsDao;
+
+	public String queryNewsListInit(Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = newsDao.queryNewsListForPage((pageNum - 1) * pageSize, pageSize, true);
+			long count = newsDao.queryNewsListCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询网站咨询异常**************************");
+		}
+		return "/admin/declare/webconsult/list.jsp";
+	}
+
+	public String addNewsInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/declare/webconsult/add.jsp";
+	}
+
+	public Map<String, Object> addNews(News news, String tabid, Long id) throws RuntimeException {
+		news.setUserId(Convert.strToInt(id + "", 1));
+		news.setPublishTime(new Date());
+		long result = newsDao.addNews(news);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "官方公告增加成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "官方公告增加失败", "", "");
+		}
+	}
+
+	public Map<String, Object> deleteWebConsultById(Long id) throws RuntimeException {
+		long result = newsDao.deleteWebConsultById(id);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "删除失败", "", "");
+		}
+	}
+
+	public Map<String, Object> deleteWebConsultByIds(String delids) throws RuntimeException {
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量删除官方公告delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i] + "", 1L));
+			}
+			long result = newsDao.deleteWebConsultByIds(list);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "官方公告删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "官方公告删除失败", "", "");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************批量删除官方公告异常***********");
+		}
+	}
+
+	public String updateWebConsultByIdInit(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("news", newsDao.queryNewsById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询官方公告异常**************************");
+		}
+		return "/admin/declare/webconsult/edit.jsp";
+	}
+
+	public Map<String, Object> updateWebConsultById(News news, String tabid) throws RuntimeException {
+		try {
+			long result = newsDao.updateWebConsultById(news);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "官方公告修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "官方公告修改失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("*********************根据id修改官方公告异常**************************");
+		}
+	}
+
+	public String preViewWebConsultInit(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("news", newsDao.queryNewsById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id预览官方公告异常**************************");
+		}
+		return "/admin/declare/webconsult/preView.jsp";
+	}
+
+}

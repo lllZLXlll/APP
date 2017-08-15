@@ -1,0 +1,220 @@
+package com.pjzb.service.admin.user;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AdminDao;
+import com.pjzb.dao.MenuDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Role;
+import com.pjzb.entity.User;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.IConstants;
+
+/**
+ * 
+ * @describe：管理员列表
+ */
+@Service
+public class AdminManagerListService extends BaseController {
+
+	@Autowired
+	private AdminDao adminDao;
+
+	@Autowired
+	private MenuDao menuDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	/**
+	 * 
+	 * @describe:查询管理员列表
+	 * @author: xiaojin
+	 * @param userName
+	 * @param enable
+	 * @param roleId
+	 * @param pageNum
+	 * @param pageSize
+	 * @param model
+	 * @param tabid
+	 * @return
+	 */
+	public String queryAdminList(String userName, Integer enable, Long roleId, Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = ConvertUtil.convertObjToStr(userName);
+			List<Map<String, Object>> list = adminDao.queryAdminList(userName, enable, roleId, (pageNum - 1) * pageSize, pageSize);
+			long count = adminDao.queryAdminCount(userName, enable, roleId);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("enable", enable);
+			model.addAttribute("roleId", roleId);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("group", menuDao.queryRoleList(null, null, false));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询推荐人异常**************************");
+		}
+		return "/admin/user/adminlist/list.jsp";
+	}
+
+	public Map<String, Object> updateAdminEnable(Admin admin) {
+		String msg = null;
+		long result = adminDao.updateAdminById(admin);
+		Integer type = admin.getEnable();
+		if (type == 1) {
+			msg = "启用";
+		} else {
+			msg = "禁用";
+		}
+		if (result > 0) {
+			return ajaxDoneInfo("200", "管理员" + msg + "成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "管理员" + msg + "失败", "", "");
+		}
+	}
+
+	public String querySaveOrUpdateAdminInit(Model model, Long id, String tabid) {
+		Admin admin = null;
+		if (id != null) {
+			admin = adminDao.queryAdminById(id);
+		}
+		Long roleId = null;
+		roleId = admin == null ? -2 : admin.getRoleId();
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("id", id);
+		model.addAttribute("adminInfo", admin);
+		model.addAttribute("roleId", roleId);
+		List<Role> list = menuDao.queryRoleList(null, null, false);
+		model.addAttribute("group", list);
+		return "/admin/user/adminlist/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> saveOrUpdateAdmin(Admin admin, String mgrId, Admin admin2, String tabid, String ip) {
+		mgrId = ConvertUtil.convertObjToStr(mgrId);
+		if (mgrId == null) {
+			return ajaxDoneInfo("300", "请输入维护经理ID", "", "");
+		}
+		String regex = "^\\+?[1-9][0-9]*$";
+		Long userId = null;
+
+		if (!mgrId.matches(regex) && !mgrId.equals("0")) {
+			return ajaxDoneInfo("300", "请输入正确的维护经理ID", "", "");
+		}
+
+		userId = Long.parseLong(String.valueOf(mgrId));
+		if (userId > 0) {
+			User user = userDao.queryUserById(userId);
+			if (user == null) {
+				return ajaxDoneInfo("300", "该维护经理ID不存在", "", "");
+			}
+			admin.setLoanUserId(userId);
+		}
+
+		Long id = admin.getId();
+		String isLeader = admin.getIsLeader();
+		isLeader = isLeader == null ? "2" : isLeader;
+		admin.setIsLeader(isLeader);
+		String userName = admin.getUserName().trim();
+		String password = com.shove.security.Encrypt.MD5(admin.getPassword().trim() + IConstants.PASS_KEY);// 对密码进行转码
+		admin.setUserName(userName);
+		admin.setPassword(password);
+		if (id == null) {
+			Admin admin3 = adminDao.queryAdminByUserName(admin.getUserName().trim());
+			if (admin3 != null) {
+				return ajaxDoneInfo("300", "该管理员已经存在", "", "");
+			}
+			admin.setLastIp(ip);
+			admin.setLoginErrorCount(0);
+			admin.setIsLoginLimit(1);
+			admin.setIsFirstLogin(2);
+			long result = adminDao.addAdmin(admin);
+			long userResult = 0;
+			if (userId > 0) {
+				User user2 = new User();
+				user2.setIsLoanManager(2);
+				user2.setId(userId);
+				userResult = userDao.updateUser(user2);
+			} else {
+				userResult = 1;
+			}
+			if (result > 0 && userResult > 0) {
+				OperationLog operationLog = new OperationLog();
+				operationLog.setOperationTable("t_admin");
+				operationLog.setOperationUser(admin2.getUserName());
+				operationLog.setOperationIp(ip);
+				operationLog.setOperationType(0);
+				operationLog.setOperationMoney(0d);
+				operationLog.setOperationRemarks("新增管理员-" + admin.getUserName());
+				operationLog.setUserId(admin.getId());
+				operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+				operationLog.setOperationTime(new Date());
+				operationLogDao.addOperationLog(operationLog);
+				return ajaxDoneInfo("200", "管理员增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "管理员增加失败", "", "");
+			}
+		} else {
+			long result = adminDao.updateAdminById(admin);
+			if (result > 0) {
+				OperationLog operationLog = new OperationLog();
+				operationLog.setOperationTable("t_admin");
+				operationLog.setOperationUser(admin2.getUserName());
+				operationLog.setOperationIp(ip);
+				operationLog.setOperationType(0);
+				operationLog.setOperationMoney(0d);
+				operationLog.setOperationRemarks("修改管理员-" + admin.getUserName());
+				operationLog.setUserId(admin.getId());
+				operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+				operationLog.setOperationTime(new Date());
+				operationLogDao.addOperationLog(operationLog);
+				return ajaxDoneInfo("200", "管理修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "管理修改失败", "", "");
+			}
+		}
+	}
+
+	public Map<String, Object> deleteAdminById(Long id, Admin admin, String ip) {
+		long result = adminDao.deleteAdminById(id);
+		if (result > 0) {
+			OperationLog operationLog = new OperationLog();
+			operationLog.setOperationTable("t_admin");
+			operationLog.setOperationUser(admin.getUserName());
+			operationLog.setOperationIp(ip);
+			operationLog.setOperationType(0);
+			operationLog.setOperationMoney(0d);
+			operationLog.setOperationRemarks("删除管理员");
+			operationLog.setUserId(admin.getId());
+			operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+			operationLog.setOperationTime(new Date());
+			operationLogDao.addOperationLog(operationLog);
+			return ajaxDoneInfo("200", "管理员删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "管理员删除失败", "", "");
+		}
+	}
+
+}

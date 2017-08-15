@@ -1,0 +1,416 @@
+package com.pjzb.controller.front;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.service.common.UserService;
+import com.pjzb.service.front.BorrowInfoService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+import com.shove.data.DataException;
+
+/**
+ * 投资理财、查询投资详情、理财体验标、标的详情、相关文件、投资记录、投标、还款计划Controller
+ * 
+ * @author xiaojin
+ * 
+ */
+@Controller
+@RequestMapping(value = "/front")
+public class FrontBorrowInfoController extends BaseController {
+	public static Log log = LogFactory.getLog(FrontBorrowInfoController.class);
+
+	@Autowired
+	private BorrowInfoService borrowInfoService;
+
+	@Autowired
+	private UserService userService;
+
+	/**
+	 * 投资理财
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/financeList")
+	@ResponseBody
+	public Map<String, Object> financeList() {
+		// 前台显示列表类型
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+
+			String t = String.valueOf(jsonObject.get("tt"));
+			String y = String.valueOf(jsonObject.get("yy"));
+			String x = String.valueOf(jsonObject.get("xx"));
+			String titles = String.valueOf(jsonObject.get("titles"));
+			int flagesint = Convert.strToInt(String.valueOf(jsonObject.get("flages")), 0);
+			int timeersint = Convert.strToInt(String.valueOf(jsonObject.get("timeers")), 1);
+			int deadlinesint = Convert.strToInt(String.valueOf(jsonObject.get("deadlines")), 1);
+			int ratesint = Convert.strToInt(String.valueOf(jsonObject.get("rates")), 1);
+			Long curPage = Convert.strToLong(String.valueOf(jsonObject.get(Constants.CURPAGE)), Constants.LONG_1);
+
+			HashMap<String, Object> returnMap = BorrowInfoService.paramChangeToMap(jsonObject);
+			PageBean pageBean = borrowInfoService.queryBorrowByCondition(returnMap, curPage, Constants.PAGE_SIZE_10);
+
+			jsonMap.put("pageBean", pageBean);
+			jsonMap.put("t", t);
+			jsonMap.put("y", y);
+			jsonMap.put("x", x);
+			jsonMap.put("flages", flagesint);
+			jsonMap.put("rates", ratesint);
+			jsonMap.put("timeers", timeersint);
+			jsonMap.put("deadlines", deadlinesint);
+			jsonMap.put("titles", titles);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查看投资列表异常");
+			log.error(e);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 查询投资详情
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/queryBorrowDetail")
+	@ResponseBody
+	public Map<String, Object> queryBorrowDetail() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			jsonMap = borrowInfoService.checkBorrowDetailReturnMap(jsonObject, getSessionUserInfo(), chosese());
+			return jsonMap;
+		} catch (Exception e) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查询标的详情异常");
+			log.error(e);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 投资记录(新版)
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/findInvestmentRecordByBorrowId")
+	@ResponseBody
+	public Map<String, Object> findInvestmentRecordByBorrowId() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			String pageType = chosese();
+			if (pageType.equalsIgnoreCase(Constants.PHONEPAGE)) {
+				// 借款详细
+				// 投资记录
+				String id = jsonObject.get("id") == null ? "" : jsonObject.get("id") + "";
+				if (StringUtils.isBlank(id)) {
+					jsonMap.put("error", "1");
+					jsonMap.put("msg", "借款ID不能为空");
+					return jsonMap;
+				}
+				long idLong = Convert.strToLong(id, -1);
+				if (idLong == -1) {
+					// 非法操作直接返回
+					jsonMap.put("error", "2");
+					jsonMap.put("msg", IConstants.ACTOIN_ILLEGAL);
+					return jsonMap;
+				}
+				List<Map<String, Object>> investList = borrowInfoService.queryInvestByid(idLong);
+				jsonMap.put("investList", investList);
+				jsonMap.put("error", "0");
+				jsonMap.put("msg", "投资记录查询成功");
+			} else {
+				String id = jsonObject.get("borrowId") == null ? "" : jsonObject.get("borrowId") + "";
+				if (StringUtils.isBlank(id)) {
+					jsonMap.put("error", "1");
+					jsonMap.put("msg", "借款ID不能为空");
+					return jsonMap;
+				}
+				long idLong = Convert.strToLong(id, -1);
+				if (idLong == -1) {
+					// 非法操作直接返回
+					jsonMap.put("error", "2");
+					jsonMap.put("msg", IConstants.ACTOIN_ILLEGAL);
+					return jsonMap;
+				}
+				String pagenoStr = String.valueOf(jsonObject.get("curPage"));
+				String borrowIdStr = String.valueOf(jsonObject.get("borrowId"));
+				Long curPage = Long.parseLong(pagenoStr);
+				Long borrowId = Long.parseLong(borrowIdStr);
+				PageBean pageBean = borrowInfoService.queryInvestByCondition(borrowId, curPage, Constants.PAGE_SIZE_10, pageType);
+				jsonMap.put("error", "0");
+				jsonMap.put("pageBean", pageBean);
+				jsonMap.put("msg", "投资记录查询成功");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "投资记录查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 查询标的相关文件
+	 * 
+	 * @return
+	 * @throws SQLException
+	 * @throws DataException
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/financeAuditByBorrowId")
+	@ResponseBody
+	public Map<String, Object> financeAuditByBorrowId() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			String borrowIdStr = String.valueOf(jsonObject.get("borrowId"));
+			// 借款人认证资料
+			List<Map<String, Object>> list = borrowInfoService.queryUserIdentifiedByidAdmin(Long.parseLong(borrowIdStr));
+			jsonMap.put("auditList", list);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "查看认证资料异常," + Constants.CUSTOMER_MSG);
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * @MethodName: showImg
+	 * @Param: FrontMyFinanceAction
+	 * @Author: gang.lv
+	 * @Date: 2013-4-16 上午11:24:03
+	 * @Return:
+	 * @Descb: 查看图片
+	 * @Throws:
+	 */
+	@RequestMapping(value = "/showImg")
+	@ResponseBody
+	public Map<String, Object> showImg() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			String typeId = jsonObject.get("typeId").toString();
+			if (StringUtils.isBlank(typeId)) {
+				jsonMap.put("error", "1");
+				jsonMap.put("msg", "类型ID不能为空");
+				return jsonMap;
+			}
+			String userId = jsonObject.get("userId").toString();
+			if (StringUtils.isBlank(userId)) {
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "用户ID不能为空");
+				return jsonMap;
+			}
+			long typeIdLong = Convert.strToLong(typeId, -1);
+			long userIdLong = Convert.strToLong(userId, -1);
+			String groupId = jsonObject.get("groupId").toString();
+			List<Map<String, Object>> imgList = borrowInfoService.queryUserImageByid(typeIdLong, userIdLong, Integer.parseInt(groupId));
+			jsonMap.put("imgList", imgList);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查看成功");
+		} catch (Exception e) {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "查看图片异常，" + Constants.CUSTOMER_MSG);
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 还款计划
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/repaymentPlan")
+	@ResponseBody
+	public Map<String, Object> repaymentPlan() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			String id = String.valueOf(jsonObject.get("borrowId"));
+			long idLong = Convert.strToLong(id, -1);
+			// 借款人还款记录
+			List<Map<String, Object>> list = borrowInfoService.queryRePayByid(idLong);
+			jsonMap.put("repayList", list);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "还款计划查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * @Param: FrontMyFinanceAction
+	 * @Author: tangjielong
+	 * @Date: 2016-6-13 13:17:57
+	 * @Return:
+	 * @Descb: 体验金方式2初始化
+	 * @Throws:
+	 */
+	@RequestMapping(value = "/experBorrowInit")
+	@ResponseBody
+	public Map<String, Object> experBorrowInit() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.putAll(borrowInfoService.openBorrowInit(getSessionUserId(), chosese()));
+		} catch (Exception e) {
+			jsonMap.put("error", "6");
+			jsonMap.put("msg", "体验标初始化异常，" + Constants.CUSTOMER_MSG);
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * @MethodName: financeInvestInit
+	 * @Param: FrontMyFinanceAction
+	 * @Author: gang.lv
+	 * @Date: 2013-3-20 上午08:20:57
+	 * @Return:
+	 * @Descb: 理财投标初始化
+	 * @Throws:
+	 */
+	@RequestMapping(value = "/financeInvestInit")
+	@ResponseBody
+	public Map<String, Object> financeInvestInit() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			jsonMap = borrowInfoService.queryInvestInitReturnMap(jsonObject);
+			if (!jsonMap.get("error").equals("0")) {
+				return jsonMap;
+			}
+			session().setAttribute("investStatus", "ok");
+		} catch (Exception e) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "投标初始化异常");
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 投标
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/financeInvest")
+	@ResponseBody
+	public Map<String, Object> financeInvest() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求非法");
+				return jsonMap;
+			}
+			jsonMap.putAll(borrowInfoService.saveFinanceInvest(getSessionUserId(), jsonObject, chosese(), getBasePath()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			jsonMap.put("error", "10");
+			jsonMap.put("msg", "投标异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * @MethodName: exGoInvest
+	 * @Return:
+	 * @Descb: 体验标投标
+	 */
+	@RequestMapping(value = "/exGoInvest")
+	@ResponseBody
+	public Map<String, Object> exGoInvest() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			jsonMap = borrowInfoService.saveExGoInvest(getSessionUserId(), jsonObject, chosese(), getBasePath());
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "体验标投标异常");
+		} finally {
+			userService.updateSign(getSessionUserId());
+		}
+		return jsonMap;
+	}
+
+}

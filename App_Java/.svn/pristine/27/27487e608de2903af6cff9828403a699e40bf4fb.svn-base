@@ -1,0 +1,81 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.ReleaseAlsoReconciliationDao;
+import com.pjzb.util.Constants;
+import com.shove.web.Utility;
+/**
+ * 放还款对账记录管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminReleaseRepayRecordService extends BaseController {
+
+	@Autowired
+	private ReleaseAlsoReconciliationDao releaseAlsoReconciliationDao;
+	
+	public String queryReconciliationInit(Model model, String tabid, Long pageNum, Long pageSize, String investCustId, String borrCustId, String queryTransType) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			queryTransType = queryTransType == null ? "" : queryTransType;
+			investCustId = investCustId == null ? "" : investCustId;
+			borrCustId = borrCustId == null ? "" : borrCustId;
+			investCustId = Utility.filteSqlInfusion(investCustId);
+			borrCustId = Utility.filteSqlInfusion(borrCustId);
+			List<Map<String, Object>> list = releaseAlsoReconciliationDao.queryReconciliationList((pageNum - 1) * pageSize, pageSize, investCustId, borrCustId, queryTransType);
+			long count = releaseAlsoReconciliationDao.queryReconciliationCount(investCustId, borrCustId, queryTransType);
+			Map<String, Object> map = releaseAlsoReconciliationDao.queryMoneySum();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("investCustId", investCustId);
+			model.addAttribute("borrCustId", borrCustId);
+			model.addAttribute("queryTransType", queryTransType);
+			model.addAttribute("map", map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************放还款对账查询记录异常**************************");
+		}
+		return "/admin/fund/releaserepayrecord/list.jsp";
+	}
+
+	public String queryDivide_Account(Model model, String tabid, Long pageNum, Long pageSize, String ordId) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			ordId = ordId == null ? "" : ordId;
+			ordId = Utility.filteSqlInfusion(ordId);
+			List<Map<String, Object>> list = releaseAlsoReconciliationDao.queryDivide_AccountList((pageNum - 1) * pageSize, pageSize, ordId);
+			long count = releaseAlsoReconciliationDao.queryDivide_AccountCount(ordId);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("ordId", ordId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分账信息详情查询异常**************************");
+		}
+		return "/admin/fund/releaserepayrecord/listDtail.jsp";
+	}
+
+}

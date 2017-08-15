@@ -1,0 +1,118 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * InvestRepayMessage entity. @author MyEclipse Persistence Tools
+ */
+
+public class InvestRepayMessage implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long investRepayId;
+	private String messageContent;
+	private Long borrowId;
+	private Integer dataType;
+	private Date sendTime;
+	private Long userId;
+	private Integer userType;
+	private Integer mesageSendStatus;
+
+	// Constructors
+
+	/** default constructor */
+	public InvestRepayMessage() {
+	}
+
+	/** full constructor */
+	public InvestRepayMessage(Long investRepayId, String messageContent,
+			Long borrowId, Integer dataType, Date sendTime, Long userId,
+			Integer userType, Integer mesageSendStatus) {
+		this.investRepayId = investRepayId;
+		this.messageContent = messageContent;
+		this.borrowId = borrowId;
+		this.dataType = dataType;
+		this.sendTime = sendTime;
+		this.userId = userId;
+		this.userType = userType;
+		this.mesageSendStatus = mesageSendStatus;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getInvestRepayId() {
+		return this.investRepayId;
+	}
+
+	public void setInvestRepayId(Long investRepayId) {
+		this.investRepayId = investRepayId;
+	}
+
+	public String getMessageContent() {
+		return this.messageContent;
+	}
+
+	public void setMessageContent(String messageContent) {
+		this.messageContent = messageContent;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Integer getDataType() {
+		return this.dataType;
+	}
+
+	public void setDataType(Integer dataType) {
+		this.dataType = dataType;
+	}
+
+	public Date getSendTime() {
+		return this.sendTime;
+	}
+
+	public void setSendTime(Date sendTime) {
+		this.sendTime = sendTime;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Integer getUserType() {
+		return this.userType;
+	}
+
+	public void setUserType(Integer userType) {
+		this.userType = userType;
+	}
+
+	public Integer getMesageSendStatus() {
+		return this.mesageSendStatus;
+	}
+
+	public void setMesageSendStatus(Integer mesageSendStatus) {
+		this.mesageSendStatus = mesageSendStatus;
+	}
+
+}

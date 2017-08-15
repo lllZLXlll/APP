@@ -1,0 +1,116 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * BorrowAmountType entity. @author MyEclipse Persistence Tools
+ */
+
+public class BorrowAmountType implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String name;
+	private String nid;
+	private Integer onceStatus;
+	private String title;
+	private String description;
+	private Integer status;
+	private String remark;
+	private Long initCredit;
+
+	// Constructors
+
+	/** default constructor */
+	public BorrowAmountType() {
+	}
+
+	/** full constructor */
+	public BorrowAmountType(String name, String nid, Integer onceStatus,
+			String title, String description, Integer status, String remark,
+			Long initCredit) {
+		this.name = name;
+		this.nid = nid;
+		this.onceStatus = onceStatus;
+		this.title = title;
+		this.description = description;
+		this.status = status;
+		this.remark = remark;
+		this.initCredit = initCredit;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getNid() {
+		return this.nid;
+	}
+
+	public void setNid(String nid) {
+		this.nid = nid;
+	}
+
+	public Integer getOnceStatus() {
+		return this.onceStatus;
+	}
+
+	public void setOnceStatus(Integer onceStatus) {
+		this.onceStatus = onceStatus;
+	}
+
+	public String getTitle() {
+		return this.title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public Long getInitCredit() {
+		return this.initCredit;
+	}
+
+	public void setInitCredit(Long initCredit) {
+		this.initCredit = initCredit;
+	}
+
+}

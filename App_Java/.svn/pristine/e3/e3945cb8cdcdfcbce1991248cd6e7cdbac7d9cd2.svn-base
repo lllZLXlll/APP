@@ -1,0 +1,86 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * LoanManageFile entity. @author MyEclipse Persistence Tools
+ */
+
+public class LoanManageFile implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String filePath;
+	private Long loanmanagerId;
+	private Date uploadTime;
+	private String fileName;
+	private String type;
+
+	// Constructors
+
+	/** default constructor */
+	public LoanManageFile() {
+	}
+
+	/** full constructor */
+	public LoanManageFile(String filePath, Long loanmanagerId, Date uploadTime, String fileName, String type) {
+		this.filePath = filePath;
+		this.loanmanagerId = loanmanagerId;
+		this.uploadTime = uploadTime;
+		this.fileName = fileName;
+		this.type = type;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getFilePath() {
+		return this.filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	public Long getLoanmanagerId() {
+		return this.loanmanagerId;
+	}
+
+	public void setLoanmanagerId(Long loanmanagerId) {
+		this.loanmanagerId = loanmanagerId;
+	}
+
+	public Date getUploadTime() {
+		return this.uploadTime;
+	}
+
+	public void setUploadTime(Date uploadTime) {
+		this.uploadTime = uploadTime;
+	}
+
+	public String getFileName() {
+		return this.fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+}

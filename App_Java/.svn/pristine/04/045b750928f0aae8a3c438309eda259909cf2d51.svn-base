@@ -1,0 +1,53 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.ApproveNoticeStyle;
+import com.pjzb.entity.ApproveNoticeTemplate;
+import com.pjzb.entity.SiteInformation;
+
+/**
+ * 提醒方式 记录
+ * 
+ */
+public interface ApproveNoticeTemplateDao {
+
+	// t_approve_notice_template表begin
+	public List<Map<String, Object>> queryAllInformTemplate();
+
+	public String queryApproveNoticeTemplateByNid(String nid);
+
+	public Map<String, Object> queryApproveNoticeTemplateById(Integer noticeStyle, Long id);
+
+	public long updateApproveNoticeTemplateById(ApproveNoticeTemplate approveNoticeTemplate);
+
+	// t_approve_notice_template表end
+
+	// t_approve_notice_style表begin
+
+	public List<ApproveNoticeStyle> queryApproveNoticeStyleListByType(@Param(value = "noticeStyle") Integer noticeStyle,
+			@Param(value = "index") long index, @Param(value = "pageSize") long pageSize);
+
+	public long queryApproveNoticeStyleCountByType(@Param(value = "noticeStyle") Integer noticeStyle);
+
+	public ApproveNoticeStyle queryApproveNoticeStyleById(long id);
+
+	public long updateApproveNoticeStyleById(ApproveNoticeStyle approveNoticeStyle);
+
+	public List<Map<String, Object>> queryApproveNoticeStyleDetailByType(Integer noticeStyle, Long id, long index, long pageSize);
+
+	public long queryApproveNoticeStyleDetailCountByType(Integer noticeStyle, Long id);
+
+	// t_approve_notice_style表end
+
+	// t_site_information表begin
+	public SiteInformation querySiteInformation();
+
+	public long updateSiteInformationById(SiteInformation siteInformation);
+
+	// t_site_information表end
+
+}

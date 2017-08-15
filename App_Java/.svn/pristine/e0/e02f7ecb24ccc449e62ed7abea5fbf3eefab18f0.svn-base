@@ -1,0 +1,74 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.util.Constants;
+
+/**
+ * 所有借款
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminAllborrowService extends BaseController{
+	
+	@Autowired
+	private BorrowDao borrowDao;
+
+	
+	public String queryBorrowAll(Model model,Long pageNum,Long pageSize,String userName, Long borrowWay,Long borrowStatus, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" : userName;
+			borrowWay = borrowWay == null ? -1 : borrowWay;
+			borrowStatus = borrowStatus == null ? -1 : borrowStatus;
+			
+			List<Map<String, Object>> list=borrowDao.queryBorrowAll(userName, borrowWay, borrowStatus,(pageNum-1)*pageSize,pageSize);
+			long borrowAllCount=borrowDao.queryBorrowAllCount(userName, borrowWay,borrowStatus);
+			PageBean pageBean=new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPage(list);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(borrowAllCount);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("borrowStatus", borrowStatus);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询所有借款异常********************");
+		}
+		return "/admin/borrow/allborrow/list.jsp";
+	}
+	
+	public Map<String, Object> updateBorrowerRecommend(Model model, Long borrowId, Integer recommend) {
+		//recommend==1表示推荐标的，需要判断已经有几个推荐标的
+		if(recommend==1){
+			long recommendCount = borrowDao.queryBorrowerRecommendCount();
+			if(recommendCount>=3){
+				return ajaxDoneInfo("300", "只能推荐3个标,若要继续推荐请取消其他已推荐的标", "", "");
+			}
+		}
+		long result = borrowDao.updateBorrowerRecommend(recommend,borrowId);
+		
+		if (result > 0) {
+			return ajaxDoneInfo("200", "设置成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "设置失败", "", "");
+		}
+	}
+	
+
+
+}

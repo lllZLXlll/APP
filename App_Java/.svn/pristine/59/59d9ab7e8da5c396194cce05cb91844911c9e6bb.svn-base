@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>登录-普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<link rel="stylesheet" href="src/css/public.css">
+	<link rel="stylesheet" href="src/css/login.css">
+</head>
+<body>
+	<div class="nav-out">
+		<div class="wrap cl">
+			<div class="logo"><a href="index.html"><img src="src/images/logo.png" alt="普金资本"></a></div>
+			<p class="index"><a href="index.html" class="icon icon-home">普金资本首页</a></p>
+		</div>
+	</div>
+	<div class="login-content">
+		<div class="wrap">
+			<div class="login-box">
+				<div class="login-top cl">
+					<p class="welcome">欢迎登录</p>
+					<p>没有账户，<a href="regist.html">免费注册</a></p>
+				</div>
+				<p class="error-msg icon icon-error"></p>
+				<div class="from">
+					<label for="username" class="icon icon-user"></label>
+					<input type="text" name="username" id="username" autocomplete="off" placeholder="输入用户名/手机号/邮箱"/>
+				</div>
+				<div class="from">
+					<label for="password" class="icon icon-pwd"></label>
+					<input type="password" name=""  id="password" autocomplete="new-password" placeholder="输入登录密码"/>
+				</div>
+				<div class="from">
+					<div class="pull-box">
+						<div class="pull-bg" style="width: 0px;"></div>
+						<div class="pull-default">请按住滑块，拖动到最右边</div>
+						<div class="pull-btn"></div>
+					</div>
+				</div>
+				<button class="btn"  type="button">登录</button>
+				<div class="forget">
+					<a href="recoverpwd.html">忘记密码</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="login-footer">
+		<p>版权所有 © 普金资本运营（赣州）有限公司 All rights reserved 备案确认书：赣ICP备16004010号</p>
+	</div>
+	<script type="text/javascript" src="src/libs/jquery.js"></script>
+	<script type="text/javascript" src="src/libs/public.js"></script>
+	<script type="text/javascript" src="scripts/login.js"></script>
+</body>
+</html>

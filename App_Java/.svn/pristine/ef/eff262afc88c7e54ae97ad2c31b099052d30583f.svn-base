@@ -1,0 +1,50 @@
+define(function (require,exports,module) {
+	//首页
+	var VueComponent = Vue.extend({
+		ready:function(){
+			this.$set('listData',this.$parent.listData);
+		},
+		data: function(){
+			return {
+				listData:[]
+			}
+		},
+		methods:{
+			toBid: function(list){
+				if(!Storage.getItem('uid')){
+					$.alert('您未登录，请登录后再投标！',function(){
+						router.go({name:'login',query:{show:true}});
+					})
+					return;
+				};
+				if(!Storage.getItem('ipayAccount')){
+					$.alert('您还未注册汇付，请先注册汇付！',function(){
+						router.go({path:'/registpay'});
+					});
+					return;
+				};
+				if(list.borrowStatus!=2){return};
+				router.go({name:'detail',query:{id:list.id,type:'tiyan'}});
+			},
+			showTiYan:function(){
+				if(this.listData.length>0){
+					return false;
+				}else{
+					return true;
+				}
+			}
+		},
+		template:'<div class="pro-content" v-if="showTiYan()">'+
+	          '<ul class="row no-gutter">'+
+	            '<li class="col-40"><p>理财体验标</p><span>首次注册用户专享</span></li>'+
+	            '<li class="col-25"><p>{{listData.annualRate}}%</p><span>年利率</span></li>'+
+	            '<li class="col-33"><p>{{listData.deadline}}<em>天</em></p><span>投资期限</span></li>'+
+	          '</ul>'+
+	          '<div class="pro-submit">'+
+	            '<p><button @click="toBid(listData)" class="btn btn-buy">立即投标</button></p>'+
+	          '</div>'+
+	          '<img class="pro-img" src="images/ty.png" alt="">'+
+	        '</div>'
+	});
+	module.exports = VueComponent;
+})

@@ -1,0 +1,55 @@
+<div class="about-right-nav">
+	<div class="sub-a-nav">
+		<a href="javascript:void(0);" class="active" id="sssj">实时数据</a>
+		<a href="javascript:void(0);" id="yybg">运营报告</a>
+	</div>
+	<em class="em-line"></em>
+</div>
+<div class="about-content" id="sssjDiv">
+	<div class="btnDiv">
+		撮合交易总额（元）
+	</div>
+	<div class="moneyDiv">
+		<div class="item_Div_test">0</div>
+	</div>
+	<div class="sjList">
+		<div class="item">
+			<div class="itemText">交易笔数（笔）</div>
+			<div class="itemSJ" id="dealNumber">0</div>
+		</div>
+		<div class="item">
+			<div class="itemText">已还本金（元）</div>
+			<div class="itemSJ" id="repayAmount">0</div>
+		</div>
+		<div class="item">
+			<div class="itemText">待还本金（元）</div>
+			<div class="itemSJ" id="unRepayAmount">0</div>
+		</div>
+		<div class="item2">
+			<div class="itemText">为用户创造的收益（元）</div>
+			<div class="itemSJ" id="hasInterest">0</div>
+		</div>
+		
+		<div class="item">
+			<div class="itemText">注册用户数（人）</div>
+			<div class="itemSJ" id="userTotal">0</div>
+		</div>
+		<div class="item">
+			<div class="itemText">出借人数量（人）</div>
+			<div class="itemSJ" id="investorCount">0</div>
+		</div>
+		<div class="item">
+			<div class="itemText" >人均累计投资金额（元）</div>
+			<div class="itemSJ" id="avgUserInvest">0</div>
+		</div>
+		<div class="item2">
+			<div class="itemText">笔均投资额（元）</div>
+			<div class="itemSJ" id="avgInvest">0</div>
+		</div>
+	</div>
+</div>
+<div class="about-content" id="yybgDiv">
+	<div class="tableDiv">
+		
+	</div>
+</div>

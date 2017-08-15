@@ -1,0 +1,252 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Redmoneyrecord entity. @author MyEclipse Persistence Tools
+ */
+
+public class Redmoneyrecord implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Double money;
+	private String rbName;
+	private Long uid;
+	private Date inserttime;
+	private Integer activesatus;
+	private Date activetime;
+	private Integer usestatus;
+	private Date usetime;
+	private Integer islock;
+	private Date lockendtime;
+	private String redmoneytype;
+	private Long loansignid;
+	private String recivecode;
+	private Long loanrcordid;
+	private String isshow;
+	private Double mintendMoney;
+	private Double redmoneytype2;
+	private Date useendtime;
+	private Integer ismoneysatus;
+	private Double handleMoney;
+	private Long rechargeUid;
+
+	// Constructors
+
+	/** default constructor */
+	public Redmoneyrecord() {
+	}
+
+	/** full constructor */
+	public Redmoneyrecord(Double money, String rbName, Long uid,
+			Date inserttime, Integer activesatus, Date activetime,
+			Integer usestatus, Date usetime, Integer islock,
+			Date lockendtime, String redmoneytype, Long loansignid,
+			String recivecode, Long loanrcordid, String isshow,
+			Double mintendMoney, Double redmoneytype2, Date useendtime,
+			Integer ismoneysatus, Double handleMoney, Long rechargeUid) {
+		this.money = money;
+		this.rbName = rbName;
+		this.uid = uid;
+		this.inserttime = inserttime;
+		this.activesatus = activesatus;
+		this.activetime = activetime;
+		this.usestatus = usestatus;
+		this.usetime = usetime;
+		this.islock = islock;
+		this.lockendtime = lockendtime;
+		this.redmoneytype = redmoneytype;
+		this.loansignid = loansignid;
+		this.recivecode = recivecode;
+		this.loanrcordid = loanrcordid;
+		this.isshow = isshow;
+		this.mintendMoney = mintendMoney;
+		this.redmoneytype2 = redmoneytype2;
+		this.useendtime = useendtime;
+		this.ismoneysatus = ismoneysatus;
+		this.handleMoney = handleMoney;
+		this.rechargeUid = rechargeUid;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Double getMoney() {
+		return this.money;
+	}
+
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+
+	public String getRbName() {
+		return this.rbName;
+	}
+
+	public void setRbName(String rbName) {
+		this.rbName = rbName;
+	}
+
+	public Long getUid() {
+		return this.uid;
+	}
+
+	public void setUid(Long uid) {
+		this.uid = uid;
+	}
+
+	public Date getInserttime() {
+		return this.inserttime;
+	}
+
+	public void setInserttime(Date inserttime) {
+		this.inserttime = inserttime;
+	}
+
+	public Integer getActivesatus() {
+		return this.activesatus;
+	}
+
+	public void setActivesatus(Integer activesatus) {
+		this.activesatus = activesatus;
+	}
+
+	public Date getActivetime() {
+		return this.activetime;
+	}
+
+	public void setActivetime(Date activetime) {
+		this.activetime = activetime;
+	}
+
+	public Integer getUsestatus() {
+		return this.usestatus;
+	}
+
+	public void setUsestatus(Integer usestatus) {
+		this.usestatus = usestatus;
+	}
+
+	public Date getUsetime() {
+		return this.usetime;
+	}
+
+	public void setUsetime(Date usetime) {
+		this.usetime = usetime;
+	}
+
+	public Integer getIslock() {
+		return this.islock;
+	}
+
+	public void setIslock(Integer islock) {
+		this.islock = islock;
+	}
+
+	public Date getLockendtime() {
+		return this.lockendtime;
+	}
+
+	public void setLockendtime(Date lockendtime) {
+		this.lockendtime = lockendtime;
+	}
+
+	public String getRedmoneytype() {
+		return this.redmoneytype;
+	}
+
+	public void setRedmoneytype(String redmoneytype) {
+		this.redmoneytype = redmoneytype;
+	}
+
+	public Long getLoansignid() {
+		return this.loansignid;
+	}
+
+	public void setLoansignid(Long loansignid) {
+		this.loansignid = loansignid;
+	}
+
+	public String getRecivecode() {
+		return this.recivecode;
+	}
+
+	public void setRecivecode(String recivecode) {
+		this.recivecode = recivecode;
+	}
+
+	public Long getLoanrcordid() {
+		return this.loanrcordid;
+	}
+
+	public void setLoanrcordid(Long loanrcordid) {
+		this.loanrcordid = loanrcordid;
+	}
+
+	public String getIsshow() {
+		return this.isshow;
+	}
+
+	public void setIsshow(String isshow) {
+		this.isshow = isshow;
+	}
+
+	public Double getMintendMoney() {
+		return this.mintendMoney;
+	}
+
+	public void setMintendMoney(Double mintendMoney) {
+		this.mintendMoney = mintendMoney;
+	}
+
+	public Double getRedmoneytype2() {
+		return this.redmoneytype2;
+	}
+
+	public void setRedmoneytype2(Double redmoneytype2) {
+		this.redmoneytype2 = redmoneytype2;
+	}
+
+	public Date getUseendtime() {
+		return this.useendtime;
+	}
+
+	public void setUseendtime(Date useendtime) {
+		this.useendtime = useendtime;
+	}
+
+	public Integer getIsmoneysatus() {
+		return this.ismoneysatus;
+	}
+
+	public void setIsmoneysatus(Integer ismoneysatus) {
+		this.ismoneysatus = ismoneysatus;
+	}
+
+	public Double getHandleMoney() {
+		return this.handleMoney;
+	}
+
+	public void setHandleMoney(Double handleMoney) {
+		this.handleMoney = handleMoney;
+	}
+
+	public Long getRechargeUid() {
+		return this.rechargeUid;
+	}
+
+	public void setRechargeUid(Long rechargeUid) {
+		this.rechargeUid = rechargeUid;
+	}
+
+}

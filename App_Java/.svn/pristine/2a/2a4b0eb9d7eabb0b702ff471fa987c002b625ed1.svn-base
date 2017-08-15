@@ -1,0 +1,26 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.TrfReconciliation;
+
+public interface TrfReconciliationDao {
+
+	public void deleteTrfReconciliation(String pnrDate);
+
+	public Long addTrfReconciliation(TrfReconciliation trfReconciliation);
+
+	public List<Map<String, Object>> queryTrfReconciliationList(long l, Long pageSize);
+
+	public long queryTrfReconciliationCount();
+
+	public Map<String, Object> queryMoneySum();
+
+	public List<Map<String, Object>> queryExperGoldList(long l, Long pageSize);
+
+	public long queryExperGoldCount();
+
+	public Map<String, Object> queryTyjMoneySum();
+
+}

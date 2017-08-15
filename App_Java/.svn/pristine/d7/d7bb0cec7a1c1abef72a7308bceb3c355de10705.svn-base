@@ -1,0 +1,39 @@
+.mod-page{
+	text-align: center;
+	padding: 14px 0 0;
+	font-size: 16px;
+	&.t40{
+		padding-top: 40px;
+	}
+	a{
+		display: inline-block;
+		color: #1e1e1e;
+		padding: 8px 10px;
+		margin-right: 4px;
+		border-radius: 3px;
+		background: #e8e8e8;
+		&.on{
+			color: #8d8d8d;
+		}
+	}
+	b{
+		margin-right: 4px;
+	}
+	input[type='text'] {
+		display: inline-block;
+		position: relative;
+		margin-right: 4px;
+		top: -2px;
+		width: 60px;
+		padding: 0 5px;
+		height: 32px;
+		line-height: 32px;
+		border: none;
+	}
+	&.white{
+		a{
+			background: #fff;
+			color: #1e1e1e;
+		}
+	}
+}

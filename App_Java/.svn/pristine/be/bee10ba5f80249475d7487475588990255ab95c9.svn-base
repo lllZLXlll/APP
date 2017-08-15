@@ -1,0 +1,57 @@
+<div class="content">
+    <div class="calculator">
+        <div class="cal-t">
+            <div class="cal-every">
+                <p class="cal-sm-p">每个月将偿还/收到(元)</p>
+                <p class="cal-big-p">{{Amt}}</p>
+            </div>
+            <div class="cal-aver flex">
+                <div class="cal-every">
+                    <p class="cal-sm-p">月利率(%)</p>
+                    <p class="cal-big-p">{{AmtRate}}</p>
+                </div>
+                <div class="cal-every">
+                    <p class="cal-sm-p">还款/收到本息总额(元)</p>
+                    <p class="cal-big-p">{{AmtAll}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="calculator-listDetail" @click="gotoDetail">
+            <p>
+                还款详情 <i class="icon">&#xe611;</i>
+            </p>
+        </div>
+        <div class="list-block">
+            <ul>
+                <li class="item-content item-link" @click="modelType($event,1)">
+                    <div class="item-inner">
+                        <div class="item-title">还款方式</div>
+                        <div class="item-after">{{backType}}</div>
+                    </div>
+                </li>
+                <li class="item-content">
+                    <div class="item-inner">
+                        <div class="item-title">金额</div>
+                        <div class="item-after">
+                            <input type="text" class="item-after-input" placeholder="请输入金额" v-getvalue="money"></div>
+                    </div>
+                </li>
+                <li class="item-content" @click="modelType($event,2)">
+                    <div class="item-inner">
+                        <div class="item-title">年利率(%)</div>
+                        <div class="item-after">{{annualRate}}</div>
+                    </div>
+                </li>
+                <li class="item-content" @click="modelType($event,3)">
+                    <div class="item-inner">
+                        <div class="item-title">期限(月)</div>
+                        <div class="item-after">{{time}}</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="text-item-submit">
+            <button type="button" class="btn btn-submit" @click="submit">计算</button>
+        </div>
+    </div>
+</div>

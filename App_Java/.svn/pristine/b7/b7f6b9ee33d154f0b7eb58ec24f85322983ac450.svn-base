@@ -1,0 +1,9 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.AutomaticRepayment;
+
+public interface AutomaticRepaymentDao {
+	
+	public AutomaticRepayment queryUserIsSetAutuRepayment(Long userId,Integer bidStatus);
+
+}

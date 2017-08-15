@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.loan;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 月检管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminMonthInspectService extends BaseController {
+
+}

@@ -1,0 +1,76 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.SendSms;
+import com.pjzb.entity.Sms;
+import com.pjzb.entity.SmsContent;
+import com.pjzb.entity.UserSendcode;
+import com.pjzb.entity.vo.SmsVo;
+
+/**
+ * 后台短信接口
+ * @author Administrator
+ *
+ */
+public interface SMSInterfaceDao {
+	
+	/**
+	 * 更新短信接口信息
+	 */
+	public Long updateSMS(Sms sms);
+		
+	
+	//根据Id获取短信接口信息详情
+	public Sms getSMSById(Integer id);
+	     
+	/**
+	 * 根据Id获取用户的手机等信息
+	 */
+	public Map<String,Object> getSmsIphone(long id);
+	     
+	/**
+	 * 根据ID查询发送内容信息
+	 */
+	public Map<String,Object> getSmsConetnt(long id,int status);
+	
+	
+	public SmsContent querySmsContentByStatus(Integer status);
+	
+	
+	public Long sendSMSs(SendSms sendSms);
+	
+	public Map<String, Long> queryUserSendCodeByPhone(String phone);
+	
+	public void saveUserSendcode(UserSendcode userSendcode);
+	
+	
+	//t_sms 表 begin
+	public Sms querySmsById(Integer id);
+	
+	public void insertSendsms(SendSms sendSms);
+	
+	public List<Map<String, Object>> findBySMS();
+	
+	public List<Sms> querySmsList(@Param("index") long index, @Param("pageSize") long pageSize);
+	
+	public Long querySmsCount();
+	
+	public SmsVo querySMSConfig();
+	
+	public Sms querySmsByTypeAndStatus(@Param("type") int type, @Param("status") int status);
+	
+	public Integer querySmsMaxType();
+	
+	public long addSms(Sms sms);
+	
+	public long deleteSmsById(Integer id);
+	//t_sms 表 end
+	
+	
+	
+
+}

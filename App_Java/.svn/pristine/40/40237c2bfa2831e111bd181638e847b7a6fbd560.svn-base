@@ -1,0 +1,138 @@
+package com.pjzb.service.admin.borrow;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.BorrowManageDao;
+import com.pjzb.dao.BorrowManageFeeDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+/**
+ * 标的融资管理费
+ * 
+ * @author zlx
+ *
+ */
+@Service
+public class AdminBorrowManageFeeService extends BaseController {
+
+	@Autowired
+	private BorrowManageDao borrowManageDao;
+
+	@Autowired
+	private BorrowManageFeeDao borrowManageFeeDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryBorrowmanagefeeindex(Model model, long pageNum, long pageSize, String userName, Long borrowWay,
+			String tabid) {
+		long count = borrowManageDao.queryBorrowByConditionCount(userName, borrowWay);
+		List<Map<String, Object>> page = borrowManageDao.queryBorrowByCondition(userName, borrowWay,
+				(pageNum - 1) * pageSize, pageSize);
+		Map<String, Object> repaymentMap = borrowManageDao.queryBorrowTotalAllList();
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowWay", borrowWay);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, (count > 0) ? page : null));
+		model.addAttribute("tenderBorrowAmount", repaymentMap.get("tenderBorrowAmount"));
+		// 统计当前页等待
+		double tenderAmount = 0;
+		if (page != null) {
+			for (Map<String, Object> map : page) {
+				tenderAmount += Convert.strToDouble(map.get("borrowAmount") + "", 0);
+			}
+		}
+		DecimalFormat fmt = new DecimalFormat("0.00");
+		model.addAttribute("tenderAmount", fmt.format(tenderAmount));
+		return "/admin/borrow/borrowmanagefee/list.jsp";
+	}
+
+	public String queryBorrowmanagefeeinfo(Model model, Long id, String tabid) {
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("page", borrowManageFeeDao.queryBorrowmanagefeeinfo(id));
+		return "/admin/borrow/borrowmanagefee/list_details.jsp";
+	}
+
+	public String updateManageFeeInit(Model model, Long id, String tabid) {
+		model.addAttribute("tabid", tabid);
+		try {
+			List<Map<String, Object>> mapList = borrowManageFeeDao.queryBorrowmanagefeeinfo(id);
+			if (!mapList.isEmpty()) {
+				for (int i = 0, j = mapList.size(); i < j; i++) {
+					String costType = mapList.get(i).get("costType").toString();
+					if (costType.equalsIgnoreCase("1")) {
+						model.addAttribute("platUseFee", mapList.get(i).get("costAmount").toString());// 平台使用费
+					}
+					if (costType.equalsIgnoreCase("2")) {
+						model.addAttribute("borrowFee", mapList.get(i).get("costAmount").toString());// 借款手续费
+					}
+					if (costType.equalsIgnoreCase("3")) {
+						model.addAttribute("borrowManageFee", mapList.get(i).get("costAmount").toString());// 借款管理费
+					}
+					if (costType.equalsIgnoreCase("4")) {
+						model.addAttribute("instGuaranteeFee", mapList.get(i).get("costAmount").toString());// 机构担保费
+					}
+				}
+				model.addAttribute("borrowTitle", mapList.get(0).get("borrowTitle").toString());// 借款标题
+				model.addAttribute("borrowId", id);// 借款ID
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/borrow/borrowmanagefee/update.jsp";
+	}
+
+	public Map<String, Object> updateManagefeeInfo(Model model, Long borrowId, String platUseFee, String borrowFee,
+			String borrowManageFee, String instGuaranteeFee, String tabid) throws RuntimeException {
+		model.addAttribute("tabid", tabid);
+		BigDecimal d1 = new BigDecimal(platUseFee);
+		BigDecimal d2 = new BigDecimal(borrowFee);
+		BigDecimal d3 = new BigDecimal(borrowManageFee);
+		BigDecimal d4 = new BigDecimal(instGuaranteeFee);
+		double manageFee = d1.add(d2).add(d3).add(d4).doubleValue();
+
+		// 判断金额是否超过总金额的10%
+		long result = -1L;
+		try {
+			Double[] array = new Double[] { Double.parseDouble(platUseFee), Double.parseDouble(borrowFee),
+					Double.parseDouble(borrowManageFee), Double.parseDouble(instGuaranteeFee) };
+			for (int i = 0; i < 4; i++) {
+				result = borrowManageFeeDao.updateManagefeeInfo(borrowId, array[i], i + 1);
+			}
+			borrowDao.updateBorrowManageFees(borrowId, manageFee);
+			// 得到后台登陆的用户
+			if (result > 0) {
+				// 添加操作日志
+				Admin admin = (Admin) sessionGetAttribute(Constants.SESSION_ADMIN);
+				operationLogDao.addOperationLog(new OperationLog("t_borrow_manage_fee,t_borrow", admin.getUserName(),
+						IConstants.UPDATE, admin.getLastIp(), new Date(), manageFee, "修改标的借款管理费", 2, admin.getId()));
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			throw new RuntimeException("**********************修改标的融资管理费异常***************************");
+		}
+		return ajaxDoneInfo("200", "修改标的融资管理费成功", "dialog", tabid);
+	}
+
+}

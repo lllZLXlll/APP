@@ -1,0 +1,120 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageHeader">
+	
+    <form id="pagerForm" data-toggle="ajaxsearch" action="${basePath }admin/queryAllWithdrawInit.do" method="post">
+    	<div class="bjui-searchBar">
+	        <input type="hidden" name="tabid" value="${tabid}">
+	        <input type="hidden" name="pageSize" value="${pageSize}">
+	        <input type="hidden" name="pageCurrent" value="${model.pageCurrent}">
+	       
+			<br />
+	       	&nbsp;&nbsp;
+	       	<label>用户名：</label><input type="text" id="userName" value="${userName }" name="userName" class="form-control" size="12">&nbsp;
+	        
+			<label>提交时间：</label>
+	        <input type="text" value="${startTime }" size="16" name="startTime" id="startTime" readonly="readonly" data-toggle="datepicker" placeholder="开始日期">
+	        <label>——</label>
+	        <input type="text" value="${endTime }" size="16" name="endTime" id="endTime" readonly="readonly" data-toggle="datepicker" placeholder="结束日期">&nbsp;
+			
+			<label>状态：</label>
+		 	<select name="state" id="state" data-toggle="selectpicker">
+            	<option value="">全部</option>
+               	<option value="1" ${state ==1?'selected':''}>审核中</option>
+               	<option value="2" ${state ==2?'selected':''}>成功</option>
+               	<option value="3" ${state ==3?'selected':''}>取消</option>
+               	<option value="4" ${state ==4?'selected':''}>转账中</option>
+               	<option value="5" ${state ==5?'selected':''}>失败</option>
+           	</select>&nbsp;        
+	
+           	<button type="button" id="submitBtn" class="btn-default" data-icon="search">查询</button>&nbsp;
+           	<a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+           
+          	<div class="pull-right">
+          		<a href="exportAllWithdraw.do?tabid=${tabid }&userName=${userName }&startTime=${startTime }&endTime=${endTime }&state=${state }" class="btn btn-orange" data-toggle="doexport" data-confirm-msg="确定要导出到excel？">导出excel</a>
+       		</div>
+        </div>
+    </form>
+    
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+        <thead>
+        
+          <tr height="27px">
+               <th  align="center" colspan="12">
+            	提现总额：<fmt:formatNumber value="${map.sums }" type="currency" pattern="#,##0.00"/>&nbsp;元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            	到帐金额：<fmt:formatNumber value="${map.realMoneys }" type="currency" pattern="#,##0.00"/>&nbsp;元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            	手续费：<fmt:formatNumber value="${map.poundages }" type="currency" pattern="#,##0.00"/>&nbsp;元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </th>
+            </tr>
+            <tr align="center">
+                <th align="center">序号</th>
+                <th align="center">用户名</th>
+                <th align="center">真实姓名</th>
+                <th align="center">提现账号</th>
+                <th align="center">提现银行</th>
+                <th align="center">提现总额（元）</th>
+                <th align="center">到账金额（元）</th>
+                <th align="center">手续费（元）</th>
+                <th align="center">提现时间</th>
+                <th align="center">转账时间</th>
+                <th align="center">状态</th>
+                <th align="center">操作</th>
+            </tr>
+            
+        </thead>
+        <tbody>
+        	<c:set var="count" value="${(pageBean.pageNum-1)*pageBean.pageSize}"></c:set> 
+        	<c:forEach items="${pageBean.page }" var="item" varStatus="status">
+				<tr data-id="65" align="center">
+				 	<td>${status.index+1+count }</td>
+	                <td>${item.name }</td>
+	                <td>${item.realName }</td>
+	                <td>${item.bankId }</td>
+	                <td>${item.bankName }</td>
+	                <td>${item.sum }</td>
+	                <td>${item.realMoney }</td>
+	                <td>${item.poundage }</td>
+	                <td><fmt:formatDate value="${item.applyTime }" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+	                <td><fmt:formatDate value="${item.checkTime }" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+	                <td>
+                		<c:if test="${item.status==1 }">审核中</c:if>
+                		<c:if test="${item.status==2 }">已提现</c:if>
+                		<c:if test="${item.status==3 }">取消</c:if>
+                		<c:if test="${item.status==4 }">转账中</c:if>
+                		<c:if test="${item.status==5 }">失败</c:if>
+	                <td>
+	                	<c:if test="${item.status==1 }"><a href="queryWithdrawInfo.do?id=${item.ids }&tabid=${tabid }" data-toggle="dialog" data-mask="true" data-width="700" data-height="650" class="btn btn-green">审核</a></c:if>
+	                	<c:if test="${item.status==4 }"><a href="queryWithdrawTransInfo.do?id=${item.ids }&tabid=${tabid }" data-toggle="dialog" data-mask="true" data-width="700" data-height="450" class="btn btn-green">转账</a></c:if>
+	                	<c:if test="${item.status !=1 and item.status != 4 }"><a href="queryWithdrawShowInfo.do?id=${item.ids }&tabid=${tabid }" data-toggle="dialog" data-mask="true" data-width="700" data-height="450" class="btn btn-green">查看</a></c:if>
+            		</td>
+            	</tr>
+            </c:forEach>
+            <c:if test="${pageBean.page == null or pageBean.page == '[]' }">
+            	<tr align="center">
+            		<td align="center" colspan="12">暂无数据</td>
+            	</tr>
+            </c:if>
+        </tbody>
+    </table>
+</div>
+
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+            	<option value="10">10</option>
+            	<option value="20" selected="selected">20</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 ${pageBean.totalNum } 条</span>
+    </div>
+    <div class="pagination-box" data-toggle="pagination" data-total="${pageBean.totalNum }" data-page-size="${pageBean.pageSize }" data-page-current="1">
+    </div>
+</div>

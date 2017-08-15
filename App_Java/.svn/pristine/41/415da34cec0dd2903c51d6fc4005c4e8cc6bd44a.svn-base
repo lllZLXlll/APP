@@ -1,0 +1,26 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Banner;
+
+public interface BannerDao {
+	
+	public List<Banner> queryIndexBannerByType(Integer bannerType);
+
+	public List<Map<String, Object>> queryBannerListForPage(long l, Long pageSize, boolean b);
+
+	public long queryBannerListCount();
+
+	public long updateSortByid(String bannerId, String sort);
+
+	public Banner queryBannerById(Long id);
+
+	public long updateBannerById(Banner banner);
+
+	public long deleteBannerById(Long id);
+
+	public long addBanner(Banner banner);
+
+}

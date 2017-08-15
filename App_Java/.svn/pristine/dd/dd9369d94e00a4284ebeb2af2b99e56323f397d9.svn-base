@@ -1,0 +1,19 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/about/Answer.html');
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			var index = this.$route.query.index;
+			var list = this.$route.query.list;
+			this.$set('queston',this.$parent.queston[index][list].queston);
+			this.$set('answer',this.$parent.queston[index][list].answer);
+		},
+		data:function(){
+			return {
+				queston:'',
+				answer:''
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

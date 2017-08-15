@@ -1,0 +1,30 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Admin;
+
+public interface AdminDao {
+	
+	public Admin queryAdminByUserName(String userName);
+	
+	public long updateAdminById(Admin admin);
+	
+	public Admin queryAdminByUserNameAndPassword(@Param("userName")String userName,@Param("password")String password);
+	
+	public Map<String, Object> callExamineProcedure(Map<String, Long> map);
+
+	public Admin queryAdminById(Long id);
+	
+	public List<Map<String, Object>> queryAdminList(String userName,Integer enable,Long roleId,long index,long pageSize);
+	
+	public long queryAdminCount(String userName,Integer enable,Long roleId);
+	
+	public long  addAdmin(Admin admin);
+	
+	public long deleteAdminById(Long id);
+
+}

@@ -1,0 +1,161 @@
+package com.pjzb.service.admin.count;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+/**
+ * 投资统计
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminInvestCountService extends BaseController {
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryFinanceStatisForPage(Model model, String tabid, String timeStart, String timeEnd, String radio) {
+		try {
+			int radioInt = Convert.strToInt(radio, -1);
+			SimpleDateFormat sf = new SimpleDateFormat(DateUtil.dtShort);
+			SimpleDateFormat sfYear = new SimpleDateFormat(DateUtil.year);
+			Date date = new Date();
+			if (radioInt == -1) {
+				// 没有日期限制
+				timeStart = "";
+				timeEnd = "";
+			} else if (radioInt == 1) {
+				// d当日
+				timeStart = sf.format(date) + " 00:00:00";
+				timeEnd = sf.format(date) + " 23:59:59";
+			} else if (radioInt == 2) {
+				// 当月
+				timeStart = DateUtil.getMonthFirstDay();
+				timeEnd = DateUtil.getMonthLastDay();
+			} else if (radioInt == 3) {
+				// 当年
+				timeStart = sfYear.format(date) + "-01-01 00:00:00";
+				timeEnd = sfYear.format(date) + "-12-31 23:59:59";
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("timeStart", timeStart);
+			map.put("timeEnd", timeEnd);
+			Map<String, Object> list = investDao.callFinanceStatisProcedure(map);
+			model.addAttribute("invest", list);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("radio", radioInt);
+			model.addAttribute("beginTime", timeStart);
+			model.addAttribute("endTime", timeEnd);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询投资统计异常**************************");
+		}
+		return "/admin/count/investcount/list.jsp";
+	}
+
+	public void exportFinanceStatis(HttpServletResponse response, String timeStart, String timeEnd, String radio) {
+		try {
+			int radioInt = Convert.strToInt(radio, -1);
+			SimpleDateFormat sf = new SimpleDateFormat(DateUtil.dtShort);
+			SimpleDateFormat sfYear = new SimpleDateFormat(DateUtil.year);
+			Date date = new Date();
+			if (radioInt == -1) {
+				// 没有日期限制
+				timeStart = "";
+				timeEnd = "";
+			} else if (radioInt == 1) {
+				// d当日
+				timeStart = sf.format(date) + " 00:00:00";
+				timeEnd = sf.format(date) + " 23:59:59";
+			} else if (radioInt == 2) {
+				// 当月
+				timeStart = DateUtil.getMonthFirstDay();
+				timeEnd = DateUtil.getMonthLastDay();
+			} else if (radioInt == 3) {
+				// 当年
+				timeStart = sfYear.format(date) + "-01-01 00:00:00";
+				timeEnd = sfYear.format(date) + "-12-31 23:59:59";
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("timeStart", timeStart);
+			map.put("timeEnd", timeEnd);
+			Map<String, Object> financeEarnMap = investDao.callFinanceStatisProcedure(map);
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			Map<String, Object> map1 = new HashMap<String, Object>();
+			map1.put("covarianceName", "投资成功待收金额");
+			map1.put("covarianceNum", financeEarnMap.get("investForAmount"));
+			Map<String, Object> map2 = new HashMap<String, Object>();
+			map2.put("covarianceName", "投资奖励金额");
+			map2.put("covarianceNum", financeEarnMap.get("investRewardAmount"));
+			Map<String, Object> map3 = new HashMap<String, Object>();
+			map3.put("covarianceName", "借款人逾期罚金金额");
+			map3.put("covarianceNum", financeEarnMap.get("borrowLateFAmount"));
+			Map<String, Object> map4 = new HashMap<String, Object>();
+			map4.put("covarianceName", "用户邀请好友金额");
+			map4.put("covarianceNum", financeEarnMap.get("inviteReward"));
+			Map<String, Object> map5 = new HashMap<String, Object>();
+			map5.put("covarianceName", "借款成功总额");
+			map5.put("covarianceNum", financeEarnMap.get("borrowAmount"));
+			Map<String, Object> map6 = new HashMap<String, Object>();
+			map6.put("covarianceName", "借款管理费总额");
+			map6.put("covarianceNum", financeEarnMap.get("borrowManageFee"));
+			Map<String, Object> map7 = new HashMap<String, Object>();
+			map7.put("covarianceName", "借款利息总额");
+			map7.put("covarianceNum", financeEarnMap.get("borrowInterestAmount"));
+			Map<String, Object> map8 = new HashMap<String, Object>();
+			map8.put("covarianceName", "借款奖励总额");
+			map8.put("covarianceNum", financeEarnMap.get("borrowRewardAmount"));
+			Map<String, Object> map9 = new HashMap<String, Object>();
+			map9.put("covarianceName", "借款逾期罚息总额");
+			map9.put("covarianceNum", financeEarnMap.get("borrowLateFI"));
+
+			list.add(map1);
+			list.add(map2);
+			list.add(map3);
+			list.add(map4);
+			list.add(map5);
+			list.add(map6);
+			list.add(map7);
+			list.add(map8);
+			list.add(map9);
+
+			HSSFWorkbook wb = ExcelUtils.exportExcel("投资盈利统计", list, new String[] { "统计项", "金额" }, new String[] { "covarianceName", "covarianceNum" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+			Admin admin = getSessionAdminInfo();
+			OperationLog oLog = new OperationLog("pr_getFinanceEarnStatis", admin.getUserName(), IConstants.EXCEL, admin.getLastIp(), new Date(), 0.0, "导出投资盈利统计列表", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(oLog);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************导出投资统计异常**************************");
+		}
+	}
+
+}

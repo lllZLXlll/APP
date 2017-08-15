@@ -1,0 +1,110 @@
+package com.pjzb.service.admin.user;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.UserDao;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 用户列表
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminUserListService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private UserService userService;
+
+	/**
+	 * 
+	 * @describe:查询用户信息
+	 * @author: xiaojin
+	 * @param model
+	 * @param userName
+	 * @param realName
+	 * @param recommendUsernname
+	 * @param pageNum
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 */
+	public String queryUserInfoList(Model model, String tabid, String userName, String realName, String recommendUsernname, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = ConvertUtil.convertObjToStr(userName);
+			realName = ConvertUtil.convertObjToStr(realName);
+			recommendUsernname = ConvertUtil.convertObjToStr(recommendUsernname);
+			List<Map<String, Object>> list = userDao.queryUserInfoList(userName, realName, recommendUsernname, (pageNum - 1) * pageSize, pageSize);
+			long count = userDao.queryUserInfoCount(userName, realName, recommendUsernname);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("recommendUsername", recommendUsernname);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询用户信息异常**************************");
+		}
+		return "/admin/user/userlist/list.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:更新用户签名
+	 * @author: xiaojin
+	 * @param userId
+	 * @return
+	 */
+	public Map<String, Object> updateSign(Long userId) {
+		long result = userService.updateSign(userId);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "更新成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "更新失败", "", "");
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @describe:查看用户详细信息
+	 * @author: xiaojin
+	 * @param model
+	 * @param userId
+	 * @return
+	 */
+	public String queryUserInfo(Model model, Long userId) {
+		try {
+			Map<String, Object> userMap=userDao.queryUserInfo(userId);
+			model.addAttribute("user", userMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************查看用户详细信息异常**************************");
+		}
+		return "/admin/user/userlist/edit.jsp";
+	}
+
+
+}

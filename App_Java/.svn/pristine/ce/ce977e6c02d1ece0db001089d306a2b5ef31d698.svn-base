@@ -1,0 +1,16 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface CollectionDao {
+
+	List<Map<String, Object>> queryRepaymentCollection(Long id);
+
+	long addCollection(Long id, String colResult, String remark);
+
+	long delCollection(Long id);
+
+	
+	
+}

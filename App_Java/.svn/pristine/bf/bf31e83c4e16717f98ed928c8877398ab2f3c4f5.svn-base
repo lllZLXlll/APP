@@ -1,0 +1,165 @@
+package com.pjzb.task;
+
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.dao.ExGoRepaymentDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.RiskDetailDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.RiskDetail;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.GenerateSequenceNo;
+import com.shove.Convert;
+
+@Service
+public class JobAutoGrantExGoInterestService {
+	private static Log log = LogFactory.getLog(JobAutoGrantExGoInterestService.class);
+
+	@Autowired
+	private ExGoRepaymentDao exGoRepaymentDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private RiskDetailDao riskDetailDao;
+
+	/**
+	 * 
+	 * @describe:自动发放体验金收益给用户定时器
+	 * @author: xiaojin
+	 */
+	public void autoGrantExGoInterest() {
+		log.info("--------------自动发放体验金收益给用户定时器开始--------------");
+		List<Map<String, Object>> list = null;
+		String bgRetUrl = Constants.BASEPATH + "pubCallBack.do";
+		String outAcctId = ChinapnrConfig.CHINAPNR_SYQCJR;
+		String outCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+		String inAcctId = "";
+		Date date = new Date();
+		String ipayAccount = "";
+		String monRate = "";
+		String ordId = "";
+		long uid = -1;
+		// 查询出符合自动还款条件的还款项
+		list = exGoRepaymentDao.queryExgoRepaymentInfo(date);
+		if (list != null && list.size() > 0) {
+			for (Map<String, Object> repaymentMap : list) {
+				// 获取还款Id(payId)
+				/** 计算出需还总额 ******/
+				double needSum = 0.00; // 需还总额
+				uid = Convert.strToLong(repaymentMap.get("userId") + "", -1);
+
+				double stillPrincipal = Convert.strToDouble(repaymentMap.get("stillPrincipal") + "", 0.00); // 消费的体验金本金
+				double stillInterest = Convert.strToDouble(repaymentMap.get("stillInterest") + "", 0.00); // 仍需还利息
+				needSum = stillInterest;
+				log.info("体验金奖励的UserId：" + uid + "，需奖励金额：" + needSum);
+				long userId = -1;
+				// String username ="";
+				// String pwd ="";
+				ipayAccount = Convert.strToStr(repaymentMap.get("ipayAccount") + "", "");
+				double monForRate = Convert.strToDouble(repaymentMap.get("stillInterest") + "", 0);
+				monRate = monForRate + "";
+				JSONObject json = JSONObject.fromObject(ChinapnrInterface.queryBalanceBg(outCustId));
+				log.info("查询企业账户余额返回结果：" + json.toString());
+				String AvlBalString = json.getString("AvlBal");// 普金平台在汇付可用余额
+				AvlBalString = AvlBalString.replaceAll(",", "");
+				double AvlBal = Convert.strToDouble(AvlBalString + "", 0);
+				User userMap = userDao.queryUserById(uid);
+				// 金额相加
+				BigDecimal feeAmtD = new BigDecimal(userMap.getUsableSum());
+				BigDecimal ServFeeD = new BigDecimal(monRate);
+				double feeAmt = feeAmtD.add(ServFeeD).doubleValue();
+				ordId = GenerateSequenceNo.generateSequenceNo();
+				log.info("企业账户可用余额：" + AvlBal);
+				long orId = Convert.strToLong(ordId + "", -1);
+				if (AvlBal >= needSum) { // 可用余额不足时返回
+					/***** 上汇付处理还款 *****/
+
+					JSONObject json1 = JSONObject.fromObject(chinapnrService.queryTransfer(ordId, outCustId, outAcctId, monRate, ipayAccount, inAcctId, bgRetUrl));
+
+					log.info("汇付处理体验金转账过程：" + json1.toString());
+
+					if (json1.getInt("RespCode") == 0) {// 当汇付处理不成功时返回
+						// 汇付返回成功时候，本地系统对应的钱也要相应的加上去
+						userDao.updateUsableSumById(monForRate, uid);
+						exGoRepaymentDao.updateExGoOrIdByBorrowId(orId, uid);
+						// 添加资金记录
+						Date inserttime = new Date();// 添加时间
+						// 处理截止时间
+						Date currTime = ConvertUtil.addDate(inserttime, Calendar.DATE, 30);
+						// 添加资金流动记录
+
+						double freezeSum = userMap.getFreezeSum();
+						double forPI = 0;
+						Fundrecord fundrecord = new Fundrecord();
+						fundrecord.setUserId(uid);
+						fundrecord.setFundMode("体验金收益");
+						fundrecord.setHandleSum(monForRate);
+						fundrecord.setUsableSum(feeAmt);
+						fundrecord.setFreezeSum(freezeSum);
+						fundrecord.setDueinSum(forPI);
+						fundrecord.setTrader(-1L);
+						fundrecord.setRemarks("您获得了<a href='userMeg.do?id=" + uid + "' target='_blank'>【" + monRate + "元】体验标收益!");
+						fundrecord.setIncome(monForRate);
+						fundrecord.setSpending(0d);
+						fundrecord.setBorrowId(-1L);
+						fundrecord.setRepaymentId(-1L);
+						fundrecord.setOperateType(251);
+						fundrecord.setDueoutSum(0d);
+						fundrecord.setRecordTime(new Date());
+						fundrecordDao.insertFundrecord(fundrecord);
+						log.info("userId：" + uid + "的体验金奖励转账完成");
+						RiskDetail voucherMap = riskDetailDao.queryRiskDetailMax();
+						RiskDetail riskDetail = new RiskDetail();
+						riskDetail.setRiskSpending(Double.parseDouble(String.valueOf(monRate)));
+						riskDetail.setOperator(-1L);
+						riskDetail.setTrader(uid);
+						riskDetail.setRemark("体验金消费");
+						riskDetail.setRiskBalance(voucherMap.getRiskBalance() - Double.parseDouble(monRate));
+						riskDetail.setRiskDate(new Date());
+						riskDetail.setRiskType("支出");
+						riskDetail.setResource("体验金消费支出");
+						riskDetailDao.insertRiskDetail(riskDetail);
+					} else if (json1.getInt("RespCode") == -102) {
+						log.info("该用户当天转账超过3笔");
+					} else if (json1.getInt("RespCode") == -103) {
+						log.info("该用户单笔超过200.00元");
+					}
+				} else {
+					log.info("企业账户可用余额不足,暂时不进行体验金奖励的转账。");
+				}
+			}
+
+		}
+		log.info("--------------自动发放体验金收益给用户定时器结束--------------");
+	}
+
+}

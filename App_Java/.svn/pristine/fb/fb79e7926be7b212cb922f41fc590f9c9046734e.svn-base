@@ -1,0 +1,29 @@
+package com.pjzb.task;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.RedmoneyrecordDao;
+
+@Service
+public class JobUpdateUnuseRedmoneyrecordService {
+	private static Log log = LogFactory.getLog(JobUpdateUnuseRedmoneyrecordService.class);
+
+	@Autowired
+	private RedmoneyrecordDao redmoneyrecordDao;
+
+	/**
+	 * 未使用且过期的代、现金券改为过期状态定时器
+	 * 
+	 * @describe:
+	 * @author: xiaojin
+	 */
+	public void updateRedmoneyrecord() {
+		log.info("--------------未使用且过期的代、现金券改为过期状态定时器开始--------------");
+		redmoneyrecordDao.updateRedmoneyrecordByUsestatus();
+		log.info("--------------未使用且过期的代、现金券改为过期状态定时器结束--------------");
+	}
+
+}

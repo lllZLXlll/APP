@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.MessageDao">
+
+	<resultMap type="message" id="messageResultMap">
+		<id column="id" property="id" />
+		<result column="columName" property="columName" />
+		<result column="content" property="content" />
+		<result column="sort" property="sort" />
+		<result column="publishTime" property="publishTime" />
+		<result column="typeId" property="typeId" />
+	</resultMap>
+
+	<select id="queryMessageByTypeId" resultMap="messageResultMap">
+		SELECT * FROM t_message a WHERE a.typeId=#{typeId}
+	</select>
+	
+	<select id="queryMessageForPage" resultType="java.util.Map">
+		SELECT * FROM t_message LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryMessageCount" resultType="java.lang.Long">
+		SELECT count(1) as counts FROM t_message
+	</select>
+	
+	<update id="updateInfoManageById">
+		UPDATE t_message SET 
+		content = #{content},sort = #{sort},publishTime = #{publishTime}
+	</update>
+</mapper>
+
+
+
+
+

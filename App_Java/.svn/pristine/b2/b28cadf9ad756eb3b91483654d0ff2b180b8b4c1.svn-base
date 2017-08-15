@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>普金资本APP下载</title>
+<script type="text/javascript" src="../libs/js/jquery.min.js"></script>
+<script>
+	$(function() {
+		var u = navigator.userAgent;
+		var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+		var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+		if (isAndroid) {
+			window.location.href='http://a.app.qq.com/o/simple.jsp?pkgname=com.pjzbapp';
+		} else if (isiOS) {
+			window.location.href='https://itunes.apple.com/cn/app/%E6%99%AE%E9%87%91%E8%B5%84%E6%9C%AC/id1213605344?mt=8';
+		} else {
+			alert('抱歉！暂不支持您的设备！');
+			window.location.href='http://www.pujinziben.com';
+		}
+	});
+</script>
+
+</head>
+<body>
+	
+</body>
+</html>

@@ -1,0 +1,138 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Mail entity. @author MyEclipse Persistence Tools
+ */
+
+public class Mail implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String mailTitle;
+	private String mailContent;
+	private Date sendTime;
+	private Long sender;
+	private Long reciver;
+	private Integer mailType;
+	private Integer mailStatus;
+	private Long borrowId;
+	private Integer mailMode;
+	private Integer backgroundStatus;
+
+	// Constructors
+
+	/** default constructor */
+	public Mail() {
+	}
+
+	/** full constructor */
+	public Mail(String mailTitle, String mailContent, Date sendTime,
+			Long sender, Long reciver, Integer mailType, Integer mailStatus,
+			Long borrowId, Integer mailMode, Integer backgroundStatus) {
+		this.mailTitle = mailTitle;
+		this.mailContent = mailContent;
+		this.sendTime = sendTime;
+		this.sender = sender;
+		this.reciver = reciver;
+		this.mailType = mailType;
+		this.mailStatus = mailStatus;
+		this.borrowId = borrowId;
+		this.mailMode = mailMode;
+		this.backgroundStatus = backgroundStatus;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getMailTitle() {
+		return this.mailTitle;
+	}
+
+	public void setMailTitle(String mailTitle) {
+		this.mailTitle = mailTitle;
+	}
+
+	public String getMailContent() {
+		return this.mailContent;
+	}
+
+	public void setMailContent(String mailContent) {
+		this.mailContent = mailContent;
+	}
+
+	public Date getSendTime() {
+		return this.sendTime;
+	}
+
+	public void setSendTime(Date sendTime) {
+		this.sendTime = sendTime;
+	}
+
+	public Long getSender() {
+		return this.sender;
+	}
+
+	public void setSender(Long sender) {
+		this.sender = sender;
+	}
+
+	public Long getReciver() {
+		return this.reciver;
+	}
+
+	public void setReciver(Long reciver) {
+		this.reciver = reciver;
+	}
+
+	public Integer getMailType() {
+		return this.mailType;
+	}
+
+	public void setMailType(Integer mailType) {
+		this.mailType = mailType;
+	}
+
+	public Integer getMailStatus() {
+		return this.mailStatus;
+	}
+
+	public void setMailStatus(Integer mailStatus) {
+		this.mailStatus = mailStatus;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Integer getMailMode() {
+		return this.mailMode;
+	}
+
+	public void setMailMode(Integer mailMode) {
+		this.mailMode = mailMode;
+	}
+
+	public Integer getBackgroundStatus() {
+		return this.backgroundStatus;
+	}
+
+	public void setBackgroundStatus(Integer backgroundStatus) {
+		this.backgroundStatus = backgroundStatus;
+	}
+
+}

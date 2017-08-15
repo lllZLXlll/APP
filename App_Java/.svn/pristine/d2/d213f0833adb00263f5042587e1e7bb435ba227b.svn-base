@@ -1,0 +1,37 @@
+package com.pjzb.controller.admin;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.extend.AdminUserOperRecordService;
+
+/**
+ * 扩展管理Controller
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminExtendController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminExtendController.class);
+
+	@Autowired
+	private AdminUserOperRecordService adminUserOperRecordService;
+
+	/**
+	 *	用户与管理员操作记录
+	 *
+	 */
+	@RequestMapping(value = "/queryRecordInit")
+	public String queryRecordInit(Model model, Long pageCurrent, Long pageSize, String startTime, String endTime,
+			String userName, String operation_around) {
+		return adminUserOperRecordService.queryRecordInit(model, pageCurrent == null ? 1l : pageCurrent,
+				pageSize == null ? 20l : pageSize, startTime, endTime, userName, operation_around);
+	}
+
+}

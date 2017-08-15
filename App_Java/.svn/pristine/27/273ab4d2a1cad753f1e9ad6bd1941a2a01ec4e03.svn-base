@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.MailDao">
+
+	<!-- t_mail 表 begin -->
+	<insert id="addMail" parameterType="mail">
+		INSERT INTO t_mail (
+		mailTitle, mailContent, sendTime, sender, reciver, mailType,
+		mailStatus, borrowId, mailMode, backgroundStatus
+		) VALUES(
+		#{mailTitle}, #{mailContent}, #{sendTime}, #{sender}, #{reciver},
+		#{mailType},
+		#{mailStatus}, #{borrowId}, #{mailMode}, #{backgroundStatus}
+		)
+	</insert>
+
+	<select id="queryReceiveMails" resultType="java.util.Map">
+		SELECT id,mailTitle,mailContent,sendTime,sender,reciver,mailType,mailStatus,borrowId,mailMode,backgroundStatus
+		FROM t_mail WHERE reciver=#{0} AND mailType=#{1} AND mailMode=#{3} order by sendTime desc LIMIT #{4},#{5} 
+	</select>
+	
+	<select id="queryReceiveMailsCount" resultType="java.lang.Long">
+		SELECT count(1) FROM t_mail WHERE reciver=#{0} AND mailType=#{1} AND mailMode=#{3}
+	</select>
+	
+	<select id="queryEmailById" resultType="java.util.Map">
+		SELECT * FROM t_mail WHERE id=#{0}
+	</select>
+	
+	<update id="updateMails">
+		UPDATE t_mail SET mailStatus = #{1} WHERE id in
+		<foreach item="lists" index="index" collection="param1" open="(" separator="," close=")">  
+		     	#{lists}
+		</foreach> 
+	</update>
+	
+	<delete id="deleteMails">
+		DELETE FROM t_mail WHERE id in
+		<foreach item="lists" index="index" collection="param1" open="(" separator="," close=")">  
+		     	#{lists}
+		</foreach> 
+	</delete>
+	
+	<!-- t_mail 表 end -->
+	
+	<!-- t_mailset 表 begin -->
+	<resultMap type="mailSet" id="mailSetResultMap">
+		<id column="id" property="id" />
+		<result column="mailaddress" property="mailaddress" />
+		<result column="mailpassword" property="mailpassword" />
+		<result column="sendmail" property="sendmail" />
+		<result column="sendname" property="sendname" />
+		<result column="port" property="port" />
+		<result column="host" property="host" />
+	</resultMap>
+	
+	
+	<select id="queryMailSetById" resultMap="mailSetResultMap">
+		 SELECT * FROM `t_mailset` a WHERE a.id=#{id}
+	</select>
+	
+	<select id="queryMailSetMaxId" resultType="long">
+		 SELECT max(a.id) AS id FROM `t_mailset` a
+	</select>
+	
+	
+	<update id="updateMailSetById">
+		UPDATE t_mailset
+		<trim prefix="set" suffixOverrides=",">
+			<if test="mailaddress != null">mailaddress = #{mailaddress},</if>
+			<if test="mailpassword != null">mailpassword = #{mailpassword},</if>
+			<if test="sendmail != null">sendmail = #{sendmail},</if>
+			<if test="sendname != null">sendname = #{sendname},</if>
+			<if test="port != null">port = #{port},</if>
+			<if test="host != null">host = #{host},</if>
+		</trim>
+		WHERE id=#{id}
+	</update>
+	
+	<!-- t_mailset 表 end -->
+</mapper>
+
+
+

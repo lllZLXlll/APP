@@ -1,0 +1,165 @@
+package com.pjzb.controller.app;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.common.AuctionDebtService;
+import com.pjzb.service.common.DebtsManageService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.IConstants;
+
+import net.sf.json.JSONObject;
+
+@Controller
+@RequestMapping(value = "/reactapp")
+public class AppDebtsManageController extends BaseController{
+	public static Log log = LogFactory.getLog(AppDebtsManageController.class);
+
+	@Autowired
+	private DebtsManageService debtsManageService;
+
+	@Autowired
+	private AuctionDebtService auctionDebtService;
+	
+	/**
+	 * 债权管理
+	 * @return
+	 * @throws Exception
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "debtsManage")
+	@ResponseBody
+	public Map<String, Object> debtsManage(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(debtsManageService.querydebtsManage(jsonObject, userId, Constants.PAGE_SIZE_15, Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "债券管理查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 债权转让
+	 * @return
+	 * @throws Exception
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/debtsAssignment")
+	@ResponseBody
+	public Map<String, Object> debtsAssignment(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			if (jsonObject == null) {
+				jsonMap.put("error", "404");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			jsonMap = debtsManageService.debtsAssignment(jsonObject, ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid")))),Constants.REACTAPP);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 转让债权 撤回
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/recallDebtsAssignment")
+	@ResponseBody
+	public Map<String, Object> recallDebtsAssignment(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			if (jsonObject == null) {
+				jsonMap.put("error", "404");
+				jsonMap.put("msg", "非法请求");
+				return null;
+			}
+			jsonMap = debtsManageService.recallDebtsAssignment(jsonObject, ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid")))),Constants.REACTAPP);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "撤回成功");
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 参与购买债权
+	 * @return
+	 * @throws Exception
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "debtPurchase")
+	@ResponseBody
+	public Map<String, Object> findBuyingDebt(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+		JSONObject jsonObject = requestAppJSONGetAttribute();
+		if (jsonObject == null) {
+			jsonMap.put("error", "404");
+			jsonMap.put("msg", "非法请求");
+			return jsonMap;
+		}
+			jsonMap = auctionDebtService.queryAuctionDebt(jsonObject, ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid")))), IConstants.PAGE_SIZE_15, Constants.REACTAPP);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+	}
+
+	/**
+	 * 成功购买的债权（新版）
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "sucessBuyedDebt")
+	@ResponseBody
+	public Map<String, Object> findSucessBuyedDebt() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+		JSONObject jsonObject = requestAppJSONGetAttribute();
+		if (jsonObject == null) {
+			jsonMap.put("error", "404");
+			jsonMap.put("msg", "非法请求");
+			return jsonMap;
+		}
+		jsonMap = auctionDebtService.querySuccessAuctionDebt(jsonObject, ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid")))), IConstants.PAGE_SIZE_15, Constants.REACTAPP);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+	}
+	
+}

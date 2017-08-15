@@ -1,0 +1,222 @@
+package com.pjzb.dao;
+
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.User;
+import com.shove.data.DataException;
+
+public interface UserDao {
+
+	public Map<String, Object> queryTotalUser();
+
+	/**
+	 * 根据用户id查询用户信息
+	 * 
+	 * @param id
+	 *            用户编号
+	 * @throws SQLException
+	 * @throws DataException
+	 * @return Map<String,String>
+	 */
+	public User queryUserById(Long userId);
+
+	public Map<String, Object> queryUserInfoById(Long userId);
+
+	public Map<String, String> getDealPwd(Long userId);
+
+	public Map<String, String> queryUserAmountAfterHander(Long userId);
+
+	public Map<String, String> queryAccountStatisInfo(Long userId);
+
+	public User findMobilephone(String mobilephone);
+
+	public Map<String, Long> findUserByMobile(String mobilephone);
+
+	/**
+	 * 根据用户name查询用户信息
+	 * 
+	 * @param userName
+	 *            用户姓名
+	 * @throws SQLException
+	 * @throws DataException
+	 * @return Map<String,String>
+	 */
+	public User queryUserByUserName(String userName);
+
+	public User queryUserByUserAndPwd(String userName, String pwd);
+
+	public String queryUserIdByPhone(String phone);
+
+	public String findUserByUserName(String userName);
+
+	public Map<String, String> queryUserSendCodeByPhone(String phone, String type);
+
+	public List<Map<String, Object>> isExistEmailORUserName(@Param("email") String email, @Param("userName") String userName);
+
+	public List<Map<String, Object>> queryUserByIP(String lastIP);
+
+	public Map<String, Object> querymaterialsauthtypeCount();
+
+	public Map<String, String> queryIdByUser(String refferee);
+
+	public Map<String, Object> selectAccountSum(Long userId);
+
+	public Map<String, Object> queryMaxIdFundById(long userId);
+
+	public Map<String, Object> queryNoticeSettingInfo(@Param("noticeMode") int noticeMode, @Param("userId") long userId);
+
+	public User findUserByMobilePhone(String mobilephone);
+
+	public Map<String, String> findIpayAccountByUserId(Long userId);
+
+	public Map<String, Object> queryUserMonney(Long userId);
+
+	public Map<String, Object> queryAccountSum(Long userId);
+
+	public Map<String, String> getUserById(long userId);
+
+	public Map<String, Object> queryUserAmount(Long userId);
+
+	public Map<String, Object> getUserAddressById(long userId);
+
+	public Map<String, Object> getUserInfoById(long userId);
+
+	public User queryUserByCustId(long usrCustId);
+
+	public String queryUserNameById(long userId);
+
+	public Map<String, Object> queryUserUsableSum(long userId);
+
+	public Map<String, Object> queryUserAmountAfterHander(long userId);
+
+	public User findUserAccountSumById(Long userId);
+
+	public Map<String, Object> queryUserAndPersonByUserId(Long userId);
+
+	public Long queryMonthRegistCount(String startTime, String endTime);
+
+	public List<User> queryUserByIsLoginLimit(Integer isLoginLimit);
+
+	public Map<String, Object> getInvestorCount();
+
+	public Map<String, String> queryPersonById(long userId);
+
+	public User queryUserByIpayAccount(String ipayAccount);
+
+	public List<Map<String, Object>> queryBorrowRoleInfo(Long userId);
+
+	public Map<String, Object> queryEnterpriseInfo(Long userId);
+
+	public Map<String, String> queryUserHeadImg(Long userId);
+
+	public long updateUserHeadImg(Long userId, String imgPath);
+
+	public long updateUser(User user);
+
+	public void updateExGoStatus(Double accountSum, Long userId);
+
+	public void updateUserIsLoginLimitById(Integer loginErrorCount, Integer isLoginLimit, Long userId);
+
+	public int updateUsers(Map<String, Object> userMap);
+
+	/**
+	 * 更改邮箱byid
+	 */
+	public Long updateEmalByid(String email, Long id);
+
+	public void updateUsableSumById(double usableSum, long id);
+
+	public void updateUserAmount(Double money, Long userId);
+
+	public void updateSignById(String s1, String s2, Long userId);
+
+	public long updateUserPassword(String password, long userId);
+
+	public long updateUserDealpwd(String dealpwd, long userId);
+
+	public long updateToNotice(@Param("messageReceive") boolean messageReceive, @Param("messageDeposit") boolean messageDeposit, @Param("messageBorrow") boolean messageBorrow,
+			@Param("messageRecharge") boolean messageRecharge, @Param("messageChange") boolean messageChange, @Param("notice_on") int notice_on,
+			@Param("notice_off") int notice_off, @Param("userId") long userId, @Param("nt1") int nt1);
+
+	/**
+	 * 体验金弹框次数
+	 * 
+	 * @throws SQLException
+	 */
+	public long updateAccountNumByid(long id, int accountNum);
+
+	/**
+	 * 修改登录密码
+	 * 
+	 * @param mobilePhone
+	 * @param password
+	 * @param colum
+	 * @return
+	 */
+	public long updateUserPasspwdByMobilePhone(String mobilePhone, String password, String colum);
+
+	/**
+	 * 修改交易密码
+	 * 
+	 * @param mobilePhone
+	 * @param password
+	 * @param colum
+	 * @return
+	 */
+	public long updateUserDealpwdByMobilePhone(String mobilePhone, String password, String colum);
+
+	/**
+	 * 重置用户状态，即设置用户是否限制登录和设置用户错误登录次数
+	 * 
+	 * @param conn
+	 * @param userId
+	 * @return
+	 * @throws SQLException
+	 */
+	public long resetUserState(int loginErrorCount, int isLoginLimit, long userId);
+
+	public long updateUserState1(int loginErrorCount, int isLoginLimit, Date lastDate, long userId);
+
+	public long updateloginCount(long userId);
+
+	public long updateBusiCode(long userId);
+
+	public long setSign(@Param("userId") long userId, @Param("sign") String sign, @Param("sign2") String sign2);
+
+	public long addipayAccount(long userId, String ipayAccount);
+
+	public Long addUserSendCode(String phone, String content, Integer status, String type, String ipArea);
+
+	public Long addUser(User user);
+
+	public Long addBindingMobile(@Param("mobile") String mobile, @Param("userId") long userId, @Param("status") int status, @Param("content") String content,
+			@Param("type") int type, @Param("oldPhone") String oldPhone);
+
+	public Long addMaterialsauth1(@Param("userId") Long userId, @Param("type") long type);
+
+	public Long addAccountSum(@Param("userId") Long userId, @Param("accountSum") double accountSum);
+
+	public long addNotes(@Param("userId") long userId, @Param("message") boolean message, @Param("mail") boolean mail, @Param("notes") boolean notes,
+			@Param("notice_on") int notice_on, @Param("notice_off") int notice_off);
+
+	public long addToNotice(@Param("messageReceive") boolean messageReceive, @Param("messageDeposit") boolean messageDeposit, @Param("messageBorrow") boolean messageBorrow,
+			@Param("messageRecharge") boolean messageRecharge, @Param("messageChange") boolean messageChange, @Param("notice_on") int notice_on, @Param("notice_off") int notice_off);
+
+	public Map<String, Object> queryVUserLoginSessionById(long id);
+	public String getAdminNameById(long strToLong);
+	
+	public String getUserNameById(long strToLong); 
+	
+	public void updateUserUsableSum(long publisher, double investAmt);
+	
+	public long updateUserFreezeSum(long userId,double money);
+
+	public Map<String, Object> findRepaymentId(Long repaymentId);	 
+
+ 	
+}

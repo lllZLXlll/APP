@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.CollectionDao">
+
+	<select id="queryRepaymentCollection" resultType="map">
+		SELECT id,remark,DATE_FORMAT(collectionDate,'%Y-%m-%d %T')
+		collectionDate,colResult FROM t_collection WHERE repayId = #{0} ORDER
+		BY id DESC
+	</select>
+
+	<insert id="addCollection">
+		INSERT INTO t_collection (
+			repayId, remark, colResult, collectionDate
+		) VALUES (
+			#{0}, #{2}, #{1}, NOW()
+		)
+	</insert>
+	
+	<delete id="delCollection" parameterType="long">
+		DELETE FROM t_collection WHERE id = #{0}
+	</delete>
+
+</mapper>
+
+
+
+
+

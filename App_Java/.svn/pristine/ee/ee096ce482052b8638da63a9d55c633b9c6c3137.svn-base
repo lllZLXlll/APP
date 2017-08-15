@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.InvestBorrowDao">
+
+	<select id="queryBorrowInvestByCondition" resultType="map">
+		<![CDATA[
+			SELECT a.id,a.borrowId,a.download_url,a.viewpdf_url,b.borrower,b.borrowTitle,b.borrowWay,b.paymentMode,
+				   b.annualRate,b.deadline,b.publishTime,b.credit,b.creditrating, ROUND(a.investAmount,2) AS investAmount,
+				   b.schedules,b.times,b.isDayThe ,b.borrowShow ,DATE_FORMAT(a.investTime,'%Y-%m-%d %T') investTime,b.borrowAmount,b.borrowWayName,b.borrowStatus
+			FROM v_t_invest_borrow a LEFT JOIN v_t_invest_borrow_list b  ON a.borrowId = b.id 
+			WHERE 1 = 1
+		]]>
+			<if test="param5 != 2"> AND ( ( 1=1   </if>
+			<if test="param1 != null and param1 != ''"> AND b.borrowTypeSubId = #{param1}</if>
+			<if test="param2 != null and param2 != ''"> AND b.borrowTitle LIKE CONCAT('%',#{param2},'%')</if>
+			<if test="param3 != null and param3 != ''"> AND b.publishTime > #{param3}</if>
+			<if test="param4 != null and param4 != ''"> <![CDATA[ AND b.publishTime < #{param4} ]]> </if>
+			<if test="param5 != null and param5 != ''"> 
+				AND b.borrowStatus IN
+				<foreach collection="param5" index="index" item="item" open="(" close=")" separator=",">#{item}</foreach>
+		 	</if>
+			<if test="param5 != 2">) OR (b.borrowShow=2) )</if>
+		 	AND a.investor = #{param6} ORDER BY b.publishTime DESC LIMIT #{param7}, #{param8}
+	</select>
+
+	<select id="queryBorrowInvestByConditionCount" resultType="map">
+		<![CDATA[
+			SELECT count(*) total
+			FROM v_t_invest_borrow a LEFT JOIN v_t_invest_borrow_list b  ON a.borrowId = b.id 
+			WHERE 1 = 1
+		]]>
+			<if test="param5 != 2"> AND ( ( 1=1   </if>
+			<if test="param1 != null and param1 != ''"> AND b.borrowTypeSubId = #{param1}</if>
+			<if test="param2 != null and param2 != ''"> AND b.borrowTitle LIKE CONCAT('%',#{param2},'%')</if>
+			<if test="param3 != null and param3 != ''"> AND b.publishTime > #{param3}</if>
+			<if test="param4 != null and param4 != ''"> <![CDATA[ AND b.publishTime < #{param4} ]]> </if>
+			<if test="param5 != null and param5 != ''"> 
+				AND b.borrowStatus IN
+				<foreach collection="param5" index="index" item="item" open="(" close=")" separator=",">#{item}</foreach>
+		 	</if>
+			<if test="param5 != 2">) OR (b.borrowShow=2) )</if>
+		 	AND a.investor = #{param6} ORDER BY b.publishTime DESC
+	</select>
+	
+</mapper>
+
+
+
+
+

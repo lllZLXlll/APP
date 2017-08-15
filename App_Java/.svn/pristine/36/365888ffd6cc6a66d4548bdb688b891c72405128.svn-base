@@ -1,0 +1,59 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.Date;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.ExGoInDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.IConstants;
+
+/**
+ * 体验金添加金额
+ * 
+ * @author zlx
+ *
+ */
+@Service
+public class AdminExpGoldAddMoneyService extends BaseController {
+
+	@Autowired
+	private ExGoInDao exGoInDao;
+	
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String addExGoAccount(Model model, String tabid) {
+		model.addAttribute("item", exGoInDao.queryExGoMony());
+		model.addAttribute("tabid", tabid);
+		return "/admin/borrow/expgoldaddmoney/index.jsp";
+	}
+
+	public Map<String, Object> updateExGoSum(Model model, double invmAmount, String tabid) throws RuntimeException {
+		model.addAttribute("tabid", tabid);
+		if (invmAmount <= 0) {
+			return ajaxDoneInfo("300", "体验金金额必须大于0", "", "");
+		}
+		long result = -1L;
+		try {
+			result = exGoInDao.updateExGoSum(invmAmount);
+			if (result > 0) {
+				// 添加操作日志
+				Admin admin = getSessionAdminInfo();
+				operationLogDao.addOperationLog(new OperationLog("t_exGoIn", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0d, "修改体验标额度类型", 2, admin.getId()));
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			throw new RuntimeException("**********************修改体验金金额异常***************************");
+		}
+		return ajaxDoneInfo("200", "体验金金额修改成功", "", "");
+	}
+
+}

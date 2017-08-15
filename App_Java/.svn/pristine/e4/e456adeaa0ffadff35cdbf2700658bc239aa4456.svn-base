@@ -1,0 +1,21 @@
+package com.pjzb.service.common;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.AppVersionDao;
+ 
+@Service
+public class AppVersionService {
+
+	@Autowired
+	private AppVersionDao appVersionDao;  	
+
+	public Map<String, Object> queryAppVersionByType(Integer type){
+		Map<String, Object> map = appVersionDao.queryAppVersionByType(type);
+		return map;
+	}
+	
+}

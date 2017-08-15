@@ -1,0 +1,97 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * AuctionDebt entity. @author MyEclipse Persistence Tools
+ */
+
+public class AuctionDebt implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Long debtId;
+	private Date auctionTime;
+	private Double auctionPrice;
+	private Integer autiontimes;
+	private String pageType;
+
+	// Constructors
+
+	/** default constructor */
+	public AuctionDebt() {
+	}
+
+	/** full constructor */
+	public AuctionDebt(Long userId, Long debtId, Date auctionTime,
+			Double auctionPrice, Integer autiontimes, String pageType) {
+		this.userId = userId;
+		this.debtId = debtId;
+		this.auctionTime = auctionTime;
+		this.auctionPrice = auctionPrice;
+		this.autiontimes = autiontimes;
+		this.pageType = pageType;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getDebtId() {
+		return this.debtId;
+	}
+
+	public void setDebtId(Long debtId) {
+		this.debtId = debtId;
+	}
+
+	public Date getAuctionTime() {
+		return this.auctionTime;
+	}
+
+	public void setAuctionTime(Date auctionTime) {
+		this.auctionTime = auctionTime;
+	}
+
+	public Double getAuctionPrice() {
+		return this.auctionPrice;
+	}
+
+	public void setAuctionPrice(Double auctionPrice) {
+		this.auctionPrice = auctionPrice;
+	}
+
+	public Integer getAutiontimes() {
+		return this.autiontimes;
+	}
+
+	public void setAutiontimes(Integer autiontimes) {
+		this.autiontimes = autiontimes;
+	}
+
+	public String getPageType() {
+		return this.pageType;
+	}
+
+	public void setPageType(String pageType) {
+		this.pageType = pageType;
+	}
+
+}

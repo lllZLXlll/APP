@@ -1,0 +1,67 @@
+package com.pjzb.service.admin.fund;
+
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.ChinapnrController;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+/**
+ * 汇付商户子账户信息查询
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminChinapnrMerchantQueryService extends BaseController {
+
+	public String queryAcctsIndex(Model model) {
+		try{
+			JSONObject jsonObject = JSONObject.fromObject(ChinapnrController.queryAccts());
+			log.info("商户子账户账户查询："+jsonObject.toString());
+			List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+			if (jsonObject.getInt("RespCode") != 0) {
+				String msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+				model.addAttribute("ret", "-10086");
+				model.addAttribute("ret_desc", msg); 
+			} else { 
+				JSONArray AcctDetails = jsonObject.getJSONArray("AcctDetails");
+				for(int i=0;i<AcctDetails.size();i++){
+					String dataName = AcctDetails.getJSONObject(i).get("SubAcctId")+"";
+					if(dataName.equals("BASEDT")){
+						dataName = "基本账户";
+					}else if(dataName.equals("MDT000001")){
+						dataName = "商户专属账户";
+					}else if(dataName.equals("SDT000001")){
+						dataName = "担保账户";
+					}else if(dataName.equals("SDT000002")){
+						dataName = "风险金账户";
+					}else{
+						dataName = "保证金账户";
+					}
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("dataName", dataName);
+					map.put("AvlBal", AcctDetails.getJSONObject(i).get("AvlBal")+"");
+					map.put("AcctBal", AcctDetails.getJSONObject(i).get("AcctBal")+"");
+					map.put("FrzBal", AcctDetails.getJSONObject(i).get("FrzBal")+"");
+					list.add(map);
+				}
+				model.addAttribute("ret", "000");
+				model.addAttribute("AcctDetails", AcctDetails);
+				model.addAttribute("list", list);
+			}
+		}catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/fund/chinapnrmerchantquery/list.jsp";
+	}
+
+}

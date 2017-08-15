@@ -1,0 +1,37 @@
+<div class="content">
+	<Banner></Banner>
+	<Indexnews></Indexnews>
+	<Indextop></Indextop>
+	<div class="index-pro">
+		<Productyan></Productyan>
+		<Productnew></Productnew>
+	</div>
+	<Producthot></Producthot>
+</div>
+<div class="activity-model" @click="toActivity"><img src="images/activity/activity.png"/></div>
+<div class="ui_Dialog_juan" v-bind:class="{toBig:showTiyan}">
+	<div class="prize-title">
+		<p>
+			<img src="images/prize.png"/>
+		</p>
+		<span>奖品已发放至你的账户，快来体验投资吧！</span>
+	</div>
+	<div class="prize-content">
+		<div class="prize-close" @click="closeBox">
+			<button type="button"> <i class="icon">&#xe62e;</i>
+			</button>
+		</div>
+		<div class="prize-money">
+			<p></p>
+			<div class="flex">
+				<p class="p-line">28888元</p>
+				<p>体验金</p>
+			</div>
+		</div>
+		<div class="prize-money-text">体验金在 [个人中心] - [我的赠券] 中查看</div>
+		<div class="prize-button">
+			<button type="button" @click="goToTiyan">立即体验</button>
+		</div>
+	</div>
+</div>
+<div v-if="showTiyan" class="modal-overlay modal-overlay-visible"></div>

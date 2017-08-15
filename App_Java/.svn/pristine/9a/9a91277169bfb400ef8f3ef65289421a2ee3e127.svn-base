@@ -1,0 +1,6 @@
+<div class="content content-padded">
+    <textarea placeholder="欢迎反馈任何意见和问题，您的反馈也是我们平台产品进步的动力哦！" v-getvalue="content" class="textarea-feed" maxlength="200"></textarea>
+    <div class="text-item-submit">
+        <button @click="submit" class="btn btn-submit">提交</button>
+    </div>
+</div>

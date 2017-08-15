@@ -1,0 +1,139 @@
+package com.pjzb.entity;
+// default package
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+/**
+ * Emp entity. @author MyEclipse Persistence Tools
+ */
+
+public class Emp implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String empNo;
+	private String empName;
+	private String empSex;
+	private Date empBirthday;
+	private String empIdentityCard;
+	private String empTelephone;
+	private String empEmail;
+	private String empDepartment;
+	private String empJobs;
+	private Date createTime;
+
+	// Constructors
+
+	/** default constructor */
+	public Emp() {
+	}
+
+	/** full constructor */
+	public Emp(String empNo, String empName, String empSex, Date empBirthday,
+			String empIdentityCard, String empTelephone, String empEmail,
+			String empDepartment, String empJobs, Timestamp createTime) {
+		this.empNo = empNo;
+		this.empName = empName;
+		this.empSex = empSex;
+		this.empBirthday = empBirthday;
+		this.empIdentityCard = empIdentityCard;
+		this.empTelephone = empTelephone;
+		this.empEmail = empEmail;
+		this.empDepartment = empDepartment;
+		this.empJobs = empJobs;
+		this.createTime = createTime;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getEmpNo() {
+		return this.empNo;
+	}
+
+	public void setEmpNo(String empNo) {
+		this.empNo = empNo;
+	}
+
+	public String getEmpName() {
+		return this.empName;
+	}
+
+	public void setEmpName(String empName) {
+		this.empName = empName;
+	}
+
+	public String getEmpSex() {
+		return this.empSex;
+	}
+
+	public void setEmpSex(String empSex) {
+		this.empSex = empSex;
+	}
+
+	public Date getEmpBirthday() {
+		return this.empBirthday;
+	}
+
+	public void setEmpBirthday(Date empBirthday) {
+		this.empBirthday = empBirthday;
+	}
+
+	public String getEmpIdentityCard() {
+		return this.empIdentityCard;
+	}
+
+	public void setEmpIdentityCard(String empIdentityCard) {
+		this.empIdentityCard = empIdentityCard;
+	}
+
+	public String getEmpTelephone() {
+		return this.empTelephone;
+	}
+
+	public void setEmpTelephone(String empTelephone) {
+		this.empTelephone = empTelephone;
+	}
+
+	public String getEmpEmail() {
+		return this.empEmail;
+	}
+
+	public void setEmpEmail(String empEmail) {
+		this.empEmail = empEmail;
+	}
+
+	public String getEmpDepartment() {
+		return this.empDepartment;
+	}
+
+	public void setEmpDepartment(String empDepartment) {
+		this.empDepartment = empDepartment;
+	}
+
+	public String getEmpJobs() {
+		return this.empJobs;
+	}
+
+	public void setEmpJobs(String empJobs) {
+		this.empJobs = empJobs;
+	}
+
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+}

@@ -1,0 +1,162 @@
+package com.pjzb.service.admin.borrow;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.shove.Convert;
+
+/**
+ * 手工还款
+ * 
+ * @author zlx
+ */
+
+@Service
+public class AdminManualRepayService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	/**
+	 * 提交还款记录(遗漏)
+	 */
+	public Map<String, Object> updateHandrepaymentlist(Model model, Long repaymentId) throws RuntimeException {
+		long borrowId = -1;
+		long investorId = -1;
+		try {
+			/******************** 调用存储过程纠偏还款资金误差开始 ***************************/
+			// 查询出当前还款记录对应的借款记录
+			Map<String, Object> pre = userDao.findRepaymentId(repaymentId);
+			if (pre == null || pre.size() == 0) {
+				return ajaxDoneInfo("300", "订单号不存在", "", "");
+			}
+
+			BigDecimal b = new BigDecimal(Convert.strToDouble(pre.get("recivedPrincipal") + "", 0)
+					+ Convert.strToDouble(pre.get("recivedInterest") + "", 0));
+			double needSum = b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();// 需还总额
+
+			Map<String, Object> cmap = new HashMap<String, Object>();
+			/******************** 调用存储过程纠偏还款资金误差结束 ***************************/
+
+			JSONObject json = JSONObject.fromObject(ChinapnrInterface.queryBalanceBg(pre.get("ipayAccount") + ""));
+			String AvlBalString = json.getString("AvlBal");// 用户在汇付可用余额
+			AvlBalString = AvlBalString.replaceAll(",", "");
+			double AvlBal = Convert.strToDouble(AvlBalString + "", 0);
+			if (AvlBal < needSum) {
+				return ajaxDoneInfo("300", "余额不足,请充值", "", "");
+			}
+			try {
+				cmap = chinapnrService.doRepayment(Long.parseLong(pre.get("repaymentId") + ""),
+						pre.get("ipayAccount") + "", pre.get("password") + "", needSum, getBasePath());
+
+				if (cmap != null) {
+					int RespCode = Convert.strToInt(cmap.get("result") + "", -1);
+					String respDesc = cmap.get("respDesc") + "";
+					if (RespCode != 0) {// 当汇付处理不成功时返回汇付提示消息
+						return ajaxDoneInfo("300", respDesc, "", "");
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.info(e);
+				throw new RuntimeException("**********************还款异常***************************");
+			}
+
+			borrowId = Convert.strToLong(pre.get("id") + "", -1);
+			// 更改借款人可用的资金
+			userDao.updateUserUsableSum(borrowId, -needSum);
+
+			// 查询投资后的账户金额
+			Map<String, Object> userSumMap1 = userDao.queryUserAmountAfterHander(borrowId);
+			if (userSumMap1 == null) {
+				userSumMap1 = new HashMap<String, Object>();
+			}
+			double usableSum1 = Convert.strToDouble(userSumMap1.get("usableSum") + "", 0);
+			double freezeSum1 = Convert.strToDouble(userSumMap1.get("freezeSum") + "", 0);
+			double forPI1 = Convert.strToDouble(userSumMap1.get("forPI") + "", 0);
+			Fundrecord fundrecord = new Fundrecord();
+			fundrecord.setUserId(borrowId);
+			fundrecord.setFundMode("扣除还款金额(手工还款)");
+			fundrecord.setHandleSum(needSum);
+			fundrecord.setUsableSum(usableSum1);
+			fundrecord.setFreezeSum(freezeSum1);
+			fundrecord.setDueinSum(forPI1);
+			fundrecord.setTrader(-1l);
+			fundrecord.setRecordTime(new Date());
+			fundrecord.setRemarks("对借款[" + pre.get("borrowTitle") + "]还款扣除还款金额[" + needSum + "]元");
+			fundrecord.setIncome(0.0);
+			fundrecord.setSpending(needSum);
+			fundrecord.setBorrowId(-1l);
+			fundrecord.setRepaymentId(-1l);
+			fundrecord.setOperateType(101);
+			fundrecord.setDueoutSum(0.0);
+			fundrecordDao.addFundRecord(fundrecord);
+
+			investorId = Convert.strToLong(pre.get("investorId") + "", -1);
+
+			// 更改投资人可用的资金
+			userDao.updateUserUsableSum(investorId, needSum);
+			// 查询投资后的账户金额
+			Map<String, Object> userSumMap2 = userDao.queryUserAmountAfterHander(investorId);
+			if (userSumMap2 == null) {
+				userSumMap2 = new HashMap<String, Object>();
+			}
+			double usableSum2 = Convert.strToDouble(userSumMap2.get("usableSum") + "", 0);
+			double freezeSum2 = Convert.strToDouble(userSumMap2.get("freezeSum") + "", 0);
+			double forPI2 = Convert.strToDouble(userSumMap2.get("forPI") + "", 0);
+			fundrecord = new Fundrecord();
+			fundrecord.setUserId(investorId);
+			fundrecord.setFundMode("投资收到还款(手工还款)");
+			fundrecord.setHandleSum(needSum);
+			fundrecord.setUsableSum(usableSum2);
+			fundrecord.setFreezeSum(freezeSum2);
+			fundrecord.setDueinSum(forPI2);
+			fundrecord.setTrader(-1l);
+			fundrecord.setRecordTime(new Date());
+			fundrecord.setRemarks("借款[" + pre.get("borrowTitle") + "]已还款,投资收到还款[" + needSum + "]元");
+			fundrecord.setIncome(needSum);
+			fundrecord.setSpending(0.0);
+			fundrecord.setBorrowId(-1l);
+			fundrecord.setRepaymentId(-1l);
+			fundrecord.setOperateType(101);
+			fundrecord.setDueoutSum(0.0);
+			fundrecordDao.addFundRecord(fundrecord);
+
+			investRepaymentDao.updateRepament(repaymentId);
+			investDao.updateInvestById(Long.parseLong(pre.get("invest_id") + ""));
+			return ajaxDoneInfo("200", "还款成功", "", "");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**********************手工还款异常***************************");
+		}
+	}
+}

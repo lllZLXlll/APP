@@ -1,0 +1,84 @@
+package com.pjzb.service.admin.index;
+
+
+import java.util.Date;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.AdminDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.IConstants;
+import com.shove.security.Encrypt;
+
+@Service
+public class AdminIndexService extends BaseController{
+	public static Log log = LogFactory.getLog(AdminMenuService.class);
+	
+	@Autowired
+	private AdminDao adminDao;
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String updatePasswordInit(Model model, Admin admin) {
+		try {
+			model.addAttribute("id", admin.getId());
+			model.addAttribute("userName", admin.getUserName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*************初始化页面异常**************");
+		}
+
+		return "/admin/index/changepwd.jsp";
+	}
+	
+	public Map<String, Object> updatePassword(Model model, Admin admin, String oldpassword,String newpassword, String confirmPassword) { 
+		if(oldpassword.equals(newpassword)){
+			return ajaxDoneInfo("300", "新密码不能与旧密码相同", "", ""); 
+		}
+		
+		oldpassword = Encrypt.MD5(oldpassword.trim() + IConstants.PASS_KEY);
+		if (!admin.getPassword().equals(oldpassword)) {
+			return ajaxDoneInfo("300", "旧密码输入错误", "", "");
+		} else if (!newpassword.equals(confirmPassword)) {
+			return ajaxDoneInfo("300", "确认密码与新密码不一致", "", ""); 
+		} else {
+			try {
+				newpassword = com.shove.security.Encrypt.MD5(newpassword.trim()+IConstants.PASS_KEY);// 对密码进行转码
+				admin.setPassword(newpassword);
+				
+				adminDao.updateAdminById(admin);
+				
+				// 后台操作日志 
+				OperationLog operationLog = new OperationLog();
+				operationLog.setOperationTable("t_admin");
+				operationLog.setOperationUser(admin.getUserName());
+				operationLog.setOperationIp(admin.getLastIp());
+				operationLog.setOperationType(IConstants.UPDATE);
+				operationLog.setOperationMoney(0d);
+				operationLog.setOperationRemarks("管理员修改密码");
+				operationLog.setUserId(admin.getId());
+				operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+				operationLog.setOperationTime(new Date());
+				operationLogDao.addOperationLog(operationLog);
+				
+				return ajaxDoneInfo("200", "新密码设置成功", "dialog", "");
+			} catch (Exception e) {
+				log.error(e);
+				e.printStackTrace();
+				return ajaxDoneInfo("300", "密码设置异常", "", "");
+			}
+		} 
+	}
+
+}

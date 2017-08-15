@@ -1,0 +1,133 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.BankCardDao;
+import com.pjzb.dao.BillCodeDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.FaDaDaDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.MessageDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.entity.BankCard;
+import com.pjzb.entity.BillCode;
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.FaDaDa;
+import com.pjzb.entity.Invest;
+import com.pjzb.entity.Message;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.vo.BorrowDebtVo;
+
+@Service
+public class CommonService {
+
+	@Autowired
+	private MessageDao messageDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private BankCardDao bankCardDao;
+
+	@Autowired
+	private FaDaDaDao faDaDaDao;
+
+	@Autowired
+	private BillCodeDao billCodeDao;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	public Message queryMessageByTypeId(Integer typeId) {
+		return messageDao.queryMessageByTypeId(typeId);
+	}
+
+	public long addOperationLog(OperationLog operationLog) {
+		return operationLogDao.addOperationLog(operationLog);
+	}
+
+	public Person queryPersonByUserId(long id) {
+		return personDao.queryPersonByUserId(id);
+	}
+
+	public List<BankCard> queryBankCardByUserId(Long userId) {
+		return bankCardDao.queryBankCardByUserId(userId);
+	}
+
+	public void deleteBanckCardByUserId(String cardNo, Long userId) {
+		bankCardDao.deleteBanckCardByUserId(cardNo, userId);
+	}
+
+	public BankCard queryBanckCardByCardNOAndUserId(String cardNo, Long userId) {
+		return bankCardDao.queryBanckCardByCardNOAndUserId(cardNo, userId);
+	}
+
+	public void addBanckCard(BankCard bankCard) {
+		bankCardDao.addBanckCard(bankCard);
+	}
+
+	public List<BankCard> querySuccessBankInfoList(Long userId) {
+		return bankCardDao.querySuccessBankInfoList(userId);
+	}
+
+	public void addBankCards(String cardNo, String bankName, String openBankId, String usrCustId) {
+		bankCardDao.addBanckCards(cardNo, bankName, openBankId, usrCustId);
+	}
+
+	public FaDaDa queryFadadaByUserId(long userId) {
+		return faDaDaDao.queryFadadaByUserId(userId);
+	}
+
+	public void addBillCode(BillCode billCode) {
+		billCodeDao.addBillCode(billCode);
+	}
+
+	public boolean queryBillCodeByPmerBillNo(String pmerBillNo) {
+		BillCode billCode = billCodeDao.queryBillCodeByPmerBillNo(pmerBillNo);
+		if (billCode != null && StringUtils.isBlank(billCode.getPipsBillNo())) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * 订单号查询
+	 */
+	public boolean queryBillCode(String pMerBillNo) {
+		String obj = billCodeDao.queryBillCode(pMerBillNo);
+		if (obj != null && !"".equals(obj.toString()))
+			return true;
+		return false;
+	}
+
+	public Invest queryrInvests(long borrowId, long invest_id) {
+		return investDao.queryrInvests(borrowId, invest_id);
+	}
+
+	public BorrowDebtVo queryBorrowInfo(Long id) {
+		return borrowDao.queryBorrowInfo(id);
+	}
+
+	public Map<String, Object> queryBorrowSumMomeny(long borrowId, long invest_id) {
+		return borrowDao.queryBorrowSumMomeny(borrowId, invest_id);
+	}
+
+	public Borrow queryBorrowById(long borrowId) {
+		return borrowDao.queryBorrowById(borrowId);
+	}
+}

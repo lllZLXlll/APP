@@ -1,0 +1,12 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface ActivityDao {
+	
+	public List<Map<String, Object>> queryActivityByEndTimeForPage(long index,long pageSize);
+	
+	public long queryActivityCount();
+
+}

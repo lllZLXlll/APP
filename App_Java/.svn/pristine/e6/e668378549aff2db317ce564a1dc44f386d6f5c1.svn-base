@@ -1,0 +1,42 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.AuctionDebt;
+
+public interface AuctionDebtDao {
+
+	public List<AuctionDebt> queryAuctionMaxPriceAndCount(Long debtId);
+
+	public Map<String, String> queryAuctionDebtById(Long debtId);
+
+	public Map<String, Object> queryAuctionMaxPrice(long debtId);
+	
+	public long queryAuctionDebtCountByDebtId(long debtId);
+
+	public Map<String, Object> getAuctionDebt(@Param("debtId") long debtId, @Param("userId") long userId);
+
+	public List<Map<String, Object>> queryAuctionDebtByDebtId(long debtId);
+	
+	public Long queryAuctionDebtBorrowIdById(Long id);
+
+	public long queryBorrowIdByRepayId(long repayId);
+
+	public Map<String, Object> getUserById(long userId);
+	
+	public List<Map<String, Object>> queryAuctionDebtByDebtIdForUnion(Long debtId);
+
+	public List<Map<String, Object>> queryAuctionDebtBorrowByDebtId(Long debtId);
+
+	public List<Map<String, Object>> queryAuctionDebt(@Param(value = "userId")long userId, @Param(value = "borrowTitle")String borrowTitle, @Param(value = "startTime")String startTime, @Param(value = "endTime")String endTime, @Param(value = "debtStatus")List<Integer> debtStatus, @Param(value = "l")long l, @Param(value = "pageSize")long pageSize);
+
+	public Long queryAuctionDebtCount(@Param(value = "userId")long userId, @Param(value = "borrowTitle")String borrowTitle, @Param(value = "startTime")String startTime, @Param(value = "endTime")String endTime, @Param(value = "debtStatus")List<Integer> debtStatus);
+
+	public List<Map<String, Object>> querySuccessAuctionDebt(@Param(value = "userId")long userId, @Param(value = "borrowTitle")String borrowTitle, @Param(value = "startTime")String startTime, @Param(value = "endTime")String endTime, @Param(value = "l")long l, @Param(value = "pageSize")long pageSize);
+
+	public Long querySuccessAuctionDebtCount(@Param(value = "userId")long userId, @Param(value = "borrowTitle")String borrowTitle, @Param(value = "startTime")String startTime, @Param(value = "endTime")String endTime);
+
+}

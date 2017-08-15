@@ -1,0 +1,92 @@
+<div class="content">
+    <div class="card-tab flex">
+        <a @click="chose(1)" v-bind:class="{active:showData[0]}">
+            综合排序 <i class="icon icon-bottom"></i>
+        </a>
+        <a @click="chose(2)" v-bind:class="{active:showData[1]}">
+            项目期限 <i class="icon icon-bottom"></i>
+        </a>
+        <a @click="chose(3)" v-bind:class="{active:showData[2]}">
+            年化收益
+            <i class="icon icon-bottom"></i>
+        </a>
+        <a @click="chose(4)" v-bind:class="{active:showData[3]}">
+            项目类型
+            <i class="icon icon-bottom"></i>
+        </a>
+    </div>
+    <div class="card-radio">
+        <ul class="card-radio-list" v-show="showData[0]" transition="fadeIn">
+            <li v-for="list in dataOne">
+                <label>
+                    <input type="radio" name="partOne" v-model="partOne" v-bind:value="list.value">
+                    <p v-text="list.text" @click="submit"></p>
+                </label>
+            </li>
+        </ul>
+        <ul class="card-radio-list" v-show="showData[1]" transition="fadeIn">
+            <li v-for="list in dataTwo">
+                <label>
+                    <input type="radio" name="dataTwo" v-model="partTwo" value="{{list.value}}">
+                    <p v-text="list.text" @click="submit"></p>
+                </label>
+            </li>
+        </ul>
+        <ul class="card-radio-list" v-show="showData[2]" transition="fadeIn">
+            <li v-for="list in dataThree">
+                <label>
+                    <input type="radio" name="dataThree" v-model="partThree" value="{{list.value}}">
+                    <p v-text="list.text" @click="submit"></p>
+                </label>
+            </li>
+        </ul>
+        <ul class="card-radio-list" v-show="showData[3]" transition="fadeIn">
+            <li v-for="list in dataFour">
+                <label>
+                    <input type="radio" name="dataFour" v-model="partFour" value="{{list.value}}">
+                    <p v-text="list.text" @click="submit"></p>
+                </label>
+            </li>
+        </ul>
+    </div>
+    <div class="overlay" @click="hideCard()" v-show="showModal"></div>
+    <div class="content pro-hot">
+        <div class="infinite-scroll infinite-scroll-bottom" data-distance="100">
+            <template v-for="list in dataList">
+                <div class="pro-content" v-bind:class="{pro_orange: list.borrowWay==4}">
+                    <ul class="row no-gutter">
+                        <li class="col-50">
+                            <p @click="toDetail(list)">
+                                <span class="pro-group">{{list.borrowTitle | titleCake}}</span>
+                            </p>
+                            <span>融资金额：{{list.borrowAmount}}</span>
+                        </li>
+                        <li class="col-20">
+                            <p>{{list.annualRate}}%</p>
+                            <span>年利率</span>
+                        </li>
+                        <li class="col-30">
+                            <p>
+                                {{list.deadline}} <em>月</em>
+                            </p>
+                            <span>投资期限</span>
+                        </li>
+                    </ul>
+                    <div class="pro-submit">
+                        <p class="">
+                            <i class="pro-line"><em class="pro-line-em" :style={width:list.schedules+"%"}></em></i> 
+                            <span class="line-num">{{list.schedules}}%</span>
+                        </p>
+                        <p class="">
+                            <button class="btn btn-buy" @click="toBid(list)" v-bind:class="{ btnDisabled:list.borrowStatus!=2}" v-html="thisHtml(list.borrowStatus)"></button>
+                        </p>
+                    </div>
+                </div>
+            </template>
+            <div v-if="showLength" class="invest-nobody">暂无相应产品</div>
+        </div>
+        <div class="infinite-scroll-preloader" v-show="model">
+            <div class="preloader"></div>
+        </div>
+    </div>
+</div>

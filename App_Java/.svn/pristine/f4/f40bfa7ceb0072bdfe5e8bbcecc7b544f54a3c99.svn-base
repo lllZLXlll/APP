@@ -1,0 +1,156 @@
+package com.pjzb.service.admin.loan;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowInspectionDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.LoanInspect;
+import com.pjzb.entity.LoanInspectAdvise;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+@Service
+public class RiskDeptMonthInspectService extends BaseController {
+
+	@Autowired
+	private BorrowInspectionDao borrowInspectionDao;
+
+	public String queryMonthInspectBorrowList(Model model, String tabid, String userName, Integer borrowTypeSubId, Integer borrowStatus, String loanName, String borrowTitle,
+			Long pageNum, Long pageSize) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		userName = ConvertUtil.objToStrConvert(userName);
+		borrowTypeSubId = ConvertUtil.objToIntConvert(borrowTypeSubId);
+		borrowStatus = ConvertUtil.objToIntConvert(borrowStatus);
+		loanName = ConvertUtil.objToStrConvert(loanName);
+		borrowTitle = ConvertUtil.objToStrConvert(borrowTitle);
+		List<Map<String, Object>> list = borrowInspectionDao.queryMonthInspectBorrowList(userName, borrowTypeSubId, borrowStatus, loanName, borrowTitle, (pageNum - 1) * pageSize,
+				pageSize);
+		long count = borrowInspectionDao.queryMonthInspectBorrowCount(userName, borrowTypeSubId, borrowStatus, loanName, borrowTitle);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowTitle", borrowTitle);
+		model.addAttribute("borrowStatus", borrowStatus);
+		model.addAttribute("borrowTypeSubId", borrowTypeSubId);
+		model.addAttribute("loanName", loanName);
+		model.addAttribute("borrowTypeSubId", borrowTypeSubId);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		return "/admin/loan/riskdept/list.jsp";
+	}
+
+	public String querySaveOrUpdateRiskDeptMonthInspectInit(Model model, Long id, String tabid, Long borrowId) {
+		LoanInspect inspect = null;
+		Integer status = -1;
+		if (id != null) {
+			inspect = borrowInspectionDao.queryLoanInspectById(id);
+			model.addAttribute("inspectTime", ConvertUtil.dateConvert(inspect.getInspectTime(), Constants.DATESIMPLE));
+			LoanInspectAdvise riskDeptAdvise = borrowInspectionDao.queryLoanInspectAdviseLast(id, 1);
+			LoanInspectAdvise mgrAdvise = borrowInspectionDao.queryLoanInspectAdviseLast(id, 2);
+			status = inspect.getStatus();
+			if (status == 1) {
+				model.addAttribute("riskDeptAdvise", "");
+			} else {
+				model.addAttribute("riskDeptAdvise", riskDeptAdvise.getAdvise());
+				model.addAttribute("riskDeptAdviseTime", riskDeptAdvise.getRecordTime());
+			}
+
+			if (status == 2 || status == 1 || status == 3) {
+				model.addAttribute("mgrAdvise", "");
+			} else {
+				model.addAttribute("mgrAdvise", mgrAdvise.getAdvise());
+				model.addAttribute("mgrAdviseTime", mgrAdvise.getRecordTime());
+			}
+		}
+
+		model.addAttribute("inspectStatus", status);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("inspect", inspect);
+		model.addAttribute("borrowId", borrowId);
+		return "/admin/loan/riskdept/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> saveOrUpdateRiskDeptMonthInspect(Model model, String tabid, LoanInspect loanInspect, String inspectTimeStr, Long id2, String riskDeptAdvise,
+			String mgrAdvise, Admin admin) {
+		Date inspectTime = ConvertUtil.dateConvert(inspectTimeStr, Constants.DATESIMPLE);
+		loanInspect.setInspectTime(inspectTime);
+		Integer status = loanInspect.getStatus();
+		if (loanInspect.getId() == null) {
+			loanInspect.setStatus(1);
+			loanInspect.setRecordTime(new Date());
+			loanInspect.setBorrowId(id2);
+			long result = borrowInspectionDao.addLoanInspect(loanInspect);
+			if (result > 0) {
+				//return ajaxDoneInfo("200", "检查提交成功，请等待审核", "true", tabid);
+				return ajaxDoneForward("200", "检查提交成功，请等待审核", "", "", "queryLoanInspectList.do?tabid=submenu-tab-610");
+			} else {
+				return ajaxDoneInfo("300", "检查提交失败，请联系管理员", "", "");
+			}
+		} else {
+			if (status != null) {
+				LoanInspectAdvise loanInspectAdvise = new LoanInspectAdvise();
+				loanInspectAdvise.setLoanInspectId(loanInspect.getId());
+				loanInspectAdvise.setRecordTime(new Date());
+				loanInspectAdvise.setAdminId(admin.getId());
+				if (status == 2 || status == 3) {
+					loanInspectAdvise.setAdvise(riskDeptAdvise);
+					loanInspectAdvise.setType(1);
+				} else if (status == 0 || status == 4) {
+					loanInspectAdvise.setAdvise(mgrAdvise);
+					loanInspectAdvise.setType(2);
+				}
+				borrowInspectionDao.addLoanInspectAdvise(loanInspectAdvise);
+			}
+			if (admin.getRoleId() == 29) {
+				loanInspect.setStatus(1);
+			}
+			long result = borrowInspectionDao.updateLoanInspect(loanInspect);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "检查修改成功，请等待审核", "true", tabid);
+			} else {
+				return ajaxDoneInfo("300", "检查修改失败，请等待审核", "", "");
+			}
+		}
+
+	}
+
+	public String queryLoanInspectList(Model model, String tabid, String userName, Integer borrowTypeSubId, Integer borrowStatus, String loanName, String borrowTitle,
+			Long pageNum, Long pageSize,Integer inspectStatus) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		userName = ConvertUtil.objToStrConvert(userName);
+		borrowTypeSubId = ConvertUtil.objToIntConvert(borrowTypeSubId);
+		borrowStatus = ConvertUtil.objToIntConvert(borrowStatus);
+		loanName = ConvertUtil.objToStrConvert(loanName);
+		borrowTitle = ConvertUtil.objToStrConvert(borrowTitle);
+		inspectStatus=inspectStatus==null?-1:inspectStatus;
+		List<Map<String, Object>> list = borrowInspectionDao.queryLoanInspectList(userName, borrowTypeSubId, borrowStatus, loanName, borrowTitle, (pageNum - 1) * pageSize,
+				pageSize,inspectStatus);
+		long count = borrowInspectionDao.queryLoanInspectCount(userName, borrowTypeSubId, borrowStatus, loanName, borrowTitle,inspectStatus);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowTitle", borrowTitle);
+		model.addAttribute("borrowStatus", borrowStatus);
+		model.addAttribute("borrowTypeSubId", borrowTypeSubId);
+		model.addAttribute("loanName", loanName);
+		model.addAttribute("borrowTypeSubId", borrowTypeSubId);
+		model.addAttribute("inspectStatus", inspectStatus);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		return "/admin/loan/riskdept/inspectlist.jsp";
+	}
+	
+	
+	public String queryHistoryAdvise(Model model, Long id,Integer type) {
+		List<LoanInspectAdvise> historyAdvise = borrowInspectionDao.queryLoanInspectAdviseList(id,type,1L,30L);
+		model.addAttribute("historyAdvise", historyAdvise);
+		return "/admin/loan/riskdept/listadvise.jsp";
+	}
+
+}

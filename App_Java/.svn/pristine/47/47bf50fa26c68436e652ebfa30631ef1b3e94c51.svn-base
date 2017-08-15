@@ -1,0 +1,145 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/account/Funddetail.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('资金记录',true,false,true,'筛选','panel-track');
+		},
+		route:{
+			data:function(transition){
+				var param={uid:Storage.getItem('uid'),curPage:this.listNum};
+				var _this = this;
+				utils.ajax({
+			        url:'../front/findFundrecordList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == 0){
+			        		_this.$set('dataList',data.pageBean.page);
+			        		if(data.pageBean.totalNum>0){
+			        			_this.$set('dataLength',false);
+			        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+			        		}else{
+			        			_this.$set('dataLength',true);
+			        		}
+			        	}else{
+			        		$.alert(data.msg)
+			        	}
+			        },complete: function(){
+			        	transition.next();
+			        }
+			    });
+			},waitForData:true
+		},
+		data:function(){
+			return {
+				listNum:1,
+				loading:false,
+				fundMode:'',
+				beginDate:'',
+				endDate:'',
+				fundMode:'',
+				model:false
+			}
+		},
+		methods:{
+			openPanel:function(){
+				$.openPanel($('#panel-track'));
+			},
+			submit: function(){
+				$.closePanel();
+//				this.$set('beginDate',$('#beginDate').val());
+//				this.$set('endDate',$('#endDate').val());
+				var _this = this;
+				_this.$set('listNum',1);
+				var param={uid:Storage.getItem('uid'),curPage:_this.listNum,startTime:$('#beginDate').val(),endTime:$('#endDate').val(),fundMode:encodeURI(_this.fundMode)};
+				utils.ajax({
+			        url:'../front/findFundrecordList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == 0){
+			        		_this.$set('dataList',data.pageBean.page);
+			        		if(data.pageBean.page.length>0){
+			        			_this.$set('dataLength',false);
+			        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+			        			$('.content').scrollTop(0);
+			        			console.log(data.pageBean);
+			        			if(data.pageBean.totalNum>20){
+			        				$.attachInfiniteScroll($('.infinite-scroll'));
+			        			}else{
+			        				$.detachInfiniteScroll($('.infinite-scroll'));
+			        				_this.$set('model',false);
+			        			}
+			        		}else{
+			        			_this.$set('dataLength',true);
+			        		}
+			        	}else{
+			        		$.alert(data.msg)
+			        	}
+			        }
+			    });
+			}
+		},
+		ready: function(){
+			$("#beginDate").calendar();
+			$("#endDate").calendar();
+			//$.attachInfiniteScroll('.infinite-scroll');
+			var _this = this;
+			$(document).on('infinite',function(){
+				if (_this.loading){return;}
+				_this.$set('model',true);
+				// 设置flag
+				_this.$set('loading',true);
+				var listNum = _this.listNum+1;
+				//如果查询页数大于当前总页数，则返回
+				if(listNum > _this.totalPageNum){
+					$.toast('没有更多记录了哦');
+					_this.$set('model',false);
+					_this.$set('loading',false);
+					$.detachInfiniteScroll($('.infinite-scroll'));
+					return;
+				}
+				_this.$set('listNum',listNum);
+				//无线滚动
+				var param={uid:Storage.getItem('uid'),curPage:_this.listNum,startTime:_this.beginDate,endTime:_this.endDate,fundMode:encodeURI(_this.fundMode)};
+				utils.ajax({
+			        url:'../front/findFundrecordList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(data.pageBean.page.length>0){
+			        			if(data.pageBean.page.length<20){
+			        				_this.$set('model',false);
+			        			}
+			        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+			        		}
+			        	}
+			        },complete:function(){
+			        	_this.$set('loading',false);
+			        }
+			    })
+			});
+			$.initPage();
+		},
+		beforeDestroy: function(){
+			this.$parent.$set('right',false);
+		},
+		filters:{
+			timeSub: function(value){
+				return value.substring(0,10);
+			},
+			inOrOut: function(income,spending){
+				if(income>0){
+					return '+'+income;
+				}else if(income == 0 && spending==0){
+					return income;
+				}else{
+					return '-'+spending;
+				}
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

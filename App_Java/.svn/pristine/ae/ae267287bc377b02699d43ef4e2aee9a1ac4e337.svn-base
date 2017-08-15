@@ -1,0 +1,164 @@
+package com.pjzb.task;
+
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.IAmountConstants;
+import com.shove.Convert;
+
+/**
+ * 逾期的还款 定时器
+ * 
+ * @author zlx
+ */
+
+@Service
+public class JobBeOverdueRepaymentService {
+	private static Log log = LogFactory.getLog(JobBeOverdueRepaymentService.class);
+
+	@Autowired
+	private RepaymentDao repaymentDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+
+	/**
+	 * @MethodName: updateOverDueRepayment
+	 * @Author: zlx
+	 * @Descb: 更新逾期的还款
+	 */
+	@SuppressWarnings("unchecked")
+	public void updateOverDueRepayment() throws RuntimeException {
+		log.info("--------------处理逾期的还款开始--------------");
+		DecimalFormat df = new DecimalFormat("#0.00");
+		List<Map<String, Object>> overDueRepaymentList = null;
+		String date = DateUtil.YYYY_MM_DD.format(new Date());
+		long borrowId = -1L;
+		long id = -1;
+		// 应还本金
+		double stillPrincipal = 0;
+		// 应还利息
+		double stillInterest = 0;
+		// 逾期罚息
+		double lateFee = 0;
+		// 逾期天数
+		int overdueDay = 0;
+		// 借款方式
+		int borrowWay = 0;
+		// -- 7 - 9
+		// 查询借款信息得到借款时插入的平台收费标准
+		Map<String, Object> map = new HashMap<String, Object>();
+		String feelog = "";
+		Map<String, Double> feeMap = new HashMap<String, Double>();
+		// 得到收费标准的说明信息
+		// --end
+		double overdueFeeRate = 0;
+		overDueRepaymentList = repaymentDao.queryOverDueRepayment(date);
+		for (Map<String, Object> overDueMap : overDueRepaymentList) {
+			id = Convert.strToLong(overDueMap.get("id") + "", -1);
+			borrowId = Convert.strToLong(overDueMap.get("borrowId") + "", 0);
+			stillPrincipal = Convert.strToDouble(overDueMap.get("stillPrincipal") + "", 0);
+			stillInterest = Convert.strToDouble(overDueMap.get("stillInterest") + "", 0);
+
+			overdueDay = Convert.strToInt(overDueMap.get("overdueDay") + "", 0);
+			map = borrowDao.queBorrowInfo(borrowId);
+			if (map != null) {
+				// 得到收费标准的json代码
+				feelog = Convert.strToStr(map.get("feelog") + "", "");
+				feeMap = (Map<String, Double>) JSONObject.toBean(JSONObject.fromObject(feelog), HashMap.class);
+
+				overdueFeeRate = Convert.strToDouble(feeMap.get(IAmountConstants.OVERDUE_FEE_RATE) + "", 0);
+				borrowWay = Convert.strToInt(map.get("borrowWay") + "", 0);
+			} else {
+				overdueFeeRate = 0;
+			}
+			// 不符合条件的情况，将逾期天数重置为0
+			if (overdueDay < 0) {
+				overdueDay = 0;
+			}
+			if (borrowWay == 6) {// 流转标不计算罚息
+				overdueDay = 0;
+			}
+			// 计算罚息=本息
+			lateFee = (stillPrincipal + stillInterest) * overdueDay * overdueFeeRate;
+			lateFee = Double.valueOf(df.format(lateFee));
+			// 更新逾期还款
+			if (overdueDay > 0) {
+				repaymentDao.updateOverDueRepayment(id, lateFee, overdueDay, date);
+			}
+			// 回收对象
+			overDueMap = null;
+			map = null;
+			feeMap = null;
+		}
+		log.info("--------------处理逾期的还款结束--------------");
+	}
+
+	/**
+	 * @MethodName: updateOverDueInvestRepayment
+	 * @Author: zlx
+	 * @Descb: 更新逾期投资还款记录
+	 */
+	public void updateOverDueInvestRepayment() throws RuntimeException {
+		log.info("--------------处理逾期的投资还款记录开始--------------");
+
+		DateFormat sf = DateUtil.YYYY_MM_DD;
+		DecimalFormat df = new DecimalFormat("#0.00");
+		List<Map<String, Object>> overDueRepaymentList = null;
+		String date = sf.format(DateUtil.getYesterDay());
+		long id = -1;
+		// 应还本金
+		double stillPrincipal = 0;
+		// 应还利息
+		double stillInterest = 0;
+		// 逾期罚息
+		double lateFee = 0;
+		long repayId = 0;
+		int lateDay = 0;
+		int isLate = 0;
+		int borrowWay = 0;
+		// -- 7 - 9
+		// 查询借款信息得到借款时插入的平台收费标准
+		// --end
+		double overdueFeeRate = 0;
+		overDueRepaymentList = investRepaymentDao.queryOverDueInvestRepayment(date);
+		for (Map<String, Object> overDueMap : overDueRepaymentList) {
+
+			// 计算罚息
+			id = Convert.strToLong(overDueMap.get("id") + "", -1);
+			repayId = Convert.strToLong(overDueMap.get("repayId") + "", -1);
+			lateDay = Convert.strToInt(overDueMap.get("lateDay") + "", 0);
+			isLate = Convert.strToInt(overDueMap.get("isLate") + "", 1);
+			lateFee = (stillPrincipal + stillInterest) * overdueFeeRate * lateDay * 0.5;
+			lateFee = Double.valueOf(df.format(lateFee));
+			borrowWay = Convert.strToInt(overDueMap.get("borrowWay") + "", 0);
+			// 更新逾期还款
+			// 6 为流转标 不处理
+			if (borrowWay != 6) {
+				investRepaymentDao.updateOverDueInvestRepayment(id, repayId, lateFee, lateDay, isLate);
+			}
+			// 回收对象
+			overDueMap = null;
+		}
+		log.info("--------------处理逾期的投资还款记录开始--------------");
+	}
+
+}

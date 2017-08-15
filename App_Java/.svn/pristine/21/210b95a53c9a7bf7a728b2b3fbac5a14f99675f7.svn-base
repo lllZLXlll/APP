@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.identify;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 手机号码绑定
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminPhoneNumberBindService extends BaseController {
+
+}

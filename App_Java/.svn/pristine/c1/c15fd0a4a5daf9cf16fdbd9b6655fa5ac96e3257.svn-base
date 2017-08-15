@@ -1,0 +1,87 @@
+package com.pjzb.task;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.AssignmentDebtDao;
+import com.pjzb.dao.AuctionDebtDao;
+import com.pjzb.entity.AssignmentDebt;
+import com.pjzb.service.common.AssignmentDebtService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.shove.Convert;
+
+@Service
+public class JonDealOverdueDebtsService extends BaseController {
+	private static Log log = LogFactory.getLog(JonDealOverdueDebtsService.class);
+
+	@Autowired
+	private AssignmentDebtDao assignmentDebtDao;
+
+	@Autowired
+	private AuctionDebtDao auctionDebtDao;
+
+
+	@Autowired
+	private UserService userService;
+
+
+	@Autowired
+	private AssignmentDebtService assignmentDebtService;
+
+	/**
+	 * 处理过期债权
+	 * 
+	 * @return
+	 */
+	public boolean dealDueDebt(){
+		log.info("--------------处理过期债权开始--------------");
+		boolean result = false;
+		try {
+			List<AssignmentDebt> debtList = assignmentDebtDao.queryDueDebt();
+			for (AssignmentDebt assignmentDebt : debtList) {
+				if (Constants.DEBTSTATUS_2 == assignmentDebt.getDebtStatus()) {
+					Long id = assignmentDebt.getId();
+					AssignmentDebt assignmentDebt2 = assignmentDebtDao.getAssignmentDebtById(id);
+					assignmentDebtService.updateAuctDebtSuccess(id, 0.00, "", Constants.BASEPATH);
+					if (assignmentDebt2 != null) {
+						userService.updateSign(assignmentDebt2.getAlienatorId());// 更换校验码
+					}
+					List<Map<String, Object>> auctionList = auctionDebtDao.queryAuctionDebtByDebtId(id);
+					for (Map<String, Object> auctionMap : auctionList) {
+						long userId = Convert.strToLong(String.valueOf(auctionMap.get("userId")), -1);
+						userService.updateSign(userId);// 更换校验码
+					}
+				}
+			}
+			result = true;
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			log.info("***********************处理过期债权异常**************************");
+		}
+		log.info("--------------处理过期债权结束--------------");
+		return result;
+	}
+
+	public Map<String, String> queryAuctionMaxPriceAndCount(long debtId) {
+		List<Map<String, Object>> list = auctionDebtDao.queryAuctionDebtBorrowByDebtId(debtId);
+		Map<String, String> map = new HashMap<String, String>();
+		if (list != null && list.size() > 0) {
+			Map<String, Object> auctionMap = list.get(0);
+			map.put("id", auctionMap.get("id") + "");
+			map.put("userId", auctionMap.get("userId") + "");
+			map.put("maxAuctionPrice", auctionMap.get("auctionPrice") + "");
+			map.put("auctionCount", String.valueOf(auctionDebtDao.queryAuctionDebtCountByDebtId(debtId)));
+		}
+		return map;
+	}
+
+}

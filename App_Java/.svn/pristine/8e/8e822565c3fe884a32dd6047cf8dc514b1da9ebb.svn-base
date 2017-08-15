@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.WithdrawDao">
+
+	<resultMap type="withdraw" id="withdrawResultMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="cellPhone" property="cellPhone"/>
+		<result column="acount" property="acount"/>
+		<result column="sum" property="sum"/>
+		<result column="poundage" property="poundage"/>
+		<result column="applyTime" property="applyTime"/>
+		<result column="status" property="status"/>
+		<result column="bankId" property="bankId"/>
+		<result column="userId" property="userId"/>
+		<result column="remark" property="remark"/>
+		<result column="checkId" property="checkId"/>
+		<result column="checkTime" property="checkTime"/>
+		<result column="ipAddress" property="ipAddress"/>
+		<result column="versoin" property="versoin"/>
+		<result column="billcode" property="billcode"/>
+		<result column="trxId" property="trxId"/>
+	</resultMap>
+
+	<select id="queryWithdrawAmountWithin15Days" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT ROUND(ifnull(sum(sum)+sum(poundage),0),2) AS sum from t_withdraw where userId=1223566768
+		AND applyTime >= date_sub(now() ,interval 15 day) and `status` not in (3,5)
+	</select>
+
+	<select id="queryWithdrawByBillCode" resultMap="withdrawResultMap" parameterType="java.lang.String">
+		SELECT a.trxId AS trxId from t_withdraw a where a.billcode = #{billcode}
+	</select>
+	
+	<select id="callAmountWithdrawProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL p_amount_withdraw(
+			  	 #{in_uid,jdbcType=BIGINT,mode=IN},
+				 #{in_dealpwd,jdbcType=VARCHAR,mode=IN},
+				 #{in_money,jdbcType=DOUBLE,mode=IN},
+				 #{in_bank_id,jdbcType=VARCHAR,mode=IN},
+				 #{in_type,jdbcType=VARCHAR,mode=IN},
+				 #{in_ip,jdbcType=VARCHAR,mode=IN},
+				 #{in_billcode,jdbcType=VARCHAR,mode=IN},
+				 #{in_trxId,jdbcType=VARCHAR,mode=IN},
+				 #{in_feeAmt,jdbcType=DOUBLE,mode=IN},
+				 #{out_ret,jdbcType=BIGINT,mode=OUT},
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }  
+	</select>  
+
+
+	<select id="queryWithdrawListForPage" resultMap="withdrawResultMap">
+		SELECT a.id,a.name,a.applyTime,CONCAT('********',right(a.bankId, 4)) bankId,a.sum,a.poundage,a.status from t_withdraw a WHERE a.userId=#{0} 
+		<if test="param2!=null and param3!=null">  
+			AND a.applyTime &gt;=#{1} AND a.applyTime &lt;=#{2}
+		</if>
+		ORDER BY a.applyTime DESC LIMIT #{3},#{4}
+	</select>
+
+	<select id="queryWithdrawCountByApplyTime" resultType="java.util.Map">
+		SELECT COUNT(1) AS withdrawCount FROM t_withdraw a WHERE a.userId=#{0}
+		<if test="param2!=null and param3!=null">  
+			AND a.applyTime &gt;=#{1} AND a.applyTime &lt;=#{2}
+		</if>
+	</select>
+
+	<select id="queryWithdrawTrxIdById" resultType="java.lang.String">
+		SELECT a.trxId AS trxId FROM t_withdraw a where a.id =#{id}
+	</select>
+
+	<select id="callAmountWithdrawCancelProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL p_amount_withdraw_cancel(
+			  	 #{in_uid,jdbcType=BIGINT,mode=IN},
+				 #{in_wid,jdbcType=BIGINT,mode=IN},
+				 #{in_ip,jdbcType=VARCHAR,mode=IN},
+				 #{in_date,jdbcType=TIMESTAMP,mode=IN},
+				 #{out_ret,jdbcType=INTEGER,mode=OUT},
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }  
+	</select>  
+	
+	<select id="queryAllWithdrawListCount" resultType="long">
+		SELECT COUNT(*) FROM v_t_user_withdraw_lists WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND name LIKE "%" #{0} "%"</if>
+		<if test="param2 != null and param2 != ''">AND status = #{1}</if>
+		<if test="param3 != null and param3 != ''">AND applyTime >= #{2}</if>
+		<if test="param4 != null and param4 != ''"><![CDATA[ AND applyTime <= #{3} ]]></if>
+	</select>
+
+	<select id="queryAllWithdrawList" resultType="map">
+		SELECT * FROM v_t_user_withdraw_lists WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND name LIKE "%" #{0} "%"</if>
+		<if test="param2 != null and param2 != ''">AND status = #{1}</if>
+		<if test="param3 != null and param3 != ''">AND applyTime >= #{2}</if>
+		<if test="param4 != null and param4 != ''"><![CDATA[ AND applyTime <= #{3} ]]></if>
+		ORDER BY applyTime DESC LIMIT #{4}, #{5}
+	</select>
+
+	<select id="queryAllWithdrawListMap" resultType="map">
+		SELECT SUM(sum) AS sums, SUM(realMoney) AS realMoneys, SUM(poundage) AS poundages FROM v_t_user_withdraw_lists WHERE 1 = 1 
+		<if test="param1 != null and param1 != ''">AND name LIKE "%" #{0} "%"</if>
+		<if test="param2 != null and param2 != ''">AND status = #{1}</if>
+		<if test="param3 != null and param3 != ''">AND applyTime >= #{2}</if>
+		<if test="param4 != null and param4 != ''"><![CDATA[ AND applyTime <= #{3} ]]></if>
+	</select>
+
+	<select id="queryWithdrawShowInfo" resultType="map">
+		SELECT * FROM v_t_user_withdraw_lists WHERE id = #{0} 
+	</select>
+
+	<select id="querySuccessBid" resultType="map">
+		SELECT SUM(realAmount) realAmount , investor FROM v_t_user_successtotalbid_lists  WHERE investor = #{0} 
+	</select>
+
+	<select id="querySuccessWithdraw" resultType="map">
+		SELECT SUM(sum) AS w_total FROM t_withdraw WHERE userId = #{0} and status = #{1}
+	</select>
+	
+	<select id="callWithdrawProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {
+	  	 	CALL p_amount_withdraw_auth(
+			  	 #{in_uid,jdbcType=BIGINT,mode=IN},
+				 #{in_aid,jdbcType=BIGINT,mode=IN},
+				 #{in_wid,jdbcType=BIGINT,mode=IN},
+				 #{in_money,jdbcType=DECIMAL,mode=IN},
+				 #{in_poundage,jdbcType=DECIMAL,mode=IN},
+				 #{in_status,jdbcType=INTEGER,mode=IN},
+				 #{in_ip,jdbcType=VARCHAR,mode=IN},
+				 #{in_remark,jdbcType=VARCHAR,mode=IN},
+				 #{in_date,jdbcType=VARCHAR,mode=IN},
+				 #{out_ret,jdbcType=INTEGER,mode=OUT},
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }  
+	</select>
+
+	<update id="updateBorrowTrxId">
+		UPDATE t_withdraw SET trxId = #{1} WHERE id = #{0}
+	</update>
+	
+	<select id="callAmountWithdrawTransferProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {
+	  	 	CALL p_amount_withdraw_transfer(
+			  	 #{in_aid,jdbcType=BIGINT,mode=IN},
+				 #{in_wid,jdbcType=BIGINT,mode=IN},
+				 #{in_status,jdbcType=BIGINT,mode=IN},
+				 #{in_ip,jdbcType=VARCHAR,mode=IN},
+				 #{in_date,jdbcType=VARCHAR,mode=IN},
+				 #{in_pMerBillNo,jdbcType=VARCHAR,mode=IN},
+				 #{in_pIpsBillNo,jdbcType=VARCHAR,mode=IN},
+				 #{out_ret,jdbcType=INTEGER,mode=OUT},
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }  
+	</select>
+
+	<select id="exportAllWithdraw" resultType="map">
+		SELECT *, DATE_FORMAT(applyTime,'%y-%m-%d %H:%I:%S') applyTime1, DATE_FORMAT(checkTime,'%y-%m-%d %H:%I:%S') checkTime1,
+		(
+			CASE
+				WHEN STATUS = 1 THEN
+					'审核中'
+				WHEN STATUS = 2 THEN
+					'已提现'
+				WHEN STATUS = 3 THEN
+					'取消'
+				WHEN STATUS = 4 THEN
+					'转账中'
+				WHEN STATUS = 5 THEN
+					'失败'
+			END
+		) status1
+		FROM v_t_user_withdraw_lists WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND name LIKE "%" #{0} "%"</if>
+		<if test="param2 != null and param2 != ''">AND status = #{1}</if>
+		<if test="param3 != null and param3 != ''">AND applyTime >= #{2}</if>
+		<if test="param4 != null and param4 != ''"><![CDATA[ AND applyTime <= #{3} ]]></if>
+		ORDER BY applyTime DESC
+	</select>
+	
+</mapper>
+
+
+
+
+

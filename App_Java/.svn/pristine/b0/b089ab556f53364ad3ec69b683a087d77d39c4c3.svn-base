@@ -1,0 +1,52 @@
+define(function (require,exports,module) {
+	//首页
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			utils.setAppConfig('邀请好友',true,false);
+		},
+		route:{
+			data: function(transition){
+				var _this = this;
+				var param={uid:Storage.getItem('uid'),curPage:1};
+				utils.ajax({
+			        url:'../front/friendManagerInit.do',
+			        data:JSON.stringify(repayparam),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		_this.$set('totalNum',data.pageBean.totalNum);
+			        	}
+			        },
+			        complete:function(){
+			        	transition.next();
+			        }
+			    })
+			},
+			waitForData: true
+		},
+		data:function(){
+			return {
+				totalNum:0,
+				cozyText:'温馨提示：请不要发送邀请信给不熟悉的人士,避免给别人带来不必要的困扰。 请将以下推荐链接地址或推荐号发给您的好友，这样您就成了他的邀请者。1、本活动期间推荐人每推荐一位好友注册并投资任意一款理财产品满500元以上，推荐人即可获得5元推荐奖励；2、本活动期间推荐人推荐好友注册并累计投资达3万元即可额外返100元推荐奖励，达10万元即可额外返300元推荐奖励。3、推荐人必须满足相关条件者推荐的好友奖励方可成立，详见邀请活动规则！',
+				imgUrl: 'http://qr.liantu.com/api.php?logo=http://www.pujinziben.com/wap/images/logo.jpg&text=http://www.pujinziben.com/wap/app.html%23!/regist?useCode='+Storage.getItem('uid')
+			}
+		},
+		methods:{
+			seaList:function(){
+				if(this.totalNum>0){
+					router.go({path:'frienddetail'});
+				}else{
+					$.toast('您还没有邀请好友注册哦！');
+					return;
+				}
+			}
+		},
+		template:'<div class="content"><div class="content-padded">'+
+				'<p class="friend-title">扫一扫</p><p class="friend-img"><img :src="imgUrl"/></p>'+
+				'<div class="text-item-submit">'+
+	            '<button type="button" @click="seaList" class="btn btn-submit">查看邀请好友</button>'+
+	            '</div><a class="friend-list">已经邀请<span>{{totalNum}}</span>位好友</a><div class="friend-text"><p>{{cozyText}}</p></div></div>'+
+			'</div></div>'
+	});
+	module.exports = VueComponent;
+})

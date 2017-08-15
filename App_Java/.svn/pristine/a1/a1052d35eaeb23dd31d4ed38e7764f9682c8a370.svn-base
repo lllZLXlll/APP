@@ -1,0 +1,9 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.Group;
+
+public interface GroupDao {
+	
+	public Group queryUserCashStatus(Long userId,Integer cashStatus);
+
+}

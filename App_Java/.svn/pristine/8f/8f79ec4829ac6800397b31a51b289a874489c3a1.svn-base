@@ -1,0 +1,117 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * ActivityInviteaward entity. @author MyEclipse Persistence Tools
+ */
+
+public class ActivityInviteaward implements java.io.Serializable {
+
+	// Fields
+
+	private Integer id;
+	private Integer userId;
+	private Integer recommendUserId;
+	private Double investAmount;
+	private Double money;
+	private String investTimeRange;
+	private Integer status;
+	private Date awardTime;
+	private Integer phase;
+
+	// Constructors
+
+	/** default constructor */
+	public ActivityInviteaward() {
+	}
+
+	/** full constructor */
+	public ActivityInviteaward(Integer userId, Integer recommendUserId, Double investAmount, Double money, String investTimeRange, Integer status, Date awardTime,
+			Integer phase) {
+		this.userId = userId;
+		this.recommendUserId = recommendUserId;
+		this.investAmount = investAmount;
+		this.money = money;
+		this.investTimeRange = investTimeRange;
+		this.status = status;
+		this.awardTime = awardTime;
+		this.phase = phase;
+	}
+
+	// Property accessors
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public Integer getRecommendUserId() {
+		return this.recommendUserId;
+	}
+
+	public void setRecommendUserId(Integer recommendUserId) {
+		this.recommendUserId = recommendUserId;
+	}
+
+	public Double getInvestAmount() {
+		return this.investAmount;
+	}
+
+	public void setInvestAmount(Double investAmount) {
+		this.investAmount = investAmount;
+	}
+
+	public Double getMoney() {
+		return this.money;
+	}
+
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+
+	public String getInvestTimeRange() {
+		return this.investTimeRange;
+	}
+
+	public void setInvestTimeRange(String investTimeRange) {
+		this.investTimeRange = investTimeRange;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Date getAwardTime() {
+		return this.awardTime;
+	}
+
+	public void setAwardTime(Date awardTime) {
+		this.awardTime = awardTime;
+	}
+
+	public Integer getPhase() {
+		return this.phase;
+	}
+
+	public void setPhase(Integer phase) {
+		this.phase = phase;
+	}
+
+}

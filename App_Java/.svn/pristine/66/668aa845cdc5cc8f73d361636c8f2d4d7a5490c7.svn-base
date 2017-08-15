@@ -1,0 +1,39 @@
+package com.pjzb.service.admin.system;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.ApproveNoticeTemplateDao;
+import com.pjzb.entity.SiteInformation;
+
+/**
+ * 站点资料
+ * 
+ */
+@Service
+public class AdminSiteDataService extends BaseController {
+
+	@Autowired
+	private ApproveNoticeTemplateDao approveNoticeTemplateDao;
+
+	public String querySiteInformation(Model model, String tabid) {
+		SiteInformation siteInformation = approveNoticeTemplateDao.querySiteInformation();
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("siteInformation", siteInformation);
+		return "/admin/system/sitedata/list.jsp";
+	}
+
+	public Map<String, Object> updateSiteInformationById(Model model, SiteInformation siteInformation, String tabid) {
+		long result = approveNoticeTemplateDao.updateSiteInformationById(siteInformation);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "站点资料修改成功", "", tabid);
+		} else {
+			return ajaxDoneInfo("300", "站点资料修改失败", "", "");
+		}
+	}
+
+}

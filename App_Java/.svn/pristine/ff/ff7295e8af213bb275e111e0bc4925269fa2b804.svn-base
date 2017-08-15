@@ -1,0 +1,193 @@
+package com.pjzb.service.front;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONObject;
+import nl.bitwalker.useragentutils.OperatingSystem;
+import nl.bitwalker.useragentutils.UserAgent;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AssignmentDebtDao;
+import com.pjzb.dao.AuctionDebtDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.AuctionDebt;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.User;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+@Service
+public class AuctionDebtService {
+
+	@Autowired
+	private AuctionDebtDao auctionDebtDao;
+
+	@Autowired
+	private AssignmentDebtDao assignmentDebtDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private AssignmentDebtService assignmentDebtService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public List<AuctionDebt> queryAuctionMaxPriceAndCount(Long debtId) {
+		return auctionDebtDao.queryAuctionMaxPriceAndCount(debtId);
+	}
+
+	public Map<String, String> queryAuctionDebtById(Long debtId) {
+		return auctionDebtDao.queryAuctionDebtById(debtId);
+	}
+
+	public Map<String, Object> getAuctionDebt(long debtId, long userId) {
+		return auctionDebtDao.getAuctionDebt(debtId, userId);
+	}
+
+	/**
+	 * 存储过程 处理债权转让
+	 */
+	public Map<String, String> insertProcedure_Debts(long debtId, long userId, double aucionPrice, double fee,
+			String debtPwd, String basePath, String investId, String type, String trxId, HttpServletRequest request,String basepath) {
+		String ret = null;
+		Map<String, String> map = new HashMap<String, String>();
+		try {
+			User userMap = new User();
+			List<Object> outParameterValues = new ArrayList<Object>();
+			userMap = userDao.queryUserById(userId);
+			if (userMap == null) {// 与回购合并处理,会出现userMap==null
+				if (type.equals("BackBuy")) {
+					userMap = userDao.queryUserByCustId(userId);
+					userId = userMap.getId();
+				} else {
+					userMap = userDao.queryUserByCustId(userId);
+					userId = userMap.getId();
+				}
+	
+			}
+			UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("User-Agent"));
+			OperatingSystem os = userAgent.getOperatingSystem();
+			String osSystem = os.toString();
+			System.out.println("os:" + os);
+			if (osSystem.equalsIgnoreCase("MAC_OS_X_IPHONE") || osSystem.equalsIgnoreCase("ANDROID")) {
+				osSystem = "phonepage";
+			} else {
+				osSystem = "PC";
+			}
+	
+			Map<String, Object> callMap = new HashMap<String, Object>();
+			callMap.put("in_debt_id", debtId);
+			callMap.put("in_uid", userId);
+			callMap.put("in_aucion_price", new BigDecimal(aucionPrice));
+			callMap.put("in_debt_pwd", debtPwd);
+			callMap.put("in_basePath", basePath);
+			callMap.put("trxId", investId);
+			callMap.put("in_pageType", trxId);
+			callMap.put("out_ret", "");
+			callMap.put("out_desc", "");
+			
+			assignmentDebtDao.p_borrow_debt_add(callMap);
+			ret = callMap.get("out_ret")+"";
+			map.put("ret", callMap.get("out_ret")+"");
+			map.put("ret_desc", callMap.get("out_desc")+"");
+			if (ret == null || ret.equals("")) {
+				return map;
+			}
+			
+			if (StringUtils.isBlank(debtPwd)) {// 债权转让
+				assignmentDebtService.updateAuctDebtSuccess(debtId, fee, trxId,basepath);
+			} else {// 回购,当全部回购时,更新该借款回购状态
+				// assignmentDebtService.updateBackBuy(investId);
+			}
+			// 添加操作日志
+			OperationLog oOperationLog = new OperationLog();
+			oOperationLog.setOperationTable("t_auction_debt");
+			oOperationLog.setOperationUser(userMap.getUsername());
+			oOperationLog.setOperationType(IConstants.INSERT);
+			oOperationLog.setOperationIp(userMap.getLastIp());
+			oOperationLog.setOperationRemarks("债权购买");
+			oOperationLog.setUserId(userMap.getId());
+			oOperationLog.setOperationMoney(0d);
+			oOperationLog.setOperationAround(1);
+			oOperationLog.setOperationTime(new Date());
+			operationLogDao.addOperationLog(oOperationLog);
+			// 更新签名债权购买人签名
+			userService.updateSign(userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return map;
+	}
+
+	/**
+	 * 参与购买债权
+	 * @param jsonObject
+	 * @param userId
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> queryAuctionDebt(JSONObject jsonObject, long userId, long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String borrowTitle = Convert.strToStr(String.valueOf(jsonObject.get("borrowTitle")),null);
+		String startTime = Convert.strToStr(String.valueOf(jsonObject.get("startTime")),null);
+		String endTime = Convert.strToStr(String.valueOf(jsonObject.get("endTime")),null);
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE),Constants.LONG_1);
+		List<Integer> debtStatus = new ArrayList<Integer>();
+		List<Map<String, Object>> debtList = auctionDebtDao.queryAuctionDebt(userId, borrowTitle, startTime, endTime, debtStatus, (curPage-1)*pageSize, pageSize );
+		Long debtCount = auctionDebtDao.queryAuctionDebtCount(userId, borrowTitle, startTime, endTime, debtStatus);
+		PageBean pageBean=new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(debtCount);
+		pageBean.setPage(debtList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	/**
+	 * 成功购买的债权
+	 * @param jsonObject
+	 * @param userId
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> querySuccessAuctionDebt(JSONObject jsonObject, Long userId, int pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String borrowTitle = Convert.strToStr(String.valueOf(jsonObject.get("borrowTitle")),null);
+		String startTime = Convert.strToStr(String.valueOf(jsonObject.get("startTime")),null);
+		String endTime = Convert.strToStr(String.valueOf(jsonObject.get("endTime")),null);
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE),Constants.LONG_1);
+		List<Map<String, Object>> debtList = auctionDebtDao.querySuccessAuctionDebt(userId, borrowTitle, startTime, endTime, (curPage-1)*pageSize, pageSize );
+		Long debtCount = auctionDebtDao.querySuccessAuctionDebtCount(userId, borrowTitle, startTime, endTime);
+		PageBean pageBean=new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(debtCount);
+		pageBean.setPage(debtList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+}

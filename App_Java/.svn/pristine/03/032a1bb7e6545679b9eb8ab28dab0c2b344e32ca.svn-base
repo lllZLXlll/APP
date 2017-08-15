@@ -1,0 +1,149 @@
+package com.pjzb.entity;
+// default package
+
+import java.sql.Timestamp;
+
+/**
+ * RongTuWang entity. @author MyEclipse Persistence Tools
+ */
+
+public class RongTuWang implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Timestamp recordTime;
+	private String aprData;
+	private String countData;
+	private Integer dcountData;
+	private Double timeData13;
+	private Double timeData46;
+	private Double timeData712;
+	private Double timeData12;
+	private Double cjData;
+	private Double dhData;
+	private Double avgApr;
+
+	// Constructors
+
+	/** default constructor */
+	public RongTuWang() {
+	}
+
+	/** full constructor */
+	public RongTuWang(Timestamp recordTime, String aprData, String countData,
+			Integer dcountData, Double timeData13, Double timeData46,
+			Double timeData712, Double timeData12, Double cjData,
+			Double dhData, Double avgApr) {
+		this.recordTime = recordTime;
+		this.aprData = aprData;
+		this.countData = countData;
+		this.dcountData = dcountData;
+		this.timeData13 = timeData13;
+		this.timeData46 = timeData46;
+		this.timeData712 = timeData712;
+		this.timeData12 = timeData12;
+		this.cjData = cjData;
+		this.dhData = dhData;
+		this.avgApr = avgApr;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Timestamp getRecordTime() {
+		return this.recordTime;
+	}
+
+	public void setRecordTime(Timestamp recordTime) {
+		this.recordTime = recordTime;
+	}
+
+	public String getAprData() {
+		return this.aprData;
+	}
+
+	public void setAprData(String aprData) {
+		this.aprData = aprData;
+	}
+
+	public String getCountData() {
+		return this.countData;
+	}
+
+	public void setCountData(String countData) {
+		this.countData = countData;
+	}
+
+	public Integer getDcountData() {
+		return this.dcountData;
+	}
+
+	public void setDcountData(Integer dcountData) {
+		this.dcountData = dcountData;
+	}
+
+	public Double getTimeData13() {
+		return this.timeData13;
+	}
+
+	public void setTimeData13(Double timeData13) {
+		this.timeData13 = timeData13;
+	}
+
+	public Double getTimeData46() {
+		return this.timeData46;
+	}
+
+	public void setTimeData46(Double timeData46) {
+		this.timeData46 = timeData46;
+	}
+
+	public Double getTimeData712() {
+		return this.timeData712;
+	}
+
+	public void setTimeData712(Double timeData712) {
+		this.timeData712 = timeData712;
+	}
+
+	public Double getTimeData12() {
+		return this.timeData12;
+	}
+
+	public void setTimeData12(Double timeData12) {
+		this.timeData12 = timeData12;
+	}
+
+	public Double getCjData() {
+		return this.cjData;
+	}
+
+	public void setCjData(Double cjData) {
+		this.cjData = cjData;
+	}
+
+	public Double getDhData() {
+		return this.dhData;
+	}
+
+	public void setDhData(Double dhData) {
+		this.dhData = dhData;
+	}
+
+	public Double getAvgApr() {
+		return this.avgApr;
+	}
+
+	public void setAvgApr(Double avgApr) {
+		this.avgApr = avgApr;
+	}
+
+}

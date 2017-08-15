@@ -1,0 +1,501 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Invest entity. @author MyEclipse Persistence Tools
+ */
+
+public class Invest implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Double investAmount;
+	private Double moneyRecord;
+	private Long voucherId;
+	private Double monthRate;
+	private Long investor;
+	private Long borrowId;
+	private Date investTime;
+	private Long oriInvestor;
+	private Double realAmount;
+	private Double hasPi;
+	private Integer deadline;
+	private Integer hasDeadline;
+	private Double recivedPrincipal;
+	private Double recievedInterest;
+	private Double hasPrincipal;
+	private Double hasInterest;
+	private Double recivedFi;
+	private Double hasFi;
+	private Double manageFee;
+	private Double reward;
+	private Integer repayStatus;
+	private String flag;
+	private Integer isAutoBid;
+	private Integer isDebt;
+	private Double circulationInterest;
+	private Integer circulationForpayStatus;
+	private String reason;
+	private Date repayDate;
+	private Double checkPrincipal;
+	private Double checkInterest;
+	private Long minInvestId;
+	private Long maxInvestId;
+	private Double adjustPrincipal;
+	private String billcode;
+	private String trxId;
+	private String downloadUrl;
+	private String viewpdfUrl;
+	private String investId;
+	private String contractId;
+	private String pageType;
+	private Integer firstInvest;
+	private Integer lastInvest;
+	private Integer maxInvest;
+	private Date pushdate;
+	private String pushstate;
+
+	// Constructors
+
+	/** default constructor */
+	public Invest() {
+	}
+
+	/** full constructor */
+	public Invest(Double investAmount, Double moneyRecord, Long voucherId,
+			Double monthRate, Long investor, Long borrowId,
+			Date investTime, Long oriInvestor, Double realAmount,
+			Double hasPi, Integer deadline, Integer hasDeadline,
+			Double recivedPrincipal, Double recievedInterest,
+			Double hasPrincipal, Double hasInterest, Double recivedFi,
+			Double hasFi, Double manageFee, Double reward, Integer repayStatus,
+			String flag, Integer isAutoBid, Integer isDebt,
+			Double circulationInterest, Integer circulationForpayStatus,
+			String reason, Date repayDate, Double checkPrincipal,
+			Double checkInterest, Long minInvestId, Long maxInvestId,
+			Double adjustPrincipal, String billcode, String trxId,
+			String downloadUrl, String viewpdfUrl, String investId,
+			String contractId, String pageType, Integer firstInvest,
+			Integer lastInvest, Integer maxInvest, Date pushdate,
+			String pushstate) {
+		this.investAmount = investAmount;
+		this.moneyRecord = moneyRecord;
+		this.voucherId = voucherId;
+		this.monthRate = monthRate;
+		this.investor = investor;
+		this.borrowId = borrowId;
+		this.investTime = investTime;
+		this.oriInvestor = oriInvestor;
+		this.realAmount = realAmount;
+		this.hasPi = hasPi;
+		this.deadline = deadline;
+		this.hasDeadline = hasDeadline;
+		this.recivedPrincipal = recivedPrincipal;
+		this.recievedInterest = recievedInterest;
+		this.hasPrincipal = hasPrincipal;
+		this.hasInterest = hasInterest;
+		this.recivedFi = recivedFi;
+		this.hasFi = hasFi;
+		this.manageFee = manageFee;
+		this.reward = reward;
+		this.repayStatus = repayStatus;
+		this.flag = flag;
+		this.isAutoBid = isAutoBid;
+		this.isDebt = isDebt;
+		this.circulationInterest = circulationInterest;
+		this.circulationForpayStatus = circulationForpayStatus;
+		this.reason = reason;
+		this.repayDate = repayDate;
+		this.checkPrincipal = checkPrincipal;
+		this.checkInterest = checkInterest;
+		this.minInvestId = minInvestId;
+		this.maxInvestId = maxInvestId;
+		this.adjustPrincipal = adjustPrincipal;
+		this.billcode = billcode;
+		this.trxId = trxId;
+		this.downloadUrl = downloadUrl;
+		this.viewpdfUrl = viewpdfUrl;
+		this.investId = investId;
+		this.contractId = contractId;
+		this.pageType = pageType;
+		this.firstInvest = firstInvest;
+		this.lastInvest = lastInvest;
+		this.maxInvest = maxInvest;
+		this.pushdate = pushdate;
+		this.pushstate = pushstate;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Double getInvestAmount() {
+		return this.investAmount;
+	}
+
+	public void setInvestAmount(Double investAmount) {
+		this.investAmount = investAmount;
+	}
+
+	public Double getMoneyRecord() {
+		return this.moneyRecord;
+	}
+
+	public void setMoneyRecord(Double moneyRecord) {
+		this.moneyRecord = moneyRecord;
+	}
+
+	public Long getVoucherId() {
+		return this.voucherId;
+	}
+
+	public void setVoucherId(Long voucherId) {
+		this.voucherId = voucherId;
+	}
+
+	public Double getMonthRate() {
+		return this.monthRate;
+	}
+
+	public void setMonthRate(Double monthRate) {
+		this.monthRate = monthRate;
+	}
+
+	public Long getInvestor() {
+		return this.investor;
+	}
+
+	public void setInvestor(Long investor) {
+		this.investor = investor;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Date getInvestTime() {
+		return this.investTime;
+	}
+
+	public void setInvestTime(Date investTime) {
+		this.investTime = investTime;
+	}
+
+	public Long getOriInvestor() {
+		return this.oriInvestor;
+	}
+
+	public void setOriInvestor(Long oriInvestor) {
+		this.oriInvestor = oriInvestor;
+	}
+
+	public Double getRealAmount() {
+		return this.realAmount;
+	}
+
+	public void setRealAmount(Double realAmount) {
+		this.realAmount = realAmount;
+	}
+
+	public Double getHasPi() {
+		return this.hasPi;
+	}
+
+	public void setHasPi(Double hasPi) {
+		this.hasPi = hasPi;
+	}
+
+	public Integer getDeadline() {
+		return this.deadline;
+	}
+
+	public void setDeadline(Integer deadline) {
+		this.deadline = deadline;
+	}
+
+	public Integer getHasDeadline() {
+		return this.hasDeadline;
+	}
+
+	public void setHasDeadline(Integer hasDeadline) {
+		this.hasDeadline = hasDeadline;
+	}
+
+	public Double getRecivedPrincipal() {
+		return this.recivedPrincipal;
+	}
+
+	public void setRecivedPrincipal(Double recivedPrincipal) {
+		this.recivedPrincipal = recivedPrincipal;
+	}
+
+	public Double getRecievedInterest() {
+		return this.recievedInterest;
+	}
+
+	public void setRecievedInterest(Double recievedInterest) {
+		this.recievedInterest = recievedInterest;
+	}
+
+	public Double getHasPrincipal() {
+		return this.hasPrincipal;
+	}
+
+	public void setHasPrincipal(Double hasPrincipal) {
+		this.hasPrincipal = hasPrincipal;
+	}
+
+	public Double getHasInterest() {
+		return this.hasInterest;
+	}
+
+	public void setHasInterest(Double hasInterest) {
+		this.hasInterest = hasInterest;
+	}
+
+	public Double getRecivedFi() {
+		return this.recivedFi;
+	}
+
+	public void setRecivedFi(Double recivedFi) {
+		this.recivedFi = recivedFi;
+	}
+
+	public Double getHasFi() {
+		return this.hasFi;
+	}
+
+	public void setHasFi(Double hasFi) {
+		this.hasFi = hasFi;
+	}
+
+	public Double getManageFee() {
+		return this.manageFee;
+	}
+
+	public void setManageFee(Double manageFee) {
+		this.manageFee = manageFee;
+	}
+
+	public Double getReward() {
+		return this.reward;
+	}
+
+	public void setReward(Double reward) {
+		this.reward = reward;
+	}
+
+	public Integer getRepayStatus() {
+		return this.repayStatus;
+	}
+
+	public void setRepayStatus(Integer repayStatus) {
+		this.repayStatus = repayStatus;
+	}
+
+	public String getFlag() {
+		return this.flag;
+	}
+
+	public void setFlag(String flag) {
+		this.flag = flag;
+	}
+
+	public Integer getIsAutoBid() {
+		return this.isAutoBid;
+	}
+
+	public void setIsAutoBid(Integer isAutoBid) {
+		this.isAutoBid = isAutoBid;
+	}
+
+	public Integer getIsDebt() {
+		return this.isDebt;
+	}
+
+	public void setIsDebt(Integer isDebt) {
+		this.isDebt = isDebt;
+	}
+
+	public Double getCirculationInterest() {
+		return this.circulationInterest;
+	}
+
+	public void setCirculationInterest(Double circulationInterest) {
+		this.circulationInterest = circulationInterest;
+	}
+
+	public Integer getCirculationForpayStatus() {
+		return this.circulationForpayStatus;
+	}
+
+	public void setCirculationForpayStatus(Integer circulationForpayStatus) {
+		this.circulationForpayStatus = circulationForpayStatus;
+	}
+
+	public String getReason() {
+		return this.reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public Date getRepayDate() {
+		return this.repayDate;
+	}
+
+	public void setRepayDate(Date repayDate) {
+		this.repayDate = repayDate;
+	}
+
+	public Double getCheckPrincipal() {
+		return this.checkPrincipal;
+	}
+
+	public void setCheckPrincipal(Double checkPrincipal) {
+		this.checkPrincipal = checkPrincipal;
+	}
+
+	public Double getCheckInterest() {
+		return this.checkInterest;
+	}
+
+	public void setCheckInterest(Double checkInterest) {
+		this.checkInterest = checkInterest;
+	}
+
+	public Long getMinInvestId() {
+		return this.minInvestId;
+	}
+
+	public void setMinInvestId(Long minInvestId) {
+		this.minInvestId = minInvestId;
+	}
+
+	public Long getMaxInvestId() {
+		return this.maxInvestId;
+	}
+
+	public void setMaxInvestId(Long maxInvestId) {
+		this.maxInvestId = maxInvestId;
+	}
+
+	public Double getAdjustPrincipal() {
+		return this.adjustPrincipal;
+	}
+
+	public void setAdjustPrincipal(Double adjustPrincipal) {
+		this.adjustPrincipal = adjustPrincipal;
+	}
+
+	public String getBillcode() {
+		return this.billcode;
+	}
+
+	public void setBillcode(String billcode) {
+		this.billcode = billcode;
+	}
+
+	public String getTrxId() {
+		return this.trxId;
+	}
+
+	public void setTrxId(String trxId) {
+		this.trxId = trxId;
+	}
+
+	public String getDownloadUrl() {
+		return this.downloadUrl;
+	}
+
+	public void setDownloadUrl(String downloadUrl) {
+		this.downloadUrl = downloadUrl;
+	}
+
+	public String getViewpdfUrl() {
+		return this.viewpdfUrl;
+	}
+
+	public void setViewpdfUrl(String viewpdfUrl) {
+		this.viewpdfUrl = viewpdfUrl;
+	}
+
+	public String getInvestId() {
+		return this.investId;
+	}
+
+	public void setInvestId(String investId) {
+		this.investId = investId;
+	}
+
+	public String getContractId() {
+		return this.contractId;
+	}
+
+	public void setContractId(String contractId) {
+		this.contractId = contractId;
+	}
+
+	public String getPageType() {
+		return this.pageType;
+	}
+
+	public void setPageType(String pageType) {
+		this.pageType = pageType;
+	}
+
+	public Integer getFirstInvest() {
+		return this.firstInvest;
+	}
+
+	public void setFirstInvest(Integer firstInvest) {
+		this.firstInvest = firstInvest;
+	}
+
+	public Integer getLastInvest() {
+		return this.lastInvest;
+	}
+
+	public void setLastInvest(Integer lastInvest) {
+		this.lastInvest = lastInvest;
+	}
+
+	public Integer getMaxInvest() {
+		return this.maxInvest;
+	}
+
+	public void setMaxInvest(Integer maxInvest) {
+		this.maxInvest = maxInvest;
+	}
+
+	public Date getPushdate() {
+		return this.pushdate;
+	}
+
+	public void setPushdate(Date pushdate) {
+		this.pushdate = pushdate;
+	}
+
+	public String getPushstate() {
+		return this.pushstate;
+	}
+
+	public void setPushstate(String pushstate) {
+		this.pushstate = pushstate;
+	}
+
+}

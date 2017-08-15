@@ -1,0 +1,73 @@
+package com.pjzb.service.admin.index;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.dao.AdminDao;
+import com.pjzb.dao.BorrowInspectionDao;
+import com.pjzb.dao.MenuDao;
+import com.pjzb.entity.Admin;
+
+@Service
+public class AdminMenuService {
+	public static Log log = LogFactory.getLog(AdminMenuService.class);
+
+	@Autowired
+	private MenuDao menuDao;
+
+	@Autowired
+	private AdminDao adminDao;
+
+	@Autowired
+	private BorrowInspectionDao borrowInspectionDao;
+
+	public List<Map<String, Object>> getMenu(Long roleId) {
+		List<Map<String, Object>> list3 = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> list = menuDao.getMenu(roleId);
+		for (Map<String, Object> menuMap : list) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<Map<String, Object>> menuList = new ArrayList<Map<String, Object>>();
+			map.putAll(menuMap);
+			List<Map<String, Object>> list2 = getMenuByParentID(roleId, Integer.parseInt(String.valueOf(menuMap.get("id"))));
+			for (Map<String, Object> menu2 : list2) {
+				menuList.add(menu2);
+			}
+			map.put("son", menuList);
+			list3.add(map);
+		}
+		return list3;
+	}
+
+	public List<Map<String, Object>> getMenuByParentID(Long roleId, Integer id) {
+		return menuDao.getMenuByParentID(roleId, id);
+	}
+
+	public String queryCountInfo(Model model, Admin admin) {
+		try {
+			// --审核管理
+			Map<String, Long> map = new HashMap<String, Long>();
+			map.put("adminId", admin.getId());
+			Map<String, Object> countMap = adminDao.callExamineProcedure(map);
+			Long borrowInspectionCount = null;
+			if (admin.getLoanUserId() != -1) {
+				borrowInspectionCount = borrowInspectionDao.queryBorrowInspectionCount(admin.getLoanUserId());
+			}
+			countMap.put("borrowInspectionCount", borrowInspectionCount);
+			model.addAttribute("map", countMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*************后台首页查询统计信息异常**************");
+		}
+		return "/admin/index/main.jsp";
+	}
+
+}

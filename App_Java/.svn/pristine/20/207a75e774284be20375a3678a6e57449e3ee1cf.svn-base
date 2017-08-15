@@ -1,0 +1,57 @@
+package com.pjzb.task;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.BorrowInspectionDao;
+import com.pjzb.entity.BorrowInspection;
+
+@Service
+public class JobCreateBorrowInspectionService {
+	private static Log log = LogFactory.getLog(JobCreateBorrowInspectionService.class);
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private BorrowInspectionDao borrowInspectionDao;
+
+	/**
+	 * 生成月检任务
+	 * 
+	 * @author xiaojin
+	 */
+	public void createBorrowInspection() {
+		log.info("--------------生成月检任务开始--------------");
+		try {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			list = borrowDao.queryBorrowForInspection();
+			for (Map<String, Object> map : list) {
+				Long borrowId = Long.parseLong(String.valueOf(map.get("borrowId")));
+				String borrowTitle = String.valueOf(map.get("borrowTitle"));
+				Long loanUserId = Long.parseLong(String.valueOf(map.get("loanUserId")));
+				BorrowInspection borrowInspection = new BorrowInspection();
+				borrowInspection.setBorrowId(borrowId);
+				borrowInspection.setBorrowTitle(borrowTitle);
+				borrowInspection.setLoanUserId(loanUserId);
+				borrowInspection.setDealWithStatus(0);
+				borrowInspection.setCreateTime(new Date());
+				borrowInspectionDao.insertBorrowInspection(borrowInspection);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************** 生成月检任务异常**************************");
+		}
+		log.info("--------------生成月检任务结束--------------");
+	}
+
+}

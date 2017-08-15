@@ -1,0 +1,132 @@
+package com.pjzb.service.admin.user;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.UserRename;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 用户名别名配置
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminUserAliasService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	/**
+	 * 
+	 * @describe:查询用户别名信息
+	 * @author: xiaojin
+	 * @param model
+	 * @param tabid
+	 * @param realName
+	 * @param userName
+	 * @param rename
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 */
+	public String queryUserAliasList(Model model, String tabid, String realName, String userName, String rename, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = ConvertUtil.objToStrConvert(userName);
+			realName = ConvertUtil.objToStrConvert(realName);
+			rename = ConvertUtil.objToStrConvert(rename);
+			List<Map<String, Object>> list = userDao.queryUserRenameList(realName, userName, rename, (pageNum - 1) * pageSize, pageSize);
+			long count = userDao.queryUserRenameCount(realName, userName, rename);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("rename", rename);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询用户信息异常**************************");
+		}
+		return "/admin/user/useralias/list.jsp";
+	}
+
+	public String querySaveOrUpdateUseraliasInit(Model model, Long id, String type, String tabid) {
+		Map<String, Object> userMap = null;
+		userMap = userDao.queryUserRenameInfoById(id);
+		if (type != null) {
+			if (type.equals("add")) {
+				userMap.put("rename", "");
+				userMap.put("startTime", "");
+				userMap.put("endTime", "");
+			} else {
+				userMap = personDao.queryUserAndPersonForUnionByUserId(id);
+			}
+		}
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("id", id);
+		model.addAttribute("userMap", userMap);
+		model.addAttribute("type", type);
+		return "/admin/user/useralias/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> deleteUserRenameById(Long id) {
+		long result = userDao.deleteUserRenameById(id);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "用户别名删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "用户别名删除失败", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:修改或保存用户名的别名
+	 * @author: xiaojin
+	 * @param userRename
+	 * @param type
+	 * @param tabid
+	 * @return
+	 */
+	public Map<String, Object> saveOrUpdateUserRename(UserRename userRename, String type, String tabid) {
+		if (type.equals("add") || type.equals("save")) {
+			userRename.setId(null);
+			userRename.setCreateTime(new Date());
+			long result = userDao.addUserRename(userRename);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "别名增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "别名增加失败", "", "");
+			}
+		} else {
+			userRename.setCreateTime(new Date());
+			long result = userDao.updateUserRenameById(userRename);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "别名修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "别名修改失败", "", "");
+			}
+		}
+	}
+
+}

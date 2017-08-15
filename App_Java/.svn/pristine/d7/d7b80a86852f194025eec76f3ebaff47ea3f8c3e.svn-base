@@ -1,0 +1,583 @@
+package com.pjzb.service.admin.fund;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AdminDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RechargeDetailDao;
+import com.pjzb.dao.RiskDetailDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.dao.WithdrawDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.RiskDetail;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.common.SMSInterfaceService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DesSecurityUtil;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.GenerateSequenceNo;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.ServletUtils;
+import com.pjzb.util.SqlInfusion;
+import com.shove.Convert;
+import com.shove.web.Utility;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 充值提现审核
+ * 
+ * @author zlx
+ * 
+ */
+@Service
+public class AdminRechWithdrawService extends BaseController {
+
+	@Autowired
+	private WithdrawDao withdrawDao;
+
+	@Autowired
+	private RechargeDetailDao rechargeDetailDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private AdminDao adminDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private RiskDetailDao riskDetailDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private SMSInterfaceService sMSInterfaceService;
+
+	public String queryAllWithdrawInit(Model model, String tabid, long pageNum, long pageSize, String userName, String state, String startTime, String endTime) throws Exception {
+		long count = withdrawDao.queryAllWithdrawListCount(userName, state, startTime, endTime);
+		userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+		state = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(state));
+		startTime = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(startTime));
+		endTime = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(endTime));
+		List<Map<String, Object>> list = withdrawDao.queryAllWithdrawList(userName, state, startTime, endTime, (pageNum - 1) * pageSize, pageSize);
+
+		Map<String, String> map = withdrawDao.queryAllWithdrawListMap(userName, state, startTime, endTime);
+
+		if (list != null) {
+			Iterator<Map<String, Object>> iter = list.iterator();
+			int i = 0;
+			while (iter.hasNext()) {
+				Map<String, Object> maps = iter.next();
+				list.get(i).put("ids", new DesSecurityUtil().encrypt(maps.get("id").toString()));
+				list.get(i).put("userIds", new DesSecurityUtil().encrypt(maps.get("userId").toString()));
+				i++;
+			}
+		}
+
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("map", map);
+		model.addAttribute("state", state);
+		model.addAttribute("startTime", startTime);
+		model.addAttribute("endTime", endTime);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		return "/admin/fund/rechwithdraw/list.jsp";
+	}
+
+	public String queryWithdrawShowInfo(Model model, String tabid, String idStr) throws Exception {
+		Map<String, Object> item = new HashMap<String, Object>();
+		long id = Convert.strToLong(new DesSecurityUtil().decrypt(idStr), -1l);
+		Map<String, Object> b_map = withdrawDao.queryWithdrawShowInfo(id);
+		b_map.put("status", fomatStatus(b_map.get("status") + ""));
+		long userId = Convert.strToLong(b_map.get("userId") + "", -100);
+		String checkId = b_map.get("checkId") + "";
+		String checkTime = b_map.get("checkTime") == null ? "" : b_map.get("checkTime").toString();
+		String remark = b_map.get("remark") == null ? "" : b_map.get("remark").toString();
+		String defaultValue = "0.00";
+		Map<String, Object> rw_map = queryUserRWInfo(userId, IConstants.RECHARGE_SUCCESS, IConstants.WITHDRAW_SUCCESS);
+		if (rw_map != null) {
+			if (rw_map.get("r_total").equals(""))
+				item.put("r_total", defaultValue);// 充值成功总额
+			else
+				item.put("r_total", rw_map.get("r_total"));// 充值成功总额
+
+			if (rw_map.get("w_total").equals(""))
+				item.put("w_total", defaultValue);// 提现成功总额
+			else
+				item.put("w_total", rw_map.get("w_total"));// 提现成功总额
+
+			if (rw_map.get("real_Amount").equals(""))
+				item.put("real_Amount", defaultValue);// 投标成功总额
+			else
+				item.put("real_Amount", rw_map.get("real_Amount"));// 投标成功总额
+			item.put("withdraw_max", IConstants.WITHDRAW_MAX);
+		}
+
+		User u_map = userDao.queryUserById(userId);
+		if (u_map != null) {
+			item.put("username", u_map.getUsername());
+			item.put("usableSum", u_map.getUsableSum());
+		}
+
+		Admin ms = adminDao.queryAdminById(Convert.strToLong(checkId, -100));
+		String username = null;
+		if (ms == null) {
+			username = "";
+		} else
+			username = ms.getUserName();
+
+		item.put("auditPeople", username);
+		item.put("auditTime", checkTime);
+		item.put("auditMsg", remark);
+		item.putAll(b_map);
+		model.addAttribute("id", idStr);
+		model.addAttribute("userId", new DesSecurityUtil().encrypt(userId + ""));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("item", item);
+
+		return "/admin/fund/rechwithdraw/show.jsp";
+	}
+
+	private Map<String, Object> queryUserRWInfo(long userId, int rs, int ws) {
+		Map<String, Object> map = rechargeDetailDao.querySuccessRecharge(userId, rs);
+		Map<String, Object> mp = withdrawDao.querySuccessBid(userId);
+
+		Map<String, Object> _map = withdrawDao.querySuccessWithdraw(userId, ws);
+		if (_map == null || _map.size() <= 0) {
+			_map = new HashMap<String, Object>();
+			_map.put("w_total", "0.00");
+		}
+
+		if (map == null || map.size() <= 0) {
+			_map.put("r_total", "0.00");
+
+		} else {
+			_map.put("r_total", map.get("r_total"));
+		}
+		if (mp == null || mp.size() <= 0) {
+			_map.put("real_Amount", "0.00");
+
+		} else {
+			_map.put("real_Amount", mp.get("realAmount"));
+		}
+		return _map;
+	}
+
+	private String fomatStatus(String status) {
+		if (status.equals(IConstants.WITHDRAW_CHECK + "")) {
+			return IConstants.WITHDRAW_CHECK_STR;
+		} else if (status.equals(IConstants.WITHDRAW_SUCCESS + "")) {
+			return IConstants.WITHDRAW_SUCCESS_STR;
+		} else if (status.equals(IConstants.WITHDRAW_TRANS + "")) {
+			return IConstants.WITHDRAW_TRANS_STR;
+		} else if (status.equals(IConstants.WITHDRAW_FAIL + "")) {
+			return IConstants.WITHDRAW_FAIL_STR;
+		} else if (status.equals(IConstants.WITHDRAW_CANCEL + "")) {
+			return IConstants.WITHDRAW_CANCEL_STR;
+		}
+		return status;
+	}
+
+	public Map<String, Object> updateWithdrawCheck(Model model, String tabid, String idStr, Integer status, double realMoney, double poundage, String remark, String userIdStr,
+			String trxId) throws RuntimeException {
+		try {
+			model.addAttribute("tabid", tabid);
+			long id = Convert.strToLong(new DesSecurityUtil().decrypt(idStr), -1l);
+			long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1l);
+			Admin admin = getSessionAdminInfo();
+			long aId = admin.getId();
+			String ipAddress = ServletUtils.getRemortIp();
+
+			if (realMoney <= 0) {
+				return ajaxDoneInfo("300", "到账金额格式错误", "", "");
+			}
+
+			if (poundage < 0) {
+				return ajaxDoneInfo("300", "手续费格式错误", "", "");
+			}
+			// 如果审核不通过，则需解冻汇付冻结金额
+			if (status == 5) {
+				JSONObject json = JSONObject.fromObject(ChinapnrInterface.usrUnFreeze(GenerateSequenceNo.generateSequenceNo(), SqlInfusion.FilteSqlInfusion(trxId),
+						getProjectRealPath() + "pubCallBack.do", "UsrUnFreeze"));
+				log.info("提现审核不通过，解冻提现金额处理结果：" + json.toString());
+				if (json.getInt("RespCode") != 0) {
+					return ajaxDoneInfo("300", "解冻失败:" + json.getString("RespDesc"), "", "");
+				}
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("in_uid", userId);
+			map.put("in_aid", aId);
+			map.put("in_wid", id);
+			map.put("in_money", realMoney);
+			map.put("in_poundage", poundage);
+			map.put("in_status", status);
+			map.put("in_ip", ipAddress);
+			map.put("in_remark", remark);
+			map.put("in_date", "");
+			map.put("out_ret", "");
+			map.put("out_desc", "");
+			withdrawDao.callWithdrawProcedure(map);
+			long retVal = -1;
+			retVal = Convert.strToLong(map.get("out_ret") + "", -1);
+			session().removeAttribute("randomCode");
+
+			userService.updateSign(userId);// 更换校验码
+
+			if (retVal <= 0) {
+				return ajaxDoneInfo("300", map.get("out_desc").toString(), "", "");
+			} else {
+				// 添加操作日志
+				operationLogDao.addOperationLog(new OperationLog("t_withdraw", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), realMoney, "提现审核", 2, aId));
+				return ajaxDoneInfo("200", "审核成功", "dialog", tabid);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Map<String, Object> updateWithdrawTransfer(Model model, String tabid, String idStr, Integer status, double sum, double poundage, String billcode, String userIdStr,
+			String trxId, String usrCustId) throws RuntimeException {
+		try {
+			Admin admin = getSessionAdminInfo();
+			long id = Convert.strToLong(new DesSecurityUtil().decrypt(idStr), -1l);
+			long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1l);
+			DecimalFormat df = new DecimalFormat("#.00");
+			String sumStr = df.format(sum);// 提现总金额
+			String poundageStr = df.format(poundage);// 手续费
+			String realMoney = df.format(sum-poundage);// 实际到账金额
+			String auditFlag = "";
+			if ((status + "").equals("2")) {
+				auditFlag = "S";
+			} else if ((status + "").equals("5")) {
+				auditFlag = "R";
+			} else {
+				return ajaxDoneInfo("300", "转账状态错误", "", "");
+			}
+			log.info("单条提现参数>wid：" + id + "  ordId:" + billcode + "  usrCustId:" + usrCustId + "  status:" + status + "  trxId:" + trxId + "  userId:" + userId);
+			String bgRetUrl = getBasePath() + "pubCallBack.do";
+			String result = updateWithdrawTransfer(billcode, id, status, admin.getId(), ServletUtils.getRemortIp(), trxId, sumStr,realMoney, usrCustId, auditFlag, bgRetUrl);
+
+			if (result.equalsIgnoreCase("1")) {
+				// 添加企业资金变动记录 张立享
+				withdrawals(poundageStr, admin, userId, null);
+
+				// 发送短信
+				sMSInterfaceService.sendSMSModer(userId, sumStr, 2);
+				// // 更新签名
+				userService.updateSign(userId);
+				return ajaxDoneInfo("200", "操作成功", "dialog", tabid);
+			}
+			return ajaxDoneInfo("300", result, "", "");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private String updateWithdrawTransfer(String billcode, long id, Integer status, Long aid, String remortIp, String trxId, String sum,String realMoney, String usrCustId, String auditFlag,
+			String bgRetUrl) throws Exception {
+		JSONObject json = JSONObject.fromObject(ChinapnrInterface.usrUnFreeze(GenerateSequenceNo.generateSequenceNo(), trxId, bgRetUrl, "UsrUnFreeze"));
+		log.info("提现解冻处理结果：" + json.toString());
+		if (json.getInt("RespCode") != 0) {
+			return "解冻失败:" + json.getString("RespDesc");
+		}
+		if (status == 2) {
+			// 提现
+			json = JSONObject.fromObject(ChinapnrInterface.cashAudit(billcode, usrCustId, realMoney, auditFlag, bgRetUrl));
+			log.info("提现转账处理结果：" + json.toString());
+			if (json.getInt("RespCode") != 0) {
+				JSONObject json1 = JSONObject.fromObject(ChinapnrInterface.usrFreezeBg(usrCustId, "", "", GenerateSequenceNo.generateSequenceNo(), sum, bgRetUrl, "UsrUnFreeze"));
+				log.info("提现转账失败,重新冻结提现金额处理结果：" + json1.toString());
+				log.info("新的冻结流水号：" + json1.getString("TrxId"));
+				// 更新冻结流水号
+				withdrawDao.updateBorrowTrxId(id, json1.getString("TrxId"));
+				return "提现失败:" + json.getString("RespDesc");
+			}
+		}
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("in_aid", aid);
+		map.put("in_wid", id);
+		map.put("in_status", status);
+		map.put("in_ip", remortIp);
+		map.put("in_date", "");
+		map.put("in_pMerBillNo", "");
+		map.put("in_pIpsBillNo", "");
+		map.put("out_ret", -1);
+		map.put("out_desc", "");
+
+		withdrawDao.callAmountWithdrawTransferProcedure(map);
+
+		int out_ret = Integer.parseInt(map.get("out_ret") + "");
+		if (out_ret == -1) {
+			throw new RuntimeException("操作失败");
+		} else {
+			return "1";
+		}
+	}
+
+	// 企业资金记录表 信息更新 张立享
+	private void withdrawals(String poundage, Admin admin, long userId, String borrowld) throws RuntimeException {
+		try {
+			double poundageD = 0;// 实际平台收取的服务费
+			if (poundage != null && !"".equals(poundage)) {
+				poundageD = Double.parseDouble(poundage);
+				if (poundageD > 2) {
+					poundageD -= 2;
+
+					RiskDetail map = riskDetailDao.queryRiskDetailMax();
+
+					log.info("riskInCome:" + poundageD + "元, adminId: " + admin.getId() + ", riskBalance：" + map.getRiskBalance() + ", riskDate:" + new Date()
+							+ ", riskType: 收入, resource: 提现服务费, riskSpending: 0");
+
+					// 连接 ，收入，支出， 管理员id，交易对方， 备注， 品台保证金余额， 记录日期， 保证金类型， 来源
+					RiskDetail riskDetail = new RiskDetail();
+					riskDetail.setRiskInCome(poundageD);
+					riskDetail.setRiskSpending(0d);
+					riskDetail.setOperator(admin.getId());
+					riskDetail.setTrader(userId);
+					riskDetail.setRemark("提现服务费");
+					riskDetail.setRiskBalance(map.getRiskBalance() + poundageD);
+					riskDetail.setRiskDate(new Date());
+					riskDetail.setRiskType("收入");
+					riskDetail.setResource("提现服务费");
+					riskDetailDao.insertRiskDetail(riskDetail);
+				}
+			}
+		} catch (Exception e) {
+			log.error("平台收取服务费异常:" + e.getMessage());
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void exportAllWithdraw(String userName, String state, String startTime, String endTime, HttpServletResponse response) throws IOException {
+		List<Map<String, Object>> page = withdrawDao.exportAllWithdraw(userName, state, startTime, endTime);
+		HSSFWorkbook wb = ExcelUtils.exportExcelCommon("资金明细列表", page, new String[] { "用户名", "真实姓名", "提现账号", "提现银行", "提现总额（¥）", "到账金额（¥）", "手续费（¥）", "提现时间", "转账时间", "状态" },
+				new String[] { "name", "realName", "bankId", "bankName", "sum", "realMoney", "poundage", "applyTime1", "checkTime1", "status1" });
+		this.export(wb, new Date().getTime() + ".xls", response);
+	}
+
+	public Map<String, Object> updateWithdrawChecks(Model model, String tabid, String ids) throws Exception {
+		String [] array = {};
+		if (ids != null && ids.trim().length() > 0 ) {
+			array = ids.split(",");
+		}
+		Map<String, Object> map;
+		boolean is = false;
+		for (int i = 0, j = array.length; i < j; i++) {
+			map = queryWithdrawShowInfos(array[i]);
+			is = updateWithdrawChecks(array[i], 4, Double.parseDouble(map.get("sum") + ""),
+					Double.parseDouble(map.get("poundage") + ""), "", map.get("user_Id") + "", map.get("trxId") + "");
+			if (!is) {
+				throw new RuntimeException("批量充值提现审核异常");
+			}
+			map = null;
+		}
+		return ajaxDoneInfo("200", "审核成功", "", "");
+	}
+	
+	private Map<String, Object> queryWithdrawShowInfos(String idStr) throws Exception {
+		Map<String, Object> item = new HashMap<String, Object>();
+		long id = Convert.strToLong(new DesSecurityUtil().decrypt(idStr), -1l);
+		Map<String, Object> b_map = withdrawDao.queryWithdrawShowInfo(id);
+		b_map.put("status", fomatStatus(b_map.get("status") + ""));
+		long userId = Convert.strToLong(b_map.get("userId") + "", -100);
+		String checkId = b_map.get("checkId") + "";
+		String checkTime = b_map.get("checkTime") == null ? "" : b_map.get("checkTime").toString();
+		String remark = b_map.get("remark") == null ? "" : b_map.get("remark").toString();
+		String defaultValue = "0.00";
+		Map<String, Object> rw_map = queryUserRWInfo(userId, IConstants.RECHARGE_SUCCESS, IConstants.WITHDRAW_SUCCESS);
+		if (rw_map != null) {
+			if (rw_map.get("r_total").equals(""))
+				item.put("r_total", defaultValue);// 充值成功总额
+			else
+				item.put("r_total", rw_map.get("r_total"));// 充值成功总额
+
+			if (rw_map.get("w_total").equals(""))
+				item.put("w_total", defaultValue);// 提现成功总额
+			else
+				item.put("w_total", rw_map.get("w_total"));// 提现成功总额
+
+			if (rw_map.get("real_Amount").equals(""))
+				item.put("real_Amount", defaultValue);// 投标成功总额
+			else
+				item.put("real_Amount", rw_map.get("real_Amount"));// 投标成功总额
+			item.put("withdraw_max", IConstants.WITHDRAW_MAX);
+		}
+
+		User u_map = userDao.queryUserById(userId);
+		if (u_map != null) {
+			item.put("username", u_map.getUsername());
+			item.put("usableSum", u_map.getUsableSum());
+		}
+
+		Admin ms = adminDao.queryAdminById(Convert.strToLong(checkId, -100));
+		String username = null;
+		if (ms == null) {
+			username = "";
+		} else
+			username = ms.getUserName();
+
+		item.put("auditPeople", username);
+		item.put("auditTime", checkTime);
+		item.put("auditMsg", remark);
+		item.put("id", idStr);
+		item.put("user_Id", new DesSecurityUtil().encrypt(userId + ""));
+		item.putAll(b_map);
+		return item;
+	}
+
+	public boolean updateWithdrawChecks(String idStr, Integer status, double realMoney, double poundage, String remark, String userIdStr,
+			String trxId) throws RuntimeException {
+		try {
+			long id = Convert.strToLong(new DesSecurityUtil().decrypt(idStr), -1l);
+			long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1l);
+			Admin admin = getSessionAdminInfo();
+			long aId = admin.getId();
+			String ipAddress = ServletUtils.getRemortIp();
+			
+			if (realMoney <= 0) {
+				log.info("到账金额格式错误");
+				return false;
+			}
+
+			if (poundage < 0) {
+				log.info("手续费格式错误");
+				return false;
+			}
+			// 如果审核不通过，则需解冻汇付冻结金额
+			if (status == 5) {
+				JSONObject json = JSONObject.fromObject(ChinapnrInterface.usrUnFreeze(GenerateSequenceNo.generateSequenceNo(), SqlInfusion.FilteSqlInfusion(trxId),
+						getProjectRealPath() + "pubCallBack.do", "UsrUnFreeze"));
+				log.info("提现审核不通过，解冻提现金额处理结果：" + json.toString());
+				if (json.getInt("RespCode") != 0) {
+					return false;
+				}
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("in_uid", userId);
+			map.put("in_aid", aId);
+			map.put("in_wid", id);
+			map.put("in_money", realMoney);
+			map.put("in_poundage", poundage);
+			map.put("in_status", status);
+			map.put("in_ip", ipAddress);
+			map.put("in_remark", remark);
+			map.put("in_date", "");
+			map.put("out_ret", "");
+			map.put("out_desc", "");
+			withdrawDao.callWithdrawProcedure(map);
+			long retVal = -1;
+			retVal = Convert.strToLong(map.get("out_ret") + "", -1);
+			session().removeAttribute("randomCode");
+
+			userService.updateSign(userId);// 更换校验码
+
+			if (retVal <= 0) {
+				return false;
+			} else {
+				// 添加操作日志
+				operationLogDao.addOperationLog(new OperationLog("t_withdraw", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), realMoney, "提现审核", 2, aId));
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Map<String, Object> updateWithdrawTransfers(Model model, String tabid, String ids) throws Exception {
+		String[] array = {};
+		if (ids != null && ids.trim().length() > 0) {
+			array = ids.split(",");
+		}
+		Map<String, Object> map;
+		boolean is = false;
+		for (int i = 0, j = array.length; i < j; i++) {
+			map = queryWithdrawShowInfos(array[i]);
+
+			is = updateWithdrawTransfers(array[i], 2, Double.parseDouble(map.get("sum") + ""),
+					Double.parseDouble(map.get("poundage") + ""), map.get("billcode") + "", map.get("user_Id") + "",
+					map.get("trxId") + "", map.get("usrCustId") + "");
+			if (!is) {
+				throw new RuntimeException("批量充值提现审核异常");
+			}
+			map = null;
+		}
+		return ajaxDoneInfo("200", "操作成功", "", "");
+	}
+
+	private boolean updateWithdrawTransfers(String idStr, Integer status, double sum, double poundage, String billcode,
+			String userIdStr, String trxId, String usrCustId) throws RuntimeException {
+		try {
+			Admin admin = getSessionAdminInfo();
+			long id = Convert.strToLong(new DesSecurityUtil().decrypt(idStr), -1l);
+			long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1l);
+			DecimalFormat df = new DecimalFormat("#.00");
+			String sumStr = df.format(sum);// 提现总金额
+			String poundageStr = df.format(poundage);// 手续费
+			String realMoney = df.format(sum - poundage);// 实际到账金额
+			String auditFlag = "";
+			if ((status + "").equals("2")) {
+				auditFlag = "S";
+			} else if ((status + "").equals("5")) {
+				auditFlag = "R";
+			} else {
+				log.info("转账状态错误");
+				return false;
+			}
+			log.info("单条提现参数>wid：" + id + "  ordId:" + billcode + "  usrCustId:" + usrCustId + "  status:" + status
+					+ "  trxId:" + trxId + "  userId:" + userId);
+			String bgRetUrl = getBasePath() + "pubCallBack.do";
+			String result = updateWithdrawTransfer(billcode, id, status, admin.getId(), ServletUtils.getRemortIp(),
+					trxId, sumStr, realMoney, usrCustId, auditFlag, bgRetUrl);
+
+			if (result.equalsIgnoreCase("1")) {
+				// 添加企业资金变动记录 张立享
+				withdrawals(poundageStr, admin, userId, null);
+
+				// 发送短信
+				sMSInterfaceService.sendSMSModer(userId, sumStr, 2);
+				// // 更新签名
+				userService.updateSign(userId);
+				log.info("操作成功");
+				return true;
+			}
+			log.info(result);
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+}

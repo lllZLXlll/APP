@@ -1,0 +1,129 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * OperationLog entity. @author MyEclipse Persistence Tools
+ */
+
+public class OperationLog implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String operationTable;
+	private String operationUser;
+	private Integer operationType;
+	private String operationIp;
+	private Date operationTime;
+	private Double operationMoney;
+	private String operationRemarks;
+	private Integer operationAround;
+	private Long userId;
+
+	// Constructors
+
+	/** default constructor */
+	public OperationLog() {
+	}
+
+	/** full constructor */
+	public OperationLog(String operationTable, String operationUser,
+			Integer operationType, String operationIp, Date operationTime,
+			Double operationMoney, String operationRemarks,
+			Integer operationAround, Long userId) {
+		this.operationTable = operationTable;
+		this.operationUser = operationUser;
+		this.operationType = operationType;
+		this.operationIp = operationIp;
+		this.operationTime = operationTime;
+		this.operationMoney = operationMoney;
+		this.operationRemarks = operationRemarks;
+		this.operationAround = operationAround;
+		this.userId = userId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getOperationTable() {
+		return this.operationTable;
+	}
+
+	public void setOperationTable(String operationTable) {
+		this.operationTable = operationTable;
+	}
+
+	public String getOperationUser() {
+		return this.operationUser;
+	}
+
+	public void setOperationUser(String operationUser) {
+		this.operationUser = operationUser;
+	}
+
+	public Integer getOperationType() {
+		return this.operationType;
+	}
+
+	public void setOperationType(Integer operationType) {
+		this.operationType = operationType;
+	}
+
+	public String getOperationIp() {
+		return this.operationIp;
+	}
+
+	public void setOperationIp(String operationIp) {
+		this.operationIp = operationIp;
+	}
+
+	public Date getOperationTime() {
+		return this.operationTime;
+	}
+
+	public void setOperationTime(Date operationTime) {
+		this.operationTime = operationTime;
+	}
+
+	public Double getOperationMoney() {
+		return this.operationMoney;
+	}
+
+	public void setOperationMoney(Double operationMoney) {
+		this.operationMoney = operationMoney;
+	}
+
+	public String getOperationRemarks() {
+		return this.operationRemarks;
+	}
+
+	public void setOperationRemarks(String operationRemarks) {
+		this.operationRemarks = operationRemarks;
+	}
+
+	public Integer getOperationAround() {
+		return this.operationAround;
+	}
+
+	public void setOperationAround(Integer operationAround) {
+		this.operationAround = operationAround;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+}

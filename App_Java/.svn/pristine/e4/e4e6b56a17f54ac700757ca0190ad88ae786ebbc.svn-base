@@ -1,0 +1,238 @@
+package com.pjzb.task;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.CashReconciliationDao;
+import com.pjzb.dao.DivideAccountDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.ReleaseAlsoReconciliationDao;
+import com.pjzb.entity.DivideAccount;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.ReleaseAlsoReconciliation;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.IConstants;
+
+@Service
+public class JobRepayInfoCollectService {
+	private static Log log = LogFactory.getLog(JobRepayInfoCollectService.class);
+
+	@Autowired
+	private ReleaseAlsoReconciliationDao releaseAlsoReconciliationDao;
+
+	@Autowired
+	private CashReconciliationDao cashReconciliationDao;
+
+	@Autowired
+	private DivideAccountDao divideAccountDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	/**
+	 * 放还款信息采集
+	 * 
+	 * @throws
+	 * @author xiaojin
+	 */
+	public void addReconciliation(String queryTransType) {
+		log.info("-------------- 放还款信息采集开始--------------");
+		try {
+			Date d = new Date();
+			Date date = new Date(d.getTime() - 1 * 24 * 60 * 60 * 1000);
+			String beginDate = DateUtil.dateToYMD(date);
+			String endDate = DateUtil.dateToYMD(date);
+			// 放款：LOANS，还款：REPAYMENT
+			// String beginDate = "20160701";
+			// String endDate = "20160801";
+			int pageNum = 1;
+			String pageSize = "1000";
+			// 判断条数是否等于最大值1000，如果等于则继续取下一页的数据。
+			boolean flag = false;
+			do {
+
+				JSONObject jsonObject = JSONObject.fromObject(ChinapnrInterface.reconciliation(beginDate, endDate, pageSize, pageNum + "", queryTransType));
+				log.info("放还款对账：" + jsonObject.toString());
+				if (jsonObject.getInt("RespCode") != 0) {
+					String msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+					System.out.println("汇付返回msg:" + msg);
+				} else {
+					// 汇付返回成功
+					// 对账结果串变成数组
+					JSONArray jsonArray = JSONArray.fromObject(jsonObject.getString("ReconciliationDtoList"));
+
+					int jsonSize = jsonArray.size();
+					// 如果数据量超过1000条，继续取下一页的数据。
+					if (jsonSize == 1000) {
+						pageNum = pageNum + 1;
+						flag = true;
+					} else {
+						flag = false;
+					}
+
+					List<Map<String, String>> cashMapList = new ArrayList<Map<String, String>>();
+					for (int i = 0; i < jsonArray.size(); i++) {
+						JSONObject cashJSONObject = jsonArray.getJSONObject(i);
+						if (!cashJSONObject.isNullObject()) {
+
+							Map<String, String> cashMap = new HashMap<String, String>();
+							@SuppressWarnings("unchecked")
+							Iterator<String> nameItr = cashJSONObject.keys();
+							String name = "";
+							while (nameItr.hasNext()) {
+								name = nameItr.next();
+								cashMap.put(name, cashJSONObject.getString(name));
+							}
+							cashMapList.add(cashMap);
+						}
+					}
+					if (!cashMapList.isEmpty()) {
+						System.out.println(cashMapList);
+						// 把cashMapList中数据写入数据库
+						Long result = createReconciliation(cashMapList, beginDate, pageNum, queryTransType);
+						log.info("放还款对账插入本地数据库条数:" + result);
+					} else {
+						log.info("放还款对账当天无数据,时间:" + beginDate);
+					}
+				}
+			} while (flag);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("-------------- 放还款信息采集异常--------------");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("-------------- 放还款信息采集异常--------------");
+		}
+
+		log.info("-------------- 放还款信息采集结束--------------");
+	}
+
+	// 采集汇付的放还款对账信息
+	public long createReconciliation(List<Map<String, String>> cashMapList, String PnrDate, int pageNum, String QueryTransType) throws Exception {
+		Long result = 0L;
+		try {
+			// pageNum==1 || pageNum==2
+			// 说明是第一次循环取值，可以删除当天的数据，再次循环取值时不能再删除当天的数据，否则取现对账表的数据不准确。
+			if (pageNum == 1 || pageNum == 2) {
+				releaseAlsoReconciliationDao.deleteReleaseAlsoReconciliationByPnrDate(PnrDate);
+			}
+			for (int i = 0; i < cashMapList.size(); i++) {
+				Map<String, String> cashMap = cashMapList.get(i);
+				if (cashMap != null && cashMap.size() > 0) {
+					log.info(cashMap);
+					ReleaseAlsoReconciliation releaseAlsoReconciliation = new ReleaseAlsoReconciliation();
+					if (cashMap.containsKey("OrdId")) {
+						releaseAlsoReconciliation.setOrdId(cashMap.get("OrdId"));
+					}
+					if (cashMap.containsKey("OrdDate")) {
+						releaseAlsoReconciliation.setOrdDate(ConvertUtil.dateConvert(cashMap.get("OrdDate"), Constants._DATESHORT));
+					}
+					if (cashMap.containsKey("MerCustId")) {
+						releaseAlsoReconciliation.setMerCustId(cashMap.get("MerCustId"));
+					}
+					if (cashMap.containsKey("InvestCustId")) {
+						releaseAlsoReconciliation.setInvestCustId(cashMap.get("InvestCustId"));
+					}
+					if (cashMap.containsKey("BorrCustId")) {
+						releaseAlsoReconciliation.setBorrCustId(cashMap.get("BorrCustId"));
+					}
+					if (cashMap.containsKey("TransAmt")) {
+						releaseAlsoReconciliation.setTransAmt(Double.parseDouble(cashMap.get("TransAmt")));
+					}
+					if (cashMap.containsKey("TransStat")) {
+						releaseAlsoReconciliation.setTransStat(cashMap.get("TransStat"));
+					}
+					if (cashMap.containsKey("PnrDate")) {
+						releaseAlsoReconciliation.setPnrDate(ConvertUtil.dateConvert(cashMap.get("PnrDate"), Constants._DATESHORT));
+					}
+					releaseAlsoReconciliation.setQueryTransType(QueryTransType);
+					result += releaseAlsoReconciliationDao.insertReleaseAlsoReconciliation(releaseAlsoReconciliation);
+					// DivDetails 取出来插入到另一张表中
+					if (cashMap.get("DivDetails") != null) {
+						JSONObject jsonObject = JSONObject.fromObject(cashMap);
+						JSONArray jsonArray = JSONArray.fromObject(jsonObject.getString("DivDetails"));
+
+						List<Map<String, String>> mapList = new ArrayList<Map<String, String>>();
+						for (int j = 0; j < jsonArray.size(); j++) {
+							JSONObject cashJSONObject = jsonArray.getJSONObject(j);
+							if (!cashJSONObject.isNullObject()) {
+								Map<String, String> cashmap = new HashMap<String, String>();
+								@SuppressWarnings("unchecked")
+								Iterator<String> nameItr = cashJSONObject.keys();
+								String name = "";
+								while (nameItr.hasNext()) {
+									name = nameItr.next();
+									cashmap.put(name, cashJSONObject.getString(name));
+									cashmap.put("OrdId", cashMap.get("OrdId"));
+								}
+								mapList.add(cashmap);
+							}
+						}
+
+						for (int k = 0; k < mapList.size(); k++) {
+							Map<String, String> cashMap2 = mapList.get(k);
+							if (cashMap2 != null && cashMap2.size() > 0) {
+								log.info(cashMap2);
+								DivideAccount divideAccount = new DivideAccount();
+								if (cashMap2.containsKey("OrdId")) {
+									divideAccount.setOrdId(cashMap2.get("OrdId"));
+								}
+								if (cashMap2.containsKey("DivCustId")) {
+									divideAccount.setDivCustId(cashMap2.get("DivCustId"));
+								}
+
+								if (cashMap2.containsKey("DivAcctId")) {
+									divideAccount.setDivAcctId(cashMap2.get("DivAcctId"));
+								}
+
+								if (cashMap2.containsKey("DivAmt")) {
+									divideAccount.setDivAmt(Long.parseLong(cashMap2.get("DivAmt")));
+								}
+								result += divideAccountDao.insertDivideAccount(divideAccount);
+							}
+						}
+					}
+				}
+			}
+			if (result <= 0) {
+				return -1L;
+			} else {
+				OperationLog operationLog = new OperationLog();
+				operationLog.setUserId(-2L);
+				operationLog.setOperationTable("t_release_also_reconciliation");
+				operationLog.setOperationUser("系统自动采集取放还款对账信息");
+				operationLog.setOperationIp("");
+				operationLog.setOperationType(IConstants.INSERT);
+				operationLog.setOperationAround(1);
+				operationLog.setOperationMoney(0d);
+				operationLog.setOperationRemarks("采集放还款对账信息-定时器");
+				operationLog.setOperationTime(new Date());
+				operationLogDao.addOperationLog(operationLog);
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+}

@@ -1,0 +1,10 @@
+package com.pjzb.service.common;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+@Service
+public class MaterialsauthService extends BaseController{
+
+}

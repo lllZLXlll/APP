@@ -1,0 +1,263 @@
+package com.pjzb.service.admin.borrow;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.service.common.UserService;
+import com.pjzb.service.front.AssignmentDebtService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DateUtil;
+import com.shove.Convert;
+/**
+ * 债权转让
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminDebtsTransferService extends BaseController{
+	
+	@Autowired
+	private BorrowDao borrowDao;
+	
+	@Autowired
+	private AssignmentDebtService assignmentDebtService;
+	
+	@Autowired
+	private UserService userService;
+
+	public String queryApplyDebtInit(Model model,Long pageNum,Long pageSize,String borrowerName, String alienatorName,Integer debtStatus, String tabid) {
+		try { 
+			pageNum = pageNum == null ? 1 : pageNum;
+			debtStatus = debtStatus == null ? 1 : debtStatus;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowerName = borrowerName == null ? "" : borrowerName;
+			alienatorName = alienatorName == null ? "" : alienatorName;
+			
+			List<Integer> debtStatusList = new ArrayList<Integer>();
+			 
+			HashMap<String, Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("borrowerName", borrowerName);
+			paramMap.put("alienatorName", alienatorName);
+			paramMap.put("index1", (pageNum-1)*pageSize);
+			paramMap.put("pageSize", pageSize);
+			
+			if(debtStatus==1){
+				debtStatusList.add(debtStatus);
+				paramMap.put("debtStatus", debtStatusList);
+				List<Map<String, Object>> payList=borrowDao.queryApplyDebt(paramMap);
+				Map<String, Long> borrowFullScaleMap=borrowDao.queryApplyDebtCount(paramMap);
+				
+				//统计当前页应收款
+				Map<String, Long> applydebtMap = borrowDao.queryApplyDebtDetail();
+				
+				DecimalFormat fmt = new DecimalFormat("0.00");
+				double debtSumm = 0;
+				if (payList != null) {
+					for (Map<String, Object> map : payList) {
+						debtSumm = debtSumm +Convert.strToDouble(map.get("debtSum")+"",0);
+					}
+				}
+				
+				PageBean pageBean=new PageBean();
+				pageBean.setPageNum(pageNum);
+				pageBean.setPage(payList);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(borrowFullScaleMap.get("fullScaleCount") == null ? 0: borrowFullScaleMap.get("fullScaleCount"));
+				model.addAttribute("pageBean", pageBean);
+				model.addAttribute("borrowerName", borrowerName);
+				model.addAttribute("alienatorName", alienatorName);
+				model.addAttribute("debtStatus", debtStatus);
+				model.addAttribute("debtSumm", fmt.format(debtSumm));
+				model.addAttribute("applydebtMap",  applydebtMap);
+				model.addAttribute("tabid", tabid);
+			} else if(debtStatus==2){ 
+				debtStatusList.add(debtStatus);
+				paramMap.put("debtStatus", debtStatusList);
+				List<Map<String, Object>> payList = borrowDao.queryAssignmentDebt(paramMap);
+				Map<String, Long> assignmentMap=borrowDao.queryAssignmentDebtCount(paramMap);
+				this.changeDateToStr(payList);
+				PageBean pageBean=new PageBean();
+				pageBean.setPageNum(pageNum);
+				pageBean.setPage(payList);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(assignmentMap.get("assignmentCount") == null ? 0: assignmentMap.get("assignmentCount"));
+				model.addAttribute("pageBean", pageBean);
+				model.addAttribute("borrowerName", borrowerName);
+				model.addAttribute("alienatorName", alienatorName);
+				model.addAttribute("debtStatus", debtStatus);
+				model.addAttribute("tabid", tabid);
+				 
+			} else if(debtStatus==3){
+				List<Map<String, Object>> investList=borrowDao.queryAuctingDebt(alienatorName,borrowerName,debtStatus,(pageNum-1)*pageSize,pageSize);
+				Long map=borrowDao.queryAuctingDebtCount(alienatorName,borrowerName,debtStatus);
+				Map<String, Long> applydebtMap = borrowDao.queryApplySuccessDebtDetail();
+				DecimalFormat fmt = new DecimalFormat("0.00");
+				double debtSumm = 0;
+				if (investList != null) {
+					for (Map<String, Object> maps : investList) {
+						debtSumm = debtSumm +Convert.strToDouble(maps.get("debtSum")+"",0);
+					}
+				}
+				PageBean pageBean=new PageBean();
+				pageBean.setPageNum(pageNum);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(map);
+				pageBean.setPage(investList);
+				model.addAttribute("pageBean", pageBean);
+				model.addAttribute("applydebtMap", applydebtMap);
+				model.addAttribute("borrowerName", borrowerName);
+				model.addAttribute("alienatorName", alienatorName);
+				model.addAttribute("debtStatus", debtStatus);
+				model.addAttribute("debtSumm", fmt.format(debtSumm));
+				model.addAttribute("tabid", tabid);
+				
+			} else if(debtStatus==4){
+				debtStatusList.add(4);
+				debtStatusList.add(5);
+				debtStatusList.add(6);
+				debtStatusList.add(7);
+				paramMap.put("debtStatus", debtStatusList);
+				List<Map<String, Object>> investList=borrowDao.queryAssignmentDebt(paramMap);
+				Map<String, Long> assignmentMap=borrowDao.queryAssignmentDebtCount(paramMap);
+				Map<String, Long> applydebtMap = borrowDao.queryApplyFailDebtDetail();
+				DecimalFormat fmt = new DecimalFormat("0.00");
+				double debtSumm = 0;
+				if (investList != null) {
+					for (Map<String, Object> map : investList) {
+						debtSumm = debtSumm +Convert.strToDouble(map.get("debtSum")+"",0);
+					}
+				}
+				PageBean pageBean=new PageBean();
+				pageBean.setPageNum(pageNum);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(assignmentMap.get("assignmentCount") == null ? 0: assignmentMap.get("assignmentCount"));
+				pageBean.setPage(investList);
+				model.addAttribute("pageBean", pageBean);
+				model.addAttribute("applydebtMap", applydebtMap);
+				model.addAttribute("borrowerName", borrowerName);
+				model.addAttribute("alienatorName", alienatorName);
+				model.addAttribute("debtStatus", debtStatus);
+				model.addAttribute("debtSumm", fmt.format(debtSumm));
+				model.addAttribute("tabid", tabid);
+			} 
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询债权转让异常********************");
+		}
+		return "/admin/borrow/debtstransfer/list.jsp";
+	}
+
+	public void changeDateToStr(List<Map<String,Object>> list){
+		if(list != null){
+			Date nowDate = new Date();
+			for(Map<String,Object> map : list){
+				Date date = (Date)map.get("remainAuctionTime");
+				map.put("remainDays", DateUtil.remainDateToString(nowDate, date));
+			}
+		}
+	}
+
+	public String queryApplyDebtAuditDetail(Model model, Long id, String tabid, String borrowerName, String alienatorName) {
+		Map<String, Object> paramMap = new HashMap<String, Object>();
+		Map<String, Object> borrow = new HashMap<String, Object>();
+		try{
+			paramMap = borrowDao.getAssignmentDebt(id);
+			long borrowId = Convert.strToLong(paramMap.get("borrowId")+"", -1);
+			long userId = Convert.strToLong(paramMap.get("alienatorId")+"", -1);
+			long investId = Convert.strToLong(paramMap.get("investId")+"", -1);
+			borrow = borrowDao.queryBorrowDetailById(borrowId);
+			if(borrow != null && borrow.size() > 0){
+				paramMap.put("borrowTitle", borrow.get("borrowTitle"));
+			}
+			List<Map<String,Object>> list =  borrowDao.queryDebtBacking(borrowId,userId,investId);
+			model.addAttribute("list", list);
+			model.addAttribute("paramMap", paramMap); 
+			model.addAttribute("borrowerName", borrowerName);
+			model.addAttribute("alienatorName", alienatorName);
+			model.addAttribute("tabid", tabid);
+		}catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/borrow/debtstransfer/debtAuditDetail.jsp";
+	}
+
+	public Map<String, Object> updateauditDebt(Model model, Long id, String tabid, String auditStatus) throws RuntimeException{
+		try{
+			long status = -1;
+			if(auditStatus.equals("1")){
+				status = 2;
+			}else{
+				status = 6;
+			}
+			long result = borrowDao.updateAssignmentDebt(id,1, DateUtil.dateToString(new Date()),status);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "债权转让审核成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "债权转让审核失败", "", "");
+			}
+		}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			throw new RuntimeException("************债权转让审核异常**************");
+		}
+	}
+
+	public Map<String, Object> updateManageDebt(Model model, Long id, String tabid) throws RuntimeException{
+		Admin admin = getSessionAdminInfo();
+		try {
+			assignmentDebtService.cancelAssignmentDebt(id, 5,admin.getId(),2);
+			Map<String, Object> m = assignmentDebtService.getAssignmentDebt(id);
+			if(m!=null){
+				long alienatorId = Convert.strToLong(m.get("alienatorId")+"", -1);//转让人
+				userService.updateSign(alienatorId);//更换校验码
+			}
+			List<Map<String, Object>> auctionList = assignmentDebtService.getAllauctionerId(id);
+			for (Map<String, Object> map : auctionList) {
+				long userId = Convert.strToLong(map.get("userId") + "",-1);
+				System.out.println("投资者ID:"+userId);
+				userService.updateSign(userId);//更换校验码
+			}
+			return ajaxDoneInfo("200", "债权撤回成功", "", tabid);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			throw new RuntimeException("************债权撤回异常**************");
+		}
+	}
+
+	public String queryManageDebtDetail(Model model, Long id, String tabid, String borrowerName, String alienatorName) {
+		Map<String, Object> paramMap = new HashMap<String, Object>();
+		Map<String, Object> borrow = new HashMap<String, Object>();
+		try{
+			paramMap = borrowDao.getAssignmentDebt(id);
+			long borrowId = Convert.strToLong(paramMap.get("borrowId")+"", -1);
+			borrow = borrowDao.queryBorrowDetailById(borrowId);
+			if(borrow != null && borrow.size() > 0){
+				paramMap.put("borrowTitle", borrow.get("borrowTitle"));
+			}
+			model.addAttribute("paramMap", paramMap); 
+			model.addAttribute("borrowerName", borrowerName);
+			model.addAttribute("alienatorName", alienatorName);
+			model.addAttribute("tabid", tabid);
+		}catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/borrow/debtstransfer/detail.jsp";
+	}
+
+}

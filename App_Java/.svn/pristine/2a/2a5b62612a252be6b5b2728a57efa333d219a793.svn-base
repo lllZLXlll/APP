@@ -1,0 +1,22 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/account/Invest.html')
+	//投资明细
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('投资明细',true,false);
+		},
+		data: function(){
+			return {
+				activeLink:1
+			}
+		},
+		methods:{
+			investDetail:function(index){
+				this.$set('activeLink',index);
+				router.go({path:'/invest',query:{investType:index},replace: true});
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

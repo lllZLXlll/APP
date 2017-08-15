@@ -1,0 +1,38 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 操作t_person表
+ *
+ */
+import com.pjzb.entity.Person;
+
+public interface PersonDao {
+
+	public Long addPerson(Person person);
+
+	public Long updatePersonByUserId(Person person);
+
+	public Person queryPersonByUserId(Long userId);
+
+	public Map<String, Object> queryPersonCellPhone(long userId);
+
+	public Long findUserSexCount(String sex, String startTime, String endTime);
+
+	public Map<String, String> findPersonByIdNo(String idNo);
+
+	public Map<String, String> isExistidcard(String idNo);
+
+	public List<Map<String, Object>> queryLoanAfterMgr();
+
+	public List<Map<String, Object>> queryInvestorRepresent();
+
+	public List<Map<String, Object>> queryPersonInfoListForPage(long l, Long pageSize, String userName, String realName, String serviceManName, Integer auditStatus,
+			Integer certificateName, boolean b);
+
+	public long queryPersonInfoListCount(String userName, String realName, String serviceManName, Integer auditStatus, Integer certificateName);
+
+	public Map<String, Object> queryUserAndPersonForUnionByUserId(long userId);
+}

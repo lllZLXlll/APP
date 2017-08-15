@@ -1,0 +1,137 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * ReleaseAlsoReconciliation entity. @author MyEclipse Persistence Tools
+ */
+
+public class ReleaseAlsoReconciliation implements java.io.Serializable {
+
+	// Fields
+
+	private Integer id;
+	private String ordId;
+	private Date ordDate;
+	private String merCustId;
+	private String investCustId;
+	private String borrCustId;
+	private Double transAmt;
+	private String transStat;
+	private Date pnrDate;
+	private String pnrSeqId;
+	private String queryTransType;
+
+	// Constructors
+
+	/** default constructor */
+	public ReleaseAlsoReconciliation() {
+	}
+
+	/** full constructor */
+	public ReleaseAlsoReconciliation(String ordId, Date ordDate, String merCustId, String investCustId, String borrCustId, Double transAmt, String transStat,
+			Date pnrDate, String pnrSeqId, String queryTransType) {
+		this.ordId = ordId;
+		this.ordDate = ordDate;
+		this.merCustId = merCustId;
+		this.investCustId = investCustId;
+		this.borrCustId = borrCustId;
+		this.transAmt = transAmt;
+		this.transStat = transStat;
+		this.pnrDate = pnrDate;
+		this.pnrSeqId = pnrSeqId;
+		this.queryTransType = queryTransType;
+	}
+
+	// Property accessors
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getOrdId() {
+		return this.ordId;
+	}
+
+	public void setOrdId(String ordId) {
+		this.ordId = ordId;
+	}
+
+	public Date getOrdDate() {
+		return this.ordDate;
+	}
+
+	public void setOrdDate(Date ordDate) {
+		this.ordDate = ordDate;
+	}
+
+	public String getMerCustId() {
+		return this.merCustId;
+	}
+
+	public void setMerCustId(String merCustId) {
+		this.merCustId = merCustId;
+	}
+
+	public String getInvestCustId() {
+		return this.investCustId;
+	}
+
+	public void setInvestCustId(String investCustId) {
+		this.investCustId = investCustId;
+	}
+
+	public String getBorrCustId() {
+		return this.borrCustId;
+	}
+
+	public void setBorrCustId(String borrCustId) {
+		this.borrCustId = borrCustId;
+	}
+
+	public Double getTransAmt() {
+		return this.transAmt;
+	}
+
+	public void setTransAmt(Double transAmt) {
+		this.transAmt = transAmt;
+	}
+
+	public String getTransStat() {
+		return this.transStat;
+	}
+
+	public void setTransStat(String transStat) {
+		this.transStat = transStat;
+	}
+
+	public Date getPnrDate() {
+		return this.pnrDate;
+	}
+
+	public void setPnrDate(Date pnrDate) {
+		this.pnrDate = pnrDate;
+	}
+
+	public String getPnrSeqId() {
+		return this.pnrSeqId;
+	}
+
+	public void setPnrSeqId(String pnrSeqId) {
+		this.pnrSeqId = pnrSeqId;
+	}
+
+	public String getQueryTransType() {
+		return this.queryTransType;
+	}
+
+	public void setQueryTransType(String queryTransType) {
+		this.queryTransType = queryTransType;
+	}
+
+}

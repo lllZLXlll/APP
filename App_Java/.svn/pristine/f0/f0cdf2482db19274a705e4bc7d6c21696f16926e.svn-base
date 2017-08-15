@@ -1,0 +1,22 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+public interface BorrowManageDao {
+
+	public List<Map<String, Object>> queryInvestByBorrowId(String billcode);
+
+	public List<Map<String, Object>> queryBorrowByCondition(String userName, Long borrowWay, long pageNum, long pageSize,String beginTime,String endTime);
+
+	public long queryBorrowByConditionCount(String userName, Long borrowWay,String beginTime,String endTime);
+
+	public BigDecimal queryBorrowTotalAllSum();
+	
+	public List<String> queryInvestorPhoneByDeadline(Integer deadline);
+	
+	public BigDecimal queryBorrowManageFeeSum(String userName, Long borrowWay, Long pageNum, Long pageSize,String beginTime,String endTime);
+	
+	
+}

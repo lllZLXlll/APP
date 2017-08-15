@@ -1,0 +1,366 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Person entity. @author MyEclipse Persistence Tools
+ */
+
+public class Person implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String realName;
+	private String cellPhone;
+	private String sex;
+	private Date birthday;
+	private String highestEdu;
+	private Date eduStartDay;
+	private String school;
+	private String maritalStatus;
+	private String hasChild;
+	private String hasHourse;
+	private String hasHousrseLoan;
+	private String hasCar;
+	private String hasCarLoan;
+	private Integer nativePlacePro;
+	private Integer nativePlaceCity;
+	private Integer registedPlacePro;
+	private Integer registedPlaceCity;
+	private String address;
+	private String telephone;
+	private Long userId;
+	private String personalHead;
+	private String idNo;
+	private Integer auditStatus;
+	private Integer flag;
+	private String qq;
+	private String idNoPositiveImg;
+	private String idNoReverseImg;
+	private Date authTime;
+	private String viewpdfUrl;
+	private String downloadUrl;
+	private Long transactionId;
+	private String idTpye;
+	
+	
+	
+	// Constructors
+
+	public String getIdTpye() {
+		return idTpye;
+	}
+
+	public void setIdTpye(String idTpye) {
+		this.idTpye = idTpye;
+	}
+
+	/** default constructor */
+	public Person() {
+	}
+
+	/** full constructor */
+	public Person(String realName, String cellPhone, String sex, Date birthday,
+			String highestEdu, Date eduStartDay, String school,
+			String maritalStatus, String hasChild, String hasHourse,
+			String hasHousrseLoan, String hasCar, String hasCarLoan,
+			Integer nativePlacePro, Integer nativePlaceCity,
+			Integer registedPlacePro, Integer registedPlaceCity,
+			String address, String telephone, Long userId, String personalHead,
+			String idNo, Integer auditStatus, Integer flag, String qq,
+			String idNoPositiveImg, String idNoReverseImg, Date authTime,
+			String viewpdfUrl, String downloadUrl, Long transactionId) {
+		this.realName = realName;
+		this.cellPhone = cellPhone;
+		this.sex = sex;
+		this.birthday = birthday;
+		this.highestEdu = highestEdu;
+		this.eduStartDay = eduStartDay;
+		this.school = school;
+		this.maritalStatus = maritalStatus;
+		this.hasChild = hasChild;
+		this.hasHourse = hasHourse;
+		this.hasHousrseLoan = hasHousrseLoan;
+		this.hasCar = hasCar;
+		this.hasCarLoan = hasCarLoan;
+		this.nativePlacePro = nativePlacePro;
+		this.nativePlaceCity = nativePlaceCity;
+		this.registedPlacePro = registedPlacePro;
+		this.registedPlaceCity = registedPlaceCity;
+		this.address = address;
+		this.telephone = telephone;
+		this.userId = userId;
+		this.personalHead = personalHead;
+		this.idNo = idNo;
+		this.auditStatus = auditStatus;
+		this.flag = flag;
+		this.qq = qq;
+		this.idNoPositiveImg = idNoPositiveImg;
+		this.idNoReverseImg = idNoReverseImg;
+		this.authTime = authTime;
+		this.viewpdfUrl = viewpdfUrl;
+		this.downloadUrl = downloadUrl;
+		this.transactionId = transactionId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getRealName() {
+		return this.realName;
+	}
+
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+
+	public String getCellPhone() {
+		return this.cellPhone;
+	}
+
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
+
+	public String getSex() {
+		return this.sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public Date getBirthday() {
+		return this.birthday;
+	}
+
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
+	}
+
+	public String getHighestEdu() {
+		return this.highestEdu;
+	}
+
+	public void setHighestEdu(String highestEdu) {
+		this.highestEdu = highestEdu;
+	}
+
+	public Date getEduStartDay() {
+		return this.eduStartDay;
+	}
+
+	public void setEduStartDay(Date eduStartDay) {
+		this.eduStartDay = eduStartDay;
+	}
+
+	public String getSchool() {
+		return this.school;
+	}
+
+	public void setSchool(String school) {
+		this.school = school;
+	}
+
+	public String getMaritalStatus() {
+		return this.maritalStatus;
+	}
+
+	public void setMaritalStatus(String maritalStatus) {
+		this.maritalStatus = maritalStatus;
+	}
+
+	public String getHasChild() {
+		return this.hasChild;
+	}
+
+	public void setHasChild(String hasChild) {
+		this.hasChild = hasChild;
+	}
+
+	public String getHasHourse() {
+		return this.hasHourse;
+	}
+
+	public void setHasHourse(String hasHourse) {
+		this.hasHourse = hasHourse;
+	}
+
+	public String getHasHousrseLoan() {
+		return this.hasHousrseLoan;
+	}
+
+	public void setHasHousrseLoan(String hasHousrseLoan) {
+		this.hasHousrseLoan = hasHousrseLoan;
+	}
+
+	public String getHasCar() {
+		return this.hasCar;
+	}
+
+	public void setHasCar(String hasCar) {
+		this.hasCar = hasCar;
+	}
+
+	public String getHasCarLoan() {
+		return this.hasCarLoan;
+	}
+
+	public void setHasCarLoan(String hasCarLoan) {
+		this.hasCarLoan = hasCarLoan;
+	}
+
+	public Integer getNativePlacePro() {
+		return this.nativePlacePro;
+	}
+
+	public void setNativePlacePro(Integer nativePlacePro) {
+		this.nativePlacePro = nativePlacePro;
+	}
+
+	public Integer getNativePlaceCity() {
+		return this.nativePlaceCity;
+	}
+
+	public void setNativePlaceCity(Integer nativePlaceCity) {
+		this.nativePlaceCity = nativePlaceCity;
+	}
+
+	public Integer getRegistedPlacePro() {
+		return this.registedPlacePro;
+	}
+
+	public void setRegistedPlacePro(Integer registedPlacePro) {
+		this.registedPlacePro = registedPlacePro;
+	}
+
+	public Integer getRegistedPlaceCity() {
+		return this.registedPlaceCity;
+	}
+
+	public void setRegistedPlaceCity(Integer registedPlaceCity) {
+		this.registedPlaceCity = registedPlaceCity;
+	}
+
+	public String getAddress() {
+		return this.address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getTelephone() {
+		return this.telephone;
+	}
+
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getPersonalHead() {
+		return this.personalHead;
+	}
+
+	public void setPersonalHead(String personalHead) {
+		this.personalHead = personalHead;
+	}
+
+	public String getIdNo() {
+		return this.idNo;
+	}
+
+	public void setIdNo(String idNo) {
+		this.idNo = idNo;
+	}
+
+	public Integer getAuditStatus() {
+		return this.auditStatus;
+	}
+
+	public void setAuditStatus(Integer auditStatus) {
+		this.auditStatus = auditStatus;
+	}
+
+	public Integer getFlag() {
+		return this.flag;
+	}
+
+	public void setFlag(Integer flag) {
+		this.flag = flag;
+	}
+
+	public String getQq() {
+		return this.qq;
+	}
+
+	public void setQq(String qq) {
+		this.qq = qq;
+	}
+
+	public String getIdNoPositiveImg() {
+		return this.idNoPositiveImg;
+	}
+
+	public void setIdNoPositiveImg(String idNoPositiveImg) {
+		this.idNoPositiveImg = idNoPositiveImg;
+	}
+
+	public String getIdNoReverseImg() {
+		return this.idNoReverseImg;
+	}
+
+	public void setIdNoReverseImg(String idNoReverseImg) {
+		this.idNoReverseImg = idNoReverseImg;
+	}
+
+	public Date getAuthTime() {
+		return this.authTime;
+	}
+
+	public void setAuthTime(Date authTime) {
+		this.authTime = authTime;
+	}
+
+	public String getViewpdfUrl() {
+		return this.viewpdfUrl;
+	}
+
+	public void setViewpdfUrl(String viewpdfUrl) {
+		this.viewpdfUrl = viewpdfUrl;
+	}
+
+	public String getDownloadUrl() {
+		return this.downloadUrl;
+	}
+
+	public void setDownloadUrl(String downloadUrl) {
+		this.downloadUrl = downloadUrl;
+	}
+
+	public Long getTransactionId() {
+		return this.transactionId;
+	}
+
+	public void setTransactionId(Long transactionId) {
+		this.transactionId = transactionId;
+	}
+
+}

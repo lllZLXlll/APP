@@ -1,0 +1,172 @@
+.mod-login{
+	background: #e8e8e8;
+	padding: 40px 0 90px;
+	height: 590px;
+	a{
+		color: #3180bf;
+	}
+	.main{
+
+	}
+	.bg{
+		height: 656px;
+		width: 924px;
+		background: url(../img/login.png) center center no-repeat;
+		margin-left: -200px;
+	}
+	.login-form{
+		position: absolute;
+		width: 370px;
+		height: 510px;
+		padding: 40px 60px;
+		right: 0;
+		top: 0;
+		background: #fff;
+		border-radius: 3px;
+		h2{
+			font-size: 24px;
+			color: #3180bf;
+			float: left;
+		}
+		.show-login{
+			float: right;
+			font-size: 14px;
+			margin-top: 6px;
+			a{
+				color: #3180bf;
+			}
+		}
+		.form{
+			margin-top: 100px;
+			font-size: 14px;
+			color: #1e1e1e;
+			.item{
+				position: relative;
+				.error{
+					position: absolute;
+					width: 160px;
+					height: 50px;
+					line-height: 50px;
+					color: #fff;
+					border-radius: 4px;
+					background: #f07440;
+					text-align: center;
+					top: 0;
+					margin-top: -4px;
+					left: -180px;
+					font-size: 14px;
+					&:after{
+						display: block;
+						width: 14px;
+						height: 14px;
+						background: #F07440;
+						content: '';
+						position: absolute;
+						right: -7px;
+						top: 17px;
+						transform: rotate(45deg);
+						-ms-transform: rotate(45deg);
+						-moz-transform: rotate(45deg);
+						-o-transform: rotate(45deg);
+						-webkit-transform: rotate(45deg);
+						display: none\0;
+						display: block\9\0;
+					}
+				}
+			}
+			&.small{
+				margin-top: 100px;
+				*margin-top: 200px;
+				.item{
+					padding-bottom: 20px;
+				}
+			}
+			&.big{
+				margin-top: 50px;
+				*margin-top: -20px;
+				.item{
+					padding-bottom: 12px;
+				}
+			}
+			input[type="text"],input[type="password"]{
+				color: #cccccc;
+				font-size: 14px;
+				border: 1px solid #cbcbcb;
+				padding: 12px;
+				width: 266px;
+				border-radius: 3px;
+				margin-left: 12px;
+				&.mini{
+					width: 100px;
+				}
+			}
+			input[type="checkbox"]{
+				position: relative;
+				top: 1px;
+			}
+			.red{
+				color: #f07440;
+				font-style: normal;
+			}
+			label>span{
+				width: 66px;
+				position: relative;
+				top: 12px;
+				text-align: right;
+				display: block;
+				float: left;
+			}
+			.tip{
+				text-align: right;
+				height: 30px;line-height: 30px;
+			}
+			.img{
+				position: relative;
+				float: none;
+				display: inline-block;
+				height: 40px;
+				line-height: 40px;
+				*line-height: 30px;
+				top: 0;
+				padding-left: 86px;
+				img{
+					position: absolute;
+					top: 1px;
+					left: 4px;
+					*top: -5px;
+				}
+			}
+			.ct{
+				text-align: center;
+				padding: 30px 0;
+			}
+			.sub{
+				padding: 0;
+			}
+			.btn{
+				display: inline-block;
+				font-size: 16px;
+				color: #fff;
+				padding: 10px 60px;
+				background: #3180bf;
+				border-radius: 4px;
+				border: none;
+			}
+			a.yzm{
+				color: #3180bf;
+				font-size: 14px;
+				border: 1px solid #3180bf;
+				padding: 11px 11px;
+				border-radius: 4px;
+				margin-left: 12px;
+				margin-right: -1px;
+				*position: relative;
+				*margin-right: 0;
+				*top: -10px;
+			}
+		}
+	}
+}
+:root .mod-login .login-form .form .item .error:after{
+	display: block;
+}

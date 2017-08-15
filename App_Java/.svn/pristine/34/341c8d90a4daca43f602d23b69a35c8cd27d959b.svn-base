@@ -1,0 +1,13 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface SaveReconciliationDao {
+
+	public List<Map<String, Object>> queryReconciliation(long l, Long pageSize);
+
+	public long queryReconciliationCount();
+
+	public Map<String, Object> queryMoneySum();
+}

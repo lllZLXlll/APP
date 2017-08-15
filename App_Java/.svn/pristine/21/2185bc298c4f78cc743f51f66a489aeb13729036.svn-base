@@ -1,0 +1,7 @@
+<div class="content">
+    <div class="aboutus content-padded">
+        <img src="images/about.png" width="100%"/>
+        <p>{{aboutus}}</p>
+        <p>{{aboutusTwo}}</p>
+    </div>
+</div>

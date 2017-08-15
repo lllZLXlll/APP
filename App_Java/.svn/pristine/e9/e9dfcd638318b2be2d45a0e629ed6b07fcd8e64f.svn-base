@@ -1,0 +1,280 @@
+package com.pjzb.controller.admin;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.count.AdminBidCountService;
+import com.pjzb.service.admin.count.AdminBorrowCountService;
+import com.pjzb.service.admin.count.AdminInvestCountService;
+import com.pjzb.service.admin.count.AdminLoginCountService;
+import com.pjzb.service.admin.count.AdminOperateDataService;
+
+/**
+ * 统计管理Controller
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminCountController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminCountController.class);
+
+	@Autowired
+	private AdminLoginCountService adminLoginCountService;
+
+	@Autowired
+	private AdminInvestCountService adminInvestCountService;
+
+	@Autowired
+	private AdminOperateDataService adminOperateDataService;
+
+	@Autowired
+	private AdminBidCountService adminBidCountService;
+
+	@Autowired
+	private AdminBorrowCountService adminBorrowCountService;
+
+	/**
+	 * 登入统计
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param userName
+	 * @param realName
+	 * @param count
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/loginStatisInit")
+	public String loginStatisList(Model model, Long pageCurrent, Long pageSize, String tabid, String beginTime, String endTime, String userName, String realName, String count) {
+		return adminLoginCountService.queryLoginStatisForPage(model, tabid, pageCurrent, pageSize, tabid, beginTime, endTime, userName, realName, count);
+	}
+
+	/**
+	 * 投资统计
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param radio
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/financeStatisInit")
+	public String financeStatisList(Model model, String tabid, String beginTime, String endTime, String radio) {
+		return adminInvestCountService.queryFinanceStatisForPage(model, tabid, beginTime, endTime, radio);
+	}
+
+	/**
+	 * 导出投资统计表
+	 * 
+	 * @param model
+	 * @param response
+	 * @param beginTime
+	 * @param endTime
+	 * @param radio
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/exportFinanceStatis")
+	@ResponseBody
+	public void exportFinanceStatis(Model model, HttpServletResponse response, String beginTime, String endTime, String radio) {
+		adminInvestCountService.exportFinanceStatis(response, beginTime, endTime, radio);
+	}
+
+	/**
+	 * 
+	 * @describe:查询运营数据
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/operateReportInit")
+	public String operateReportInit(Model model, String beginDate, String endDate, Long pageCurrent, Long pageSize, String tabid) {
+		return adminOperateDataService.queryOperateReportList(model, beginDate, endDate, pageCurrent, pageSize, tabid);
+	}
+
+	/**
+	 * 投标统计
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @param bTitle
+	 * @param realName
+	 * @param recommendrealName
+	 * @param deadline
+	 * @param borrowWay
+	 * @param beginTime
+	 * @param endTime
+	 * @param isAutoBid
+	 * @param borrowStatus
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/investStatisInit")
+	public String investStatisInit(Model model, Long pageCurrent, Long pageSize, String tabid, String bTitle, String realName, String recommendrealName, String deadline,
+			String borrowWay, String beginTime, String endTime, String isAutoBid, String borrowStatus) {
+		return adminBidCountService.queryInvestStatisForPage(model, tabid, pageCurrent, pageSize, bTitle, realName, recommendrealName, deadline, borrowWay, beginTime, endTime,
+				isAutoBid, borrowStatus);
+	}
+
+	/**
+	 * 导出投标统计
+	 * 
+	 * @param model
+	 * @param response
+	 * @param bTitle
+	 * @param realName
+	 * @param recommendrealName
+	 * @param deadline
+	 * @param borrowWay
+	 * @param beginTime
+	 * @param endTime
+	 * @param isAutoBid
+	 * @param borrowStatus
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/exportInvestStatis")
+	@ResponseBody
+	public void exportInvestStatis(Model model, Long pageCurrent, Long pageSize, HttpServletResponse response, String bTitle, String realName, String recommendrealName,
+			String deadline, String borrowWay, String beginTime, String endTime, String isAutoBid, String borrowStatus) {
+		adminBidCountService.exportInvestStatis(response, pageCurrent, pageSize, bTitle, realName, recommendrealName, deadline, borrowWay, beginTime, endTime, isAutoBid,
+				borrowStatus);
+	}
+
+	/**
+	 * 投标排名
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param investor
+	 * @param group
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/investStatisRankList")
+	public String investStatisRankList(Model model, Long pageCurrent, Long pageSize, String tabid, String beginTime, String endTime, String investor, String group) {
+		return adminBidCountService.queryInvestStatisRankForPage(model, tabid, pageCurrent, pageSize, beginTime, endTime, investor, group);
+	}
+
+	/**
+	 * 导出投标排名
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param response
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param investor
+	 * @param group
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/exportInvestStatisRank")
+	@ResponseBody
+	public void exportInvestStatisRank(Model model, Long pageCurrent, Long pageSize, HttpServletResponse response, String tabid, String beginTime, String endTime, String investor,
+			String group) {
+		adminBidCountService.exportInvestStatisRank(response, pageCurrent, pageSize, beginTime, endTime, investor, group);
+	}
+
+	/**
+	 * 借款统计
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param borrowTitle
+	 * @param borrower
+	 * @param borrowWay
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/borrowStatisInit")
+	public String borrowStatisInit(Model model, Long pageCurrent, Long pageSize, String tabid, String beginTime, String endTime, String borrowTitle, String borrower,
+			String borrowWay) {
+		return adminBorrowCountService.queryBorrowStatisInitForPage(model, tabid, pageCurrent, pageSize, beginTime, endTime, borrowTitle, borrower, borrowWay);
+	}
+
+	/**
+	 * 导出借款统计
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param response
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param borrowTitle
+	 * @param borrower
+	 * @param borrowWay
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/exportBorrowStatis")
+	@ResponseBody
+	public void exportBorrowStatis(Model model, Long pageCurrent, Long pageSize, HttpServletResponse response, String tabid, String beginTime, String endTime, String borrowTitle,
+			String borrower, String borrowWay) {
+		adminBorrowCountService.exportBorrowStatis(response, pageCurrent, pageSize, beginTime, endTime, borrowTitle, borrower, borrowWay);
+	}
+
+	/**
+	 * 投资利息管理费统计
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param investor
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/borrowStatisInterestInit")
+	public String borrowStatisInterestInit(Model model, Long pageCurrent, Long pageSize, String tabid, String beginTime, String endTime, String investor) {
+		return adminBorrowCountService.queryBorrowStatisInterestInitForPage(model, tabid, pageCurrent, pageSize, beginTime, endTime, investor);
+	}
+
+	/**
+	 * 导出投资利息管理费
+	 * 
+	 * @param model
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @param response
+	 * @param tabid
+	 * @param beginTime
+	 * @param endTime
+	 * @param investor
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/exportBorrowStatisInterest")
+	@ResponseBody
+	public void exportBorrowStatisInterest(Model model, Long pageCurrent, Long pageSize, HttpServletResponse response, String tabid, String beginTime, String endTime,
+			String investor) {
+		adminBorrowCountService.exportBorrowStatisInterest(response, pageCurrent, pageSize, beginTime, endTime, investor);
+	}
+}

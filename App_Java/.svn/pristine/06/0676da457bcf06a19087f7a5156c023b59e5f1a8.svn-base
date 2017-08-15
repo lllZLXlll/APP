@@ -1,0 +1,27 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.BorrowInspection;
+
+public interface BorrowInspectionDao {
+	
+	public void insertBorrowInspection(BorrowInspection borrowInspection);
+	
+	
+	public Long queryBorrowInspectionCount(@Param("loanUserId")Long loanUserId);
+
+
+	public long queryBorrowInspectionForPageByLoanUserIdCount(String userName, String borrowTitle, Long loanUserId);
+
+
+	public List<Map<String, Object>> queryBorrowInspectionForPageByLoanUserId(String userName, String borrowTitle,
+			Long loanUserId, long l, long pageSize);
+
+	public Map<String, Object> queryBorrowInspectionCountByLoanUserIdAndBorrowTitle(String userName, String borrowTitle,
+			Long loanUserId);
+
+}

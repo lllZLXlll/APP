@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.OperationLogDao">
+
+	<resultMap type="operationLog" id="operationLogResultMap">
+		<id column="id" property="id" />
+		<result column="operation_table" property="operationTable" />
+		<result column="operation_user" property="operationUser" />
+		<result column="operation_type" property="operationType" />
+		<result column="operation_ip" property="operationIp" />
+		<result column="operation_time" property="operationTime" />
+		<result column="operation_money" property="operationMoney" />
+		<result column="operation_remarks" property="operationRemarks" />
+		<result column="operation_around" property="operationAround" />
+		<result column="userId" property="userId" />
+	</resultMap>
+
+	<insert id="addOperationLog" parameterType="operationLog" >
+		insert into t_operation_log(operation_table,operation_user,operation_type,operation_ip,operation_time,operation_money,operation_remarks,
+		operation_around,userId) values(#{operationTable},#{operationUser},#{operationType},#{operationIp},#{operationTime},#{operationMoney},
+		#{operationRemarks},#{operationAround},#{userId})
+	</insert>
+
+	<select id="queryAdminRecordAllCount" resultType="long">
+		SELECT COUNT(*) count FROM t_operation_log WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND operation_user LIKE "%" #{0} "%"</if>
+		<if test="param2 != null and param2 != ''">AND Date_format(operation_time,'%Y-%m-%d') >= #{1}</if>
+		<if test="param3 != null and param3 != ''"><![CDATA[ AND Date_format(operation_time,'%Y-%m-%d') <= #{2} ]]></if>
+		<if test="param4 != null and param4 != ''">AND operation_around = #{3}</if>
+	</select>
+	
+	<select id="queryAdminRecordAll" resultType="map">
+		SELECT * FROM t_operation_log WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND operation_user LIKE "%" #{0} "%"</if>
+		<if test="param2 != null and param2 != ''">AND Date_format(operation_time,'%Y-%m-%d') >= #{1}</if>
+		<if test="param3 != null and param3 != ''"><![CDATA[ AND Date_format(operation_time,'%Y-%m-%d') <= #{2} ]]></if>
+		<if test="param4 != null and param4 != ''">AND operation_around = #{3}</if>
+		ORDER BY operation_time DESC LIMIT #{4}, #{5}
+	</select>
+	
+</mapper>
+
+
+
+
+

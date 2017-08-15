@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.identify;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 额度申请
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminQuotaApplyService extends BaseController {
+
+}

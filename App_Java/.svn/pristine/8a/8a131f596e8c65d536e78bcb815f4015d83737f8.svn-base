@@ -1,0 +1,86 @@
+<div class="account-right-nav">
+	<div class="sub-a-nav">
+		<a href="javascript:void(0);" class="active show-cash">提现</a>
+		<a href="javascript:void(0);"  class="show-cash-list">提现记录</a>
+	</div>
+	<em class="em-line"></em>
+</div>
+<div class="account-content">
+	<!-- 提现 -->
+	<div class="cash-pay">
+		<p class="tips-title">
+			<b>温馨提示：</b>凡是在普金资本充值未投标的用户，15天以内提现收取本金0.5%的提现服务费，15天以后提现免服务费。禁止信用卡套现！<br>
+			a）提现手续费由汇付收取，固定费用2元。<br>
+			a）请输入您要提现的金额，我们将在1至3个工作日(国家节假日除外)之内将钱转入您网站上填写的银行账号。<br>
+			b）每笔提现金额至少为100元以上。
+		</p>
+		<div class="pay-from">
+			<div class="label cl">
+				<label class="long">持卡人：</label><p class="text" id="cash-realName">--</p>
+			</div>
+			<div class="label cl">
+				<label class="long">可提现金额：</label><p class="text color" id="cash-usableSum">0.00元</p>
+			</div>
+			<div class="label cl label-msg">
+				<label class="long">提现至银行：</label><input type="text" class="select" id="select-bank"  readonly/>
+				<ul class="select-box">
+					
+				</ul>
+			</div>
+			<div class="label cl">
+				<label class="long">提现金额：</label><input type="text" maxlength="15" id="cashInput" placeholder="请输入提现金额"/>
+			</div>
+			<div class="label cl">
+				<label class="long">提现手续费：</label><p class="text">2.00元</p>
+			</div>
+			<div class="label cl">
+				<label class="long">提现服务费：</label><p class="text" id="refreew">0.00</p>
+			</div>
+			<div class="label cl">
+				<label class="long">交易密码：</label><input type="password" maxlength="16" id="cash-password" autocomplete="new-password" placeholder="请输入交易密码"/>
+				<p class="text ml10"><a href="recoverpwd.html#deal">忘记密码</a></p>
+			</div>
+			<div class="label cl">
+				<label class="long">手机号码：</label><p class="text " id="withdrawPhone"></p>
+			</div>
+			<div class="label cl label-msg">
+				<label class="long">验证码：</label><input type="text" maxlength="6" id="cash-smsCode" placeholder="请输入短信验证码"/>
+				<div class="msg-btn">
+					<button type="button" id="getMsgCode">获取验证码</button>
+				</div>
+			</div>
+			<button type="button" class="btn long disabled" id="cash-submit">立即提现</button>
+		</div>
+		<div id="returnHtml"></div>
+	</div>
+	<!-- 提现记录 -->
+	<div class="cash-list">
+		<div class="account-form cl">
+			<input type="text" class="date icon icon-date"  id="startDate"/>
+			<p class="text">至</p>
+			<input type="text" class="date icon icon-date" id="endDate"/>
+			<!-- <input type="text" placeholder="请输入关键字搜索" class="search icon icon-search" /> -->
+			<button type="button" class="search" id="cashSearch">搜索</button>
+		</div>
+		<div class="account-list">
+			<ul class="cash-list-box list-box">
+				<li class="title">
+					<div class="children0">账户名</div>
+					<div class="children1">提现金额</div>
+					<div class="children2">提现银行卡号</div>
+					<div class="children3">提现手续费</div>
+					<div class="children4">提现时间</div>
+					<div class="children5">状态</div>
+					<div class="children6">操作</div>
+				</li>
+			</ul>
+			<ul class="cash-list listData">
+			
+			</ul>
+			<ul class="paging">
+			
+			</ul>
+		</div>
+	</div>
+</div>
+		

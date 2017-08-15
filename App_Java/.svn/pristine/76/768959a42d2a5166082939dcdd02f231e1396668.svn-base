@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 移动端版本管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminMobileVerManageService extends BaseController {
+
+}

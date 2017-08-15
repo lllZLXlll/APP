@@ -1,0 +1,118 @@
+package com.pjzb.service.admin.loan;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowInspectionDao;
+import com.pjzb.entity.LoanInspect;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+@Service
+public class RiskDeptMonthInspectService extends BaseController {
+
+	@Autowired
+	private BorrowInspectionDao borrowInspectionDao;
+
+	public String queryMonthInspectBorrowList(Model model, String tabid, String userName, Integer borrowTypeSubId, Integer borrowStatus, String loanName, String borrowTitle,
+			Long pageNum, Long pageSize) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		userName = ConvertUtil.objToStrConvert(userName);
+		borrowTypeSubId = ConvertUtil.objToIntConvert(borrowTypeSubId);
+		borrowStatus = ConvertUtil.objToIntConvert(borrowStatus);
+		loanName = ConvertUtil.objToStrConvert(loanName);
+		borrowTitle = ConvertUtil.objToStrConvert(borrowTitle);
+		List<Map<String, Object>> list = borrowInspectionDao.queryMonthInspectBorrowList(userName, borrowTypeSubId, borrowStatus, loanName, borrowTitle, (pageNum - 1) * pageSize,
+				pageSize);
+		long count = borrowInspectionDao.queryMonthInspectBorrowCount(userName, borrowTypeSubId, borrowStatus, loanName, borrowTitle);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowTitle", borrowTitle);
+		model.addAttribute("borrowStatus", borrowStatus);
+		model.addAttribute("borrowTypeSubId", borrowTypeSubId);
+		model.addAttribute("loanName", loanName);
+		model.addAttribute("borrowTypeSubId", borrowTypeSubId);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		return "/admin/loan/riskdept/list.jsp";
+	}
+
+	public String querySaveOrUpdateRiskDeptMonthInspectInit(Model model, Long id, String tabid, Integer status,Long borrowId) {
+		LoanInspect inspect = null;
+		if (id != null) {
+			if (status == 1) {
+				inspect = borrowInspectionDao.queryLoanInspectById(id);
+			} else if (status == 2) {
+
+			} else if (status == 3) {
+
+			} else {
+
+			}
+			model.addAttribute("inspectTime", ConvertUtil.dateConvert(inspect.getInspectTime(), Constants.DATESIMPLE));
+		}
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("inspect", inspect);
+		model.addAttribute("borrowId", borrowId);
+		return "/admin/loan/riskdept/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> saveOrUpdateRiskDeptMonthInspect(Model model, String tabid, LoanInspect loanInspect, String inspectTimeStr,Long id2) {
+		Date inspectTime = ConvertUtil.dateConvert(inspectTimeStr, Constants.DATESIMPLE);
+		loanInspect.setInspectTime(inspectTime);
+		if (loanInspect.getId() == null) {
+			loanInspect.setStatus(1);
+			loanInspect.setRecordTime(new Date());
+			loanInspect.setBorrowId(id2);
+			long result = borrowInspectionDao.addLoanInspect(loanInspect);
+			if (result > 0) {
+				// return ajaxDoneForward("200", "检查增加成功", "true", "",
+				// "queryBorrowInspectRecord.do");
+			//	return ajaxDoneInfo("200", "检查提交成功，请等待审核", "true", tabid);
+				return ajaxDoneForward("200", "检查提交成功，请等待审核", "true", "", "queryLoanInspectList.do");
+			} else {
+				return ajaxDoneInfo("300", "检查提交失败，请等待审核", "", "");
+			}
+		} else {
+			long result = borrowInspectionDao.updateLoanInspect(loanInspect);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "检查修改成功，请等待审核", "true", tabid);
+			//	return ajaxDoneForward("200", "检查修改成功，请等待审核", "true",tabid, "queryLoanInspectList.do");
+			} else {
+				return ajaxDoneInfo("300", "检查修改失败，请等待审核", "", "");
+			}
+		}
+
+	}
+
+	public String queryLoanInspectList(Model model, String tabid, String userName, Integer borrowTypeSubId, Integer borrowStatus, String loanName, String borrowTitle,
+			Long pageNum, Long pageSize) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		userName = ConvertUtil.objToStrConvert(userName);
+		borrowTypeSubId = ConvertUtil.objToIntConvert(borrowTypeSubId);
+		borrowStatus = ConvertUtil.objToIntConvert(borrowStatus);
+		loanName = ConvertUtil.objToStrConvert(loanName);
+		borrowTitle = ConvertUtil.objToStrConvert(borrowTitle);
+		List<Map<String, Object>> list = borrowInspectionDao.queryLoanInspectList(userName, borrowTypeSubId, borrowStatus, loanName, borrowTitle, (pageNum - 1) * pageSize,
+				pageSize);
+		long count = borrowInspectionDao.queryLoanInspectCount(userName, borrowTypeSubId, borrowStatus, loanName, borrowTitle);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowTitle", borrowTitle);
+		model.addAttribute("borrowStatus", borrowStatus);
+		model.addAttribute("borrowTypeSubId", borrowTypeSubId);
+		model.addAttribute("loanName", loanName);
+		model.addAttribute("borrowTypeSubId", borrowTypeSubId);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		return "/admin/loan/riskdept/inspectlist.jsp";
+	}
+
+}

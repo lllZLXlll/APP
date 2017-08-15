@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<!-- 不识别邮件和不把数字识别为电话号码 -->
+	<meta name="format-detection" content="telephone=no; email=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<title>呼朋唤友来投资—普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<link rel="stylesheet" href="css/activity_02.css">
+	<script type="text/javascript">
+		function onhundle(){
+			if(window.Native){
+				var param = {
+					app:true,
+					selectedTab:'user'
+				}
+				setTimeout(function(){
+				try{
+					window.reactNativePostmsg(JSON.stringify(param));
+				}catch(e){
+					window.postMessage(JSON.stringify(param));
+				}
+				},500);
+			}else{
+				window.location.href = '../account.html#tuijian';
+			}
+			
+
+		}
+	</script>
+</head>
+<body>
+	<div class="activity">
+		<a class="btn" onclick="onhundle()">马上推荐</a>
+		<div class="activity-content">
+			<h3>在普金资本平台已注册认证并投资的用户即可推荐自己好友进行投资，好友投资成功后推荐人即可获得推荐奖励。</h3>
+			<p>1、从2017年3月6日起，推荐人每推荐一位好友注册并投资任意一款理财产品500元以上，推荐人即可获得<span>5元</span>推荐奖励；</p>
+     		<p>2、推荐人推荐好友注册并累计投资达3万元即可额外返<span>100元</span>推荐奖励，达10万元即可额外返<span>300元</span>推荐奖励。</p>
+		</div>
+	</div>
+	<div class="explain">
+		<h3>活动细则</h3>
+		<p>1、推荐关系确认：活动有效期内，推荐人必须是平台已注册投资用户，被邀请人在填写注册信息时，直接填写推荐人（推荐号）；或被推荐人通过推荐人的推荐链接进行注册；</p>
+		<p>2、每个被推荐账户必须完成投资，推荐资格方为有效；</p>
+		<p>3、本次活动中，投资项目不包含债权转让项目； </p>
+		<p>4、推荐所得现金，可取现（满足取现条件下），可投资；</p>
+		<p>5、在法律许可的合法范畴内，本活动规则最终解释权归普金资本所有，客服热线：400-606-2079。</p>
+	</div>
+	<script type="text/javascript" src="srcipt/init.js"></script>
+</body>
+</html>

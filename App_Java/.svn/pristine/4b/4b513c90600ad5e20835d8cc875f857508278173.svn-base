@@ -1,0 +1,9 @@
+package com.pjzb.dao;
+
+import java.util.Map;
+
+public interface WebStatisDao {
+
+	Map<String, Object> callWebStatisProcedure(Map<String, Object> map);
+
+}

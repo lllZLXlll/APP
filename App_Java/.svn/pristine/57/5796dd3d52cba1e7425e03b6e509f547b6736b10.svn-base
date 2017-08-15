@@ -1,0 +1,134 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/account/Taste.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			if(this.$route.query.flag == 0){
+				var name = '我的代金券';
+			}else if(this.$route.query.flag == 1){
+				var name = '我的现金券';
+			}else{
+				var name = '我的体验金';
+			};
+			utils.setAppConfig(name,true,false);
+		},
+		route:{
+			data:function(){
+				var _this = this;
+				var param={uid:Storage.getItem('uid')};
+				utils.ajax({
+			        url:'../front/vocherAmts.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == 0){
+			        		if(_this.$route.query.flag == 0){
+			        			var taste = data.mapList1;
+			        		}else if(_this.$route.query.flag == 1){
+			        			var taste = data.mapList2;
+			        		}else{
+			        			var taste = data.accountSum;
+			        		};
+			        		var list1 = [],list2 = [],list3 = [];
+			        		if(typeof(taste) != "string"){
+			        			for(var i = 0;i<taste.length;i++){
+			        				if(taste[i].usestatus=='1'){
+			        					list1.push(taste[i]);
+			        				}else if(taste[i].usestatus=='2'){
+			        					list2.push(taste[i]);
+			        				}else if(taste[i].usestatus=='3'){
+			        					list3.push(taste[i]);
+			        				}
+			        			};
+			        		}else{
+			        			if(taste && taste > 0){
+			        				list1.push({money:taste});
+			        			}else{
+			        				list2.push({money:'28888'});
+			        			}
+			        		};
+			        		_this.$set('list1',list1);
+			        		_this.$set('list2',list2);
+			        		_this.$set('list3',list3);
+			        	}else{
+			        		$.alert(data.msg);
+			        	}
+			        	
+			        }
+			    });
+			},waitForData:true
+		},
+		data: function(){
+			return {
+				isShow:[true,false,false]
+			}
+		},
+		methods:{
+			isEmpty: function(index){
+				if(index==1){
+					if(this.list1.length>0){
+						return false;
+					}else{
+						return true;
+					}
+				}else if(index==2){
+					if(this.list2.length>0){
+						return false;
+					}else{
+						return true;
+					}
+				}else{
+					if(this.list3.length>0){
+						return false;
+					}else{
+						return true;
+					}
+				}
+			},
+			changeIndex: function(index){
+				var _this = this;
+				if(index==1){
+					_this.$set('isShow',[true,false,false])
+				}else if(index==2){
+					_this.$set('isShow',[false,true,false]);
+				}else{
+					_this.$set('isShow',[false,false,true])
+				}
+			},
+			showBtn: function(){
+				if(this.isShow[0] == true && this.list1.length>0 && this.$route.query.flag!=1){
+					return true;
+				}else{
+					return false;
+				}
+			},
+			toInvest:function(){
+				if(this.$route.query.flag == 2){
+					router.go({path:'/detail?id=1&type=tiyan'});
+				}else{
+					router.go({path:'/index'});
+				}
+			},
+			useCard:function(id){
+				if(this.$route.query.flag==1){
+					var param={"auth":"{uid:'"+Storage.getItem('uid')+"'}","info":"{id:'"+id+"'}"};
+					utils.ajax({
+				        url:'../app/useXianJinQuan.do',
+				        data:param,
+				        dataType:'json',
+				        success: function(data){
+				        	if(data.error == 0){
+				        		$.alert('现金券领取成功!',function(){
+				        			router.go({path:'/account'});
+				        		})
+				        	}else{
+				        		$.alert(data.msg);
+				        	}
+				        }
+				    });
+				}
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

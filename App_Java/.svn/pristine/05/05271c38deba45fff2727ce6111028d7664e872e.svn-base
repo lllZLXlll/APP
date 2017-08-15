@@ -1,0 +1,22 @@
+<div class="content content-newsport">
+    <div class="list-block">
+        <div class="infinite-scroll infinite-scroll-bottom" data-distance="100">
+            <ul>
+                <template v-for="list in dataList">
+                    <li class="item-content" track-by="list.id" @click="toDetail(list.id)">
+                        <div class="item-inner">
+                            <div class="item-title">{{list.title}}</div>
+                            <div class="item-after">{{list.publishTime | timeSub}}</div>
+                        </div>
+                    </li>
+                </template>
+                <li class="noNews" v-if="dataLength">
+                    <span>暂无公告</span>
+                </li>
+            </ul>
+            <div class="infinite-scroll-preloader" v-show="model">
+                <div class="preloader"></div>
+            </div>
+        </div>
+    </div>
+</div>

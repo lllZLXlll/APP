@@ -1,0 +1,65 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+
+/**
+ * 标种类型
+ */
+
+@Service
+public class AdminBorrowTypeService extends BaseController {
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	public String queryShoveTypeAllInit(Model model, long pageNum, long pageSize, String tabid) {
+		try {
+			List<Integer> status = new ArrayList<Integer>();
+			List<Map<String, Object>> list = borrowDao.queryBorrowTypelist((pageNum - 1) * pageSize, pageSize);
+			long count = borrowDao.queryBorrowTypeCount();
+			for (Map<String, Object> map : list) {
+				int i = 0;
+				String stytyles = map.get("styles") == null ? "" : map.get("styles") + "";
+				if (stytyles.length() > 0) {
+					String[] array = stytyles.split(", ");
+					for (int n = 0; n <= array.length - 1; n++) {
+						int a = Integer.valueOf(array[n]);
+						status.add(a);
+					}
+					List<Map<String, Object>> titleList = borrowDao.queryBorrowAmountByIds(status);
+					if (titleList != null) {
+						StringBuffer buf = new StringBuffer();
+						for (Map<String, Object> titleMap : titleList) {
+							buf.append(titleMap.get("title") + "");
+							i++;
+							if (i != titleList.size()) {
+								buf.append("|");
+							}
+						}
+						map.put("titles", buf.toString());
+					}
+				}
+			}
+			List<Map<String, Object>> mapTypeList = borrowDao.queryBorrowAmountAll();
+			model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("mapTypeList", mapTypeList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询标种类型异常**************************");
+		}
+		return "/admin/borrow/borrowtype/list.jsp";
+	}
+
+}

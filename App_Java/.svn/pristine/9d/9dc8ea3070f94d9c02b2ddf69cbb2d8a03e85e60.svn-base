@@ -1,0 +1,749 @@
+package com.pjzb.service.admin.count;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.ActivityDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RedmoneyrecordDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Redmoneyrecord;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+import com.shove.web.Utility;
+
+/**
+ * 奖励统计
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminRewardCountService extends BaseController {
+
+	@Autowired
+	private ActivityDao activityDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private RedmoneyrecordDao redmoneyrecordDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryAwardInit(Model model, String tabid, Long pageNum, Long pageSize, String borrowName, String realName, String awardMoney, String faFangStatus,
+			String awardType) {
+		try {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			long count = -1;
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowName = borrowName == null ? null : borrowName;
+			realName = realName == null ? null : realName;
+			awardMoney = awardMoney == null ? null : awardMoney;
+			int awardMoneyI = Convert.strToInt(awardMoney, -1);
+			faFangStatus = faFangStatus == null ? null : faFangStatus;
+			int status = Convert.strToInt(faFangStatus, -1);
+			list = activityDao.queryAwardInit((pageNum - 1) * pageSize, pageSize, borrowName, realName, awardMoneyI, status);
+			count = activityDao.queryAwardInitCounts(borrowName, realName, awardMoneyI, status);
+			model.addAttribute("faFangStatus", status);
+			model.addAttribute("borrowName", borrowName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("awardMoney", awardMoney);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("pageCurrent", pageNum);
+			model.addAttribute("pageSize", pageSize);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询奖励统计异常**************************");
+		}
+		return "/admin/count/rewardcount/newList.jsp";
+	}
+
+	public String queryAwardInits(Model model, String tabid, Long pageNum, Long pageSize, String borrowName, String realName, String awardMoney, String faFangStatus,
+			String activity, String awardType, String borrowTime) {
+		try {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			long count = -1;
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			if (activity.equals("1")) {
+				borrowName = borrowName == null ? null : borrowName;
+				realName = realName == null ? null : realName;
+				awardType = awardType == null ? null : awardType;
+				int awardTypeInit = Convert.strToInt(awardType, -1);
+				faFangStatus = faFangStatus == null ? null : faFangStatus;
+				int status = Convert.strToInt(faFangStatus, -1);
+				list = activityDao.queryAwardInitTwo((pageNum - 1) * pageSize, pageSize, borrowName, realName, awardTypeInit, status);
+				count = activityDao.queryAwardInitTwoCounts(borrowName, realName, awardTypeInit, status);
+				model.addAttribute("faFangStatus", status);
+				model.addAttribute("borrowName", borrowName);
+				model.addAttribute("realName", realName);
+				model.addAttribute("awardType", awardTypeInit);
+			} else if (activity.equals("2")) {
+				borrowName = borrowName == null ? null : borrowName;
+				realName = realName == null ? null : realName;
+				borrowTime = borrowTime == null ? null : borrowTime;
+				int borrowTimeInt = Convert.strToInt(borrowTime, -1);
+				awardMoney = awardMoney == null ? null : awardMoney;
+				int awardMoneyI = Convert.strToInt(awardMoney, -1);
+				faFangStatus = faFangStatus == null ? null : faFangStatus;
+				int status = Convert.strToInt(faFangStatus, -1);
+				list = activityDao.queryAwardInitThree((pageNum - 1) * pageSize, pageSize, borrowName, realName, borrowTimeInt, awardMoneyI, status);
+				count = activityDao.queryAwardInitThreeCounts(borrowName, realName, borrowTimeInt, awardMoneyI, status);
+				model.addAttribute("faFangStatus", status);
+				model.addAttribute("borrowName", borrowName);
+				model.addAttribute("realName", realName);
+				model.addAttribute("borrowTime", borrowTimeInt);
+				model.addAttribute("awardMoney", awardMoney);
+			} else if (activity.equals("3")) {
+				realName = realName == null ? null : realName;
+				awardMoney = awardMoney == null ? null : awardMoney;
+				int awardMoneyI = Convert.strToInt(awardMoney, -1);
+				faFangStatus = faFangStatus == null ? null : faFangStatus;
+				int status = Convert.strToInt(faFangStatus, -1);
+				list = activityDao.queryAwardInitFour((pageNum - 1) * pageSize, pageSize, realName, awardMoneyI, status);
+				count = activityDao.queryAwardInitFourCounts(realName, awardMoneyI, status);
+				model.addAttribute("faFangStatus", status);
+				model.addAttribute("realName", realName);
+				model.addAttribute("awardMoney", awardMoney);
+			} else if (activity.equals("4")) {
+				realName = realName == null ? null : realName;
+				awardType = awardType == null ? null : awardType;
+				int awardTypeInit = Convert.strToInt(awardType, -1);
+				faFangStatus = faFangStatus == null ? null : faFangStatus;
+				int status = Convert.strToInt(faFangStatus, -1);
+				list = activityDao.queryAwardInitFive((pageNum - 1) * pageSize, pageSize, realName, awardTypeInit, status);
+				count = activityDao.queryAwardInitFiveCounts(realName, awardTypeInit, status);
+				model.addAttribute("faFangStatus", status);
+				model.addAttribute("realName", realName);
+				model.addAttribute("awardType", awardTypeInit);
+			} else {
+				borrowName = borrowName == null ? null : borrowName;
+				realName = realName == null ? null : realName;
+				awardMoney = awardMoney == null ? null : awardMoney;
+				int awardMoneyI = Convert.strToInt(awardMoney, -1);
+				faFangStatus = faFangStatus == null ? null : faFangStatus;
+				int status = Convert.strToInt(faFangStatus, -1);
+				list = activityDao.queryAwardInit((pageNum - 1) * pageSize, pageSize, borrowName, realName, awardMoneyI, status);
+				count = activityDao.queryAwardInitCounts(borrowName, realName, awardMoneyI, status);
+				model.addAttribute("faFangStatus", status);
+				model.addAttribute("borrowName", borrowName);
+				model.addAttribute("realName", realName);
+				model.addAttribute("awardMoney", awardMoney);
+			}
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("pageCurrent", pageNum);
+			model.addAttribute("pageSize", pageSize);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询奖励统计异常**************************");
+		}
+		if (activity.equals("1")) {
+			return "/admin/count/rewardcount/grabList.jsp";
+		} else if (activity.equals("2")) {
+			return "/admin/count/rewardcount/oldList.jsp";
+		} else if (activity.equals("3")) {
+			return "/admin/count/rewardcount/inviteList.jsp";
+		} else if (activity.equals("4")) {
+			return "/admin/count/rewardcount/cumulateList.jsp";
+		} else {
+			return "/admin/count/rewardcount/newList.jsp";
+		}
+	}
+
+	public Map<String, Object> updateAwardNewInvest(Long id, String tabid) throws RuntimeException {
+		try {
+			Map<String, Object> investorMap = activityDao.queryNewUserfirstInvestAward(id);
+			long userId = Convert.strToLong(investorMap.get("userId") + "", -1);
+			double investAmount = Convert.strToDouble(investorMap.get("investAmount") + "", -1);
+			double money = Convert.strToDouble(investorMap.get("money") + "", -1);
+			if (money <= 200) {
+				// 发放奖励方法
+				Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+				redmoneyrecord.setRechargeUid(userId);
+				redmoneyrecord.setUid(userId);
+				redmoneyrecord.setMoney(money);
+				redmoneyrecord.setRbName(money + "元现金券");
+				redmoneyrecord.setInserttime(new Date());
+				redmoneyrecord.setActivesatus(1);
+				redmoneyrecord.setUsestatus(1);
+				redmoneyrecord.setIslock(1);
+				redmoneyrecord.setLockendtime(new Date());
+				redmoneyrecord.setUseendtime(DateUtil.dateAddMonth(new Date(), 1));
+				redmoneyrecord.setRedmoneytype("2");
+				redmoneyrecord.setHandleMoney(investAmount);
+				redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+				userService.updateSign(userId);
+			}
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), money, "发放新用户首次投资奖励,发放用户为:"
+					+ userId + ",[操作成功]!", 2, admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			long result = activityDao.updateAwardStatus(id, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0.0, "发放新用户首次投资奖励,[操作失败]!", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************新用户投资奖励发放异常******************");
+		}
+	}
+
+	public Map<String, Object> updateAwardNewInvestByIds(String delids) throws RuntimeException {
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量修改新用户首次投资奖励delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i] + "", 1L));
+			}
+			List<Map<String, Object>> investorList = activityDao.queryNewUserfirstInvestAwardByIds(list);
+			for (Map<String, Object> investorMap : investorList) {
+				long userId = Convert.strToLong(investorMap.get("userId") + "", -1);
+				double investAmount = Convert.strToDouble(investorMap.get("investAmount") + "", -1);
+				double money = Convert.strToDouble(investorMap.get("money") + "", -1);
+				if (money <= 200) {
+					// 发放奖励方法
+					Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+					redmoneyrecord.setRechargeUid(userId);
+					redmoneyrecord.setUid(userId);
+					redmoneyrecord.setMoney(money);
+					redmoneyrecord.setRbName(money + "元现金券");
+					redmoneyrecord.setInserttime(new Date());
+					redmoneyrecord.setActivesatus(1);
+					redmoneyrecord.setUsestatus(1);
+					redmoneyrecord.setIslock(1);
+					redmoneyrecord.setLockendtime(new Date());
+					redmoneyrecord.setUseendtime(DateUtil.dateAddMonth(new Date(), 1));
+					redmoneyrecord.setRedmoneytype("2");
+					redmoneyrecord.setHandleMoney(investAmount);
+					redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+					userService.updateSign(userId);
+				}
+				Admin admin = getSessionAdminInfo();
+				OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), money, "发放新用户首次投资奖励,发放用户为:"
+						+ userId + ",[操作成功]!", 2, admin.getId());
+				operationLogDao.addOperationLog(operationLog);
+			}
+			long result = activityDao.updateAwardStatusByIds(list, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0.0, "发放新用户首次投资奖励,[操作失败]!", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************批量发放新用户首次投资奖励异常***********");
+		}
+	}
+
+	public void exportAwardNewInvest(HttpServletResponse response, Long pageNum, Long pageSize, String borrowName, String realName, String awardMoney, String faFangStatus) {
+		try {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowName = borrowName == null ? null : borrowName;
+			realName = realName == null ? null : realName;
+			awardMoney = awardMoney == null ? null : awardMoney;
+			int awardMoneyI = Convert.strToInt(awardMoney, -1);
+			faFangStatus = faFangStatus == null ? null : faFangStatus;
+			int status = Convert.strToInt(faFangStatus, -1);
+			list = activityDao.queryAwardInit((pageNum - 1) * pageSize, pageSize, borrowName, realName, awardMoneyI, status);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("导出首次投资奖励信息", list, new String[] { "真实姓名", "借款标题", "项目期限(月)", "投资金额(元)", "满标审核通过日期", "奖励计算时间", "奖励发放日期", "奖励金额(元)",
+					"奖励发放" }, new String[] { "realName", "borrowTitle", "deadline", "investAmount", "auditTime", "investTimeRange", "awardTime", "money", "statusStr" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出新用户首次投资奖励统计异常**************************");
+		}
+	}
+
+	public Map<String, Object> updateAwardGrabInvest(Long id, String tabid) throws RuntimeException {
+		try {
+			Map<String, Object> investorMap = activityDao.queryGrabInvestAward(id);
+			long userId = Convert.strToLong(investorMap.get("userId") + "", -1);
+			double investAmount = Convert.strToDouble(investorMap.get("investAmount") + "", -1);
+			double money = Convert.strToDouble(investorMap.get("money") + "", -1);
+			if (money <= 200) {
+				// 发放奖励方法
+				Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+				redmoneyrecord.setRechargeUid(userId);
+				redmoneyrecord.setUid(userId);
+				redmoneyrecord.setMoney(money);
+				redmoneyrecord.setRbName(money + "元现金券");
+				redmoneyrecord.setInserttime(new Date());
+				redmoneyrecord.setActivesatus(1);
+				redmoneyrecord.setUsestatus(1);
+				redmoneyrecord.setIslock(1);
+				redmoneyrecord.setLockendtime(new Date());
+				redmoneyrecord.setUseendtime(DateUtil.dateAddMonth(new Date(), 1));
+				redmoneyrecord.setRedmoneytype("2");
+				redmoneyrecord.setHandleMoney(investAmount);
+				redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+				userService.updateSign(userId);
+			}
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), money, "发放抢标奖励,发放用户为:" + userId
+					+ ",[操作成功]!", 2, admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			long result = activityDao.updateGrabInvest(id, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0.0, "发放抢标奖励,[操作失败]!", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************抢标奖励发放异常******************");
+		}
+	}
+
+	public Map<String, Object> updateAwardGrabInvestByIds(String delids) throws RuntimeException {
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量发放抢标奖励delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i] + "", 1L));
+			}
+			List<Map<String, Object>> investorList = activityDao.queryAwardGrabInvestByIds(list);
+			for (Map<String, Object> investorMap : investorList) {
+				long userId = Convert.strToLong(investorMap.get("userId") + "", -1);
+				double investAmount = Convert.strToDouble(investorMap.get("investAmount") + "", -1);
+				double money = Convert.strToDouble(investorMap.get("money") + "", -1);
+				if (money <= 200) {
+					// 发放奖励方法
+					Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+					redmoneyrecord.setRechargeUid(userId);
+					redmoneyrecord.setUid(userId);
+					redmoneyrecord.setMoney(money);
+					redmoneyrecord.setRbName(money + "元现金券");
+					redmoneyrecord.setInserttime(new Date());
+					redmoneyrecord.setActivesatus(1);
+					redmoneyrecord.setUsestatus(1);
+					redmoneyrecord.setIslock(1);
+					redmoneyrecord.setLockendtime(new Date());
+					redmoneyrecord.setUseendtime(DateUtil.dateAddMonth(new Date(), 1));
+					redmoneyrecord.setRedmoneytype("2");
+					redmoneyrecord.setHandleMoney(investAmount);
+					redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+					userService.updateSign(userId);
+				}
+				Admin admin = getSessionAdminInfo();
+				OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), money, "抢标奖励,发放用户为:"
+						+ userId + ",[操作成功]!", 2, admin.getId());
+				operationLogDao.addOperationLog(operationLog);
+			}
+			long result = activityDao.updateAwardGrabInvestByIds(list, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0.0, "抢标奖励,[操作失败]!", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************批量发放抢标奖励异常***********");
+		}
+	}
+
+	public void exportAwardzGrabInvest(HttpServletResponse response, Long pageNum, Long pageSize, String borrowName, String realName, String awardType, String faFangStatus) {
+		try {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowName = borrowName == null ? null : borrowName;
+			realName = realName == null ? null : realName;
+			awardType = awardType == null ? null : awardType;
+			int awardTypeInit = Convert.strToInt(awardType, -1);
+			faFangStatus = faFangStatus == null ? null : faFangStatus;
+			int status = Convert.strToInt(faFangStatus, -1);
+			list = activityDao.queryAwardInitTwos((pageNum - 1) * pageSize, pageSize, borrowName, realName, awardTypeInit, status);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("导出抢标奖励信息", list, new String[] { "真实姓名", "借款标题", "项目期限(月)", "投资金额(元)", "满标审核通过日期", "奖励计算时间", "奖励发放日期", "奖励类型",
+					"奖励金额(元)", "奖励发放" }, new String[] { "realName", "borrowTitle", "deadline", "investAmount", "auditTime", "investTimeRange", "awardTime", "awardTypes", "money",
+					"statusStr" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出新用户首次投资奖励统计异常**************************");
+		}
+	}
+
+	public Map<String, Object> updateAwardOldInvest(Long id, String tabid) throws RuntimeException {
+		try {
+			Map<String, Object> investorMap = activityDao.queryAwardOldInvest(id);
+			long userId = Convert.strToLong(investorMap.get("userId") + "", -1);
+			double investAmount = Convert.strToDouble(investorMap.get("investAmount") + "", -1);
+			double money = Convert.strToDouble(investorMap.get("money") + "", -1);
+			if (money <= 200) {
+				// 发放奖励方法
+				Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+				redmoneyrecord.setRechargeUid(userId);
+				redmoneyrecord.setUid(userId);
+				redmoneyrecord.setMoney(money);
+				redmoneyrecord.setRbName(money + "元现金券");
+				redmoneyrecord.setInserttime(new Date());
+				redmoneyrecord.setActivesatus(1);
+				redmoneyrecord.setUsestatus(1);
+				redmoneyrecord.setIslock(1);
+				redmoneyrecord.setLockendtime(new Date());
+				redmoneyrecord.setUseendtime(DateUtil.dateAddMonth(new Date(), 1));
+				redmoneyrecord.setRedmoneytype("2");
+				redmoneyrecord.setHandleMoney(investAmount);
+				redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+				userService.updateSign(userId);
+			}
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), money, "发放老用户再投奖励,发放用户为:"
+					+ userId + ",[操作成功]!", 2, admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			long result = activityDao.updateAwardOldInvest(id, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0.0, "发放老用户再投奖励,[操作失败]!", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************抢标奖励发放异常******************");
+		}
+	}
+
+	public Map<String, Object> updateAwardOldInvestByIds(String delids) throws RuntimeException {
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量发放抢标奖励delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i] + "", 1L));
+			}
+			List<Map<String, Object>> investorList = activityDao.queryAwardOldInvestByIds(list);
+			for (Map<String, Object> investorMap : investorList) {
+				long userId = Convert.strToLong(investorMap.get("userId") + "", -1);
+				double investAmount = Convert.strToDouble(investorMap.get("investAmount") + "", -1);
+				double money = Convert.strToDouble(investorMap.get("money") + "", -1);
+				if (money <= 200) {
+					// 发放奖励方法
+					Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+					redmoneyrecord.setRechargeUid(userId);
+					redmoneyrecord.setUid(userId);
+					redmoneyrecord.setMoney(money);
+					redmoneyrecord.setRbName(money + "元现金券");
+					redmoneyrecord.setInserttime(new Date());
+					redmoneyrecord.setActivesatus(1);
+					redmoneyrecord.setUsestatus(1);
+					redmoneyrecord.setIslock(1);
+					redmoneyrecord.setLockendtime(new Date());
+					redmoneyrecord.setUseendtime(DateUtil.dateAddMonth(new Date(), 1));
+					redmoneyrecord.setRedmoneytype("2");
+					redmoneyrecord.setHandleMoney(investAmount);
+					redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+					userService.updateSign(userId);
+				}
+				Admin admin = getSessionAdminInfo();
+				OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), money, "抢标奖励,发放用户为:"
+						+ userId + ",[操作成功]!", 2, admin.getId());
+				operationLogDao.addOperationLog(operationLog);
+			}
+			long result = activityDao.updateAwardOldInvestByIds(list, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0.0, "抢标奖励,[操作失败]!", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************批量发放抢标奖励异常***********");
+		}
+	}
+
+	public void exportAwardzOldInvest(HttpServletResponse response, Long pageNum, Long pageSize, String borrowName, String realName, String awardMoney, String faFangStatus,
+			String borrowTime) {
+		try {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowName = borrowName == null ? null : borrowName;
+			realName = realName == null ? null : realName;
+			borrowTime = borrowTime == null ? null : borrowTime;
+			int borrowTimeInt = Convert.strToInt(borrowTime, -1);
+			awardMoney = awardMoney == null ? null : awardMoney;
+			int awardMoneyI = Convert.strToInt(awardMoney, -1);
+			faFangStatus = faFangStatus == null ? null : faFangStatus;
+			int status = Convert.strToInt(faFangStatus, -1);
+			list = activityDao.queryAwardInitThrees((pageNum - 1) * pageSize, pageSize, borrowName, realName, borrowTimeInt, awardMoneyI, status);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("导出老用户再投资奖励信息", list, new String[] { "真实姓名", "投标期限类型", "投资金额(元)", "奖励计算时间", "奖励发放日期", "奖励金额(元)", "奖励发放" }, new String[] {
+					"realName", "deadlines", "investAmount", "investTimeRange", "awardTime", "money", "statustr" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出老用户再投奖励统计异常**************************");
+		}
+	}
+
+	public Map<String, Object> updateAwardInviteInvest(Long id, String tabid) {
+		try {
+			Map<String, Object> investorMap = activityDao.queryAwardInviteInvest(id);
+			long userId = Convert.strToLong(investorMap.get("userId") + "", -1);
+			double investAmount = Convert.strToDouble(investorMap.get("investAmount") + "", -1);
+			double money = Convert.strToDouble(investorMap.get("money") + "", -1);
+			if (money <= 200) {
+				// 发放奖励方法
+				Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+				redmoneyrecord.setRechargeUid(userId);
+				redmoneyrecord.setUid(userId);
+				redmoneyrecord.setMoney(money);
+				redmoneyrecord.setRbName(money + "元现金券");
+				redmoneyrecord.setInserttime(new Date());
+				redmoneyrecord.setActivesatus(1);
+				redmoneyrecord.setUsestatus(1);
+				redmoneyrecord.setIslock(1);
+				redmoneyrecord.setLockendtime(new Date());
+				redmoneyrecord.setUseendtime(DateUtil.dateAddMonth(new Date(), 1));
+				redmoneyrecord.setRedmoneytype("2");
+				redmoneyrecord.setHandleMoney(investAmount);
+				redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+				userService.updateSign(userId);
+			}
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), money, "邀请奖励,发放用户为:" + userId
+					+ ",[操作成功]!", 2, admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			long result = activityDao.updateAwardInviteInvest(id, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0.0, "邀请奖励,[操作失败]!", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************邀请奖励发放异常******************");
+		}
+	}
+
+	public Map<String, Object> updateAwardInviteInvestByIds(String delids) {
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量发放邀请奖励delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i] + "", 1L));
+			}
+			List<Map<String, Object>> investorList = activityDao.queryAwardInviteInvestByIds(list);
+			for (Map<String, Object> investorMap : investorList) {
+				long userId = Convert.strToLong(investorMap.get("userId") + "", -1);
+				double investAmount = Convert.strToDouble(investorMap.get("investAmount") + "", -1);
+				double money = Convert.strToDouble(investorMap.get("money") + "", -1);
+				if (money <= 200) {
+					// 发放奖励方法
+					Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+					redmoneyrecord.setRechargeUid(userId);
+					redmoneyrecord.setUid(userId);
+					redmoneyrecord.setMoney(money);
+					redmoneyrecord.setRbName(money + "元现金券");
+					redmoneyrecord.setInserttime(new Date());
+					redmoneyrecord.setActivesatus(1);
+					redmoneyrecord.setUsestatus(1);
+					redmoneyrecord.setIslock(1);
+					redmoneyrecord.setLockendtime(new Date());
+					redmoneyrecord.setUseendtime(DateUtil.dateAddMonth(new Date(), 1));
+					redmoneyrecord.setRedmoneytype("2");
+					redmoneyrecord.setHandleMoney(investAmount);
+					redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+					userService.updateSign(userId);
+				}
+				Admin admin = getSessionAdminInfo();
+				OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), money, "邀请奖励,发放用户为:"
+						+ userId + ",[操作成功]!", 2, admin.getId());
+				operationLogDao.addOperationLog(operationLog);
+			}
+			long result = activityDao.updateAwardInviteInvestByIds(list, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			Admin admin = getSessionAdminInfo();
+			OperationLog operationLog = new OperationLog("t_redmoneyrecord", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0.0, "邀请奖励,[操作失败]!", 2,
+					admin.getId());
+			operationLogDao.addOperationLog(operationLog);
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************批量发放邀请奖励异常***********");
+		}
+	}
+
+	public void exportAwardInviteInvest(HttpServletResponse response, Long pageNum, Long pageSize, String realName, String awardMoney, String faFangStatus) {
+		try {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			realName = realName == null ? null : realName;
+			awardMoney = awardMoney == null ? null : awardMoney;
+			int awardMoneyI = Convert.strToInt(awardMoney, -1);
+			faFangStatus = faFangStatus == null ? null : faFangStatus;
+			int status = Convert.strToInt(faFangStatus, -1);
+			list = activityDao.queryAwardInitFour((pageNum - 1) * pageSize, pageSize, realName, awardMoneyI, status);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("导出邀请奖励信息", list, new String[] { "被推荐人", "推荐人", "投资金额(元)", "奖励金额(元)", "奖励计算时间", "奖励发放日期", "奖励发放" }, new String[] {
+					"realName", "recommendrealName", "investAmount", "money", "investTimeRange", "awardTime", "status" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出邀请奖励统计异常**************************");
+		}
+	}
+
+	public Map<String, Object> updateAwardCumulateInvest(Long id, String tabid) {
+		try {
+			long result = activityDao.updateAwardCumulateInvest(id, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************累积投资奖励发放异常******************");
+		}
+	}
+
+	public Map<String, Object> updateAwardCumulateInvestByIds(String delids) {
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量发放累计投资奖励delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i] + "", 1L));
+			}
+			long result = activityDao.updateAwardCumulateInvestByIds(list, new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+			if (result > 0) {
+				return ajaxDoneInfo("200", "发放成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "发放失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************批量发放累计投资奖励异常***********");
+		}
+	}
+
+	public void exportAwardCumulateInvest(HttpServletResponse response, Long pageNum, Long pageSize, String realName, String awardType, String faFangStatus) {
+		try {
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			realName = realName == null ? null : realName;
+			awardType = awardType == null ? null : awardType;
+			int awardTypeInit = Convert.strToInt(awardType, -1);
+			faFangStatus = faFangStatus == null ? null : faFangStatus;
+			int status = Convert.strToInt(faFangStatus, -1);
+			list = activityDao.queryAwardInitFive((pageNum - 1) * pageSize, pageSize, realName, awardTypeInit, status);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("导出累计投资奖励信息", list, new String[] { "真实姓名", "累计投资总额(元)", "奖励计算时间", "奖励等级", "奖品", "奖励发放时间", "奖励发放" }, new String[] {
+					"realName", "investAmount", "investTimeRange", "cumulateAwardType", "awardDescribe", "awardTime", "statusStr" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页导出累计投资奖励统计异常**************************");
+		}
+	}
+
+	public String queryRecommendInvestList(Model model, String borrowTitle, String realName, String recommendUsername, Integer status, Integer money, Long pageNum, Long pageSize, String tabid) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		status = status == null ? -1 : status;
+		money = money == null ? -1 : money;
+		borrowTitle=ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(borrowTitle));
+		realName=ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(realName));
+		recommendUsername=ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(recommendUsername));
+		List<Map<String, Object>> list = activityDao.queryRecommendInvestList(borrowTitle, realName, recommendUsername, status, money, (pageNum - 1) * pageSize, pageSize);
+		Long count = activityDao.queryRecommendInvestCount(borrowTitle, realName, recommendUsername, status, money);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("borrowTitle", borrowTitle);
+		model.addAttribute("realName", realName);
+		model.addAttribute("recommendUsername", recommendUsername);
+		model.addAttribute("status", status);
+		model.addAttribute("money", money);
+		return "/admin/count/rewardcount/recommendinvestlist.jsp";
+	}
+
+}

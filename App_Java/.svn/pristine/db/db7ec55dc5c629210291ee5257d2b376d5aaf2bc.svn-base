@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.OperateReportPageDao">
+
+	<resultMap type="operateReportPage" id="operateReportPageMap">
+		<id column="id" property="id" />
+		<result column="month" property="month" />
+		<result column="imgPath" property="imgPath" />
+		<result column="uploadTime" property="uploadTime" />
+		<result column="imgType" property="imgType" />
+		<result column="imgName" property="imgName" />
+	</resultMap>
+
+	<select id="queryOperateReport" resultType="map">
+		SELECT a.`month` AS `month`,a.imgPath AS
+		imgPath,DATE_FORMAT(a.uploadTime,'%Y-%m-%d %H:%i:%s') AS uploadTime
+		FROM t_operate_report_page a WHERE a.imgType=2 ORDER BY a.id DESC
+		LIMIT #{0}, #{1}
+	</select>
+
+	<select id="queryOperateReportCount" resultType="map">
+		SELECT COUNT(1)
+		AS operateReportCount FROM t_operate_report_page a WHERE a.imgType=2
+	</select>
+
+	<select id="queryOperateReportPageByMonth" resultType="map" parameterType="string">
+		SELECT * FROM t_operate_report_page a  WHERE a.`month`= #{0} ORDER BY id DESC
+	</select>
+
+	<select id="queryAppOperateReportListForPage" resultType="java.util.Map">
+		SELECT * FROM t_operate_report_page ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryAppOperateReportCount" resultType="java.lang.Long">
+		SELECT COUNT(1)
+		AS operateReportCount FROM t_operate_report_page
+	</select>
+	
+	<insert id="addAppOperateReport">
+		INSERT INTO t_operate_report_page (month,imgPath,uploadTime,imgType,imgName)
+		VALUE (#{month},#{imgPath},#{uploadTime},#{imgType},#{imgName})
+	</insert>
+	
+	<delete id="deleteAppOperateReportById">
+		DELETE FROM t_operate_report_page WHERE id = #{0}
+	</delete>
+	
+	<delete id="deleteAppOperateReportByIds">
+		DELETE FROM t_operate_report_page WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</delete>
+	
+	<select id="queryAppOperateReportById" resultType="operateReportPage">
+		SELECT * FROM t_operate_report_page WHERE id = #{0}
+	</select>
+	
+	<update id="updateAppOperateReportById">
+		UPDATE t_operate_report_page SET month=#{month},imgPath=#{imgPath},uploadTime=#{uploadTime},imgName=#{imgName} 
+		WHERE id = #{id}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+

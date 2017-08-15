@@ -1,0 +1,27 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageContent tableContent">
+    <div class="bjui-pageHeader">
+    	<div style="width: 500;">
+		    <form id="pagerForm" action="${basePath }admin/handrepaymentlist.do" method="post" data-toggle="validate">
+		    	<br />
+				<label style="font-size: 16px;">请输入还款订单号(即t_invest_repayment的id)</label>
+				<br />
+				<br />
+				<label style="font-size: 16px;">使用场景：在借款人对投资人进行还款,如果失败，在此输入</label>
+				<br />
+				<br />
+				<label style="font-size: 16px;">t_invest_repayment的id进行手工还款，如果最后一期还</label>
+				<br />
+				<br />
+				<label style="font-size: 16px;">款成功则需要手工更改t_invest的repayStatus为2，即已还款状态</label>
+				<br />
+				<br />
+				<br />
+				<input type="text" name="id" class="form-control" size="19" data-rule="required">
+				<button type="submit" class="btn-default" data-icon="save">开始还款</button>
+		    </form>
+	    </div>
+	</div>
+</div>

@@ -1,0 +1,15 @@
+package com.pjzb.dao;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Materialimagedetal;
+
+public interface MaterialimagedetalDao {
+
+	public Long insertMaterialimagedetal(Materialimagedetal materialimagedetal);
+	
+	public Long deleteMaterialimagedetalById(Long id);
+	
+	public Long queryMaterialimagedetalCountByUserId(@Param("userId")Long userId);
+
+}

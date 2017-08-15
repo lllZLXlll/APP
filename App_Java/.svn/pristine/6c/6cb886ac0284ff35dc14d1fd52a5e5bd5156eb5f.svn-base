@@ -1,0 +1,303 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>普金资本-安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<meta name="keywords" content="普金资本，互联网金融，P2P理财，供应链金融，网络贷款，银行存管" />
+	<meta name="description" content="普金资本是目前国内拥有国资系背景的P2P理财平台，为P2P网贷和理财用户提供安全、高效的互联网金融理财服务。普金资本，以“国资系、可信赖”的企业理念，为理财用户提供安全稳定的网上理财通道，快速实现资金周转，实现财富稳定增长。" />
+	<link rel="stylesheet" href="${basePath}WEB-PC/src/css/public.css">
+	<link rel="stylesheet" href="${basePath}WEB-PC/src/css/index.css">
+</head>
+<script type="text/javascript">
+function IsPC() {
+    var userAgentInfo = navigator.userAgent;
+    var Agents = ["Android", "iPhone",
+                "SymbianOS", "Windows Phone",
+                "iPad", "iPod"];
+    var flag = true;
+    for (var v = 0; v < Agents.length; v++) {
+        if (userAgentInfo.indexOf(Agents[v]) > 0) {
+            flag = false;
+            break;
+        }
+    }
+    return flag;
+}
+
+if(IsPC()!=true){
+	  window.location.href="front/indexInit.do"; 
+}
+</script>
+<body>
+	<!--[if lt IE 8]>
+    <div class="show-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  	<![endif]-->
+	<!-- top -->
+	<div class="top" id="top">
+	<!-- top -->
+<div class="wrap">
+	<div class="top-left icon icon-phone">
+		<span>客服热线：</span>400-606-2079 <span>（8:30～17:30）</span>
+	</div>
+	<div class="top-right cl">
+		<ul class="top-list">
+			<li class="first"><a href="${basePath}WEB-PC/regist.html" class="icon icon-person">注册领红包</a></li>
+			<li><a href="${basePath}WEB-PC/account.html#tuijian" class="icon icon-inv">邀请有礼</a></li>
+			<li><a href="${basePath}WEB-PC/about.html#gdbj">关于我们</a></li>
+			<li><a href="${basePath}WEB-PC/help.html">帮助中心</a></li>
+			<li><a href="a${basePath}WEB-PC/ccount.html#ipay" class="pay">充值</a></li>
+			<li id="userName"><a href="login.html">登录</a></li>
+			<li><a href="javascript:;" class="icon icon-app" id="app">APP下载</a></li>
+		</ul>
+		<div id="qrCodeDiv" style="display: none;">
+			<div class="CodeDiv">
+				<img src="${basePath}WEB-PC/src/images/qrCode_ios.png"  />
+				<p>IOS下载</p>
+			</div>
+			<div class="CodeDiv">
+				<img src="${basePath}WEB-PC/src/images/qrCode_android.png"  />
+				<p>Android下载</p>
+			</div>
+		</div>
+	</div>
+</div>
+	
+	</div>
+	<!-- nav -->
+	<div class="nav">
+		<div class="wrap cl">
+			<div class="logo"><img src="${basePath}WEB-PC/src/images/logo.png" alt="普金资本"></div>
+			<div class="nav-bar">
+				<ul>
+					<li class="icon icon-acc"><a href="${basePath}WEB-PC/account.html">我的账户</a></li>
+					<!-- <li><a href="javascript:void(0);">信息披露</a></li> -->
+					<li><a href="${basePath}WEB-PC/about.html">信息披露</a></li>
+					<!-- <li><a href="javascript:void(0);" onclick="newPointer()">新手指导</a></li> -->
+					<li><a href="${basePath}WEB-PC/safety.html">安全保障</a></li>
+					<li>
+						<a href="${basePath}WEB-PC/invest_list.html">投资理财</a>
+						<div class="sub-nav">
+							<a href="${basePath}WEB-PC/invest_list.html#006">恒金保</a>
+							<a href="${basePath}WEB-PC/invest_list.html#004">普金保</a>
+							<a href="${basePath}WEB-PC/invest_list.html#003">多金宝</a>
+							<a href="${basePath}WEB-PC/creditor_list.html">债权转让</a>
+							<p class="left"></p>
+							<p class="right"></p>
+						</div>
+					</li>
+					<li><a href="javascript:void(0);">首页</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- banner -->
+	<div class="banner">
+		<div class="banner-box"> 
+			<a href="http://www.pujinziben.com/WEB-PC/news.html?id=66" alt="网站备案获准"><img src="src/images/banner/banner_010.jpg"></a> 
+			<a href="http://www.pujinziben.com/WEB-PC/news.html?id=62&flag=1" alt="债权转让"  target="_blank"><img src="src/images/banner/banner_009.jpg"></a>
+			<a href="help.html" alt="供应链金融"  target="_blank"><img src="src/images/banner/banner_001.jpg" ></a>
+			<a href="safety.html" alt="5大安全措施"  target="_blank"><img src="src/images/banner/banner_002.jpg"></a>
+		</div>
+		<!-- <div class="banner-pointer">
+			<ul>
+				<li class="active"><a href="javascript:void(0);"></a></li>
+				<li><a href="javascript:void(0);"></a></li>
+				<li><a href="javascript:void(0);"></a></li>
+				<li><a href="javascript:void(0);"></a></li>
+				<li><a href="javascript:void(0);"></a></li>
+			</ul>
+		</div> -->
+	</div>
+	<!-- news -->
+	<div class="news">
+		<div class="wrap">
+			<div class="news-list icon icon-news">
+				<ul id="news-list">
+				</ul>
+			</div>
+			<div class="bang-list">
+				<a href="${basePath}WEB-PC/board.html" target="_blank" class="icon icon-bang">投资、推荐排行榜</a>
+			</div>
+		</div>
+	</div>
+	<!-- statis -->
+	<div class="statis">
+		<div class="wrap">
+			<div class="statis-main">
+				<ul class="statis-top cl">
+					<li class="first"><p>累计投资金额：<span id="investAmount">0</span><span class="small">元</span></p></li>
+					<li class="center"><p>累计赚取收益：<span id="hasInterest">0</span><span class="small">元</span></p></li>
+					<li class="last"><p>累计注册投资人：<span id="userTotal">0</span><span class="small">人</span></p></li>
+				</ul>
+				<div class="explian cl">
+					<a href="${basePath}WEB-PC/about.html" class="first">
+						<p class="icon icon-ex1"></p>
+						<div class="text">
+							<h3>实力雄厚</h3>
+							<p>国资背景，抱柱之信</p>
+							<p>赣州城投旗下参股企业</p>
+						</div>
+					</a>
+					<a href="${basePath}WEB-PC/safety.html" class="center">
+						<p class="icon icon-ex2"></p>
+						<div class="text">
+							<h3>安全稳健</h3>
+							<p>专注城投供应链金融服务</p>
+							<p>银行级风控措施+大数据</p>
+						</div>
+					</a>
+<!-- 					<a href="activity/activity_01.html" class="last" target="_blank"> -->
+					<a href="#" class="last">
+						<p class="icon icon-ex3"></p>
+						<div class="text">
+							<h3>新手福利</h3>
+							<p>新用户投资即获红包</p>
+							<p>推荐用户投资得红包</p>
+						</div>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- product -->
+	<div class="product wrap">
+		<div class="product-n">
+			<div class="product-n-l">
+				<p class="icon icon-tiyan"></p>
+				<div class="product-title cl">
+					<h3>理财体验标</h3>
+					<p>首次注册用户专享，限投一次</p>
+				</div>
+				<div class="product-main cl">
+					<div class="rate">
+						<p><span id="ty-rate">12.00</span>%</p>
+						<span>预期年化收益率</span>
+					</div>
+					<div class="date">
+						<p><span id="ty-date">1天 </span>/ 投资期限</p>
+					</div>
+					<div class="button">
+						<button type="button"  id="ty-btn">立即投资</button>
+					</div>
+				</div>
+			</div>
+			<!-- <div class="product-n-r">
+				<p class="icon icon-xinshou"></p>
+				<div class="product-title cl">
+					<h3>新手专享标</h3>
+					<p>仅限首次投标会员，起投金额100元</p>
+				</div>
+				<div class="product-main cl">
+					<div class="rate">
+						<p><span id="xs-rate">15.00</span>%</p>
+						<span>预期年化收益率</span>
+					</div>
+					<div class="date">
+						<p><span id="xs-date">1月</span> / 投资期限</p>
+					</div>
+					<div class="button">
+						<button type="button" id="xs-btn">立即投资</button>
+					</div>
+				</div>
+			</div> -->
+		</div>
+		<!-- 恒金保 -->
+		<div class="product-h" id="pj_hengjin">
+			<div class="product-h-l">
+				<img src="${basePath}WEB-PC/src/images/product_01.png" alt="恒金保">
+				<a href="${basePath}WEB-PC/product.html#hengjinb" class="top"></a>
+				<a href="${basePath}WEB-PC/invest_list.html#006" class="bottom"></a>
+			</div>
+			<div class="product-h-m">
+				<ul class="product-list" id="product-h">
+				</ul>
+			</div>
+		</div>
+		<!-- 普金保 -->
+		<div class="product-h" id="pj_pujin">
+			<div class="product-h-l">
+				<img src="${basePath}WEB-PC/src/images/product_02.png" alt="多金保">
+				<a href="${basePath}WEB-PC/product.html#pujinb" class="top"></a>
+				<a href="${basePath}WEB-PC/invest_list.html#004" class="bottom"></a>
+			</div>
+			<div class="product-h-m">
+				<ul class="product-list"  id="product-p">
+				</ul>
+			</div>
+		</div>
+		<!-- 多金宝 -->
+		<div class="product-h" id="pj_duojin">
+			<div class="product-h-l">
+				<img src="${basePath}WEB-PC/src/images/product_03.png" alt="多金宝">
+				<a href="${basePath}WEB-PC/product.html#duojinb" class="top"></a>
+				<a href="${basePath}WEB-PC/invest_list.html#003" class="bottom"></a>
+			</div>
+			<div class="product-h-m">
+				<ul class="product-list"  id="product-d">
+					
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- news -->
+	<div class="news-main wrap">
+		<div class="news-main-left">
+			<div class="news-main-top">
+				<h3>媒体报道</h3>
+				<p class="more icon icon-more"><a href="about.html#gsdt?type=1">更多</a></p>
+			</div>
+			<div class="news-main-content" id="dynamic">
+				<ul class="news-main-list">
+				</ul>
+			</div>
+		</div>
+		<div class="news-main-right">
+			<div class="news-main-top">
+				<h3>最新公告</h3>
+				<p class="more icon icon-more"><a href="about.html#ptgg">更多</a></p>
+			</div>
+			<div class="news-main-content">
+				<ul class="news-main-list"  id="newsContent">
+				</ul>
+			</div>
+			<div class="news-main-top ptop">
+				<h3>公司动态</h3>
+				<p class="more icon icon-more"><a href="about.html#gsdt">更多</a></p>
+			</div>
+			<div class="news-main-content">
+				<ul class="news-main-list"  id="news-part">
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="index-link">
+		<div class="wrap">
+			<div class="link-title">
+				合作伙伴
+			</div>
+			<div class="link-list">
+				<div class="link-list-box">
+					<ul class="cl"  id="linkList">
+					</ul>
+					<ul class="cl"  id="linkList2">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="ajaxFooter"></div>
+	
+	<!--[if lt IE 9]>
+	    <script src="/WEB-PC/src/libs/json2_2cd1eaa.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="${basePath}WEB-PC/src/libs/jquery.js"></script>
+	<script type="text/javascript" src="${basePath}WEB-PC/src/libs/common.js"></script>
+	<!-- 客服QQ -->
+	<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php"></script>
+	<script type="text/javascript" src="${basePath}WEB-PC/src/libs/countUp.min.js"></script>
+	<script type="text/javascript" src="${basePath}WEB-PC/scripts/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/about/Calculatordetail.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			this.$set('dataList',(JSON.parse(Storage.getItem('Calculator'))));
+			utils.setAppConfig('还款详情',true,false);
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

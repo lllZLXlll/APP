@@ -1,0 +1,106 @@
+package com.pjzb.controller.app;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.front.FriendsRecommendService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.TwoDimensionCode;
+
+@Controller
+@RequestMapping(value = "/reactapp")
+public class AppFriendsRecommendController extends BaseController {
+	public static Log log = LogFactory.getLog(AppFriendsRecommendController.class);
+
+	@Autowired
+	private FriendsRecommendService friendsRecommendService;
+
+	/**
+	 * webapp邀请好友二维码生成
+	 * 
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/qrCode")
+	@ResponseBody
+	public String qrCode(HttpServletResponse response, HttpServletRequest request) {
+		String url = requestGetParameter("url");
+		url = url.replace("%23", "#");
+		TwoDimensionCode tdc = new TwoDimensionCode();
+		getBasePath();
+		try {
+			tdc.encoderQRCode(url, request.getSession().getServletContext().getRealPath("/") + "/images/logo_QRCode.jpg", response.getOutputStream(), "png", 10);
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**************邀请好友二维码生成异常****************");
+		}
+		return null;
+	}
+
+	/**
+	 * 加载邀请好友列表
+	 * 
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/friendManagerInit")
+	@ResponseBody
+	public Map<String, Object> friendManagerInit() {
+		// 获取用户的信息
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap = friendsRecommendService.queryFriendManagerInit(userId, Constants.REACTAPP);
+		} catch (Exception e) {
+			log.error(e);
+			log.info("**************加载邀请好友列表异常****************");
+			e.printStackTrace();
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "加载邀请好友列表异常");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 被推荐人投资情况初始化
+	 */
+	@RequestMapping(value = "/investRecordDetail")
+	@ResponseBody
+	public Map<String, Object> investRecordDetail() {
+		// 获取用户的信息
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			jsonMap = friendsRecommendService.queryInvestRecordInit(jsonObject, IConstants.PAGE_SIZE_15, Constants.REACTAPP);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+
+		} catch (Exception e) {
+			log.error(e);
+			log.info("**************被推荐人投资情况初始化异常****************");
+			e.printStackTrace();
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "被推荐人投资情况初始化异常");
+		}
+		return jsonMap;
+	}
+
+}

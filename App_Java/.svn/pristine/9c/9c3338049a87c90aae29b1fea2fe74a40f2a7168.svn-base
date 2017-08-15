@@ -1,0 +1,9 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.DivideAccount;
+
+public interface DivideAccountDao {
+	
+	public long insertDivideAccount(DivideAccount divideAccount);
+
+}

@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="renderer" content="webkit">
+	<title>问卷调查—普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<link rel="stylesheet" href="../src/css/public.css">
+	<link rel="stylesheet" href="../src/css/question.css">
+</head>
+<body>
+	<!--[if lt IE 8]>
+    <div class="show-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  	<![endif]-->
+  	<div class="question">
+  		<div class="q-top">
+  			<img src="../src/images/other/ques_logo.png"/>
+  			<p class="title">普金资本官网 - 用户问卷调查</p>
+  		</div>
+  		<div class="q-box">
+  			<div class="q-from" id="age">
+  				<p class="que">1、您的年龄</p>
+  				<label for="age1"><input type="radio" name="age" id="age1" value="18-25"/>18-25</label>
+  				<label for="age2"><input type="radio" name="age" id="age2" value="25-35"/>25-35</label>
+  				<label for="age3"><input type="radio" name="age" id="age3" value="35-45"/>35-45</label>
+  				<label for="age4"><input type="radio" name="age" id="age4" value="45-60"/>45-60</label>
+  				<label for="age5"><input type="radio" name="age" id="age5" value="60以上"/>60以上</label>
+  			</div>
+  			<div class="q-from" id="sex">
+  				<p class="que">2、您的性别</p>
+  				<label for="sex1"><input type="radio" name="sex" id="sex1" value="男"/>男</label>
+  				<label for="sex2"><input type="radio" name="sex" id="sex2" value="女"/>女</label>
+  			</div>
+  			<div class="q-from" id="area">
+  				<p class="que">3、您所在地区</p>
+  				<select>
+  				</select>
+  			</div>
+  			<div class="q-from" id="professional">
+  				<p class="que">4、您目前的职业类别</p>
+  				<select>
+  					<option value="政府企事业单位员工">政府企事业单位员工</option>
+  					<option value="自由投资人">自由投资人</option>
+  					<option value="金融从业人员">金融从业人员</option>
+  					<option value="民营企业员工">民营企业员工</option>
+  					<option value="个体工商户">个体工商户</option>
+  					<option value="学生">学生</option>
+  					<option value="其他">其他</option>
+  				</select>
+  			</div>
+  			<div class="q-from" id="houseHoldIncome">
+  				<p class="que">5、您的家庭年收入？</p>
+  				<label for="houseHoldIncome1"><input type="radio" name="houseHoldIncome" id="houseHoldIncome1" value="0-5万"/>0-5万</label>
+  				<label for="houseHoldIncome2"><input type="radio" name="houseHoldIncome" id="houseHoldIncome2" value="5-10万"/>5-10万</label>
+  				<label for="houseHoldIncome3"><input type="radio" name="houseHoldIncome" id="houseHoldIncome3" value="10-20万"/>10-20万</label>
+  				<label for="houseHoldIncome4"><input type="radio" name="houseHoldIncome" id="houseHoldIncome4" value="20-50万"/>20-50万</label>
+  				<label for="houseHoldIncome5"><input type="radio" name="houseHoldIncome" id="houseHoldIncome5" value="50万以上"/>50万以上</label>
+  			</div>
+  			<div class="q-from" id="financialTime">
+  				<p class="que">6、您通过P2P网络借贷理财有多久？</p>
+  				<label for="financialTime1"><input type="radio" name="financialTime" id="financialTime1" value="半年以内"/>半年以内</label>
+  				<label for="financialTime2"><input type="radio" name="financialTime" id="financialTime2" value="半年至一年"/>半年至一年</label>
+  				<label for="financialTime3"><input type="radio" name="financialTime" id="financialTime3" value="1-2年"/>1-2年</label>
+  				<label for="financialTime4"><input type="radio" name="financialTime" id="financialTime4" value="2-3年"/>2-3年</label>
+  				<label for="financialTime5"><input type="radio" name="financialTime" id="financialTime5" value="3年以上"/>3年以上</label>
+  			</div>
+  			<div class="q-from" id="financialNum">
+  				<p class="que">7、您目前参与投入资金的P2P网络借贷平台数量有多少？</p>
+  				<label for="financialNum1"><input type="radio" name="financialNum" id="financialNum1" value="1-2个"/>1-2个</label>
+  				<label for="financialNum2"><input type="radio" name="financialNum" id="financialNum2" value="3-5个"/>3-5个</label>
+  				<label for="financialNum3"><input type="radio" name="financialNum" id="financialNum3" value="6-8个"/>6-8个</label>
+  				<label for="financialNum4"><input type="radio" name="financialNum" id="financialNum4" value="8个以上"/>8个以上</label>
+  			</div>
+  			<div class="q-from" id="financialLong">
+  				<p class="que">8、您目前投资的理财产品，期限是多长？</p>
+  				<label for="financialLong1"><input type="radio" name="financialLong" id="financialLong1" value="1个月以内"/>1个月以内</label>
+  				<label for="financialLong2"><input type="radio" name="financialLong" id="financialLong2" value="1-3个月"/>1-3个月</label>
+  				<label for="financialLong3"><input type="radio" name="financialLong" id="financialLong3" value="3-6个月"/>3-6个月</label>
+  				<label for="financialLong4"><input type="radio" name="financialLong" id="financialLong4" value="6-12个月"/>6-12个月</label>
+  				<label for="financialLong5"><input type="radio" name="financialLong" id="financialLong5" value="12个月以上"/>12个月以上</label>
+  			</div>
+  			<div class="q-from" id="knowNetworkPlatform">
+  				<p class="que">9、您通过什么途径了解网贷这些平台？</p>
+  				<label for="knowNetworkPlatform1"><input type="radio" name="knowNetworkPlatform" id="knowNetworkPlatform1" value="报刊广告"/>报刊广告</label>
+  				<label for="knowNetworkPlatform2"><input type="radio" name="knowNetworkPlatform" id="knowNetworkPlatform2" value="网上查询"/>网上查询</label>
+  				<label for="knowNetworkPlatform3"><input type="radio" name="knowNetworkPlatform" id="knowNetworkPlatform3" value="朋友推荐"/>朋友推荐</label>
+  				<label for="knowNetworkPlatform4"><input type="radio" name="knowNetworkPlatform" id="knowNetworkPlatform4" value="其他"/>其他</label>
+  			</div>
+	        <div class="q-from" id="financialMoney">
+	          <p class="que">10、您在P2P网络借贷市场的平均理财金额大概是？</p>
+	          <label for="financialMoney1"><input type="radio" name="financialMoney" id="financialMoney1" value="2万以内"/>2万以内</label>
+	          <label for="financialMoney2"><input type="radio" name="financialMoney" id="financialMoney2" value="2-5万"/>2-5万</label>
+	          <label for="financialMoney3"><input type="radio" name="financialMoney" id="financialMoney3" value="5-10万"/>5-10万</label>
+	          <label for="financialMoney4"><input type="radio" name="financialMoney" id="financialMoney4" value="10-20万"/>10-20万</label>
+	          <label for="financialMoney5"><input type="radio" name="financialMoney" id="financialMoney5" value="30万以上"/>30万以上</label>
+	        </div>
+	        <div class="q-from" id="financialMoneyRatio">
+	          <p class="que">11、您在P2P网络借贷市场的理财资金占您整个理财资金的比例大概是？</p>
+	          <label for="financialMoneyRatio1"><input type="radio" name="financialMoneyRatio" id="financialMoneyRatio1" value="5%以内"/>5%以内</label>
+	          <label for="financialMoneyRatio2"><input type="radio" name="financialMoneyRatio" id="financialMoneyRatio2" value="5-10%"/>5-10%</label>
+	          <label for="financialMoneyRatio3"><input type="radio" name="financialMoneyRatio" id="financialMoneyRatio3" value="10-20%"/>10-20%</label>
+	          <label for="financialMoneyRatio4"><input type="radio" name="financialMoneyRatio" id="financialMoneyRatio4" value="20-30%"/>20-30%</label>
+	          <label for="financialMoneyRatio5"><input type="radio" name="financialMoneyRatio" id="financialMoneyRatio5" value="30-50%"/>30-50%</label>
+	          <label for="financialMoneyRatio6"><input type="radio" name="financialMoneyRatio" id="financialMoneyRatio6" value="50%以上"/>50%以上</label>
+	        </div>
+	        <div class="q-from" id="financialMoneySource">
+	          <p class="que">12、您目前在P2P网络借贷市场理财资金的主要来源是？</p>
+	          <label for="financialMoneySource1"><input type="radio" name="financialMoneySource" id="financialMoneySource1" value="工资性收入"/>工资性收入</label>
+	          <label for="financialMoneySource2"><input type="radio" name="financialMoneySource" id="financialMoneySource2" value="代他人理财"/>代他人理财</label>
+	          <label for="financialMoneySource3"><input type="radio" name="financialMoneySource" id="financialMoneySource3" value="信用卡"/>信用卡</label>
+	          <label for="financialMoneySource4"><input type="radio" name="financialMoneySource" id="financialMoneySource4" value="其他"/>其他</label>
+	        </div>
+	        <div class="q-from" id="financialReason">
+	          <p class="que">13、是什么因素吸引您通过P2P网络借贷投资？</p>
+	          <label for="financialReason1"><input type="radio" name="financialReason" id="financialReason1" value="收益高"/>收益高</label>
+	          <label for="financialReason2"><input type="radio" name="financialReason" id="financialReason2" value="安全性高"/>安全性高</label>
+	          <label for="financialReason3"><input type="radio" name="financialReason" id="financialReason3" value="风险小"/>风险小</label>
+	          <label for="financialReason4"><input type="radio" name="financialReason" id="financialReason4" value="新奇想要尝试"/>新奇想要尝试</label>
+	          <label for="financialReason5"><input type="radio" name="financialReason" id="financialReason5" value="其他"/>其他</label>
+	          <label for="financialReason6"><input type="radio" name="financialReason" id="financialReason6" value="便利性"/>便利性</label>
+	        </div>
+	        <div class="q-from" id="financialThinkValue">
+	          <p class="que">14、您所投P2P网络借贷平台你最看重哪方面？（可多项选择）</p>
+	          <label for="financialThinkValue1"><input type="checkbox" name="financialThinkValue" id="financialThinkValue1" value="收益率"/>收益率</label>
+	          <label for="financialThinkValue2"><input type="checkbox" name="financialThinkValue" id="financialThinkValue2" value="风险控制"/>风险控制</label>
+	          <label for="financialThinkValue3"><input type="checkbox" name="financialThinkValue" id="financialThinkValue3" value="理财产品品种"/>理财产品品种</label>
+	          <label for="financialThinkValue4"><input type="checkbox" name="financialThinkValue" id="financialThinkValue4" value="线下资源"/>线下资源</label>
+	          <label for="financialThinkValue5"><input type="checkbox" name="financialThinkValue" id="financialThinkValue5" value="商业模式"/>商业模式</label>
+	          <label for="financialThinkValue6"><input type="checkbox" name="financialThinkValue" id="financialThinkValue6" value="服务"/>服务</label>
+	        </div>
+	        <div class="q-from" id="majorFocus">
+	          <p class="que">15、下列关于借款人的资料信息，您主要关注下列哪些要素？（可多项选择）</p>
+	          <label for="majorFocus1"><input type="checkbox" name="majorFocus" id="majorFocus1" value="平台对借款人的评级"/>平台对借款人的评级</label>
+	          <label for="majorFocus2"><input type="checkbox" name="majorFocus" id="majorFocus2" value="借款人通过的资料认证"/>借款人通过的资料认证</label>
+	          <label for="majorFocus3"><input type="checkbox" name="majorFocus" id="majorFocus3" value="借款人的抵押品"/>借款人的抵押品</label>
+	          <label for="majorFocus4"><input type="checkbox" name="majorFocus" id="majorFocus4" value="借款人的年收入"/>借款人的年收入</label>
+	          <label for="majorFocus5"><input type="checkbox" name="majorFocus" id="majorFocus5" value="借款人的学历"/>借款人的学历</label>
+	          <label for="majorFocus6"><input type="checkbox" name="majorFocus" id="majorFocus6" value="借款人在平台的借款记录"/>借款人在平台的借款记录</label>
+	          <label for="majorFocus7"><input type="checkbox" name="majorFocus" id="majorFocus7" value="其他"/>其他</label>
+	        </div>
+	        <div class="q-from" id="financialEarning">
+	          <p class="que">16、您投资网贷目前获利情况如何？</p>
+	          <label for="financialEarning1"><input type="radio" name="financialEarning" id="financialEarning1" value="超出预算"/>超出预算</label>
+	          <label for="financialEarning2"><input type="radio" name="financialEarning" id="financialEarning2" value="和预期一样"/>和预期一样</label>
+	          <label for="financialEarning3"><input type="radio" name="financialEarning" id="financialEarning3" value="不如预期"/>不如预期</label>
+	          <label for="financialEarning4"><input type="radio" name="financialEarning" id="financialEarning4" value="还不知道"/>还不知道</label>
+	        </div>
+	        <div class="q-from" id="investWilling">
+	          <p class="que">17、您会继续在p2p网贷平台上投资理财吗？</p>
+	          <label for="investWilling1"><input type="radio" name="investWilling" id="investWilling1" value="会"/>会</label>
+	          <label for="investWilling2"><input type="radio" name="investWilling" id="investWilling2" value="不会"/>不会</label>
+	          <label for="investWilling3"><input type="radio" name="investWilling" id="investWilling3" value="不一定，看情况"/>不一定，看情况</label>
+	        </div>
+	        <div class="q-from" id="financialConvenient">
+	          <p class="que">18、您觉得p2p网贷平台是否给您的理财带来多大的便利？满意度低到高</p>
+	          <label for="financialConvenient1"><input type="radio" name="financialConvenient" id="financialConvenient1" value="1"/>1</label>
+	          <label for="financialConvenient2"><input type="radio" name="financialConvenient" id="financialConvenient2" value="2"/>2</label>
+	          <label for="financialConvenient3"><input type="radio" name="financialConvenient" id="financialConvenient3" value="3"/>3</label>
+	          <label for="financialConvenient4"><input type="radio" name="financialConvenient" id="financialConvenient4" value="4"/>4</label>
+	          <label for="financialConvenient5"><input type="radio" name="financialConvenient" id="financialConvenient5" value="5"/>5</label>
+	        </div>
+	        <div class="q-from" id="knowPujinziben">
+	          <p class="que">19、您是通过什么途径知道普金资本？</p>
+	          <label for="knowPujinziben1"><input type="radio" name="knowPujinziben" id="knowPujinziben1" value="网上查询"/>网上查询</label>
+	          <label for="knowPujinziben2"><input type="radio" name="knowPujinziben" id="knowPujinziben2" value="朋友推荐"/>朋友推荐</label>
+	          <label for="knowPujinziben3"><input type="radio" name="knowPujinziben" id="knowPujinziben3" value="宣传广告"/>宣传广告</label>
+	          <label><input type="radio" name="knowPujinziben" id="knowPujinziben4" value="0"/>其他<input type="text" name="more" class="more"/></label>
+	        </div>
+	        <button type="button" class="btn">提交</button>
+  		</div>
+  		<div class="question-bg">
+			<img src="../src/images/other/question.png"/>
+		</div>
+  	</div>
+	<!--[if lt IE 9]>
+	    <script src="src/libs/json2.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="../src/libs/jquery.js"></script>
+	<script type="text/javascript" src="../src/libs/public.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			utils.Dialog(true);
+			$('.question-bg').addClass('show');
+			setTimeout(function(){
+				utils.Dialog();
+				$('.question-bg').removeClass('show');
+			},3000)
+			var flag=true,provinceArray = new Array("北京","上海","天津","重庆","河北","山西","内蒙","辽宁","吉林","黑龙江","江苏","浙江","安徽","福建","江西","山东","河南","湖北","湖南","广东","广西","海南","四川","贵州","云南","西藏","陕西","甘肃","宁夏","青海","新疆","香港","澳门","台湾","其它");
+			for(var i=0;i<provinceArray.length;i++){
+				$('<option value="'+provinceArray[i]+'">'+provinceArray[i]+'</option>').appendTo($('#area select'));
+			}
+			$('.btn').click(function(){
+				var fromLength = $('.q-from').size();
+				for(var i=0;i<fromLength;i++){
+					var name=$('.q-from').eq(i).attr('id');
+					if($('.q-from').eq(i).find('input').length>0){
+						var oVal = $('input[name="'+name+'"]:checked').val();
+						if(!oVal){
+							utils.toast('第'+(i+1)+'项内容不能为空！');
+							var oHeight = $('.q-from').eq(i).offset().top;
+							$('body').scrollTop(oHeight);
+				            flag = false;
+				            break;
+						}else{
+							flag = true;
+						}
+					}
+				}
+				// var age = $('input[name=age]:checked').val();
+				// var sex = $('input[name=sex]:checked').val();
+				// var area = $('#area select').val();
+				// var professional = $('#area select').val();
+				// var houseHoldIncome = $('input[name=professional]:checked').val();
+				// var financialTime = $('input[name=financialTime]:checked').val();
+				// var financialNum = $('input[name=financialNum]:checked').val();
+				// var financialLong = $('input[name=financialLong]:checked').val();
+				// var knowNetworkPlatform = $('input[name=knowNetworkPlatform]:checked').val();
+				// var financialMoney = $('input[name=financialMoney]:checked').val();
+				// var financialMoneyRatio = $('input[name=financialMoneyRatio]:checked').val();
+				// var financialMoneySource = $('input[name=financialMoneySource]:checked').val();
+				// var financialReason = $('input[name=financialReason]:checked').val();
+				// var financialThinkValue = $('input[name=financialThinkValue]:checked').val();
+				// var majorFocus = $('input[name=majorFocus]:checked').val();
+				// var financialEarning = $('input[name=financialEarning]:checked').val();
+    //     var investWilling = $('input[name=investWilling]:checked').val();
+    //     var financialConvenient = $('input[name=financialConvenient]:checked').val();
+    //     var knowPujinziben = $('input[name=knowPujinziben]:checked').val();
+        if(!flag)return;
+        var financialThinkValue = '';
+        if($('input[name=financialThinkValue]:checked').length>1){
+          var length = $('input[name=financialThinkValue]:checked').length;
+          for(var i = 0;i<length;i++){
+            financialThinkValue += $('input[name=financialThinkValue]:checked').eq(i).val()+'|';
+          }
+           financialThinkValue = financialThinkValue.substring(0,financialThinkValue.length-1);
+        }else{
+          financialThinkValue = $('input[name=financialThinkValue]:checked').val();
+        }
+        var majorFocus = '';
+        if($('input[name=majorFocus]:checked').length>1){
+          var length = $('input[name=majorFocus]:checked').length;
+          for(var i = 0;i<length;i++){
+            majorFocus += $('input[name=majorFocus]:checked').eq(i).val()+'|';
+          }
+          majorFocus = majorFocus.substring(0,majorFocus.length-1);
+        }else{
+          majorFocus = $('input[name=majorFocus]:checked').val();
+        }
+        var knowPujinziben = $('input[name=knowPujinziben]:checked').val();
+        if(knowPujinziben == '0'&&$('.more').val()==''){
+          utils.toast('请输入其他项！');
+          return;
+        }else if(knowPujinziben == '0'){
+          knowPujinziben = $('.more').val();
+        }
+
+        var param = {
+          age : $('input[name=age]:checked').val(),
+          sex : $('input[name=sex]:checked').val(),
+          area : $('#area select').val(),
+          professional : $('#professional select').val(),
+          houseHoldIncome : $('input[name=houseHoldIncome]:checked').val(),
+          financialTime : $('input[name=financialTime]:checked').val(),
+          financialNum : $('input[name=financialNum]:checked').val(),
+          financialLong : $('input[name=financialLong]:checked').val(),
+          knowNetworkPlatform : $('input[name=knowNetworkPlatform]:checked').val(),
+          financialMoney : $('input[name=financialMoney]:checked').val(),
+          financialMoneyRatio : $('input[name=financialMoneyRatio]:checked').val(),
+          financialMoneySource : $('input[name=financialMoneySource]:checked').val(),
+          financialReason : $('input[name=financialReason]:checked').val(),
+          financialThinkValue : financialThinkValue,
+          majorFocus : majorFocus,
+          financialEarning : $('input[name=financialEarning]:checked').val(),
+          investWilling : $('input[name=investWilling]:checked').val(),
+          financialConvenient : $('input[name=financialConvenient]:checked').val(),
+          knowPujinziben : knowPujinziben
+        }
+        var params = JSON.stringify(param);
+        utils.ajax({
+          url:'../../front/addQuestionSurvey.do',
+          data:encodeURI(params),
+          dataType:'json',
+          type:'POST',
+          success:function(data){
+			if(data.error=='0'){
+				utils.alert(data.msg,function(){
+					window.location.href='../index.html';
+				})
+			}else{
+				utils.alert(data.msg);
+			}
+          }
+        })
+			})
+		});
+	</script>
+</body>
+</html>

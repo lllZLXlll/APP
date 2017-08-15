@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.fund;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 充值提现审核
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminRechWithdrawService extends BaseController {
+
+}

@@ -1,0 +1,49 @@
+<div class="content">
+    <div class="buttons-tab content-invest">
+        <a @click="investDetail(1)" v-bind:class="{active:activeLink==1}" class="tab-link button">普金宝</a>
+        <a @click="investDetail(2)" v-bind:class="{active:activeLink==2}"class="tab-link button">多金宝</a>
+        <a @click="investDetail(3)" v-bind:class="{active:activeLink==3}"class="tab-link button">恒金宝</a>
+    </div>
+    <div class="content content-introduced">
+        <ul class="row no-gutter">
+            <li  class="col-33">
+                <p>{{viewData.profit}}</p>
+                <span>投资后次日起计息</span>
+            </li>
+            <li  class="col-33">
+                <p>投资期限</p>
+                <span>1~12个月</span>
+            </li>
+            <li  class="col-33">
+                <p>还款方式</p>
+                <span>一次性还本付息</span>
+                <span>按月付息，到期还本</span>
+            </li>
+        </ul>
+        <div class="content-block">
+            <img :src="imgSrc" width="100%"/>
+            <p class="introduced-title">产品简述</p>
+            <p class="introduced-content">{{viewData.product}}</p>
+        </div>
+        <div class="content-block" v-if="isShang">
+            <p class="introduced-title">风控审核</p>
+            <p class="introduced-content">{{reviewed}}</p>
+        </div>
+        <div class="content-block" v-else>
+            <p class="introduced-title">商业承兑汇票的特点</p>
+            <div v-for="list in tableDataShang">
+                <p class="introduced-title-small">{{list.name}}</p>
+                <p class="introduced-content">{{list.text}}</p>
+            </div>
+            <p class="introduced-content">{{tableText}}</p>
+        </div>
+        <div class="content-block">
+            <p class="introduced-title">产品优势与保障</p>
+            <div v-for="list in tableData">
+                <p class="introduced-title-small">{{list.name}}</p>
+                <p class="introduced-content">{{list.text}}</p>
+            </div>
+            <p class="introduced-content">{{tableText}}</p>
+        </div>
+    </div>
+</div>

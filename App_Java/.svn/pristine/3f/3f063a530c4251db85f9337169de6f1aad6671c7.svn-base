@@ -1,0 +1,266 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<script type="text/javascript">
+	$(function() {
+		var roleId=${admin.roleId};
+		if (roleId==29){
+			$("#riskDeptAdvise").attr("readonly","readonly");
+	        $("#riskDeptAdvise").removeAttr("data-rule");
+			$("#mgrAdvise").attr("readonly","readonly");
+	        $("#mgrAdvise").removeAttr("data-rule");
+	        $("#riskDeptAdviseEnable").removeAttr("data-rule");
+	        $("#mgrAdviseEnable").removeAttr("data-rule");
+		}else if(roleId==28){
+	        removeDataRule();
+	        $("#mgrAdvise").attr("readonly","readonly");
+	        $("#mgrAdvise").removeAttr("data-rule");
+			$("#mgrAdviseEnable").removeAttr("data-rule");
+		}else{
+			removeDataRule();
+			$("#riskDeptAdvise").attr("readonly","readonly");
+	        $("#riskDeptAdvise").removeAttr("data-rule");
+	        $("#riskDeptAdviseEnable").removeAttr("data-rule");
+		}
+	});
+		
+        function removeDataRule(){
+         	$("#inspectTime").removeAttr("data-rule");
+        	$("#loanFullName").attr("readonly","readonly");
+	        $("#loanFullName").removeAttr("data-rule");
+	        $("#saleIncome").attr("readonly","readonly");
+	        $("#loanManager").attr("readonly","readonly");
+	        $("#loanManager").removeAttr("data-rule");
+	        $("#saleIncome").removeAttr("data-rule");
+	        $("#flowRate").attr("readonly","readonly");
+	        $("#flowRate").removeAttr("data-rule");
+	        $("#totalAsset").attr("readonly","readonly");
+	        $("#totalAsset").removeAttr("data-rule");
+	        $("#quickRate").attr("readonly","readonly");
+	        $("#quickRate").removeAttr("data-rule");
+	        $("#profit").attr("readonly","readonly");
+	        $("#profit").removeAttr("data-rule");
+	        $("#assetLiabilitiesRate").attr("readonly","readonly");
+	        $("#assetLiabilitiesRate").removeAttr("data-rule");
+	        $("#saleRate").attr("readonly","readonly");
+	        $("#saleRate").removeAttr("data-rule");
+	        $("#accountTurnoverRate").attr("readonly","readonly");
+	        $("#accountTurnoverRate").removeAttr("data-rule");
+	        $("#fixedAssetChange").attr("readonly","readonly");
+	        $("#fixedAssetChange").removeAttr("data-rule");
+	        $("#inventoryTurnoverRate").attr("readonly","readonly");
+	        $("#inventoryTurnoverRate").removeAttr("data-rule");
+	        $("#externalInvesChange").attr("readonly","readonly");
+	        $("#externalInvesChange").removeAttr("data-rule");
+	        $("#currentLiabilitiesChange").attr("readonly","readonly");
+	        $("#currentLiabilitiesChange").removeAttr("data-rule");
+	        $("#manageAnaly").attr("readonly","readonly");
+	        $("#manageAnaly").removeAttr("data-rule");
+	        $("#prodManageAnaly").attr("readonly","readonly");
+	        $("#pledgeKeepOpinion").attr("readonly","readonly");
+	        $("#inspectAdvise").attr("readonly","readonly");
+	        $("#inspectAdvise").removeAttr("data-rule");
+        }
+
+</script>
+
+<div class="bjui-pageContent">
+    <form action="saveOrUpdateRiskDeptMonthInspect.do" id="j_custom_form" data-toggle="validate" data-alertmsg="false">
+          <input type="hidden"  name="tabid" value="${tabid }">
+         <input type="hidden" id="id" name="id" value="${inspect.id }">
+         <input type="hidden" id="id2" name="id2" value="${borrowId }">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+               <tr>
+               	<td colspan="2" align="center">金额单位：万元</td>
+               </tr>
+                <tr>
+                    <td width="50%">
+                        <label for="j_custom_name" class="control-label x150">检查时间：</label>
+                        <input type="text" name="inspectTimeStr" id="inspectTime"  data-toggle="datepicker" readonly="readonly"
+                       data-pattern="yyyy-MM-dd HH:mm:ss" value="${inspectTime }" data-rule="required;datetime" size="20">
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x150">借后管理人员：</label>
+                       <textarea name="loanManager" id="loanManager" data-toggle="autoheight" data-rule="required" cols="30" rows="2">${inspect.loanManager }</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_name" class="control-label x150">借款人全称：</label>
+                        <input type="text" id="loanFullName" name="loanFullName" value="${inspect.loanFullName }" size="30" data-rule="required"/>
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x150">销售收入：</label>
+                        <input type="text" id="saleIncome" name="saleIncome" value="${inspect.saleIncome }" maxlength="30" data-rule="required" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x150">流动比率：</label>
+                        <input type="text" name="flowRate" id="flowRate" value="${inspect.flowRate }" maxlength="30" data-rule="required" >
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x150">总资产：</label>
+                         <input type="text" name="totalAsset" id="totalAsset" value="${inspect.totalAsset }" maxlength="30" data-rule="required" >
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x150">速动比率：</label>
+                       <input type="text" name="quickRate" id="quickRate" value="${inspect.quickRate }" maxlength="30" data-rule="required" >
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x150">利润（亏损）：</label>
+                        <input type="text" id="profit" name="profit" value="${inspect.profit }" maxlength="30" data-rule="required" >
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x150">资产负债率：</label>
+                        <input type="text" name="assetLiabilitiesRate" id="assetLiabilitiesRate" data-rule="required" maxlength="20" value="${inspect.assetLiabilitiesRate }"  size="20">
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x150">销售利润率：</label>
+                        <input type="text" id="saleRate" name="saleRate" value="${inspect.saleRate }" maxlength="30" data-rule="required" >
+                    </td>
+                </tr>
+                
+                  <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x150">应收账款周转率：</label>
+                        <input type="text" name="accountTurnoverRate" id="accountTurnoverRate" data-rule="required" maxlength="20" value="${inspect.accountTurnoverRate }"  size="20">
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x150">借款期固定资产变动情况：</label>
+                        <input type="text" id="fixedAssetChange" name="fixedAssetChange" value="${inspect.fixedAssetChange }" maxlength="30" data-rule="required" >
+                    </td>
+                </tr>
+                
+                  <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x150">存货周转率：</label>
+                        <input type="text" name="inventoryTurnoverRate" id="inventoryTurnoverRate" data-rule="required" maxlength="20" value="${inspect.inventoryTurnoverRate }"  size="20">
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x150">借款期对外投资变动情况：</label>
+                        <input type="text" id="externalInvesChange" name="externalInvesChange" value="${inspect.externalInvesChange }" maxlength="30" data-rule="required" >
+                    </td>
+                </tr>
+                
+                  <tr>
+                    <td colspan="2">
+                        <label for="j_custom_birthday" class="control-label x150">借款期流动负债变动情况：</label>
+                        <input type="text" name="currentLiabilitiesChange" id="currentLiabilitiesChange" data-rule="required" maxlength="20" value="${inspect.currentLiabilitiesChange }"  size="20">
+                    </td>
+                </tr>
+                
+                
+                 <tr>
+                    <td>
+                        <label for="j_custom_birthday" class="control-label x150">经营情况分析：</label>
+                         <textarea name="manageAnaly" id="manageAnaly" data-toggle="autoheight" data-rule="required" cols="40" rows="7">${inspect.manageAnaly }</textarea>
+                    </td>
+                     <td>
+                        <label for="j_custom_name" class="control-label x150">保证人生产经营<br/><br/>情况分析：</label>
+                        <textarea name="prodManageAnaly" id="prodManageAnaly" data-toggle="autoheight"  cols="40" rows="7">${inspect.prodManageAnaly }</textarea>
+                    </td>
+                </tr>
+                
+                  <tr>
+                    <td >
+                        <label for="j_custom_birthday" class="control-label x150">抵、质押物保管<br/><br/>情况检查意见：</label>
+                        <textarea name="pledgeKeepOpinion" id="pledgeKeepOpinion" data-toggle="autoheight" cols="40" rows="7">${inspect.pledgeKeepOpinion }</textarea>
+                    </td>
+                    
+                      <td>
+                        <label for="j_custom_name" class="control-label x150">存在的主要问题<br/><br/>及处理建议：</label>
+                        <textarea name="inspectAdvise" id="inspectAdvise" data-toggle="autoheight" data-rule="required" cols="40" rows="7">${inspect.inspectAdvise }</textarea>
+                   	&nbsp;&nbsp;
+                   	
+                   
+                         
+                    </td>
+                    
+                    
+                </tr>
+                
+                
+            
+                
+                
+                 <tr>
+                    <td colspan="2">
+                        <label for="j_custom_birthday" class="control-label x150">风控部综合评价意见：</label>
+                        <textarea name="riskDeptAdvise" id="riskDeptAdvise" data-toggle="autoheight" data-rule="required" cols="40" rows="7">${riskDeptAdvise }</textarea>
+                   		
+                   	
+                   	
+                   	 <c:choose>
+	                	<c:when test="${admin.roleId != 29 and admin.roleId != 27 }">
+	                		 &nbsp;&nbsp;
+                      	<input type="radio" name="riskDeptAdviseIsEnable" id="riskDeptAdviseEnable" data-toggle="icheck" value="true" 
+                      data-rule="checked"  data-label="不通过">
+                      &nbsp;&nbsp;
+                      <input type="radio" name="riskDeptAdviseIsEnable" id="riskDeptAdviseUnEnable" data-toggle="icheck" 
+                      value="false" data-label="通过" ${adminInfo.enable == 2 ?'checked':''}>
+	                	
+	                	</c:when>
+	                	<c:otherwise>
+	                	&nbsp;&nbsp;
+	                	
+	                 <c:choose>
+	                	<c:when test="${inspect != null}">
+	                		
+	                <c:choose>
+	                		<c:when test="${inspect.status==1 }">
+	                			待风控部审核
+	                		</c:when>
+	                		<c:when test="${inspect.status==2 }">
+	                			待总经理审核
+	                		</c:when>
+	                		<c:when test="${inspect.status==3 }">
+	                			审核失败
+	                		</c:when>
+	                		<c:otherwise>
+	                			审核通过
+	                		</c:otherwise>
+	                </c:choose>
+	                	
+	                	</c:when>
+	                </c:choose>
+	                
+	                
+	                	</c:otherwise>
+	                </c:choose>
+	                
+                      
+                      
+                        
+                    </td>
+                </tr>
+         
+                 <tr>
+                     <td colspan="2">
+                        <label for="j_custom_name" class="control-label x150">总经理审阅：</label>
+                        <textarea name="mgrAdvise" id="mgrAdvise" data-toggle="autoheight" data-rule="required" cols="40" rows="7">${mgrAdvise }</textarea>
+                      <c:if test="${admin.roleId != 29 and admin.roleId != 28}">
+                      &nbsp;&nbsp;
+                      <input type="radio" name="mgrAdviseIsEnable" id="mgrAdviseEnable" data-toggle="icheck" value="true" 
+                      data-rule="checked"  data-label="不通过">
+                      &nbsp;&nbsp;
+                      <input type="radio" name="mgrAdviseIsEnable" id="mgrAdviseUnEnable" data-toggle="icheck" 
+                      value="false" data-label="通过" ${adminInfo.enable == 2 ?'checked':''}>
+                      </c:if>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save">保存</button></li>
+    </ul>
+</div>

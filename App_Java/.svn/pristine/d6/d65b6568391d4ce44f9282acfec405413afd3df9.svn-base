@@ -1,0 +1,44 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<div class="bjui-pageContent">
+    <form action="enterpriseBorrowBindingUser.do" id="j_custom_form" data-toggle="validate" data-alertmsg="false">
+        <input type="hidden" name="tabid" value="${tabid }">
+        <input type="hidden" name="id" value="${id }">
+        <input type="hidden" name="userName" id="userName" value="${userName }">
+        <table class="table table-condensed table-hover" width="100%">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="j_custom_sale" class="control-label x85">企业名称：</label>
+                       <input type="text" name="companyname" id="j_custom_name" value="${companyname }" readonly="readonly" size="25">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="j_custom_name" class="control-label x85">绑定用户：</label>
+                        <input type="text" name="username" id="j_bangding_name"  data-rule="required" size="20">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        
+        <c:if test="${userName ==null }">
+        	<li><button type="submit" class="btn-default" data-icon="save">保存</button></li>
+        </c:if>
+        
+        
+    </ul>
+</div>
+<script type="text/javascript">
+	var userName=$("#userName").val();
+	if(userName!=""){
+		$("#j_bangding_name").val(userName);
+		$("#j_bangding_name").attr("readonly","readonly");
+	}
+</script>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>投资理财 - 详情</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#e04c16">
+		<div class="warp-1000 ">
+			<a href="index.html"><img src="img/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">登录</a></li>
+						<li><a href="#"><i class="ico ico-red-package"></i>注册领红包</a></li>
+						<li><a href="#">我要投资</a></li>
+						<li><a href="#">新手指引</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.html" class="logo"><img src="img/logo.png"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li class="">
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	
+	<div class="mod-index">
+		<div class="warp-1000">
+			<div class="mod-manage-money">
+				<div>
+					<h2>标的详情</h2>
+					<div class="white-box">
+						<div class="two-column clearfix">
+							<div class="item first">
+								<p class="big mod-form mb-15">个人融资0423-02 <a href="#" class="btn ml-75">立即投标</a></p>
+								<table class="usr-info">
+									<tr>
+										<td>借款金额：￥6000.00</td>
+										<td>借款目的：普通借款</td>
+									</tr>
+									<tr>
+										<td>借款年利率：13.00%</td>
+										<td>月利率：1.08%</td>
+									</tr>
+									<tr>
+										<td colspan="2">借款期限：3个月</td>
+									</tr>
+									<tr>
+										<td>还款方式： 按月分期还款</td>
+										<td>投标奖励：	</td>
+									</tr>
+									<tr>
+										<td colspan="2">交易类型：线上交易</td>
+									<tr>
+										<td>最小投标金额：￥10.00元</td>
+										<td>最大投标金额：没有限制</td>
+									</tr>
+								</table>
+							</div>
+							<div class="item last">
+								<table class="usr-info">
+									<tr>
+										<td></td>
+									</tr>
+									<tr>
+										<td>投标进度：
+											<div class="process">
+												<div class="bar">
+													<span class="num">60%</span>
+													<span class="bar" style="width:60%"></span>
+												</div>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td>还差：￥ 0.00</td>
+									</tr>
+									<tr>
+										<td>剩余时间：</td>
+									</tr>
+									<tr>
+										<td>总投标数：3 浏览量：7</td>
+									</tr>
+								</table>
+								<div class="tip">
+									<p>投标3510.0元,年利率：13.0%,期限3个月,</p> 
+									<p>可获得利息收益：￥76.32元</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div>
+					<h2>用户信息</h2>
+					<div class="white-box usr-info-detail">
+						<div class="item">
+							<div class="face">
+								<img src="img/usr_face.jpg">
+							</div>
+							<table>
+								<tr>
+									<td>用户名：shzc25</td>
+									<td>居住地：深圳</td>
+								<tr>
+								</tr>	
+									<td>注册时间：2015-04-14</td>
+									<td>最后登录：2015-04-24</td>
+								<tr>
+								</tr>
+									<td>贷信用等级：<a href="#" class="btn-inline">HR</a></td>
+									<td>贷信用额度： 100000</td>
+								</tr>
+								</tr>
+									<td colspan="2">借款描述：城投借款0505-01，城投借款0505-01</td>
+								</tr>
+							</table>
+						</div>
+						<div class="item">
+							<p class="tip mb-40"><i class="ico ico-ok"></i>以下基本信息资料，经用户同意披露。<br />表示该项资料已通过贷审核的项目。</p>
+							<ul class="detail">
+								<li>
+									<h3>基本信息</h3>
+									<table>
+										<tr>
+											<td>性别：男<i class="ico ico-ok"></i></td>
+											<td>年龄：27<i class="ico ico-ok"></i></td>
+											<td>婚姻状况：未婚</td>
+											<td>工作城市：深圳</td>
+										<tr>
+										<tr>
+											<td>性别：男<i class="ico ico-ok"></i></td>
+											<td>年龄：27<i class="ico ico-ok"></i></td>
+											<td>婚姻状况：未婚</td>
+											<td>工作城市：深圳</td>
+										<tr>
+									</table>
+								</li>
+								<li>
+									<h3>贷借款记录</h3>
+									<table>
+										<tr>
+											<td>发布借款标的：12<i class="ico ico-ok"></i></td>
+											<td>还清笔数：4<i class="ico ico-ok"></i></td>
+											<td>逾期次数：0</td>
+										<tr>
+									</table>
+								</li>
+								<li>
+									<h3>担保公司信息</h3>
+									<table>
+										<tr>
+											<td>担保公司名称：深圳市证大速贷小额贷款有限公司<i class="ico ico-ok"></i></td>
+										<tr>
+										<tr>
+											<td>担保公司简介：深圳市证大速贷小额贷款有限公司<i class="ico ico-ok"></i></td>
+										<tr>
+									</table>
+								</li>
+								<li class="last">
+									<h3>二级担保公司信息</h3>
+									<table>
+										<tr>
+											<td>二级担保公司名称：深圳市证大速贷小额贷款有限公司<i class="ico ico-ok"></i></td>
+										<tr>
+										<tr>
+											<td>二级担保公司简介：深圳市证大速贷小额贷款有限公司<i class="ico ico-ok"></i></td>
+										<tr>
+									</table>
+								</li>
+							</ul>
+						</div>
+						<p class="tip mb-15">贷将以客观、公正的原则，最大程度地核实借入者信息的真实性，但不保证审核信息100%真实。如果借入者长期逾期，其提供的信息将被公布。</p>
+						<p class="normal">
+							<a href="#">查看审核记录</a>
+							<a href="#">查看还款详情</a>
+						</p>
+					</div>
+				</div>
+
+				<div>
+					<h2>留言板</h2>
+					<div class="white-box">
+						<div class="mod-comment">
+							<ul>
+								<li>
+									<div class="face">
+										<img src="img/usr_face.jpg">
+									</div>
+									<div class="main">
+										<p>
+											shzc02 说：
+											<span class="time">2015-05-05 23:00:28</span>
+										</p>
+										<p>会议审议通过了《关于在部分区域系统推进全面创新改革试验的总体方案》、《检察机关提起公益诉讼改革试点方案》、《关于完善法律援助制度的意见》、《深化科技体制改革实施方案》、《中国科协所属学会有序承接政府转移职能扩大试点工作实施方案》。</p>
+									</div>
+								</li>
+								<li>
+									<div class="face">
+										<img src="img/usr_face.jpg">
+									</div>
+									<div class="main">
+										<p>
+											shzc02 说：
+											<span class="time">2015-05-05 23:00:28</span>
+										</p>
+										<p>会议审议通过了《关于在部分区域系统推进全面创新改革试验的总体方案》、《检察机关提起公益诉讼改革试点方案》、《关于完善法律援助制度的意见》、《深化科技体制改革实施方案》、《中国科协所属学会有序承接政府转移职能扩大试点工作实施方案》。</p>
+									</div>
+								</li>
+								<li>
+									<div class="face">
+										<img src="img/usr_face.jpg">
+									</div>
+									<div class="main">
+										<p>
+											shzc02 说：
+											<span class="time">2015-05-05 23:00:28</span>
+										</p>
+										<p>会议审议通过了《关于在部分区域系统推进全面创新改革试验的总体方案》、《检察机关提起公益诉讼改革试点方案》、《关于完善法律援助制度的意见》、《深化科技体制改革实施方案》、《中国科协所属学会有序承接政府转移职能扩大试点工作实施方案》。</p>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="mod-page t40 mb-15">
+							<p>
+								<a href="#">首页</a>
+								<a href="#">上一页</a>
+								<a href="#">1</a>
+								<a href="#">2</a>
+								<a href="#">3</a>
+								<b>......</b>
+								<a href="#">10</a>
+								<a href="#">尾页</a>
+								<input type="text">
+								<a href="#">跳转</a>
+							</p>
+						</div>
+						<div class="mod-form replay">
+							<h2>咨询或评论：(字数在1-120之间)</h2>
+							<textarea></textarea>
+							<p>
+								<label>验证码 <input type="text"><img src="http://lorempixel.com/95/38/"></label>
+								
+								<a href="#" class="btn">提交</a>
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div>
+					<h2>投资记录</h2>
+					<div class="white-box">
+						<p class="normal mb-25">
+							<span class="mr-35">目前总投标金额：￥20,000.00</span>
+							<span class="mr-35">剩余投标金额：￥280,000.00</span>
+							<span class="mr-35">剩余投标时间：<a href="#">8天16小时4分56秒</a></span>
+						</p>
+						<table class="mod-data-table" style="width:724px;">
+						<thead>
+							<tr>
+								<td>投资人</td>
+								<td>金额</td>
+								<td>通投资时间</td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>sh****</td>
+								<td>￥5000.00</td>
+								<td>2015-05-14</td>
+							</tr>
+							<tr>
+								<td>sh****</td>
+								<td>￥5000.00</td>
+								<td>2015-05-14</td>
+							</tr>
+							<tr>
+								<td>sh****</td>
+								<td>￥5000.00</td>
+								<td>2015-05-14</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
+				</div>
+				
+
+			</div>
+		</div>
+	</div>
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="img/cpright_001.png"/></a>
+					<a href="#"><img src="img/cpright_002.png"/></a>
+					<a href="#"><img src="img/cpright_003.png"/></a>
+                  <a href="#"><img src="img/cpright_004.png"/></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->
+<div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-qq"></i></p>
+				<p>客服QQ</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-weichet"></i></p>
+				<p>官方微信</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-feedback"></i></p>
+				<p>意见反馈</p>
+			</a>
+		</li>
+	</ul>
+</div>
+</body>
+</html>

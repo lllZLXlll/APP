@@ -1,0 +1,10 @@
+<div class="content">
+    <div class="buttons-tab content-invest">
+        <a @click="investDetail(1)" v-bind:class="{active:activeLink==1}" class="tab-link button">普金宝</a>
+        <a @click="investDetail(2)" v-bind:class="{active:activeLink==2}"class="tab-link button">多金宝</a>
+        <a @click="investDetail(3)" v-bind:class="{active:activeLink==3}"class="tab-link button">恒金宝</a>
+    </div>
+    <div class="content content-invest">
+        <router-view transition="fadeIn"></router-view>
+    </div>
+</div>

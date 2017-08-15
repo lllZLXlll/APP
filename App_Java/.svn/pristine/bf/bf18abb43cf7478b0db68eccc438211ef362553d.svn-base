@@ -1,0 +1,62 @@
+package com.pjzb.service.admin.system;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.PlatFormCostDao;
+import com.pjzb.entity.PlatFormCost;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 平台收费管理
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminPlatformChargeService extends BaseController {
+
+	@Autowired
+	private PlatFormCostDao platFormCostDao;
+
+	public String queryPlatFormCostByTypesList(Model model, String tabid, Long pageNum, Long pageSize, Integer type) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		type = ConvertUtil.objToIntConvert(type);
+		type=type==0?1:type;
+		List<PlatFormCost> list = platFormCostDao.queryPlatFormCostByTypesList(type, (pageNum - 1) * pageSize, pageSize);
+		Long count = platFormCostDao.queryPlatFormCostByTypesCount(type);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("type", type);
+		return "/admin/system/platformcharge/list.jsp";
+	}
+
+	
+	public String queryUpdatePlatFormCostInit(Model model, String tabid, Long id) {
+		PlatFormCost platFormCost=platFormCostDao.queryPlatFormCostById(id);
+		model.addAttribute("platFormCost", platFormCost);
+		model.addAttribute("tabid", tabid);
+		return "/admin/system/platformcharge/update.jsp";
+	}
+	
+	
+
+	public Map<String, Object> updatePlatFormCostById(Model model,PlatFormCost platFormCost,String tabid) {
+		long result = platFormCostDao.updatePlatFormCostById(platFormCost);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "修改成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "修改失败", "", "");
+		}
+	}
+
+
+}

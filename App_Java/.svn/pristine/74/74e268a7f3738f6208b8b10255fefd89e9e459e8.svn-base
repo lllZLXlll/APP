@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<!-- 不识别邮件和不把数字识别为电话号码 -->
+	<meta name="format-detection" content="telephone=no; email=no" />
+	<link rel="stylesheet" type="text/css" href="css/sm.css">
+    <link rel="stylesheet" type="text/css" href="css/login.css">
+	<title>普金资本</title>
+</head>
+<body>
+    <!-- 标题栏 -->
+    <header class="bar bar-nav">
+        <!-- <a class="pull-left back"><i class="icon">&#xe604;</i></a> -->
+        <h1 class="title">注册</h1>
+    </header>
+    <!-- 这里是页面内容区 -->
+    <div class="content content-login">
+        <div class="text-item">
+            <label><i class="icon icon-color">&#xe600;</i></label>
+            <input type="text" placeholder="请输入手机号码" id="username" maxlength="16">
+        </div>
+        <div class="text-item">
+            <label><i class="icon icon-color">&#xe601;</i></label>
+            <input type="password" placeholder="请输入登录密码" id="password" maxlength="16">
+        </div>
+        <div class="text-item">
+            <label><i class="icon icon-color">&#xe603;</i></label>
+            <input type="password" placeholder="请输入邀请码（选填）" id="refferee" maxlength="8">
+        </div>
+        <div class="text-item">
+            <label><i class="icon icon-color">&#xe602;</i></label>
+            <input type="text" placeholder="请输入短信验证码" id="code" maxlength="6">
+			<a href="javascript:void(0);"  id="clickCode">免费获取短信激活码</a>
+        </div>
+        <div class="text-item-submit">
+            <a href="javascript:void(0);" class="btn btn-submit">同意协议并注册</a>
+        </div>
+        <div class="text-item-more">
+            <p class="align-left"><a href="javascript:void(0);" class="">《普金资本网站服务协议》</a></p>
+            <p class="align-right">已有账户，<a href="javascript:void(0);" class="">立即注册</a></p>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="script/zepto.min.js"></script>
+<script type="text/javascript">
+$(function(){
+var randomCode="",recivePhone="";
+
+    $("#clickCode").click(function(){
+ 	   
+          var cellPhone=$("#username").val();
+          if($("#clickCode").html()=="重新发送验证码"||$("#clickCode").html()=="免费获取短信激活码") { 
+        	  
+	       	  var param={"info":"{cellPhone:'"+cellPhone+"',smsType:'regist'}"}; 
+	             $.ajax({
+	                 url:'../app/sendSMS.do',
+	                 data:param,
+	                 dataType:'json',
+	                 success: function(data){
+	                	 $("#randomCode").val(""); 
+	                	 $("#recivePhone").val(""); 
+	                	 if(data.error==0) { 
+	                		 randomCode = data.randomCode;
+	                		 recivePhone = data.recivePhone;
+	                		 alert(data.msg);
+	                	 } else { 
+	                		 alert(data.msg);
+	                	 }
+ 
+	                 }
+	             })  
+          }
+    });
+    
+    $('.btn-submit').click(function(){
+        var name = $('#username').val();
+        var pwd = $('#password').val();
+        var cellPhone = $('#username').val();
+        var code = $('#code').val();
+        var randomCode = $('#randomCode').val();
+        var recivePhone = $('#recivePhone').val();
+        var refferee = $('#refferee').val();
+        var param={"info":"{name:'"+name+"',pwd:'"+pwd+"',cellPhone:'"+cellPhone+"',code:'"+code+"',randomCode:'"+randomCode+"',recivePhone:'"+recivePhone+"',refferee:'"+refferee+"'}"}; 
+        $.ajax({
+            url:'../app/register.do',
+            data:param,
+            dataType:'json',
+            success: function(data){
+            	alert(data.msg);
+            }
+        })
+    });
+
+})
+function getCode(){
+	var timenow = new Date();
+    var src = "../app/sendSMS.do?cellPhone="+cellPhone;
+    
+}  
+</script>
+</html>

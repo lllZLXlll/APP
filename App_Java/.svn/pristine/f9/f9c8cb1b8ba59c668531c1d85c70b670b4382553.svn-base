@@ -1,0 +1,34 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.PreRepayment;
+import com.pjzb.entity.Repayment;
+
+public interface RepaymentDao {
+	
+	public List<Repayment> queryWillBorrowerRepaymentInfo(Date date);
+	
+	public Map<String, Object> queryPaymentInfo(Long id);	
+	
+	public void callBorrowRepaymentinitProcedure(Map<String, String> map);
+	
+	public List<Map<String, Object>> queryAllInvestInfo(Long payId);
+	
+	public List<Map<String, Object>> queryRepayInfoByBorrowId(Long borrowId);
+	
+	public Long queryRepaymentBorrowIdIdById(Long id);
+
+	public List<Map<String, Object>> queryOverDueRepayment(String date);
+
+	public void updateOverDueRepayment(long id, double lateFee, int overdueDay, String date);
+	
+	public Long addPreRepament(PreRepayment preRepayment);
+	
+	public Map<String, Object> queryrRepay(Long id);
+
+	public Map<String, Object> queryAllInvestInfoByRepaymentId(long id);
+
+}

@@ -1,0 +1,765 @@
+package com.pjzb.util;
+
+import java.io.File; 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.config.fadada.FddClient;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.EnterpriseDao;
+import com.pjzb.dao.FaDaDaDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.Enterprise;
+import com.pjzb.entity.FaDaDa;
+import com.pjzb.entity.Invest;
+import com.pjzb.entity.User;
+import com.pjzb.service.common.UserService;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 
+ * @author ZLX
+ *
+ *	线程处理放款
+ *
+ *	规则：
+ *		13个人以下，只需要单线程处理
+ *		14-260人之间，线程数量在20个之内， 13个人启动一个线程
+ *		261-1000人之间，线程数量在20个之内， 50个人启动一个线程 
+ *	
+ */
+
+public class ThreadUtil {
+	public static Log log = LogFactory.getLog(ThreadUtil.class);
+	// 成功的个数
+	private static int successNum = 0;
+	 
+	/**
+	 * 动态生成合同文件的名称，每启动一个线程生成一个文件名。
+	 * @param path
+	 * @param i
+	 * @return
+	 */
+	private static String pathFile(String path, int i) {
+		int ends = path.lastIndexOf(".");
+		int begins = path.lastIndexOf("/");
+		String result = path.substring(begins + 1, ends);
+		return path.replace(result, result + i);
+	}
+	
+	private synchronized void successNum () {
+		successNum++;
+	}
+	
+	@SuppressWarnings("static-access")
+	public int thread(List<Map<String, Object>> investList, String filePath, String filePathHj, 
+    		String savepath, String pdf, UserService userService, Long id,InvestDao investDao, 
+    		BorrowDao borrowDao,EnterpriseDao enterpriseDao,UserDao userDao,RepaymentDao repaymentDao,
+    		InvestRepaymentDao investRepaymentDao,FaDaDaDao fadadaDao){  
+		log.info("处理放款主线程开始....");
+		successNum = 0;
+		ThreadUtil tutil = new ThreadUtil();
+        //CountDownLatch threadCount = new CountDownLatch(investList.size());  
+		List<Thread> threads = new ArrayList<Thread>();
+        
+		// 任务总数
+		int size = investList.size();
+		// 分组线程处理任务个数
+		int count = 0;
+		// 线程分组数量
+		int groupCount = 0;
+		// 循环开始下标位置
+		int start = 0;
+		// 循环结束下标位置
+		int end = 0;
+		
+		if (size <= 13) { // 13人以下
+			for (int i = 0; i < size; i++) {
+				fangkuan(investList.get(i), filePath, filePathHj, savepath, pdf, userService, id, investDao, borrowDao, enterpriseDao, userDao, repaymentDao, investRepaymentDao, fadadaDao);  
+	        }
+			return successNum;
+		} else if (size > 13 && size <= 260) {
+			// 14-260人之间，线程数量在20个之内， 13个人启动一个线程
+			count = 13;
+			groupCount = size % 13 == 0 ? size / 13 : (size / 13) + 1;
+		} else if (size > 260 && size <= 1000) {
+			// 261-1000人之间，线程数量在20个之内， 50个人启动一个线程 
+			count = 50;
+			groupCount = size % 50 == 0 ? size / 50 : (size / 50) + 1;
+		}
+
+		log.info("groupCount = " + groupCount + ",size = " + size + ", count = " + count);
+		for(int i = 0; i < groupCount; i++) {
+			String savepathTemp = pathFile(savepath, i);
+			String pdfTemp = pathFile(pdf, i);
+			log.info("savepath="+savepathTemp+", pdf="+pdfTemp);
+			end = start + count - 1;
+			Threads t = tutil.new Threads("处理放款线程 " + i, i,investList, start, end+1, filePath, filePathHj, savepathTemp, pdfTemp,userService,  id, investDao, borrowDao, enterpriseDao, userDao, repaymentDao, investRepaymentDao, fadadaDao);  
+			start = (i + 1) * count;
+			threads.add(t);
+			t.start();
+			
+			if ((i + 2) == groupCount && size % count != 0) {
+				String savepathTemp1 = pathFile(savepath, groupCount-1);
+				String pdfTemp1 = pathFile(pdf, groupCount-1);
+				log.info("savepath="+savepathTemp1+", pdf="+pdfTemp1);
+				log.info("groupCount = " + groupCount + ",size = " + size + ", count = " + count);
+				start = (i + 1) * count;
+				Threads t1 = tutil.new Threads("处理放款线程 " + (i+1), i,investList, start, size, filePath, filePathHj, savepathTemp1, pdfTemp1,userService,  id, investDao, borrowDao, enterpriseDao, userDao, repaymentDao, investRepaymentDao, fadadaDao);  
+				threads.add(t1);
+				t1.start();
+				break;
+			}
+		}
+		
+        try {
+            for (Thread t : threads) {
+            	t.join();
+            	log.info(t.currentThread() + " join...");
+            }
+        } catch (InterruptedException e) {
+        	log.error(e);
+            e.printStackTrace();  
+        }  
+  
+        log.info("处理放款主线程结束.... successNum =" + successNum);
+        return successNum;
+    }
+
+	class Threads extends Thread {
+	
+	 private List<Map<String, Object>> investMaps;
+	 private String filePath;
+	 private String filePathHj;
+	 private String savepath;
+	 private String pdf;
+	 private Long id;	 
+	 private String name;
+	 private int start;
+	 private int end;
+	 private UserService userService;
+	 private InvestDao investDao;
+	 private BorrowDao borrowDao;
+	 private EnterpriseDao enterpriseDao;
+	 private UserDao userDao;
+	 private RepaymentDao repaymentDao;
+	 private InvestRepaymentDao investRepaymentDao;
+	 private FaDaDaDao fadadaDao;
+	 private Map<String, Object> investMap;
+	 
+	    public Threads(String name, int num, List<Map<String, Object>> investMaps, int start, int end, String filePath, String filePathHj,
+			String savepath, String pdf,UserService userService, Long id, InvestDao investDao, 
+    		BorrowDao borrowDao,EnterpriseDao enterpriseDao,UserDao userDao,RepaymentDao repaymentDao,
+    		InvestRepaymentDao investRepaymentDao,FaDaDaDao fadadaDao) {
+		    this.setName(name);
+		    this.name = name;
+			this.investMaps = investMaps;
+			this.filePath = filePath;
+			this.filePathHj = filePathHj;
+			this.savepath = savepath;
+			this.pdf = pdf;
+			this.id = id;
+			this.start= start;
+			this.end= end;
+			this.userService = userService;
+			this.investDao = investDao;
+			this.borrowDao = borrowDao;
+			this.enterpriseDao = enterpriseDao;
+			this.userDao = userDao;
+			this.repaymentDao = repaymentDao;
+			this.investRepaymentDao = investRepaymentDao;
+			this.fadadaDao = fadadaDao;
+		}
+	  
+	    @Override  
+	    public void run() {  
+	        // -------------------------------线程处理放款-----------------------------------
+	        
+	    	//进行标的的法大大签章
+			try {
+				log.info("放款子线程["+name+"]开始..." + "for --> start=" + start + ", end=" + end);
+				for (int i = start; i < end; i++) {
+				//for (Map<String, Object> investMap : investMaps) {
+					investMap = investMaps.get(i);
+					log.info("放款子线程["+name+"]的第" + i+ "条");
+					//文档传输到法大大
+					String doc_url = "";// 文档地址					
+					String doc_typeD = "";// 文档类型
+					String contrac_id = GenerateSequenceNo.generateSequenceNo();
+					
+					//先生成html数据界面
+					//取出标的数据 查询t_borrow表
+					Borrow borrow = borrowDao.queryBorrowById(id);
+					String auditTime = DateUtil.dateToString(borrow.getAuditTime());
+					
+					Long bidId = borrow.getPublisher();
+					//营业执照号
+					Enterprise enterprise = enterpriseDao.queryEnterpriseByUserId(bidId);
+					String businessCode = enterprise.getBusinessCode();
+					//查询投资人信息用户信息
+					User investUser = userDao.queryUserById(Convert.strToLong(investMap.get("investor") + "",1));
+					
+					//查询借款人信息
+					User borrowUser = userDao.queryUserById(bidId);
+					
+					//查询t_repayment表
+					Map<String, Object> repayMap = repaymentDao.queryrRepay(id);
+					Invest invest = investDao.queryrInvests(id,Convert.strToLong(investMap.get("investId")+ "",1));
+					
+					//查询t_invest_repayment表  投资还款表
+					List<Map<String, Object>> investRepayListMap = new ArrayList<Map<String, Object>>();
+					investRepayListMap = investRepaymentDao.queryrInvestRepay(id,investMap.get("investor") + "",investMap.get("investId")+ ""); 
+					
+					//通过模板生成HTML文件
+					/*1、出借人
+					 *2、借款人
+					 * 3、投资金额借款金额
+					 * 4、借款详细信息
+					 * 5、代还本金stillPrincipal
+					 * 6、还款方式paymentMode
+					 * 7、借款开始auditTime
+					 * 8、借款截止时间repayDate
+					 * 9、借款金额
+					 * 10、借款期数
+					 * 11、每期应收本息
+					 * 12、甲方真实姓名
+					 * 13、乙方真实姓名
+					 * 14、身份证（借款人）
+					 */
+					//甲方penson表
+					Map<String, String> personJaMap = userService.queryPersonById(Convert.strToLong(investMap.get("investor") + "",1));
+					String jName = personJaMap.get("realName");
+					String yFangIdNo = personJaMap.get("idNo");
+					//乙方person表
+					Map<String, String> personYeMap = userService.queryPersonById(bidId);
+					String yName = personYeMap.get("realName");
+					String idNo = personYeMap.get("idNo");
+					String Mode = null;
+				    Integer paymentModet = borrow.getPaymentMode();
+				    if(paymentModet==1){
+				    	 Mode = "等额本息还款";
+				    }else if(paymentModet==2){
+				    	 Mode = "先息后本还款";
+				    }else if(paymentModet==4){
+				    	 Mode = "一次性还款";
+				    } 
+					
+				    /*@ahor tangjielong 
+			         * 1、甲方转让人 发标人
+			         * 2、甲方营业执照 发标人
+					 * 3、应收账款受让人 乙方姓名
+					 * 4、乙方普金资本账户名
+					 * 5、乙方身份证
+					 * 6、合同编号 提前一天才知道
+					 * 7、投资金额
+					 * 8、投资时间期限
+					 * 9、利率 
+					 */
+					 
+					String behalfName = "";//投资人代表真实姓名
+					/**
+					 * client_type 客户类型：1-个人，2-企业
+					 * client_role 客户角色: 1 接入平台，2.担保公司，3.投资人， 4.借款人
+					 */
+					String client_type = "1"; 
+					String client_role = "4";
+					if(borrowUser.getBusiCode() != null && !borrowUser.getBusiCode().equals("")) {
+						client_type = "2";  
+						//如果是企业用户借款，签名使用username
+						yName = borrowUser.getUsername();
+					}
+			
+					
+					String transAmt = investMap.get("TransAmt")+"";//投资金额
+					double borrowAmountD = borrow.getBorrowAmount();//项目总额 
+					double transAmtD = Double.parseDouble(transAmt);
+					double amountProportion = transAmtD/borrowAmountD*100;//投资金额占总金额的比例
+					
+					//判断是不是多金宝还是其他的，多金宝的borrowTypeSubId是3,多金宝用template.html的合同模板.       新手标是5,新手标可以选择合同模板，如果hetong的值为109则用 template.html,否则用template_hj.html模板
+					if(borrow.getBorrowTypeSubId().equals("3") || (borrow.getBorrowTypeSubId().equals("5") && borrow.getHetong().equals("109"))){
+						//投资人代表person表
+						Map<String, String> behalfOfInvestorMap = userService.queryPersonById(borrow.getBehalfUserId());
+						behalfName = behalfOfInvestorMap.get("realName");
+						
+						JspToHtml.JspToHtmlFile(filePath, savepath, borrowUser.getUsername(), investUser.getUsername(), investMap.get("TransAmt") + "",borrow.getDetail(),invest.getRecivedPrincipal()+""
+								,invest.getRecievedInterest()+"",Mode,auditTime,repayMap.get("repayDate")+"",invest.getInvestAmount() + "" ,invest.getDeadline()+"",investRepayListMap,auditTime
+							    ,jName,yName,idNo,contrac_id,behalfName);//生成pdf文件
+					}else{
+						JspToHtml.JspToHtmlAndHengda(filePathHj, savepath, yName, businessCode, jName, investUser.getUsername(), yFangIdNo,borrow.getContractId(),investMap.get("TransAmt")+"",amountProportion+"",auditTime,repayMap.get("repayDate")+"",borrow.getAnnualRate()+"");
+					}
+					log.info("转换html成功");
+					//生成pdf文件 
+				     //这个是生成PDF方法二
+				    /* String pdf = ServletActionContext.getServletContext().getRealPath("/") 
+								+"WEB-INF/page/front/personcenter/pd4ml.pdf"; */
+				    String fontUrl =  IConstants.FONTURL;
+				    
+				    try {
+				    	FreemarkerUtil.htmlToPdf(savepath, pdf, fontUrl);
+					} catch(Exception e) {
+						log.info("pdf转格式失败,使用第二种方法......");
+						String pdfStr = pathFile(pdf, i);
+						FreemarkerUtil.htmlToPdf(savepath, pdfStr, fontUrl);
+					}
+					log.info("转换pdf成功");
+				     
+				    //HtmltoPDF.htmlToPdf3(savepath, pdf);
+					File file = new File(pdf);
+					String doc_type = ".pdf";
+					
+					// 调用请求
+					String response = FddClient.invokeUploadDocs(contrac_id, file, "", doc_type);
+					
+					log.info("上传法大大合同成功 " + net.sf.json.util.JSONUtils.valueToString(response) + "====>");
+					JSONObject jobj1 = JSONObject.fromObject(response);
+					//查询投资人的法大大CA证书
+					FaDaDa investFaDaDa = fadadaDao.queryFadadaByUserId(Convert.strToLong(investMap.get("investor") + "", 1));
+					//查询借款人的法大大CA证书
+					FaDaDa borrowFaDaDa = fadadaDao.queryFadadaByUserId(borrow.getPublisher());
+					
+					//查询平台居间方的法大大CA证书
+					FaDaDa middleFaDaDa = fadadaDao.queryFadadaByUserId(Long.parseLong(ChinapnrConfig.FADADA_MIDDLE_CUSTOMER));
+					
+					String customer_id = investFaDaDa.getCustomerId();
+					String doc_title =borrow.getBorrowTitle();//待签署文档标题
+					
+					//String batch_id= "";//借款人才需要传
+					String contract_send = GenerateSequenceNo.generateSequenceNo();
+					String behalf_send = GenerateSequenceNo.generateSequenceNo();
+					String sontract_send = GenerateSequenceNo.generateSequenceNo();
+					String middle_send = GenerateSequenceNo.generateSequenceNo();
+					
+					String contract_id_two = borrow.getContractId();
+					
+					if(jobj1.getInt("code")==1000){  //上传文件成功
+						log.info("合同编码："+contrac_id + "  交易号==> contract_send："+contract_send + "  behalf_send："+behalf_send+"  sontract_send："+sontract_send+"  middle_send："+middle_send);
+						log.info("投资人："+Convert.strToLong(investMap.get("investor") + "", -1));
+						
+						if(borrow.getBorrowTypeSubId().equals("3")||(borrow.getBorrowTypeSubId().equals("5") && borrow.getHetong().equals("109"))){
+							
+							String sign_keyword ="出借人方";//自动签署关键字
+							
+							FaDaDa updateFaDaDa = new FaDaDa(); 
+							updateFaDaDa.setUid(Convert.strToLong(investMap.get("investor") + "", -1));
+							updateFaDaDa.setContractId(contrac_id);
+							updateFaDaDa.setDocType(doc_type);
+							updateFaDaDa.setFile(pdf);
+							updateFaDaDa.setContractIdEnd(contract_id_two);
+							
+							fadadaDao.updateFadada(updateFaDaDa);
+							
+							//借款的合同，每次投资人签署这个合同
+							String borrowVocher = FddClient.invokeExtSignAutoTwo(contract_send, customer_id, doc_url, "1","3", contrac_id, doc_title, sign_keyword, "", doc_typeD);
+							JSONObject jb = JSONObject.fromObject(borrowVocher);
+							log.info("投资人自动文档签署完成");
+			
+							//投资人签署完，投资人代表签署这个合同
+							if(jb.getInt("code")==1000){
+			
+								//查询投资人代表的法大大CA证书
+								FaDaDa behalfMap = fadadaDao.queryFadadaByUserId(borrow.getBehalfUserId());
+								String behalfRealName =behalfName;//自动签署关键字
+								String behalfResult = FddClient.invokeExtSignAutoTwo(behalf_send, behalfMap.getCustomerId(), doc_url, "1","3", contrac_id, doc_title, behalfRealName, "", doc_typeD);
+								JSONObject behalfJB = JSONObject.fromObject(behalfResult);
+								log.info("投资人代表自动文档签署完成");
+			
+								
+								//投资人代表签署完，借款人再去签署这个合同
+								if(behalfJB.getInt("code")==1000){
+									//签署关键字
+									String sign_key= "借款人方";
+									String borrowQians = FddClient.invokeExtSignAuto(sontract_send,borrowFaDaDa.getCustomerId(), doc_url, borrowUser.getTransactionId(),client_type,client_role, contrac_id, doc_title, sign_key, "", doc_typeD);
+									JSONObject jobt = JSONObject.fromObject(borrowQians);
+									log.info("借款人自动文档签署完成");
+									log.info(net.sf.json.util.JSONUtils.valueToString(jobt) + "====>");
+									
+									if(jobt.getInt("code")==1000){
+			
+										//签署关键字
+										String midd_sign_key= "居间方";
+										String middSign = FddClient.invokeExtSignAutoTwo(middle_send,middleFaDaDa.getCustomerId() , doc_url, "2","1", contrac_id, doc_title, midd_sign_key, "", doc_typeD);
+										JSONObject jobmiddle = JSONObject.fromObject(middSign);
+			
+										log.info("居间方自动文档签署完成");
+										log.info(net.sf.json.util.JSONUtils.valueToString(jobmiddle) + "====>");
+			
+										//签署后文件下载地址
+										String download_url = jb.getString("download_url");
+										
+										//在线查看已签署地址
+										String viewpdf_url = jb.getString("viewpdf_url");
+										
+										investDao.updateInvestFadadaInfo(contrac_id, download_url, viewpdf_url,investMap.get("trxId") + "",Convert.strToLong(investMap.get("investor") + "", 1));
+			
+										//法大大合同归档
+										String responsed = FddClient.invokeContractFilling(contrac_id);
+										
+										JSONObject jbContract = JSONObject.fromObject(responsed);
+										log.info("法大大合同归档 ====>"+net.sf.json.util.JSONUtils.valueToString(jbContract));
+										if(jbContract.getInt("code")==1000){
+											successNum();
+										}
+										log.info("successNum------成功合同数------->" + successNum);
+									}
+								}
+							}
+						}else{
+							String sign_keyword ="应收账款受让人";//自动签署关键字
+
+							FaDaDa updateFaDaDa = new FaDaDa(); 
+							updateFaDaDa.setUid(Convert.strToLong(investMap.get("investor") + "", -1));
+							updateFaDaDa.setContractId(contrac_id);
+							updateFaDaDa.setDocType(doc_type);
+							updateFaDaDa.setFile(pdf);
+							updateFaDaDa.setContractIdEnd(contract_id_two);
+							
+							fadadaDao.updateFadada(updateFaDaDa);
+							
+							//借款的合同，每次投资再签署个人的
+							String borrowVocher = FddClient.invokeExtSignAutoTwo(contract_send, customer_id, doc_url, "1","3", contrac_id, doc_title, sign_keyword, "", doc_typeD);
+							JSONObject jb = JSONObject.fromObject(borrowVocher);
+							//签署关键字
+							String sign_key= "应收账款转让人";
+							//投资人签署完，借款人再去签署一下这个合同
+							if(jb.getInt("code")==1000){
+								
+								String borrowQians = FddClient.invokeExtSignAuto(sontract_send,borrowFaDaDa.getCustomerId(), doc_url,borrowUser.getTransactionId() , client_type,client_role, contrac_id, doc_title, sign_key, "", doc_typeD);
+								JSONObject jobt = JSONObject.fromObject(borrowQians);
+								log.info("法大大自动文档签署");
+								log.info(net.sf.json.util.JSONUtils.valueToString(jobt) + "====>");
+								
+								if(jobt.getInt("code")==1000){
+			
+									//签署关键字
+									String midd_sign_key= "普金资本运营";
+			
+									String middSign = FddClient.invokeExtSignAutoTwo(middle_send,middleFaDaDa.getCustomerId() , doc_url, "2","1", contrac_id, doc_title, midd_sign_key, "", doc_typeD);
+									JSONObject jobmiddle = JSONObject.fromObject(middSign);
+			
+									log.info("居间方自动文档签署完成");
+									log.info(net.sf.json.util.JSONUtils.valueToString(jobmiddle) + "====>");
+									//签署后文件下载地址
+									String download_url = jb.getString("download_url");
+									
+									//在线查看已签署地址
+									String viewpdf_url = jb.getString("viewpdf_url");
+									investDao.updateInvestFadadaInfo(contrac_id, download_url, viewpdf_url,investMap.get("trxId") + "",Convert.strToLong(investMap.get("investor") + "", 1));
+			
+									//法大大合同归档
+									String responsed = FddClient.invokeContractFilling(contrac_id);
+									
+									JSONObject jbContract = JSONObject.fromObject(responsed);
+									log.info("法大大合同归档 ====>"+net.sf.json.util.JSONUtils.valueToString(jbContract));
+									if(jbContract.getInt("code")==1000){
+										successNum();									
+									}
+									log.info("successNum--------成功合同数-------->" + successNum);
+								}
+							} 
+						}
+					}  
+				}
+			} catch (Exception e) {
+				successNum = -1;
+				log.error(e);
+				e.printStackTrace();
+			}
+	    	// -------------------------------线程处理放款-----------------------------------
+			log.info("放款子线程["+name+"]结束...");
+	    }  
+	}
+	
+	private void fangkuan(Map<String, Object> investMap, String filePath, String filePathHj,
+			String savepath, String pdf, UserService userService, Long id, InvestDao investDao, 
+    		BorrowDao borrowDao,EnterpriseDao enterpriseDao,UserDao userDao,RepaymentDao repaymentDao,
+    		InvestRepaymentDao investRepaymentDao,FaDaDaDao fadadaDao){
+		//进行标的的法大大签章
+		try{
+			//文档传输到法大大
+			String doc_url = "";// 文档地址					
+			String doc_typeD = "";// 文档类型
+			String contrac_id = GenerateSequenceNo.generateSequenceNo();
+			
+			//先生成html数据界面
+			//取出标的数据 查询t_borrow表
+			Borrow borrow = borrowDao.queryBorrowById(id);
+			String auditTime = DateUtil.dateToString(borrow.getAuditTime());
+			Long bidId = borrow.getPublisher();
+			//营业执照号
+			Enterprise enterprise = enterpriseDao.queryEnterpriseByUserId(bidId);
+			String businessCode = enterprise.getBusinessCode();
+			//查询投资人信息用户信息
+			User investUser = userDao.queryUserById(Convert.strToLong(investMap.get("investor") + "",1));
+			
+			//查询借款人信息
+			User borrowUser = userDao.queryUserById(bidId);
+			
+			//查询t_repayment表
+			Map<String, Object> repayMap = repaymentDao.queryrRepay(id);
+			Invest invest = investDao.queryrInvests(id,Convert.strToLong(investMap.get("investId")+ "",1));
+			
+			//查询t_invest_repayment表  投资还款表
+			List<Map<String, Object>> investRepayListMap = new ArrayList<Map<String, Object>>();
+			investRepayListMap = investRepaymentDao.queryrInvestRepay(id,investMap.get("investor") + "",investMap.get("investId")+ ""); 
+			
+			//通过模板生成HTML文件
+			/*1、出借人
+			 *2、借款人
+			 * 3、投资金额借款金额
+			 * 4、借款详细信息
+			 * 5、代还本金stillPrincipal
+			 * 6、还款方式paymentMode
+			 * 7、借款开始auditTime
+			 * 8、借款截止时间repayDate
+			 * 9、借款金额
+			 * 10、借款期数
+			 * 11、每期应收本息
+			 * 12、甲方真实姓名
+			 * 13、乙方真实姓名
+			 * 14、身份证（借款人）
+			 */
+			//甲方penson表
+			Map<String, String> personJaMap = userService.queryPersonById(Convert.strToLong(investMap.get("investor") + "",1));
+			String jName = personJaMap.get("realName");
+			String yFangIdNo = personJaMap.get("idNo");
+			//乙方person表
+			Map<String, String> personYeMap = userService.queryPersonById(borrow.getPublisher());
+			String yName = personYeMap.get("realName");
+			String idNo = personYeMap.get("idNo");
+			String Mode = null;
+			int paymentModet = borrow.getPaymentMode();
+		    if(paymentModet==1){
+		    	 Mode = "等额本息还款";
+		    }else if(paymentModet==2){
+		    	 Mode = "先息后本还款";
+		    }else if(paymentModet==4){
+		    	 Mode = "一次性还款";
+		    } 
+			
+		    /*@ahor tangjielong 
+	         * 1、甲方转让人 发标人
+	         * 2、甲方营业执照 发标人
+			 * 3、应收账款受让人 乙方姓名
+			 * 4、乙方普金资本账户名
+			 * 5、乙方身份证
+			 * 6、合同编号 提前一天才知道
+			 * 7、投资金额
+			 * 8、投资时间期限
+			 * 9、利率 
+			 */
+			 
+			String behalfName = "";//投资人代表真实姓名
+			/**
+			 * client_type 客户类型：1-个人，2-企业
+			 * client_role 客户角色: 1 接入平台，2.担保公司，3.投资人， 4.借款人
+			 */
+
+			String client_type = "1"; 
+			String client_role = "4";
+			if(borrowUser.getBusiCode() != null && !borrowUser.getBusiCode().equals("")) {
+				client_type = "2";  
+				//如果是企业用户借款，签名使用username
+				yName = borrowUser.getUsername();
+			}
+	
+			
+			String transAmt = investMap.get("TransAmt")+"";//投资金额
+			double borrowAmountD = borrow.getBorrowAmount();//项目总额 
+			double transAmtD = Double.parseDouble(transAmt);
+			double amountProportion = transAmtD/borrowAmountD*100;//投资金额占总金额的比例
+			
+			//判断是不是多金宝还是其他的，多金宝的borrowTypeSubId是3,多金宝用template.html的合同模板.       新手标是5,新手标可以选择合同模板，如果hetong的值为109则用 template.html,否则用template_hj.html模板
+			if(borrow.getBorrowTypeSubId().equals("3") || (borrow.getBorrowTypeSubId().equals("5") && borrow.getHetong().equals("109"))){
+				//投资人代表person表
+				Map<String, String> behalfOfInvestorMap = userService.queryPersonById(borrow.getBehalfUserId());
+				behalfName = behalfOfInvestorMap.get("realName");
+				
+				JspToHtml.JspToHtmlFile(filePath, savepath, borrowUser.getUsername(), investUser.getUsername(), investMap.get("TransAmt") + "",borrow.getDetail(),invest.getRecivedPrincipal()+""
+						,invest.getRecievedInterest()+"",Mode,auditTime,repayMap.get("repayDate")+"",invest.getInvestAmount() + "" ,invest.getDeadline()+"",investRepayListMap,auditTime
+					    ,jName,yName,idNo,contrac_id,behalfName);//生成pdf文件
+			}else{
+				JspToHtml.JspToHtmlAndHengda(filePathHj, savepath, yName, businessCode, jName, investUser.getUsername(), yFangIdNo,borrow.getContractId(),investMap.get("TransAmt")+"",amountProportion+"",auditTime,repayMap.get("repayDate")+"",borrow.getAnnualRate()+"");
+			}
+			log.info("转换html成功");
+			
+			//生成pdf文件 
+		     //这个是生成PDF方法二 
+		     String fontUrl =  IConstants.FONTURL; 
+		    FreemarkerUtil.htmlToPdf(savepath, pdf, fontUrl);
+			log.info("转换pdf成功");
+		      
+			File file = new File(pdf);
+			String doc_type = ".pdf";
+			
+			// 调用请求
+			String response = FddClient.invokeUploadDocs(contrac_id, file, "", doc_type);
+			
+			log.info("上传法大大合同成功");
+			log.info(net.sf.json.util.JSONUtils.valueToString(response) + "====>");
+			JSONObject jobj1 = JSONObject.fromObject(response); 
+			
+			//查询投资人的法大大CA证书
+			FaDaDa investFaDaDa = fadadaDao.queryFadadaByUserId(Convert.strToLong(investMap.get("investor") + "", 1));
+			//查询借款人的法大大CA证书
+			FaDaDa borrowFaDaDa = fadadaDao.queryFadadaByUserId(borrow.getPublisher());
+			
+			//查询平台居间方的法大大CA证书
+			FaDaDa middleFaDaDa = fadadaDao.queryFadadaByUserId(Long.parseLong(ChinapnrConfig.FADADA_MIDDLE_CUSTOMER));
+			
+			String customer_id = investFaDaDa.getCustomerId();
+			String doc_title =borrow.getBorrowTitle();//待签署文档标题
+			
+			//String batch_id= "";//借款人才需要传
+			String contract_send = GenerateSequenceNo.generateSequenceNo();
+			String behalf_send = GenerateSequenceNo.generateSequenceNo();
+			String sontract_send = GenerateSequenceNo.generateSequenceNo();
+			String middle_send = GenerateSequenceNo.generateSequenceNo();
+			
+			String contract_id_two = borrow.getContractId();
+
+			if(jobj1.getInt("code")==1000){  //上传文件成功
+				log.info("合同编码："+contrac_id + "  交易号==> contract_send："+contract_send + "  behalf_send："+behalf_send+"  sontract_send："+sontract_send+"  middle_send："+middle_send);
+				log.info("投资人："+Convert.strToLong(investMap.get("investor") + "", -1));
+				
+				if(borrow.getBorrowTypeSubId().equals("3")||(borrow.getBorrowTypeSubId().equals("5") && borrow.getHetong().equals("109"))){
+					
+					String sign_keyword ="出借人方";//自动签署关键字
+					
+					FaDaDa updateFaDaDa = new FaDaDa(); 
+					updateFaDaDa.setUid(Convert.strToLong(investMap.get("investor") + "", -1));
+					updateFaDaDa.setContractId(contrac_id);
+					updateFaDaDa.setDocType(doc_type);
+					updateFaDaDa.setFile(pdf);
+					updateFaDaDa.setContractIdEnd(contract_id_two);
+					
+					fadadaDao.updateFadada(updateFaDaDa);
+					
+					//借款的合同，每次投资人签署这个合同
+					String borrowVocher = FddClient.invokeExtSignAutoTwo(contract_send, customer_id, doc_url, "1","3", contrac_id, doc_title, sign_keyword, "", doc_typeD);
+					JSONObject jb = JSONObject.fromObject(borrowVocher);
+					log.info("投资人自动文档签署完成");
+	
+					//投资人签署完，投资人代表签署这个合同
+					if(jb.getInt("code")==1000){
+	
+						//查询投资人代表的法大大CA证书
+						FaDaDa behalfMap = fadadaDao.queryFadadaByUserId(borrow.getBehalfUserId());
+						String behalfRealName =behalfName;//自动签署关键字
+						String behalfResult = FddClient.invokeExtSignAutoTwo(behalf_send, behalfMap.getCustomerId(), doc_url, "1","3", contrac_id, doc_title, behalfRealName, "", doc_typeD);
+						JSONObject behalfJB = JSONObject.fromObject(behalfResult);
+						log.info("投资人代表自动文档签署完成");
+	
+						
+						//投资人代表签署完，借款人再去签署这个合同
+						if(behalfJB.getInt("code")==1000){
+							//签署关键字
+							String sign_key= "借款人方";
+							String borrowQians = FddClient.invokeExtSignAuto(sontract_send,borrowFaDaDa.getCustomerId(), doc_url, borrowUser.getTransactionId(),client_type,client_role, contrac_id, doc_title, sign_key, "", doc_typeD);
+							JSONObject jobt = JSONObject.fromObject(borrowQians);
+							log.info("借款人自动文档签署完成");
+							log.info(net.sf.json.util.JSONUtils.valueToString(jobt) + "====>");
+							
+							if(jobt.getInt("code")==1000){
+	
+								//签署关键字
+								String midd_sign_key= "居间方";
+								String middSign = FddClient.invokeExtSignAutoTwo(middle_send,middleFaDaDa.getCustomerId() , doc_url, "2","1", contrac_id, doc_title, midd_sign_key, "", doc_typeD);
+								JSONObject jobmiddle = JSONObject.fromObject(middSign);
+	
+								log.info("居间方自动文档签署完成");
+								log.info(net.sf.json.util.JSONUtils.valueToString(jobmiddle) + "====>");
+	
+								//签署后文件下载地址
+								String download_url = jb.getString("download_url");
+								
+								//在线查看已签署地址
+								String viewpdf_url = jb.getString("viewpdf_url");
+								
+								investDao.updateInvestFadadaInfo(contrac_id, download_url, viewpdf_url,investMap.get("trxId") + "",Convert.strToLong(investMap.get("investor") + "", 1));
+	
+								//法大大合同归档
+								String responsed = FddClient.invokeContractFilling(contrac_id);
+								
+								JSONObject jbContract = JSONObject.fromObject(responsed);
+								log.info("法大大合同归档 ====>"+net.sf.json.util.JSONUtils.valueToString(jbContract));
+								if(jbContract.getInt("code")==1000){
+									successNum();
+								}
+								log.info("successNum------成功合同数------->" + successNum);
+							}
+						}
+					}
+				}else{
+					String sign_keyword ="应收账款受让人";//自动签署关键字
+
+					FaDaDa updateFaDaDa = new FaDaDa(); 
+					updateFaDaDa.setUid(Convert.strToLong(investMap.get("investor") + "", -1));
+					updateFaDaDa.setContractId(contrac_id);
+					updateFaDaDa.setDocType(doc_type);
+					updateFaDaDa.setFile(pdf);
+					updateFaDaDa.setContractIdEnd(contract_id_two);
+					
+					fadadaDao.updateFadada(updateFaDaDa);
+					
+					//借款的合同，每次投资再签署个人的
+					String borrowVocher = FddClient.invokeExtSignAutoTwo(contract_send, customer_id, doc_url, "1","3", contrac_id, doc_title, sign_keyword, "", doc_typeD);
+					JSONObject jb = JSONObject.fromObject(borrowVocher);
+					//签署关键字
+					String sign_key= "应收账款转让人";
+					//投资人签署完，借款人再去签署一下这个合同
+					if(jb.getInt("code")==1000){
+						
+						String borrowQians = FddClient.invokeExtSignAuto(sontract_send,borrowFaDaDa.getCustomerId(), doc_url,borrowUser.getTransactionId() , client_type,client_role, contrac_id, doc_title, sign_key, "", doc_typeD);
+						JSONObject jobt = JSONObject.fromObject(borrowQians);
+						log.info("法大大自动文档签署");
+						log.info(net.sf.json.util.JSONUtils.valueToString(jobt) + "====>");
+						
+						if(jobt.getInt("code")==1000){
+	
+							//签署关键字
+							String midd_sign_key= "普金资本运营";
+	
+							String middSign = FddClient.invokeExtSignAutoTwo(middle_send,middleFaDaDa.getCustomerId() , doc_url, "2","1", contrac_id, doc_title, midd_sign_key, "", doc_typeD);
+							JSONObject jobmiddle = JSONObject.fromObject(middSign);
+	
+							log.info("居间方自动文档签署完成");
+							log.info(net.sf.json.util.JSONUtils.valueToString(jobmiddle) + "====>");
+							//签署后文件下载地址
+							String download_url = jb.getString("download_url");
+							
+							//在线查看已签署地址
+							String viewpdf_url = jb.getString("viewpdf_url");
+							investDao.updateInvestFadadaInfo(contrac_id, download_url, viewpdf_url,investMap.get("trxId") + "",Convert.strToLong(investMap.get("investor") + "", 1));
+	
+							//法大大合同归档
+							String responsed = FddClient.invokeContractFilling(contrac_id);
+							
+							JSONObject jbContract = JSONObject.fromObject(responsed);
+							log.info("法大大合同归档 ====>"+net.sf.json.util.JSONUtils.valueToString(jbContract));
+							if(jbContract.getInt("code")==1000){
+								successNum();									
+							}
+							log.info("successNum--------成功合同数-------->" + successNum);
+						}
+					} 
+				}
+			}  
+		} catch (Exception e) {
+			successNum = -1;
+			log.error(e);
+			e.printStackTrace();
+		}
+    	// -------------------------------线程处理放款-----------------------------------
+	}
+}

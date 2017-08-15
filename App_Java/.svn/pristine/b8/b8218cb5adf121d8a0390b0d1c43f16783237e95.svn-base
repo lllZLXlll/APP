@@ -1,0 +1,109 @@
+package com.pjzb.service.admin.user;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+/**
+ * 用户基本信息管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminUserBasicInfoService extends BaseController {
+	
+	@Autowired
+	private UserDao userDao;
+	
+	@Autowired
+	private InvestDao investDao;
+	
+	
+	/**
+	 * 
+	 * @describe:分页查询用户基本信息
+	 * @author: xiaojin
+	 * @param model
+	 * @param username
+	 * @param realName
+	 * @param pageNum
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 */
+	public String queryUserBaseInfo(Model model,String username,String realName,Long pageNum, Long pageSize,String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			username=ConvertUtil.convertObjToStr(username);
+			realName=ConvertUtil.convertObjToStr(realName);
+			List<Map<String, Object>> list = userDao.queryUserBaseInfo(username, realName,(pageNum - 1) * pageSize, pageSize);
+			long count = userDao.queryUserBaseInfoCount(username, realName);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("username", username);
+			model.addAttribute("realName", realName);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询用户基本信息异常**************************");
+		}
+		return "/admin/user/userbasicinfo/list.jsp";
+	}
+	
+	
+	/**
+	 * 
+	 * @describe:分页查询用户投资信息
+	 * @author: xiaojin
+	 * @param model
+	 * @param username
+	 * @param realName
+	 * @param pageNum
+	 * @param pageSize
+	 * @param tabid
+	 * @return
+	 */
+	public String queryUserInvestorInfo(Model model,Long userId,String beginDate, String endDate,Long pageNum, Long pageSize,String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			beginDate=ConvertUtil.convertObjToStr(beginDate);
+			endDate=ConvertUtil.convertObjToStr(endDate);
+			List<Map<String, Object>> list = investDao.queryInvestorInfoByUserId(userId,beginDate, endDate,(pageNum - 1) * pageSize, pageSize);
+			long count = investDao.queryInvestorInfoCountByUserId(userId,beginDate, endDate);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("beginDate", beginDate);
+			model.addAttribute("endDate", endDate);
+			model.addAttribute("userId", userId);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询用户投资信息异常**************************");
+		}
+		return "/admin/user/userbasicinfo/investorinfolist.jsp";
+	}
+	
+	
+
+}

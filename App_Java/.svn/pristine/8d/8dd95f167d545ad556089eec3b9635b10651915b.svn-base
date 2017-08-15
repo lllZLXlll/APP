@@ -1,0 +1,11 @@
+package com.pjzb.dao;
+
+import java.util.Map;
+
+public interface ExGoInDao {
+
+	public Map<String, Object> queryExGoMony();
+
+	public long updateExGoSum(double invmAmount);
+	
+}

@@ -1,0 +1,51 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/index/Producthot.html');
+	var VueComponent = Vue.extend({
+		data:function(){
+			return {
+				productList:[],
+				showMore:false
+			}
+		},
+		methods: {
+			thisHtml: function(borrow){
+				if(borrow == 1){
+					return '初审中';
+				}else if(borrow == 2){
+					return '立即投标';
+				}else if(borrow == 3){
+					return '复审中';
+				}else if(borrow == 4){
+					return '还款中';
+				}else if(borrow == 5){
+					return '已还完';
+				}else{
+					return '流标';
+				}
+			},
+			toBid: function(list){
+				this.$root.toFund(list);
+			},
+			toDetail: function(list){
+				router.go({name:'detail',query:{id:list.id,type:'detail'}});
+			}
+		},
+		ready:function(){
+			if(this.productList.length>3){
+				this.$set('showMore',true);
+			}
+		},
+		filters:{
+			titleCake:function(value){
+				if(value.length>6){
+					return value.substring(0,6)+'...';
+				}else{
+					return value.substring(0,6);
+				}
+				
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

@@ -1,0 +1,21 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Mail;
+
+public interface MailDao {
+	
+	public long addMail(Mail mail);
+	
+	List<Map<String, Object>> queryReceiveMails(Long id, int mallTypeSys, String string, int mailMode, long l, int pageSize);
+
+	long queryReceiveMailsCount(Long id, int mallTypeSys, String string, int mailMode);
+
+	public Map<String, Object> queryEmailById(Long mailId);
+
+	public long updateMails(List<Integer> lists, int mailReaded);
+
+	public long deleteMails(List<Integer> lists, Long sessionUserId);
+}

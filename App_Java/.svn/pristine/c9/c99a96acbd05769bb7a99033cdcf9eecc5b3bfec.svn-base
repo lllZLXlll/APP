@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.BorrowStyleDao">
+	
+	<select id="queryShoveBorrowAllInitCount" resultType="java.lang.Long">
+		SELECT COUNT(*) count FROM t_borrow_style
+	</select>
+	
+	<select id="queryShoveBorrowAllInit" resultType="map">
+		SELECT * FROM t_borrow_style LIMIT #{0}, #{1}
+	</select>
+	
+	<select id="queryShoveBorrowById" resultType="map">
+		SELECT * FROM t_borrow_style WHERE id = #{0}
+	</select>
+	
+	<update id="updateShoveBorrowStyle">
+		update t_borrow_style set title = #{1}, status = #{2}, contents = #{3} WHERE id = #{0}
+	</update>
+	
+</mapper>
+
+
+
+
+

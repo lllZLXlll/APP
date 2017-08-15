@@ -1,0 +1,244 @@
+package com.pjzb.service.admin.loan;
+
+import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.BorrowInspectionDao;
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.BorrowLoanManager;
+import com.pjzb.entity.LoanManageFile;
+import com.pjzb.service.common.UploadService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+@Service
+public class AdminBorrowMonthInspectRecordService extends BaseController {
+	public static Log log = LogFactory.getLog(AdminBorrowMonthInspectRecordService.class);
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private BorrowInspectionDao borrowInspectionDao;
+
+	@Autowired
+	private UploadService uploadService;
+
+	/**
+	 * 
+	 * @describe:分页查询贷后月检记录
+	 * @author: xiaojin
+	 * @param model
+	 * @param tabid
+	 * @param borrowId
+	 * @param realName
+	 * @param borrowTitle
+	 * @param status
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 */
+	public String queryBorrowInspectRecord(Model model, String tabid, Long borrowId, String realName, String borrowTitle, Integer status, Long pageNum, Long pageSize,
+			Long loanUserId, Long inspectId) {
+		try {
+			System.out.println(inspectId);
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowId = ConvertUtil.objToLongConvert(borrowId);
+			realName = ConvertUtil.objToStrConvert(realName);
+			borrowTitle = ConvertUtil.objToStrConvert(borrowTitle);
+			status = ConvertUtil.objToIntConvert(status);
+			List<Map<String, Object>> list = borrowDao.queryBorrowMonthInspectRecord(borrowId, realName, borrowTitle, status, (pageNum - 1) * pageSize, pageSize, loanUserId);
+			long count = borrowDao.queryBorrowMonthInspectRecordCount(borrowId, realName, borrowTitle, status, loanUserId);
+			model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+			model.addAttribute("borrowId", borrowId);
+			model.addAttribute("realName", realName);
+			model.addAttribute("title", borrowTitle);
+			model.addAttribute("status", status);
+			model.addAttribute("borrowId", borrowId);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("inspectId", inspectId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询贷后月检记录异常**************************");
+		}
+
+		return "/admin/loan/inspectrecord/list.jsp";
+	}
+
+	public String queryLoanAfterDataInit(Model model, Long id, String dialogId, Long inspectId) {
+		List<LoanManageFile> list = borrowInspectionDao.queryLoanManageFileByLoanmanagerId(id, null);
+		model.addAttribute("dataList", list);
+		model.addAttribute("dialogId", dialogId);
+		model.addAttribute("id", id);
+		model.addAttribute("inspectId", inspectId);
+		return "/admin/loan/inspectrecord/uploaddata.jsp";
+	}
+
+	public Map<String, Object> uploadLoanAfterData(MultipartFile file, String dialogId, HttpServletRequest request, String type, Long loanmanagerId, Long inspectId) {
+		Map<String, Object> inspectMap = queryBorrowLoanManagerById(loanmanagerId);
+		if (inspectMap == null) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			String fileName = null;
+			String sourceFileName = file.getOriginalFilename();
+			if (type.equals("2")) {
+				fileName = ConvertUtil.dateConvert(new Date(), Constants.DATEYM_MILLI) + ".jpg";
+			} else {
+				String suffixName = sourceFileName.substring(sourceFileName.indexOf("."), sourceFileName.length());
+				fileName = ConvertUtil.dateConvert(new Date(), Constants.DATEYM_MILLI) + suffixName;
+			}
+			String savePath = ConvertUtil.getUploadPath("/monthinspect/projectdept/");
+			String uploadResult = uploadService.upload(file, savePath, fileName, dialogId, request);
+			if (uploadResult.equals(Constants.SUCCESS)) {
+				LoanManageFile loanManageFile = new LoanManageFile();
+				loanManageFile.setFilePath(savePath + fileName);
+				loanManageFile.setFileName(fileName);
+				loanManageFile.setType(type);
+				loanManageFile.setUploadTime(new Date());
+				loanManageFile.setLoanmanagerId(loanmanagerId);
+				long result = borrowInspectionDao.addLoanManageFile(loanManageFile);
+
+				long count = borrowInspectionDao.queryLoanManageFileCount(loanmanagerId, type);
+				if (count > 0) {
+					BorrowLoanManager borrowLoanManager = new BorrowLoanManager();
+					borrowLoanManager.setId(loanmanagerId);
+					if (type.equals("1")) {
+						borrowLoanManager.setCollectMaterialId("1");
+					} else {
+						borrowLoanManager.setSitePhotoId("1");
+					}
+					borrowInspectionDao.updateBorrowLoanManager(borrowLoanManager);
+				}
+
+				if (result > 0) {
+					map.put("statusCode", "200");
+					map.put("message", "上传成功");
+					map.put("dialogid", dialogId);
+				} else {
+					map.put("statusCode", "300");
+					map.put("message", "上传失败");
+					map.put("dialogid", dialogId);
+				}
+			} else {
+				map.put("statusCode", "300");
+				map.put("message", "上传失败");
+				map.put("dialogid", dialogId);
+			}
+			return map;
+		} else {
+			return inspectMap;
+		}
+
+	}
+
+	public Map<String, Object> deleteLoanManageMonthInspectData(HttpServletRequest request, Long id, String filePath, String type, Long loanmanagerId, Long inspectId) {
+		Map<String, Object> inspectMap = queryBorrowLoanManagerById(loanmanagerId);
+		if (inspectMap == null) {
+			Long result = borrowInspectionDao.deleteLoanManageFileById(id);
+			long count = borrowInspectionDao.queryLoanManageFileCount(loanmanagerId, type);
+			if (count == 0) {
+				BorrowLoanManager borrowLoanManager = new BorrowLoanManager();
+				borrowLoanManager.setId(loanmanagerId);
+				if (type.equals("1")) {
+					borrowLoanManager.setCollectMaterialId("0");
+				} else {
+					borrowLoanManager.setSitePhotoId("0");
+				}
+				borrowInspectionDao.updateBorrowLoanManager(borrowLoanManager);
+			}
+			if (result > 0) {
+				String path = request.getSession().getServletContext().getRealPath(filePath);
+				File file = new File(path);
+				file.delete();
+				return ajaxDoneInfo("200", "删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "删除失败", "", "");
+			}
+		} else {
+			return inspectMap;
+		}
+
+	}
+
+	public String querySaveOrUpdateBorrowMonthInspectInit(Model model, Long id, Long borrowId, String tabid, Long inspectId) {
+		BorrowLoanManager borrowLoanManager = new BorrowLoanManager();
+		if (id != null) {
+			borrowLoanManager = borrowInspectionDao.queryBorrowLoanManagerById(id);
+			model.addAttribute("visitDate", ConvertUtil.dateConvert(borrowLoanManager.getVisitTime(), Constants.DATESIMPLE));
+		} else {
+			Borrow borrow = borrowDao.queryBorrowById(borrowId);
+			borrowLoanManager.setBorrowTitle(borrow.getBorrowTitle());
+		}
+		model.addAttribute("borrowId", borrowId);
+		model.addAttribute("inspect", borrowLoanManager);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("inspectId", inspectId);
+		String recordTime = ConvertUtil.dateConvert(borrowLoanManager.getOperatingTime(), Constants.DATESIMPLE);
+		model.addAttribute("recordTime", recordTime);
+		return "/admin/loan/monthinspect/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> saveOrUpdateBorrowLoanManager(BorrowLoanManager borrowLoanManager, Long borrowId, String visitDate, Long loanUserId, String tabid, Long inspectId,
+			String recordTime) {
+		borrowLoanManager.setVisitTime(ConvertUtil.dateConvert(visitDate, Constants.DATESIMPLE));
+		tabid = ConvertUtil.objToStrConvert(tabid);
+		if (borrowLoanManager.getId() == null) {
+			borrowLoanManager.setSitePhotoId("0");
+			borrowLoanManager.setCollectMaterialId("0");
+			borrowLoanManager.setLoanUserId(loanUserId);
+			borrowLoanManager.setOperatingTime(new Date());
+			long result = borrowInspectionDao.addBorrowLoanManager(borrowLoanManager);
+			if (result > 0) {
+				if (tabid == null) {
+					return ajaxDoneForward("200", "月检记录增加成功", "true", "", "queryBorrowInspectRecord.do?borrowId=" + borrowId + "&inspectId=" + inspectId);
+				} else {
+					return ajaxDoneInfo("200", "月检记录增加成功", "true", tabid);
+				}
+			} else {
+				return ajaxDoneInfo("300", "月检记录增加失败", "", "");
+			}
+		} else {
+			Long nowTimeLong = new Date().getTime();
+			Long endTimeLong = ConvertUtil.addDate(ConvertUtil.dateConvert(recordTime, Constants.DATESIMPLE), Calendar.DAY_OF_YEAR, 5).getTime();
+			if (endTimeLong < nowTimeLong) {
+				return ajaxDoneInfo("300", "该月检记录生成已经超过五天", "", "");
+			}
+			long result = borrowInspectionDao.updateBorrowLoanManager(borrowLoanManager);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "月检记录修改成功", "true", tabid);
+			} else {
+				return ajaxDoneInfo("300", "月检记录修改失败", "", "");
+			}
+		}
+
+	}
+
+	public Map<String, Object> queryBorrowLoanManagerById(long id) {
+		BorrowLoanManager borrowLoanManager=borrowInspectionDao.queryBorrowLoanManagerById(id);
+		Long nowTimeLong = new Date().getTime();
+		Long endTimeLong = ConvertUtil.addDate(borrowLoanManager.getOperatingTime(), Calendar.DAY_OF_YEAR, 5).getTime();
+		if (endTimeLong < nowTimeLong) {
+			return ajaxDoneInfo("300", "该月检记录生成已经超过五天", "", "");
+		} else {
+			return null;
+		}
+	}
+
+}

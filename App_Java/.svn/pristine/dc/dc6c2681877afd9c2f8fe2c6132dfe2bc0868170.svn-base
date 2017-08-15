@@ -1,0 +1,63 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageContent">
+    <form action="updateShoveBorrowStyle.do" id="j_custom_form" data-toggle="validate" data-alertmsg="false">
+        <input type="hidden" name="id" value="${item.id }">
+        <input type="hidden" name="tabid" value="${tabid }">
+        <table class="table table-condensed table-hover">
+            <tbody>
+                <tr>
+                    <td align="center">
+                        <label for="j_custom_sale" class="control-label x100">还款方式名称：</label>
+                       <input type="text" id="j_custom_name" size="20" readonly="readonly" value="${item.name }">
+                    </td>
+                </tr>
+                
+               	<tr>
+                    <td align="center">
+                        <label for="j_custom_sale" class="control-label x100">标识名：</label>
+                       <input type="text" id="j_custom_name" size="20" readonly="readonly" value="${item.nid }">
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td align="center">
+                        <label for="j_custom_name" class="control-label x100">名称：</label>
+                        <input type="text" id="j_custom_name" name="title" size="20" value="${item.title }">
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td align="center">
+                        <label for="j_custom_birthday" class="control-label x100">状态：</label>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                         <c:choose>
+			            	 <c:when test="${item.status == 1 }">
+				       			<input type="radio" name="status" checked="checked" value="1" data-toggle="icheck" data-label=" 开启">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				            	<input type="radio" name="status" value="2" data-toggle="icheck" data-label=" 关闭">&nbsp;&nbsp;
+				            </c:when>
+				            <c:when test="${item.status != 1 }">
+				       			<input type="radio" name="status" value="1" data-toggle="icheck" data-label=" 开启">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				            	<input type="radio" name="status" checked="checked" value="2" data-toggle="icheck" data-label=" 关闭">&nbsp;&nbsp;
+				            </c:when>
+			            </c:choose>
+                    </td>
+                </tr>
+                
+               	<tr>
+                    <td align="center">
+                   		<label for="j_custom_sale" class="control-label x100">算法：</label>
+                   		<textarea name="contents" data-toggle="autoheight" data-rule="required" cols="30" rows="5">${item.contents }</textarea>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save">保存</button></li>
+    </ul>
+</div>

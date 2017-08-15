@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>收益计算器</title>
+	<link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/mod_message.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#0f0100">
+		<div class="warp-1000 ">
+			<a href="index.html"><img src="img/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">你好，licky</a></li>
+						<li><a href="#">消息 <span class="blue">1</span></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.html" class="logo"><img src="img/logo.png"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li>
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li class="hover"><a href="#">我的账户</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							$(this).addClass('hover');
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	<!--通栏布局-->
+	<div class="mod-one-column income_calculator">
+		<div class="warp-1000">
+			<h2>收益计算器</h2>
+			<div class="main">
+				<div class="mod-form">
+					<table class="mb-30">
+						<tbody><tr>
+							<td>
+								<div class="item">
+									<span class="name">借款金额</span>
+									<input type="text" placeholder="" class="mini">
+								</div>
+							</td>
+							<td>
+								<div class="item">
+									<span class="name">年利率</span>
+									<input type="text" placeholder="" class="mini">%
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="item">
+									<span class="name">借款期限</span>
+									<input type="text" placeholder="" class="mini">月
+								</div>
+							</td>
+							<td>
+								<div class="item">
+									<span class="name">还款方式</span>
+									<select class="auto">
+										<option>请选择</option>
+									</select>
+								</div>
+							</td>
+						</tr>
+					</tbody></table>
+					<p class="ct mb-30">
+						<a class="btn-inline" href="#">开始计算</a>
+					</p>
+					<div class="result">
+						<p>计算结果</p>
+						<p>
+							<span>每个月将偿还：<em>0.00</em>元</span>
+							<span>月利率：<em>0</em>%</span>
+							<span>还款本息总额：<em>0</em>元</span>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--通栏布局-->
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="img/cpright_001.png"/></a>
+					<a href="#"><img src="img/cpright_002.png"/></a>
+					<a href="#"><img src="img/cpright_003.png"/></a>
+                  <a href="#"><img src="img/cpright_004.png"/></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->

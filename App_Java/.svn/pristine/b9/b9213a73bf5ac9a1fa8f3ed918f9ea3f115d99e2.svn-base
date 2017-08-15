@@ -1,0 +1,282 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Admin entity. @author MyEclipse Persistence Tools
+ */
+
+public class Admin implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String userName;
+	private String password;
+	private Integer enable;
+	private Date lastTime;
+	private String lastIp;
+	private Long roleId;
+	private String realName;
+	private String telphone;
+	private String qq;
+	private String email;
+	private String img;
+	private String isLeader;
+	private Integer sex;
+	private String card;
+	private String summary;
+	private Integer nativePlacePro;
+	private Integer nativePlaceCity;
+	private String address;
+	private Date addDate;
+	private Double moneys;
+	private Integer loginErrorCount;
+	private Integer isLoginLimit;
+	private Integer isFirstLogin;
+	private Long loanUserId;
+
+	// Constructors
+
+	/** default constructor */
+	public Admin() {
+	}
+
+	/** full constructor */
+	public Admin(String userName, String password, Integer enable,
+			Date lastTime, String lastIp, Long roleId, String realName,
+			String telphone, String qq, String email, String img,
+			String isLeader, Integer sex, String card, String summary,
+			Integer nativePlacePro, Integer nativePlaceCity, String address,
+			Date addDate, Double moneys, Integer loginErrorCount,
+			Integer isLoginLimit, Integer isFirstLogin, Long loanUserId) {
+		this.userName = userName;
+		this.password = password;
+		this.enable = enable;
+		this.lastTime = lastTime;
+		this.lastIp = lastIp;
+		this.roleId = roleId;
+		this.realName = realName;
+		this.telphone = telphone;
+		this.qq = qq;
+		this.email = email;
+		this.img = img;
+		this.isLeader = isLeader;
+		this.sex = sex;
+		this.card = card;
+		this.summary = summary;
+		this.nativePlacePro = nativePlacePro;
+		this.nativePlaceCity = nativePlaceCity;
+		this.address = address;
+		this.addDate = addDate;
+		this.moneys = moneys;
+		this.loginErrorCount = loginErrorCount;
+		this.isLoginLimit = isLoginLimit;
+		this.isFirstLogin = isFirstLogin;
+		this.loanUserId = loanUserId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getUserName() {
+		return this.userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Integer getEnable() {
+		return this.enable;
+	}
+
+	public void setEnable(Integer enable) {
+		this.enable = enable;
+	}
+
+	public Date getLastTime() {
+		return this.lastTime;
+	}
+
+	public void setLastTime(Date lastTime) {
+		this.lastTime = lastTime;
+	}
+
+	public String getLastIp() {
+		return this.lastIp;
+	}
+
+	public void setLastIp(String lastIp) {
+		this.lastIp = lastIp;
+	}
+
+	public Long getRoleId() {
+		return this.roleId;
+	}
+
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
+	}
+
+	public String getRealName() {
+		return this.realName;
+	}
+
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+
+	public String getTelphone() {
+		return this.telphone;
+	}
+
+	public void setTelphone(String telphone) {
+		this.telphone = telphone;
+	}
+
+	public String getQq() {
+		return this.qq;
+	}
+
+	public void setQq(String qq) {
+		this.qq = qq;
+	}
+
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getImg() {
+		return this.img;
+	}
+
+	public void setImg(String img) {
+		this.img = img;
+	}
+
+	public String getIsLeader() {
+		return this.isLeader;
+	}
+
+	public void setIsLeader(String isLeader) {
+		this.isLeader = isLeader;
+	}
+
+	public Integer getSex() {
+		return this.sex;
+	}
+
+	public void setSex(Integer sex) {
+		this.sex = sex;
+	}
+
+	public String getCard() {
+		return this.card;
+	}
+
+	public void setCard(String card) {
+		this.card = card;
+	}
+
+	public String getSummary() {
+		return this.summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
+
+	public Integer getNativePlacePro() {
+		return this.nativePlacePro;
+	}
+
+	public void setNativePlacePro(Integer nativePlacePro) {
+		this.nativePlacePro = nativePlacePro;
+	}
+
+	public Integer getNativePlaceCity() {
+		return this.nativePlaceCity;
+	}
+
+	public void setNativePlaceCity(Integer nativePlaceCity) {
+		this.nativePlaceCity = nativePlaceCity;
+	}
+
+	public String getAddress() {
+		return this.address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public Date getAddDate() {
+		return this.addDate;
+	}
+
+	public void setAddDate(Date addDate) {
+		this.addDate = addDate;
+	}
+
+	public Double getMoneys() {
+		return this.moneys;
+	}
+
+	public void setMoneys(Double moneys) {
+		this.moneys = moneys;
+	}
+
+	public Integer getLoginErrorCount() {
+		return this.loginErrorCount;
+	}
+
+	public void setLoginErrorCount(Integer loginErrorCount) {
+		this.loginErrorCount = loginErrorCount;
+	}
+
+	public Integer getIsLoginLimit() {
+		return this.isLoginLimit;
+	}
+
+	public void setIsLoginLimit(Integer isLoginLimit) {
+		this.isLoginLimit = isLoginLimit;
+	}
+
+	public Integer getIsFirstLogin() {
+		return this.isFirstLogin;
+	}
+
+	public void setIsFirstLogin(Integer isFirstLogin) {
+		this.isFirstLogin = isFirstLogin;
+	}
+
+	public Long getLoanUserId() {
+		return this.loanUserId;
+	}
+
+	public void setLoanUserId(Long loanUserId) {
+		this.loanUserId = loanUserId;
+	}
+
+}

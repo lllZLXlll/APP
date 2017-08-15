@@ -1,0 +1,162 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.ActivityNewinvestaward;
+import com.pjzb.entity.Invest;
+
+public interface InvestDao {
+
+	public Map<String, Object> queryTotalInvestAmount();
+
+	public Map<String, Object> queryUserIsInvest(Long userId);
+
+	public Invest queryInvestById(Long id);
+
+	public List<Map<String, Object>> queryInvestRank();
+
+	public List<Map<String, Object>> queryInvestListByCondition(Long borrowId, Long index, Long num);
+
+	public Map<String, Long> queryInvestCountByCondition(Long borrowId);
+
+	public Map<String, BigDecimal> queryInvestAmountWithin15Days(Long userId);
+
+	public Map<String, Object> getInvest(long id);
+
+	public void updateInvest(Invest investUpdateMap);
+
+	public List<Map<String, Object>> queryInvestByid(Long borrowId);
+
+	public List<Map<String, Object>> queryInvestmentManageForPage(Long userId, String startTime, String endTime, List<Integer> borrowStatus, Long index, Long num);
+
+	public void addBorrowInvest(Map<String, Object> map);
+
+	public Invest queryrInvests(long borrowId, long invest_id);
+
+	public Long queryInvestmentManageCount(Long userId, String startTime, String endTime, List<Integer> borrowStatus);
+
+	public List<Map<String, Object>> queryInvestTendersingBorrowForPage(Long userId, String startTime, String endTime, Long index, Long num);
+
+	public Long queryInvestTendersingBorrowCount(Long userId, String startTime, String endTime);
+
+	public List<Map<String, Object>> queryRecoveredBorrowForPage(Long userId, String startTime, String endTime, Long index, Long num);
+
+	public Long queryRecoveredBorrowCount(Long userId, String startTime, String endTime);
+
+	public Long deleteBorrowInvest(String billcode);
+
+	public Long getInverstMaxId();
+
+	public void updateInvestPushstate(String pushdate, String state, String inverstId);
+
+	public Map<String, Object> queryUserAmountAfterHander(Long userId);
+
+	public Map<String, String> callGetBackAcountStatisProcedure(Map<String, String> map);
+
+	public List<Map<String, Object>> queryBorrowBackAcountByConditionForPage(Long userId, String startTime, String endTime, Long index, Long num);
+
+	public Long queryBorrowBackAcountByConditionCount(Long userId, String startTime, String endTime);
+
+	public List<Map<String, Object>> queryInvestorInfoByBorrowId(Long borrowId);
+
+	public List<Map<String, Object>> queryInvestorByBorrowId(Long borrowId);
+
+	// 截止区域总投资人数
+	public Long queryEndAreaTotalInvestor(List<String> area, String startTime, String endTime);
+
+	// 根据投资区域查询所占百分比
+	public String queryEndInvestProportByArea(Long totalUsert, List<String> area, String startTime, String endTime, String place);
+
+	// 截止总投资人数
+	public Long queryEndTotalInvestor(String startTime, String endTime);
+
+	// 查询投资人性别所占百分比
+	public String queryEndInvestorSexProportByAge(Long totalUsert, Integer beginAge, Integer endAge, String startTime, String endTime);
+
+	public Map<String, BigDecimal> queryMonthTotalInvest(String startTime, String endTime);
+
+	public Long findInvestDealNumber(String startTime, String endTime);
+
+	public List<Long> queryInvestorByRepaymentId(Long repaymentId);
+
+	public Map<String, Object> dealNumber();
+
+	public List<Map<String, Object>> queryBorrowInvestByCondition(String string, String title, String publishTimeStart, String publishTimeEnd, String borrowStatus, Long userId,
+			long l, int pageSize);
+
+	public Long queryBorrowInvestcount(String string, String title, String publishTimeStart, String publishTimeEnd, String borrowStatus, Long userId);
+
+	public void insert_Activity_newInvestAward(ActivityNewinvestaward activityNewinvestaward);
+
+	public List<Map<String, Object>> queryActivity_newInvestAward(double investMoney, String activityStartTime, String activityEndTime, String activity_phase);
+
+	public List<Map<String, Object>> queryFirstAwardList(double firstLastInvest, String activityStartTime, String activityEndTime, String activity_phase);
+
+	public List<Map<String, Object>> queryMaxAwardList(double firstLastInvest, String activityStartTime, String activityEndTime, String activity_phase);
+
+	public List<Map<String, Object>> queryLastAwardList(double firstLastInvest, String activityStartTime, String activityEndTime, String activity_phase);
+
+	public void insert_FirstMaxLastAward(long userId, long borrowId, double investAmount, double money, int i, int parseInt, String investTimeRange);
+
+	public void updateMaxInvestAwrad(String borrowId, BigDecimal money);
+
+	public List<Map<String, Object>> queryOldUserMinMonth(int month, String activityStartTime, String activityEndTime, String activity_phase);
+
+	public void insert_activityOldInvestAward(long userId, long borrowId, int i, double investAmount, double money, int parseInt, String investTimeRange);
+
+	public List<Map<String, Object>> queryOldUserMaxMonth(int month, String activityStartTime, String activityEndTime, String activity_phase);
+
+	public List<Map<String, Object>> queryAllInvestedRecommend(String activityStartTime, String activityEndTime);
+
+	public Map<String, String> queryInvestAmountByInvestor(long userId, double inviteAmount_1, String activityStartTime, String activityEndTime);
+
+	public void insert_Activity_inviteAward(Long recommendId, long userId, double investAmount, int i, int parseInt, String investTimeRange);
+
+	public List<Map<String, Object>> queryActivity_inviteAward(String activityStartTime, String activityEndTime);
+
+	public Map<String, String> queryRecommendedInvestAmount(long recommendUserId, String activityStartTime, String activityEndTime, String activity_phase);
+
+	public List<Map<String, Object>> queryActivity_cumulateInvite(String activityStartTime, String activityEndTime, double investAmount_1, String activity_phase);
+
+	public void insert_Activity_cumulateInvite(long userId, double investAmount, int awardType, String awardDescribe, int parseInt, String investTimeRange);
+
+	public Map<String, Object> queryInvestSumMoneyRecordByBorrowId(long borrowId);
+
+	public List<Map<String, Object>> queryInvestByBorrowId(long borrowId);
+
+	public void callBorrowAuthFullscale(Map<String, Object> map);
+
+	public void callBorrowDealFullscale(Map<String, Object> map);
+
+	public List<Map<String, Object>> queryInvestRealAmount(long borrowId);
+
+	public void updateInvestFadadaInfo(String contract_id, String download_url, String viewpdf_url, String trxId, long uid);
+
+	public void updateInvestById(long parseLong);
+
+	public Map<String, Object> callFinanceStatisProcedure(Map<String, Object> map);
+
+	public List<Map<String, Object>> queryInvestorInfoByUserId(Long investor, String beginDate, String endDate, Long index, Long pageSize);
+
+	public long queryInvestorInfoCountByUserId(Long investor, String beginDate, String endDate);
+
+	public List<Map<String, Object>> queryInvestStatisForPage(long l, Long pageSize, String bTitle, String realName, String recommendrealName, int deadlineInt, int borrowWayInt,
+			String beginTime, String endTime, int isAutoBidInt, List<Integer> borrowStatuList);
+
+	public long queryInvestStatisCount(String bTitle, String realName, String recommendrealName, int deadlineInt, int borrowWayInt, String beginTime, String endTime,
+			int isAutoBidInt, List<Integer> borrowStatuList);
+
+	public List<Map<String, Object>> queryExportInvestStatisForPage(long l, Long pageSize, String bTitle, String realName, String recommendrealName, int deadlineInt,
+			int borrowWayInt, String beginTime, String endTime, int isAutoBidInt, List<Integer> borrowStatuList);
+
+	public List<Map<String, Object>> queryInvestStatisRankForPage(long l, Long pageSize, String beginTime, String endTime, String investor, int groupInt);
+
+	public long queryInvestStatisRankCount(String beginTime, String endTime, String investor, int groupInt);
+
+	public List<Map<String, Object>> queryBorrowStatisInterestInitForPage(long l, Long pageSize, String beginTime, String endTime, String investor);
+
+	public long queryInvestBorrowStatisInterestInitCount(String beginTime, String endTime, String investor);
+
+}

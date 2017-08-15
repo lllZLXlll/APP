@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.ActivityDao">
+
+	<resultMap type="activity" id="activityResultMap">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="publishTime" property="publishTime" />
+		<result column="startTime" property="startTime" />
+		<result column="endTime" property="endTime" />
+		<result column="linkAddress" property="linkAddress" />
+		<result column="imgPath" property="imgPath" />
+	</resultMap>
+	
+	<select id="queryActivityByEndTimeForPage" resultType="java.util.Map">
+		SELECT * FROM (SELECT a.id,a.title,DATE_FORMAT(a.publishTime,'%Y-%m-%d %H:%i:%s') AS publishTime,DATE_FORMAT(a.startTime,'%Y-%m-%d')  
+		AS startTime,DATE_FORMAT(a.endTime,'%Y-%m-%d') AS endTime,a.linkAddress,a.imgPath,CASE WHEN datediff(a.endTime, NOW()) IS NULL THEN 0 
+		WHEN datediff(a.endTime, NOW()) = 0 THEN 0.1 ELSE datediff(a.endTime, NOW()) END AS days FROM t_activity a ) t ORDER BY t.days DESC 
+		LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryActivityCount" resultType="java.lang.Long">
+		SELECT COUNT(1) AS activityCount  FROM t_activity
+	</select>
+	
+	<select id="queryActivityListForPage" resultType="java.util.Map">
+		SELECT * FROM t_activity ORDER BY id DESC
+	</select>
+	
+	<insert id="addActivity">
+		INSERT INTO t_activity (title,publishTime,startTime,endTime,linkAddress,imgPath) 
+		VALUE(#{title},#{publishTime},#{startTime},#{endTime},#{linkAddress},#{imgPath})
+	</insert>
+	
+	<delete id="deleteActivityById">
+		DELETE FROM t_activity WHERE id = #{0}
+	</delete>
+	
+	<delete id="deleteActivityByIds">
+		DELETE FROM t_activity WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</delete>
+	
+	<update id="updateActivityById">
+		UPDATE t_activity SET title=#{title},startTime=#{startTime},
+		endTime=#{endTime},linkAddress=#{linkAddress},imgPath=#{imgPath} WHERE id = #{id}
+	</update>
+	
+	<select id="queryActivityById" resultType="activity">
+		SELECT * FROM t_activity WHERE id = #{0}
+	</select>
+	
+	<select id="queryAwardInit" resultType="java.util.Map">
+		SELECT * FROM (
+			select tu.realName, 
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			 as statusStr, ta.*, tb.borrowTitle, tb.borrowAmount, tb.deadline, tb.raiseTerm, tb.auditTime 
+			from t_activity_newInvestAward ta left join t_borrow tb on ta.borrowId = tb.id left join t_person tu on tu.userId = ta.userId 		
+		) t WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND borrowTitle LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND realName LIKE '%' #{3} '%'
+		</if>
+		<if test=" param5 != -1">
+			<choose>
+				<when test="param5 == 1">
+					AND money &lt;= 200
+				</when>
+				<otherwise>
+					AND money &gt; 200
+				</otherwise>
+			</choose>
+		</if>
+		<if test="param6 != -1">
+			AND status = #{5}
+		</if>
+		ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryAwardInitCounts" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM (
+			select tu.realName, 
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			as statusStr, ta.*, tb.borrowTitle, tb.borrowAmount, tb.deadline, tb.raiseTerm, tb.auditTime 
+			from t_activity_newInvestAward ta left join t_borrow tb on ta.borrowId = tb.id left join t_person tu on tu.userId = ta.userId 		
+		) t WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND borrowTitle LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND realName LIKE '%' #{1} '%'
+		</if>
+		<if test="param3 != -1">
+			<choose>
+				<when test="param3 == 1">
+					AND money &lt;= 200
+				</when>
+				<otherwise>
+					AND money &gt; 200
+				</otherwise>
+			</choose>
+		</if>
+		<if test="param4 != -1">
+			AND status = #{3}
+		</if>
+	</select>
+	
+	<select id="queryAwardInitTwo" resultType="java.util.Map">
+		SELECT * FROM (
+			SELECT tu.realName, 
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			 as statusStr, ta.*, tb.borrowTitle, tb.borrowAmount, tb.deadline, tb.raiseTerm, tb.auditTime 
+			from t_activity_grabinvestaward ta left join t_borrow tb on ta.borrowId = tb.id left join t_person tu on tu.userId = ta.userId 		
+		) t WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND borrowTitle LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND realName LIKE '%' #{3} '%'
+		</if>
+		<if test="param5 != -1">
+			AND awardType = #{4}
+		</if>
+		<if test="param6 != -1">
+			AND status = #{5}
+		</if>
+		ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryAwardInitTwoCounts" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM (
+			SELECT tu.realName, 
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			 as statusStr, ta.*, tb.borrowTitle, tb.borrowAmount, tb.deadline, tb.raiseTerm, tb.auditTime 
+			from t_activity_grabinvestaward ta left join t_borrow tb on ta.borrowId = tb.id left join t_person tu on tu.userId = ta.userId 		
+		) t WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND borrowTitle LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND realName LIKE '%' #{1} '%'
+		</if>
+		<if test="param3 != -1">
+			AND awardType = #{2}
+		</if>
+		<if test="param4 != -1">
+			AND status = #{3}
+		</if>
+	</select>
+	
+	<select id="queryAwardInitThree" resultType="java.util.Map">
+		SELECT * FROM (
+			select tu.realName,ta.borrowId, tb.borrowTitle, tb.auditTime, ta.id,
+			(CASE
+				WHEN ta.deadline=1 THEN '三个月以内'
+				ELSE '三个月以上'
+			 END)as deadline,
+			ta.investAmount,ta.investTimeRange,ta.money,ta.status,ta.awardTime
+			from t_activity_oldinvestaward ta left join t_borrow tb on ta.borrowId = tb.id left join t_person tu on tu.userId = ta.userId 		
+		) t WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND borrowTitle LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND realName LIKE '%' #{3} '%'
+		</if>
+		<if test="param5 != -1">
+			<choose>
+				<when test="param5 == 1">
+					AND deadline = '三个月以内'
+				</when>
+				<otherwise>
+					AND deadline = '三个月以上'
+				</otherwise>
+			</choose>
+		</if>
+		<if test="param6 != -1">
+				<if test="param6 == 1">
+					<![CDATA[AND money <= 200]]>
+				</if>
+				<if test="param6 != 1">
+					<![CDATA[ AND money > 200]]>
+				</if>
+		</if>
+		<if test="param7 != -1">
+			AND status = #{6}
+		</if>
+		ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryAwardInitThreeCounts" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM (
+			select tu.realName,ta.borrowId, tb.borrowTitle, tb.auditTime, ta.id,
+			(CASE
+				WHEN ta.deadline=1 THEN '三个月以内'
+				ELSE '三个月以上'
+			 END)as deadline,
+			ta.investAmount,ta.investTimeRange,ta.money,ta.status,ta.awardTime
+			from t_activity_oldinvestaward ta left join t_borrow tb on ta.borrowId = tb.id left join t_person tu on tu.userId = ta.userId 		
+		) t WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND borrowTitle LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND realName LIKE '%' #{1} '%'
+		</if>
+		<if test="param3 != -1">
+			<choose>
+				<when test="param5 == 1">
+					AND deadline = '三个月以内'
+				</when>
+				<otherwise>
+					AND deadline = '三个月以上'
+				</otherwise>
+			</choose>
+		</if>
+		<if test="param4 != -1">
+			<choose>
+				<when test="param4 == 1">
+					AND money &lt;= 200
+				</when>
+				<otherwise>
+					AND money &gt; 200
+				</otherwise>
+			</choose>
+		</if>
+		<if test="param5 != -1">
+			AND status = #{4}
+		</if>
+	</select>
+	
+	<select id="queryAwardInitFour" resultType="java.util.Map">
+		SELECT * FROM (
+			SELECT IFNULL(tp1.realName,'--') as realName,tp2.realName as recommendrealName,ta.id,ta.investAmount,ta.money,ta.investTimeRange,
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			 as statusStr, ta.awardTime 
+			from t_activity_inviteaward ta left join t_person tp1 on tp1.userId = ta.userId left join t_person tp2 on tp2.userId = ta.recommendUserId 		
+		) t WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND realName LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != -1">
+			<choose>
+				<when test="param4 == 1">
+					AND money &lt;= 200
+				</when>
+				<otherwise>
+					AND money &gt; 200
+				</otherwise>
+			</choose>
+		</if>
+		<if test="param5 != -1">
+			<if test="param5 == 1">
+				AND statusStr = '未发放'
+			</if>
+			<if test="param5 == 2">
+				AND statusStr = '已发放'
+			</if>
+		</if>
+		ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryAwardInitFourCounts" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM (
+			SELECT IFNULL(tp1.realName,'--') as realName,tp2.realName as recommendrealName,ta.id,ta.investAmount,ta.money,ta.investTimeRange,
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			 as statusStr, ta.awardTime 
+			from t_activity_inviteaward ta left join t_person tp1 on tp1.userId = ta.userId left join t_person tp2 on tp2.userId = ta.recommendUserId 		
+		) t WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND realName LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != -1">
+			<choose>
+				<when test="param2 == 1">
+					AND money &lt;= 200
+				</when>
+				<otherwise>
+					AND money &gt; 200
+				</otherwise>
+			</choose>
+		</if>
+		<if test="param3 != -1">
+			<if test="param3 == 1">
+				AND statusStr = '未发放'
+			</if>
+			<if test="param3 == 2">
+				AND statusStr = '已发放'
+			</if>
+		</if>
+	</select>
+	
+	<select id="queryAwardInitFive" resultType="java.util.Map">
+		SELECT * FROM (
+			select tu.realName, 
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			 as statusStr, ta.* from t_activity_cumulateInviteAward ta LEFT JOIN t_person tu ON tu.userId = ta.userId) t 
+			WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND realName LIKE '%' #{2} '%'
+		</if>
+		<if test=" param4 != -1">
+			AND cumulateAwardType = #{3}
+		</if>
+		<if test="param5 != -1">
+			AND status = #{4}
+		</if>
+		ORDER BY investAmount DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryAwardInitFiveCounts" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM (
+			select tu.realName, 
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			 as statusStr, ta.* from t_activity_cumulateInviteAward ta LEFT JOIN t_person tu ON tu.userId = ta.userId) t 
+			WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND realName LIKE '%' #{0} '%'
+		</if>
+		<if test=" param2 != -1">
+			AND cumulateAwardType = #{1}
+		</if>
+		<if test="param3 != -1">
+			AND status = #{2}
+		</if>
+	</select>
+	
+	<select id="queryNewUserfirstInvestAward" resultType="java.util.Map">
+		SELECT * FROM t_activity_newInvestAward WHERE id = #{0}
+		AND status = 1
+	</select>
+	
+	<update id="updateAwardStatus">
+		UPDATE t_activity_newInvestAward SET status=2,awardTime=#{1}
+		WHERE id = #{0}
+	</update>
+	
+	<select id="queryNewUserfirstInvestAwardByIds" resultType="java.util.Map">
+		SELECT * FROM t_activity_newInvestAward WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+		AND status = 1
+	</select>
+	
+	<update id="updateAwardStatusByIds">
+		UPDATE t_activity_newInvestAward SET status=2,awardTime=#{f}
+		WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</update>
+	
+	<select id="queryGrabInvestAward" resultType="java.util.Map">
+		SELECT * FROM t_activity_grabinvestaward WHERE id = #{0}
+		AND status = 1
+	</select>
+	
+	<update id="updateGrabInvest">
+		UPDATE t_activity_grabinvestaward SET status=2,awardTime=#{1}
+		WHERE id = #{0}
+	</update>
+	
+	<select id="queryAwardGrabInvestByIds" resultType="java.util.Map">
+		SELECT * FROM t_activity_grabinvestaward WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+		AND status = 1
+	</select>
+	
+	<update id="updateAwardGrabInvestByIds">
+		UPDATE t_activity_grabinvestaward SET status=2,awardTime=#{f}
+		WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</update>
+	
+	<select id="queryAwardInitTwos" resultType="java.util.Map">
+		SELECT * FROM (
+			SELECT tu.realName, 
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			END)
+			 as statusStr, 
+			 (CASE
+				WHEN ta.awardType=1 THEN '首投'
+				WHEN ta.awardType=2 THEN '标王'
+				WHEN ta.awardType=3 THEN '尾投'
+			END)
+			 as awardTypes,ta.*, tb.borrowTitle, tb.borrowAmount, tb.deadline, tb.raiseTerm, tb.auditTime 
+			from t_activity_grabinvestaward ta left join t_borrow tb on ta.borrowId = tb.id left join t_person tu on tu.userId = ta.userId 		
+		) t WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND borrowTitle LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND realName LIKE '%' #{3} '%'
+		</if>
+		<if test="param5 != -1">
+			AND awardType = #{4}
+		</if>
+		<if test="param6 != -1">
+			AND status = #{5}
+		</if>
+		ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryAwardOldInvest" resultType="java.util.Map">
+		SELECT * FROM t_activity_oldInvestAward WHERE id = #{0}
+		AND status = 1
+	</select>
+	
+	<update id="updateAwardOldInvest">
+		UPDATE t_activity_oldInvestAward SET status=2,awardTime=#{1}
+		WHERE id = #{0}
+	</update>
+	
+	<select id="queryAwardOldInvestByIds" resultType="java.util.Map">
+		SELECT * FROM t_activity_oldInvestAward WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+		AND status = 1
+	</select>
+	
+	<update id="updateAwardOldInvestByIds">
+		UPDATE t_activity_oldInvestAward SET status=2,awardTime=#{f}
+		WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</update>
+	
+	<select id="queryAwardInitThrees" resultType="java.util.Map">
+		SELECT * FROM (
+			select tu.realName,tb.borrowTitle, tb.auditTime,
+			(CASE
+				WHEN ta.deadline=1 THEN '三个月以内'
+				ELSE '三个月以上'
+			 END)as deadlines,
+			(CASE
+				WHEN ta.status=1 THEN '未发放'
+				ELSE '已发放'
+			 END)as statustr,ta.*
+			from t_activity_oldinvestaward ta left join t_borrow tb on ta.borrowId = tb.id left join t_person tu on tu.userId = ta.userId 		
+		) t WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND borrowTitle LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND realName LIKE '%' #{3} '%'
+		</if>
+		<if test="param5 != -1">
+			<!-- <choose>
+				<when test="param5 == 1">
+					AND deadline = '三个月以内'
+				</when>
+				<otherwise>
+					AND deadline = '三个月以上'
+				</otherwise>
+			</choose> -->
+			AND deadline = #{4}
+		</if>
+		<if test="param6 != -1">
+				<if test="param6 == 1">
+					<![CDATA[AND money <= 200]]>
+				</if>
+				<if test="param6 != 1">
+					<![CDATA[ AND money > 200]]>
+				</if>
+		</if>
+		<if test="param7 != -1">
+			and status = #{6}
+		</if>
+		ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryAwardInviteInvest" resultType="java.util.Map">
+		SELECT * FROM t_activity_inviteaward WHERE id = #{0}
+		AND status = 1
+	</select>
+	
+	<update id="updateAwardInviteInvest">
+		UPDATE t_activity_inviteaward SET status=2,awardTime=#{1}
+		WHERE id = #{0}
+	</update>
+	
+	<select id="queryAwardInviteInvestByIds" resultType="java.util.Map">
+		SELECT * FROM t_activity_inviteaward WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+		AND status = 1
+	</select>
+	
+	<update id="updateAwardInviteInvestByIds">
+		UPDATE t_activity_inviteaward SET status=2,awardTime=#{f}
+		WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</update>
+	
+	<update id="updateAwardCumulateInvest">
+		UPDATE t_activity_cumulateInviteAward SET status=2,awardTime=#{1}
+		WHERE id = #{0}
+	</update>
+	
+	<update id="updateAwardCumulateInvestByIds">
+		UPDATE t_activity_cumulateInviteAward SET status=2,awardTime=#{f}
+		WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</update>
+</mapper>
+
+
+
+
+

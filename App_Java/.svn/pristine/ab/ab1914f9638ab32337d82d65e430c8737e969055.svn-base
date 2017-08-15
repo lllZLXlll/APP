@@ -1,0 +1,12 @@
+<div class="content content-detial">
+    <div class="buttons-tab shadow" v-if="showFlag()">
+        <a v-link="link[0].path" class="tab-link button" v-bind:class="{active:activeClass==1}">项目详情</a>
+        <a v-link="link[1].path" class="tab-link button" v-bind:class="{active:activeClass==2}">风险提示</a>
+        <a @click="toDetailList" class="tab-link button" v-bind:class="{active:activeClass==3}">投资记录</a>
+    </div>
+    <router-view transition="fadeIn"></router-view>
+</div>
+<p class="agreement-btn" v-if="closeAgree" @click="closeAgreement">�ر�</p>
+<div class="popup popup-services">
+	<div class="content-block" v-html="agreement"></div>
+</div>

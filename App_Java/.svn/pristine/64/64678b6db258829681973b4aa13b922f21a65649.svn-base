@@ -1,0 +1,31 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.OperateReportPageDao;
+
+/**
+ * app端运营报告
+ * @author zlx
+ *
+ */
+@Service
+public class OperateReportPageService {
+
+	@Autowired
+	private OperateReportPageDao operateReportPageDao;
+	
+	
+	public Map<String, Object> queryOperateReportCount() {
+		return operateReportPageDao.queryOperateReportCount();
+	}
+
+	public List<Map<String, Object>> queryOperateReportPageByMonth(String month) {
+		return operateReportPageDao.queryOperateReportPageByMonth(month);
+	}
+	
+}

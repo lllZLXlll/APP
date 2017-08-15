@@ -1,0 +1,9 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.OperationLog;
+
+public interface OperationLogDao {
+	
+	public long addOperationLog(OperationLog operationLog);
+
+}

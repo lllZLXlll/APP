@@ -1,0 +1,39 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.RedmoneyrecordDao;
+import com.pjzb.entity.Redmoneyrecord;
+
+@Service
+public class RedmoneyrecordService {
+	
+	@Autowired
+	private RedmoneyrecordDao redmoneyrecordDao;
+	
+	public void addRedmoneyRecord(Redmoneyrecord redmoneyrecord){
+		redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+	}
+	
+	public Map<String, Long> queryRedmoneyrecordByUserIdAndType(Long userId,String redmoneytype){
+		return redmoneyrecordDao.queryRedmoneyrecordByUserIdAndType(userId, redmoneytype);
+	}
+	
+	public List<Map<String, Object>> getUerVocherById(Long userId){
+		return redmoneyrecordDao.getUerVocherById(userId);
+	}
+	
+	public List<Redmoneyrecord> queryRedmoneyrecordByRedmoneytypeAndUid(String redmoneytype,Long uid){
+		return redmoneyrecordDao.queryRedmoneyrecordByRedmoneytypeAndUid(redmoneytype, uid);
+	}
+
+	public long updateVocherAmt(Integer usestatus,Long uid,Long id){
+		return redmoneyrecordDao.updateVocherAmt(usestatus,uid,id);
+	}
+	
+
+}

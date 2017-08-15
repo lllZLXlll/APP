@@ -1,0 +1,7 @@
+<div class="content content-news">
+    <div class="content-padded news-detail">
+        <h3>{{title}}</h3>
+        <p class="news-detail-time">发布时间：{{time}}</p>
+        <div v-html="content"></div>
+    </div>
+</div>

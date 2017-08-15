@@ -1,0 +1,55 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<div class="side-bar">
+	
+	 <div id="menu_left" class="menu_left fl">
+                <div class="tit">
+                    <img src="images/personcenter/logo.png" />
+                    <div class="pen"><p style="float: left;color: #000000; padding-top:4px; font-size: 14px">昵称：</p><input id="nickname" style="border:1px solid #B4B4B4; width: 70%;margin-left:30%; float: right;"  type="text" maxlength="8" autocomplete="off" value="${sessionScope.user.nickName}"  readonly="readonly"/><i></i></div>
+                </div>
+                <div class="renz">
+                    <a href='securityCenter.do' title = '手机认证'><img src='images/personcenter/authentication1.png'/></a>&nbsp;<a href='yhbound.do' title = '绑定银行卡'><img src='images/personcenter/authentication2.png'/></a>&nbsp;
+                </div><div class="clear"></div>
+                <div class="nav_two nav_person">
+                    <ul>
+                        <li class="dl_0"><a class="pic01" href="usercenter.do">个人中心</a></li>
+                        <li class="li0"><h3>我的投资</h3></li>
+                        <li class="li2 tzManage" id="dd_13"><a class="pic02" href="homeBorrowInvestList.do">投资管理</a></li>
+                       <li class="li11 zqManage" id="dd_17"><a href="queryCanAssignmentDebt.do">债权管理</a></li>
+                       <li class="li11 zqManage" id="dd_18"><a href="queryBuyingDebt.do">债权购买</a></li>
+                        <li class="li3 mnyManage" id="dd_4"><a class="pic03" href="queryFundrecordInit.do">资金记录</a></li>
+                        <li class="li4 rzManage" id="dd_10"><a class="pic04" href="homeBorrowAuditList.do">借款管理</a></li>
+                        <li class="li10 autoBid" id="dd_19"><a class="pic05" href="automaticBidInit.do">自动投标</a></li> 
+                        <li class="li0"><h3>账户管理</h3></li>
+                        <!--<li class="li4 yesManage"><a href="/UserAccount/MobileModify"><i></i>认证管理</a></li>-->
+                        <li class="li5 bankccount" id="dd_100"><a class="pic06" href="yhbound.do">银行管理</a></li>
+                        <li class="li9 ownSetting" id="dd_2"><a class="pic07" href="rechargeInit.do">充值提现</a></li>
+                        <li class="li9 ownSetting" id="dd_zj"><a class="pic07" href="vocherAmt.do">我的赠券</a></li>
+                        <li class="li6 menulast" id="dd_7"><a class="pic08" href="securityCenter.do">安全中心</a></li>
+                        <li class="li12 myscore" id="dd_21"><a class="pic09" href="mailNoticeInit.do">消息中心</a></li>
+                        <!-- <li class="li12 myscore"><a href="/UserAccount/MyScore">我的积分</a></li>
+                        <li class="li7 activity"><a href="/UserAccount/ActivityAwards">活动奖励</a></li>-->
+                        <li class="li8 introFriend" id="dd_9"><a class="pic10" href="friendManagerInit.do">推荐好友</a></li>
+                       <!-- <li class="li10 autoBid" id="dd_20"><a href="autoRepaymentInit.do"><img src='images/personcenter/autoBid.png' class="alignleft"/>自动还款</a></li>-->
+                       <!--  <li class="li10 autoBid" id="dd_19"><a href="autoRepaymentInit.do"><img src='images/personcenter/autoBid.png' class="alignleft"/>自动投标</a></li>-->
+                    </ul>
+                </div>
+            </div>
+</div>
+
+<script type="text/javascript">
+	$(function(){
+		var value = "${sessionScope.user.nickName}";
+		$("#nickname").removeAttr('readonly').blur(function(){
+			if(value != $(this).val()){
+				updateNickName();
+			}
+		});
+	}) 
+	//连接到本地
+	function updateNickName(){
+		param['paramMap.nickName']=$("#nickname").val();
+	 	$.post("updateNickName.do",param,function(data){ 
+			   window.location.reload();
+	 	}); 
+	}
+</script>

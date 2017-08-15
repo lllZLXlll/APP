@@ -1,0 +1,17 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface BankcardListsDao {
+
+	long queryBankCardInfosCount(String userName, String realName, String startTime, String endTime);
+
+	List<Map<String, Object>> queryBankCardInfos(String userName, String realName, String startTime, String endTime,
+			long l, long pageSize);
+
+	Map<String, Object> queryBankCardInfo(String bankId);
+
+	
+	
+}

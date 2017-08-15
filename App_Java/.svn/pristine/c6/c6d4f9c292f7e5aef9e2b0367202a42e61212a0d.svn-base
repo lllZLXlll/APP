@@ -1,0 +1,745 @@
+package com.pjzb.service.front;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.ActivityDao;
+import com.pjzb.dao.BannerDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.EnterpriseDao;
+import com.pjzb.dao.ExgoBorrowDao;
+import com.pjzb.dao.ExgoInvestDao;
+import com.pjzb.dao.FeedBackDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.LinksDao;
+import com.pjzb.dao.MediareportDao;
+import com.pjzb.dao.NewsDao;
+import com.pjzb.dao.OperateReportDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.QuestionSurveyDao;
+import com.pjzb.dao.RecommendUserDao;
+import com.pjzb.dao.RedmoneyrecordDao;
+import com.pjzb.dao.RiskDetailDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Banner;
+import com.pjzb.entity.ExgoBorrow;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.Links;
+import com.pjzb.entity.Mediareport;
+import com.pjzb.entity.News;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.QuestionSurvey;
+import com.pjzb.entity.Redmoneyrecord;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+
+/**
+ * pc、wap、app端 首页相关公共service
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class IndexService extends BaseController {
+
+	@Autowired
+	private BannerDao bannerDao;
+
+	@Autowired
+	private RiskDetailDao riskDetailDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private ExgoInvestDao exgoInvestDao;
+
+	@Autowired
+	private ExgoBorrowDao exgoBorrowDao;
+
+	@Autowired
+	private NewsDao newsDao;
+
+	@Autowired
+	private LinksDao linksDao;
+
+	@Autowired
+	private MediareportDao mediareportDao;
+
+	@Autowired
+	private QuestionSurveyDao questionSurveyDao;
+
+	@Autowired
+	private EnterpriseDao enterpriseDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private RedmoneyrecordDao redmoneyrecordDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private RecommendUserDao recommendUserDao;
+
+	@Autowired
+	private OperateReportDao operateReportDao;
+
+	@Autowired
+	private ActivityDao activityDao;
+
+	@Autowired
+	private FeedBackDao feedbackDao;
+
+	/**
+	 * pc、wap端index.do
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> queryIndex(String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Banner> bannerList = bannerDao.queryIndexBannerByType(pageType.equals(Constants.PC) ? Constants.BANNER_TYPE_1 : Constants.BANNER_TYPE_2);
+		jsonMap.put("bannerList", bannerList);
+		Map<String, Object> totalRiskMap = riskDetailDao.queryTotalRisk();
+		Map<String, Object> currentRiskMap = riskDetailDao.queryCurrentRisk();
+		jsonMap.put("totalRiskMap", totalRiskMap);
+		jsonMap.put("currentRiskMap", currentRiskMap);
+		Map<String, Object> totalInvestAmountMap = investDao.queryTotalInvestAmount();
+		Map<String, Object> totalUserMap = userDao.queryTotalUser();
+		jsonMap.put("totalInvestAmountMap", totalInvestAmountMap);
+		jsonMap.put("totalUserMap", totalUserMap);
+		List<Map<String, Object>> mapList3 = borrowDao.queryLastestBorrow(Constants.BORROWTYPE_SUBID_3);
+		jsonMap.put("mapList3", mapList3);
+		List<Map<String, Object>> mapList4 = borrowDao.queryLastestBorrow(Constants.BORROWTYPE_SUBID_4);
+		jsonMap.put("mapList4", mapList4);
+		Object obj = sessionGetAttribute("user");
+		jsonMap.put("user", obj);
+		String isNewInvest = "0";
+		String isLiCaiInvest = "0";
+		if (obj != null) {
+			User user = (User) obj;
+			Long userId = user.getId();
+			Map<String, Object> result = investDao.queryUserIsInvest(userId);
+			if (result != null) {
+				long count = Long.parseLong(result.get("count").toString());
+				if (count > 0)
+					isNewInvest = "1";
+			}
+
+			Map<String, Long> result1 = exgoInvestDao.queryExgoInvestCountByUserId(userId);
+			if (result1 != null) {
+				long count = Long.parseLong(result1.get("count").toString());
+				if (count > 0)
+					isLiCaiInvest = "1";
+			}
+		}
+
+		jsonMap.put("isLiCaiInvest", isLiCaiInvest);
+		jsonMap.put("isNewInvest", isNewInvest);
+
+		List<Map<String, Object>> mapList5 = borrowDao.queryLastestBorrow(Constants.BORROWTYPE_SUBID_5);
+		jsonMap.put("mapList5", mapList5);
+
+		String mapListHot = null;
+		mapListHot = "mapList3:" + mapList3 + "," + "mapList4:" + mapList4;
+
+		List<ExgoBorrow> mapList6 = exgoBorrowDao.getExGoBorrow();
+		jsonMap.put("mapList6", mapList6);
+
+		List<Map<String, Object>> mapList7 = borrowDao.queryLastestBorrow(Constants.BORROWTYPE_SUBID_6);
+		jsonMap.put("mapList7", mapList7);
+		List<Map<String, Object>> newsList = new ArrayList<Map<String, Object>>();
+		newsList = newsDao.queryNews(Constants.BEGIN_INDEX_0, Constants.PAGE_SIZE_4, pageType);
+		jsonMap.put("newsList", newsList);
+		List<Links> linksList = linksDao.queryLinksPage(Constants.BEGIN_INDEX_0, Constants.PAGE_SIZE_20);
+		jsonMap.put("linksList", linksList);
+		if (pageType.equals(Constants.PC)) {
+			List<Mediareport> meikuList = mediareportDao.queryMediaReportPage(Constants.BEGIN_INDEX_0, Constants.PAGE_SIZE_4, Constants.NEWSTYPE_1, ".../", pageType);
+			jsonMap.put("meikuList", meikuList);
+			List<Mediareport> industryNews = mediareportDao.queryMediaReportPage(Constants.BEGIN_INDEX_0, Constants.PAGE_SIZE_3, Constants.NEWSTYPE_2, ".../", pageType);
+			jsonMap.put("industryNews", industryNews);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * pc、wap、app端汇付调整
+	 * 
+	 * @param userId
+	 * @param surveyCount
+	 * @param ipayAccount
+	 * @param pageType
+	 * @return
+	 */
+	public Map<String, Object> updateChinapnr(Long userId, String surveyCount, String ipayAccount, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			Map<String, Long> surveyMap = questionSurveyDao.getSurveyCount(userId);
+			surveyCount = ConvertUtil.convertString(surveyMap.get("surveyCount"));
+			jsonMap.put("surveyCount", surveyCount);
+			Map<String, String> enterpriseMap = enterpriseDao.queryEnterpriseCountByUserId(userId);
+			JSONObject json = JSONObject.fromObject(ChinapnrInterface.queryBalanceBg(ipayAccount));
+			System.out.println(json.toString());
+			String RespCode = json.getString("RespCode");
+			if (Convert.strToInt(RespCode, -1) == 0) {
+				// String AcctBalString = json.getString("AcctBal");//
+				// 用户在汇付账户资金余额
+				String AvlBalString = json.getString("AvlBal");// 用户在汇付可用余额
+				String FrzBalString = json.getString("FrzBal");// 用户在汇付冻结余额
+				// AcctBalString = AcctBalString.replaceAll(",", "");
+				AvlBalString = AvlBalString.replaceAll(",", "");
+				FrzBalString = FrzBalString.replaceAll(",", "");
+				// double AcctBal = Convert.strToDouble(AcctBalString + "", 0);
+				double AvlBal = Convert.strToDouble(AvlBalString + "", 0);
+				double FrzBal = Convert.strToDouble(FrzBalString + "", 0);
+				Map<String, String> accmountStatisMap = userDao.queryAccountStatisInfo(userId);
+				double accountSum = Double.parseDouble(ConvertUtil.convertString(accmountStatisMap.get("accountSum"))); // 平台账户资金余额
+				double usableAmount = Double.parseDouble(ConvertUtil.convertString(accmountStatisMap.get("usableAmount"))); // 平台账户可用余额
+				double freezeAmount = Double.parseDouble(ConvertUtil.convertString(accmountStatisMap.get("freezeAmount"))); // 平台账户冻结余额
+				// double acctAdjust = 0;
+				double AvlAdjust = 0;
+				double FrzAdjust = 0;
+				// 账户资金总额比对
+				/**
+				 * if(AcctBal>accountSum) { acctAdjust = AcctBal - accountSum; }
+				 * else if (AcctBal<accountSum) { acctAdjust = AcctBal -
+				 * accountSum; }
+				 */
+
+				// 可用余额比对,金额差小于0.01元则不同步
+				if (AvlBal > usableAmount && (AvlBal - usableAmount) > 0.01) {
+					AvlAdjust = AvlBal - usableAmount;
+				} else if (AvlBal < usableAmount && (usableAmount - AvlBal) > 0.01) {
+					AvlAdjust = AvlBal - usableAmount;
+				}
+
+				// 冻结资金比对
+				if (FrzBal > freezeAmount && (FrzBal - freezeAmount) > 0.01) {
+					FrzAdjust = FrzBal - freezeAmount;
+				} else if (FrzBal < freezeAmount && (freezeAmount - FrzBal) > 0.01) {
+					FrzAdjust = FrzBal - freezeAmount;
+				}
+
+				// 金额保留2位小数点
+				DecimalFormat df = new DecimalFormat("##########.00");
+				AvlAdjust = Double.parseDouble(df.format(AvlAdjust));
+				FrzAdjust = Double.parseDouble(df.format(FrzAdjust));
+				String describe = "";
+				if (AvlAdjust != 0) {
+					// 调整用户账户可用余额
+					userDao.updateUserAmount(AvlAdjust, userId);
+					// 查询投资后的账户金额
+					Map<String, String> userSumMap = userDao.queryUserAmountAfterHander(userId);
+					if (userSumMap == null) {
+						userSumMap = new HashMap<String, String>();
+					}
+					double usableSum = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap.get("usableSum")));
+					double freezeSum = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap.get("freezeSum")));
+					double forPI = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap.get("forPI")));
+					if (Integer.parseInt(ConvertUtil.convertString(enterpriseMap.get("userCount"))) == 0) {
+						// 添加资金流动记录
+						Fundrecord fundrecord = new Fundrecord();
+						if (AvlAdjust > 0) {
+							describe = "增加";
+							fundrecord.setUserId(userId);
+							fundrecord.setFundMode("汇付调整");
+							fundrecord.setHandleSum(AvlAdjust);
+							fundrecord.setUsableSum(usableSum);
+							fundrecord.setFreezeSum(freezeSum);
+							fundrecord.setDueinSum(forPI);
+							fundrecord.setTrader(-1L);
+							fundrecord.setRemarks("您账户可用余额与汇付可用余额不符，进行资金调整，变动金额为" + describe + "￥" + AvlAdjust + "元,请知悉。");
+							fundrecord.setIncome(AvlAdjust);
+							fundrecord.setSpending(0d);
+							fundrecord.setBorrowId(-1L);
+							fundrecord.setRepaymentId(-1L);
+							fundrecord.setOperateType(251);
+							fundrecord.setDueoutSum(0d);
+							fundrecord.setRecordTime(new Date());
+							fundrecordDao.insertFundrecord(fundrecord);
+						} else {
+							describe = "减少";
+							fundrecord.setUserId(userId);
+							fundrecord.setFundMode("汇付调整");
+							fundrecord.setHandleSum(-AvlAdjust);
+							fundrecord.setUsableSum(usableSum);
+							fundrecord.setFreezeSum(freezeSum);
+							fundrecord.setDueinSum(forPI);
+							fundrecord.setTrader(-1L);
+							fundrecord.setRemarks("您账户可用余额与汇付可用余额不符，进行资金调整，变动金额为" + describe + "￥" + AvlAdjust + "元,请知悉。");
+							fundrecord.setIncome(-AvlAdjust);
+							fundrecord.setSpending(0d);
+							fundrecord.setBorrowId(-1L);
+							fundrecord.setRepaymentId(-1L);
+							fundrecord.setOperateType(251);
+							fundrecord.setDueoutSum(0d);
+							fundrecord.setRecordTime(new Date());
+							fundrecordDao.insertFundrecord(fundrecord);
+						}
+					}
+
+				}
+				if (FrzAdjust != 0) {
+					// 调整用户账户冻结金额
+					userDao.updateUserAmount(FrzAdjust, userId);
+					// 查询投资后的账户金额
+					Map<String, String> userSumMap = userDao.queryUserAmountAfterHander(userId);
+					if (userSumMap == null) {
+						userSumMap = new HashMap<String, String>();
+					}
+					double usableSum = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap.get("usableSum")));
+					double freezeSum = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap.get("freezeSum")));
+					double forPI = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap.get("forPI")));
+					Fundrecord fundrecord = new Fundrecord();
+					if (Integer.parseInt(ConvertUtil.convertString(enterpriseMap.get("userCount"))) == 0) {
+						// 添加资金流动记录
+						if (FrzAdjust > 0) {
+							describe = "增加";
+							fundrecord.setUserId(userId);
+							fundrecord.setFundMode("汇付调整");
+							fundrecord.setHandleSum(FrzAdjust);
+							fundrecord.setUsableSum(usableSum);
+							fundrecord.setFreezeSum(freezeSum);
+							fundrecord.setDueinSum(forPI);
+							fundrecord.setTrader(-1L);
+							fundrecord.setRemarks("您账户冻结金额与汇付冻结金额不符，进行资金调整，变动金额为" + describe + "￥" + FrzAdjust + "元,请知悉。");
+							fundrecord.setIncome(FrzAdjust);
+							fundrecord.setSpending(0d);
+							fundrecord.setBorrowId(-1L);
+							fundrecord.setRepaymentId(-1L);
+							fundrecord.setOperateType(251);
+							fundrecord.setDueoutSum(0d);
+							fundrecord.setRecordTime(new Date());
+							fundrecordDao.insertFundrecord(fundrecord);
+						} else {
+							describe = "减少";
+							fundrecord.setUserId(userId);
+							fundrecord.setFundMode("汇付调整");
+							fundrecord.setHandleSum(-FrzAdjust);
+							fundrecord.setUsableSum(usableSum);
+							fundrecord.setFreezeSum(freezeSum);
+							fundrecord.setDueinSum(forPI);
+							fundrecord.setTrader(-1L);
+							fundrecord.setRemarks("您账户冻结金额与汇付冻结金额不符，进行资金调整，变动金额为" + describe + "￥" + (-FrzAdjust) + "元,请知悉。");
+							fundrecord.setIncome(-FrzAdjust);
+							fundrecord.setSpending(0d);
+							fundrecord.setBorrowId(-1L);
+							fundrecord.setRepaymentId(-1L);
+							fundrecord.setOperateType(251);
+							fundrecord.setDueoutSum(0d);
+							fundrecord.setRecordTime(new Date());
+							fundrecordDao.insertFundrecord(fundrecord);
+						}
+					}
+				}
+			} else {
+				log.info("汇付调整异常，用户正常访问");
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * app端获 查询banner、推荐标、体验标
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> loadAppIndex(String userIdStr, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			List<Map<String, Object>> experienceBorrow = exgoBorrowDao.queryExGoBorrow();
+			Map<String, Object> map = new HashMap<String, Object>();
+			jsonMap.put("experienceBorrow", experienceBorrow);
+			Map<String, Long> experienceBorrowCountMap = exgoInvestDao.queryExgoInvestCount();
+			map.put("experienceBorrowCount", experienceBorrowCountMap.get("exgoInvestCount"));
+			experienceBorrow.add(map);
+			jsonMap.put("bannerList", bannerDao.queryIndexBannerByType(Constants.BANNER_TYPE_3));
+			jsonMap.put("recommendBorrowList", borrowDao.getRecommendBorrow(Constants.RECOMMEND_1));
+			List<Mediareport> meikuList = mediareportDao.queryMediaReportPage(Constants.BEGIN_INDEX_0, Constants.PAGE_SIZE_3, Constants.NEWSTYPE_1, getBasePath(), pageType);
+			PageBean pageBean = new PageBean();
+			Map<String, Long> mediareportMap = mediareportDao.queryMediareportCountByNewsType(Constants.MEDIAREPORT_1);
+			pageBean.setPageSize(Constants.PAGE_SIZE_3);
+			pageBean.setPage(meikuList);
+			pageBean.setTotalNum(mediareportMap.get("mediareportCount"));
+			jsonMap.put("pageBean", pageBean);
+			if (userIdStr != null && userIdStr.trim().length() > 0 && !"null".equals(userIdStr)) {
+				Long userId = Long.parseLong(AppUtil.checkUserId(userIdStr));
+				Map<String, Long> exgoInvestMap = exgoInvestDao.queryExgoInvestCountByUserId(userId);
+				User user = userDao.queryUserById(userId);
+				jsonMap.putAll(updateChinapnr(userId, "0", user.getIpayAccount(), pageType));
+				userService.updateSign(user.getId());// 更换校验码
+				jsonMap.put("isExgo", exgoInvestMap.get("count"));
+			}
+			jsonMap.put("msg", "查询成功");
+			jsonMap.put("error", "0");
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * pc、wap、app端问卷调查
+	 * 
+	 * @param userId
+	 * @param jsonObject
+	 * @param pageType
+	 * @return
+	 */
+	public Map<String, Object> addQuestionSurvey(Long userId, JSONObject jsonObject, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, Long> surveyMap = questionSurveyDao.getSurveyCount(userId);
+		if (surveyMap.get("surveyCount") >= 1) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "您已提交过问卷，重复提交将不被记录，谢谢！");
+			return jsonMap;
+		}
+		String age = String.valueOf(jsonObject.get("age"));
+		String sex = String.valueOf(jsonObject.get("sex"));
+		// String livingArea = String.valueOf(jsonObject.get("livingArea"));
+		String professional = String.valueOf(jsonObject.get("professional"));
+		String houseHoldIncome = String.valueOf(jsonObject.get("houseHoldIncome"));
+		String financialTime = String.valueOf(jsonObject.get("financialTime"));
+		String financialNum = String.valueOf(jsonObject.get("financialNum"));
+		String financialLong = String.valueOf(jsonObject.get("financialLong"));
+		String knowNetworkPlatform = String.valueOf(jsonObject.get("knowNetworkPlatform"));
+		String financialMoney = String.valueOf(jsonObject.get("financialMoney"));
+		String financialMoneyRatio = String.valueOf(jsonObject.get("financialMoneyRatio"));
+		String financialMoneySource = String.valueOf(jsonObject.get("financialMoneySource"));
+		String financialReason = String.valueOf(jsonObject.get("financialReason"));
+		String financialThinkValue = String.valueOf(jsonObject.get("financialThinkValue"));
+		String majorFocus = String.valueOf(jsonObject.get("majorFocus"));
+		String financialEarning = String.valueOf(jsonObject.get("financialEarning"));
+		String investWilling = String.valueOf(jsonObject.get("investWilling"));
+		String financialConvenient = String.valueOf(jsonObject.get("financialConvenient"));
+		String knowPujinziben = String.valueOf(jsonObject.get("knowPujinziben"));
+		String area = String.valueOf(jsonObject.get("area"));
+		QuestionSurvey questionSurvey = new QuestionSurvey();
+		questionSurvey.setAge(age);
+		questionSurvey.setSex(sex);
+		questionSurvey.setProfessional(professional);
+		questionSurvey.setHouseHoldIncome(houseHoldIncome);
+		questionSurvey.setFinancialTime(financialTime);
+		questionSurvey.setFinancialNum(financialNum);
+		questionSurvey.setKnowNetworkPlatform(knowNetworkPlatform);
+		questionSurvey.setFinancialMoney(financialMoney);
+		questionSurvey.setFinancialMoneyRatio(financialMoneyRatio);
+		questionSurvey.setFinancialMoneySource(financialMoneySource);
+		questionSurvey.setFinancialReason(financialReason);
+		questionSurvey.setFinancialThinkValue(financialThinkValue);
+		questionSurvey.setMajorFocus(majorFocus);
+		questionSurvey.setFinancialEarning(financialEarning);
+		questionSurvey.setInvestWilling(investWilling);
+		questionSurvey.setFinancialConvenient(financialConvenient);
+		questionSurvey.setKnowPujinziben(knowPujinziben);
+		questionSurvey.setArea(area);
+		questionSurvey.setFinancialLong(financialLong);
+		questionSurvey.setUserId(userId);
+		questionSurveyDao.addQuestionSurvey(questionSurvey);
+		// 3.增加记录现金券记录信息
+		User user = userDao.queryUserById(userId);
+		double usableSum = user.getUsableSum();
+		double freezeSum = user.getFreezeSum();
+		Date inserttime = new Date();// 添加时间
+		Date currTime = ConvertUtil.add(inserttime, Calendar.DATE, 30);
+		double money = 5.00;
+		String rbName = "5元代金券";// 现金券名称
+		Date activetime = inserttime;// 激活时间
+		int activesatus = 1; // 开启状态
+		int usestatus = 1;// 已使用
+		int islock = 1;// 被锁定
+		Date lockendtime = inserttime;// 锁定时间
+		String redmoneytype = "1";// 现金券
+		Redmoneyrecord redmoneyrecord = new Redmoneyrecord();
+		redmoneyrecord.setUid(userId);
+		redmoneyrecord.setMoney(money);
+		redmoneyrecord.setRbName(rbName);
+		redmoneyrecord.setInserttime(inserttime);
+		redmoneyrecord.setActivesatus(activesatus);
+		redmoneyrecord.setActivetime(activetime);
+		redmoneyrecord.setUsestatus(usestatus);
+		redmoneyrecord.setIslock(islock);
+		redmoneyrecord.setLockendtime(lockendtime);
+		redmoneyrecord.setRedmoneytype(redmoneytype);
+		redmoneyrecord.setUseendtime(currTime);
+		redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord);
+		// 添加资金记录表
+		// 查询投资后的账户金额
+		double transAm = Convert.strToDouble(money + "", 0);
+		Fundrecord fundrecord = new Fundrecord();
+		fundrecord.setUserId(userId);
+		fundrecord.setFundMode("代金券");
+		fundrecord.setHandleSum(money);
+		fundrecord.setUsableSum(usableSum);
+		fundrecord.setFreezeSum(freezeSum);
+		fundrecord.setDueinSum(0d);
+		fundrecord.setTrader(1L);
+		fundrecord.setRemarks("您获得一张<a href='userMeg.do?id=" + userId + "' target='_blank'>【" + money + "元】</a>代金券");
+		fundrecord.setIncome(transAm);
+		fundrecord.setSpending(0d);
+		fundrecord.setBorrowId(-1L);
+		fundrecord.setRepaymentId(-1L);
+		fundrecord.setOperateType(251);
+		fundrecord.setDueoutSum(0d);
+		fundrecord.setRecordTime(new Date());
+		// 添加资金记录
+		fundrecordDao.insertFundrecord(fundrecord);
+		OperationLog operationLog = new OperationLog();
+		operationLog.setOperationTable("t_question_survey");
+		operationLog.setOperationUser(user.getUsername());
+		operationLog.setOperationIp(getRemortIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("问卷调查-" + pageType);
+		operationLog.setUserId(userId);
+		operationLog.setOperationTime(new Date());
+		operationLog.setOperationAround(Constants.OPERATION_TYPE_1);
+		operationLogDao.addOperationLog(operationLog);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "您的问卷已提交成功，恭喜您获得5元代金劵！");
+		return jsonMap;
+	}
+
+	/**
+	 * 查询公告列表
+	 * 
+	 * @author xiaojin
+	 * @param curPage
+	 * @param pageSize
+	 * @param pageType
+	 * @return
+	 */
+	public Map<String, Object> findNewsList(Long curPage, long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> newsList = newsDao.queryNews((curPage - 1) * pageSize, pageSize, pageType);
+		Map<String, Long> newsCountMap = newsDao.queryNewsCount();
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(Constants.PAGE_SIZE_10);
+		pageBean.setTotalNum(newsCountMap.get("newsCount"));
+		pageBean.setPage(newsList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "公告列表查询成功");
+		return jsonMap;
+	}
+
+	/**
+	 * 查询推荐投资排行榜
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> queryRecommendInvestRank(String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		// 投资排行前10名记录
+		List<Map<String, Object>> investRankList = investDao.queryInvestRank();
+		// 推荐人排行前10名
+		List<Map<String, Object>> recommendUserRankList = recommendUserDao.queryRecommendUserRank();
+		jsonMap.put("investRank", investRankList);
+		jsonMap.put("recommendUserRank", recommendUserRankList);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+	}
+
+	public Map<String, Object> querytOperateReport(Long curPage, Long pageSize, String pageType) throws Exception {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> operateReportMap = operateReportDao.queryOperateReportPage((curPage - 1) * pageSize, pageSize);
+		long count = operateReportDao.queryAppOperateReportCountByImgType(2);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageSize(pageSize);
+		pageBean.setPage(operateReportMap);
+		pageBean.setPageNum(curPage);
+		pageBean.setTotalNum(count);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	/**
+	 * 公司动态
+	 * 
+	 * @return
+	 * @author xiaojin
+	 */
+	public Map<String, Object> queryCompanyDynamicsOrMediaReport(long curPage, long pageSize, String basePath, int newsType, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Mediareport> mediareportList = mediareportDao.queryMediaReportPage((curPage - 1) * pageSize, pageSize, newsType, basePath, pageType);
+		Map<String, Long> mediareportCountMap = mediareportDao.queryMediareportCountByNewsType(newsType);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(mediareportCountMap.get("mediareportCount"));
+		pageBean.setPage(mediareportList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryLinksByType(long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> linksList = linksDao.queryLinksType2(0L, pageSize);
+		long newsCount = linksDao.queryLinksCount();
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(1);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(newsCount);
+		pageBean.setPage(linksList);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		jsonMap.put("pageBean", pageBean);
+		return jsonMap;
+	}
+
+	/**
+	 * app端获取活动
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> getActivity(String userIdStr, long curPage, long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			List<Map<String, Object>> list = activityDao.queryActivityByEndTimeForPage((curPage - 1) * pageSize, pageSize);
+			Long activityCount = activityDao.queryActivityCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(curPage);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(activityCount);
+			pageBean.setPage(list);
+			jsonMap.put("pageBean", pageBean);
+			String surveyCount = "0";
+			if (userIdStr != null) {
+				Long userId = Long.parseLong(AppUtil.checkUserId(userIdStr));
+				Map<String, Long> surveyMap = questionSurveyDao.getSurveyCount(userId);
+				surveyCount = String.valueOf(surveyMap.get("surveyCount"));
+			}
+			jsonMap.put("surveyCount", surveyCount);
+			jsonMap.put("msg", "查询成功");
+			jsonMap.put("error", "0");
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			log.error(e);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		return jsonMap;
+	}
+
+	public Map<String, Object> addFeedback(JSONObject jsonObject) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String uid = jsonObject.get("uid") + "";
+		if (StringUtils.isBlank(uid)) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "请先登陆");
+			return jsonMap;
+		}
+		long userId = Convert.strToLong(uid, -1l);
+		String content = jsonObject.get("content") + "";
+		if (StringUtils.isBlank(content)) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "请输入反馈内容");
+			return jsonMap;
+		}
+		long returnId = -1;
+		returnId = feedbackDao.addFeedback(content, userId, new Date());
+		if (returnId <= 0) {
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "反馈失败");
+		}
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "反馈成功");
+		return jsonMap;
+	}
+
+	public List<Map<String, Object>> queryNews(Long begin, Long end, String pageType) {
+		return newsDao.queryNews(begin, end, pageType);
+	}
+
+	public News queryNewsById(Long userId) {
+		return newsDao.queryNewsById(userId);
+	}
+
+	public Map<String, Long> queryNewsCount() {
+		return newsDao.queryNewsCount();
+	}
+
+	public List<Map<String, Object>> queryOperateReportPageByMonth(String month) {
+		return operateReportDao.queryOperateReportPageByMonth(month);
+	}
+
+	public List<Mediareport> queryMediaReportPage(Long index, Long number, Integer newsType, String url, String pageType) {
+		return mediareportDao.queryMediaReportPage(index, number, newsType, url, pageType);
+
+	}
+
+	public Mediareport queryMediaReportById(Long id) {
+		return mediareportDao.queryMediaReportById(id);
+	}
+
+	public Map<String, Long> queryMediareportCountByNewsType(Integer newsType) {
+		return mediareportDao.queryMediareportCountByNewsType(newsType);
+	}
+	
+	public List<Links> queryLinksPage(Long index, Long number) {
+		return linksDao.queryLinksPage(index, number);
+	}
+
+	public List<Map<String, Object>> queryLinksType2(Long begin, Long end) {
+		return linksDao.queryLinksType2(begin, end);
+	}
+
+	public long queryLinksCount() {
+		return linksDao.queryLinksCount();
+	}
+
+	public Map<String, Object> queryYybgListList(String chosese) {
+		List<Map<String, Object>> yybgList = linksDao.queryYybgListList();
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		jsonMap.put("yybgList", yybgList);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+	}
+
+	public List<Map<String, Object>> queryLinksPages() {
+		return linksDao.queryLinksPages();
+	}
+
+}

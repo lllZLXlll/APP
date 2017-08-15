@@ -1,0 +1,1020 @@
+package com.pjzb.service.front;
+
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BankCardDao;
+import com.pjzb.dao.ExgoInvestDao;
+import com.pjzb.dao.GroupDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.RechargeDetailDao;
+import com.pjzb.dao.RedmoneyrecordDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.dao.UserVoucherDao;
+import com.pjzb.dao.WithdrawDao;
+import com.pjzb.entity.BankCard;
+import com.pjzb.entity.Group;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.RechargeDetail;
+import com.pjzb.entity.User;
+import com.pjzb.entity.Withdraw;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.GenerateSequenceNo;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+import com.shove.data.DataException;
+import com.shove.web.Utility;
+
+/**
+ * pc、wap、app端 工具箱，利息计算器、充值提现等等 公共service
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class FinanceService extends BaseController {
+	private static Log log = LogFactory.getLog(FinanceService.class);
+
+	@Autowired
+	private UserVoucherDao userVoucherDao;
+
+	@Autowired
+	private RechargeDetailDao rechargeDetailDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private BankCardDao bankCardDao;
+
+	@Autowired
+	private UserInfoService userInfoService;
+
+	@Autowired
+	private WithdrawDao withdrawDao;
+
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	@Autowired
+	private RedmoneyrecordDao redmoneyrecordDao;
+
+	@Autowired
+	private ExgoInvestDao exgoInvestDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private GroupDao groupDao;
+
+	/**
+	 * 工具箱，利息计算器
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> toolsCalculate(Double borrowSum, Double yearRate, Integer borrowTime, Integer repayWay, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		if (yearRate < 0.00001) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "年利率太低，请重新输入");
+			return jsonMap;
+		}
+		double yearRateVal = yearRate * 1.0f / 100;
+		List<Map<String, Object>> lists = null;
+		if (repayWay == 1) {// 按月还款 (下拉框的下标从0开始)
+			lists = rateCalculate2Month(borrowSum, yearRateVal, borrowTime);
+		} else if (repayWay == 2) {// 一次性 (下拉框的下标从0开始)
+			lists = rateCalculate2SumOne_new(borrowSum, yearRateVal, borrowTime);
+		} else {// 先息后本
+			lists = rateCalculate2Sum(borrowSum, yearRateVal, borrowTime);
+		}
+		if (lists == null) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "请填写正确信息");
+			return jsonMap;
+		}
+		// String jsonStr = JSONArray.toJSONString(lists);
+		jsonMap.put("lists", lists);
+		return jsonMap;
+	}
+
+	/**
+	 * 按月还款。等额本息计算
+	 */
+	public List<Map<String, Object>> rateCalculate2Month(double borrowSum, double yearRate, int borrowTime) {
+		if (borrowSum < 0 || yearRate < 0 || borrowTime < 0) {
+			return null;
+		}
+		DecimalFormat df = new DecimalFormat("#.00");
+		// 月利率
+		double i = yearRate * 1f / 12;
+		double val1 = borrowSum * i * Math.pow((1 + i), borrowTime);
+		double val2 = Math.pow((1 + i), borrowTime) - 1;
+		// 每月还款
+		double monPay = val1 / val2;
+		// 所借本金
+		double sum = Double.valueOf(df.format(borrowSum));
+		// 月还利息 = 剩余本金*月利率
+		double monForRate = 0;
+		// 月还本金=每月还款-月还利息
+		double monForA = 0;
+		// 每月还款，保留两位小数
+		double monPay2 = Convert.strToDouble(df.format(monPay), 0);
+
+		double allSum = monPay2 * borrowTime;// monPay * borrowTime;//还款本息总额
+		double payA = 0; // add 2013-04-19
+		// 本息余额
+		double payRemain = Double.parseDouble(df.format(allSum));
+		List<Map<String, Object>> lists = new ArrayList<Map<String, Object>>();
+		Map<String, Object> map = null;
+		double val = 0;
+		try {
+			for (int j = 1; j <= borrowTime; j++) {
+				monForRate = Convert.strToDouble(df.format(sum * i), 0);
+				monForA = Convert.strToDouble(df.format(monPay2 - monForRate), 0);
+				val = Convert.strToDouble(df.format(monPay2 - monForRate), 0);
+				sum = Convert.strToDouble(df.format(sum - val), 0);
+				if (j == borrowTime) {
+					monPay2 = payRemain;
+					// 最后一个月要还的本金（总借款本金 - 已还的本金） add 2013-04-19
+					monForA = borrowSum - payA;// Convert.strToDouble(df.format(monPay2
+												// - monForRate),0);
+					monForRate = monPay2 - monForA;
+				}
+				payA += monForA;
+				payRemain = Convert.strToDouble(df.format(payRemain - monPay2), 0);
+				if (j == borrowTime) {
+					payRemain = 0;
+				}
+				// i*100 月利率以百分比显示
+				map = addToMap(j, monPay2, monForA, monForRate, payRemain, Convert.strToDouble(df.format(i * 100), 0), Convert.strToDouble(df.format(allSum), 0));
+				lists.add(map);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return lists;
+	}
+
+	/**
+	 * 
+	 * @param mon
+	 *            月份
+	 * @param monPay
+	 *            月还本息
+	 * @param monForA
+	 *            月还本金
+	 * @param monForRate
+	 *            月还利息
+	 * @param payRemain
+	 *            本息余额
+	 * @param monRate
+	 *            月利率
+	 * @param allPay
+	 *            总还本息
+	 * @return
+	 */
+	private Map<String, Object> addToMap(int mon, double monPay, double monForA, double monForRate, double payRemain, double monRate, double allPay) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("mon", mon);
+		// 保留两位小数，不够两位小数的以0补齐
+		map.put("monForRateA", String.format("%.2f", monPay));
+		map.put("monForA", String.format("%.2f", monForA));
+		map.put("monForRate", String.format("%.2f", monForRate));
+		map.put("rateARemain", String.format("%.2f", payRemain));
+		map.put("monRate", String.format("%.2f", monRate));
+		map.put("allPay", String.format("%.2f", allPay));
+		return map;
+	}
+
+	/**
+	 * 一次还款
+	 */
+	public List<Map<String, Object>> rateCalculate2SumOne_new(double borrowSum, double yearRate, int borrowTime) {
+		if (borrowSum < 0 || yearRate < 0 || borrowTime < 0) {
+			return null;
+		}
+		DecimalFormat df = new DecimalFormat("#.00");
+		int mon = borrowTime;
+		// 月利率
+		double i = yearRate / 12 * 100;
+		borrowSum = Double.parseDouble(df.format(borrowSum));
+		// 每月还息 = 借款金额*月利率
+		double monPayRate = Double.parseDouble(df.format(borrowSum * i * 0.01));// borrowSum
+																				// *
+																				// i;//
+		double monPayRateOne = monPayRate;
+		double allSum = monPayRate * mon + borrowSum;// 还款本息总额
+		// 本息余额
+		double payRemain = Double.parseDouble(df.format(allSum));
+		double monForA = 0;
+		double monForRateA = 0;
+		List<Map<String, Object>> lists = new ArrayList<Map<String, Object>>();
+		Map<String, Object> map = null;
+		try {
+			for (int j = 1; j <= mon; j++) {
+				// payRemain = Convert.strToDouble(df.format(payRemain -
+				// monPayRate),0);
+				// payRemain = Convert.strToDouble(df.format(payRemain ),0);
+				// 除了最后一个月，其余月份还的本息就是月还的利息
+				// monForRateA = monPayRate;
+				// monForRateA = 0;
+				// monPayRate = 0;
+				if (j == mon) {
+					// 最后一个月还本金
+					monForRateA = Convert.strToDouble(df.format(borrowSum + monPayRateOne * mon), 0);
+					monForA = Convert.strToDouble(df.format(borrowSum), 0);
+					payRemain = 0;
+					monPayRate = Double.parseDouble(df.format(borrowSum * i * 0.01)) * mon;
+					// i*100 月利率以百分比显示
+					map = addToMap(j, monForRateA, monForA, monPayRate, payRemain, Convert.strToDouble((df.format(i)), 0), Convert.strToDouble((df.format(allSum)), 0));
+					lists.add(map);
+				}
+				// i*100 月利率以百分比显示
+				// map =
+				// addToMap(j,monForRateA,monForA,monPayRate,payRemain,Convert.strToDouble((df.format(i)),
+				// 0),
+				// Convert.strToDouble((df.format(allSum)), 0));
+				// lists.add(map);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return lists;
+	}
+
+	/**
+	 * 按月还款，每月付息，到期还本
+	 * 
+	 * @param borrowSum
+	 * @param yearRate
+	 * @param borrowTime
+	 * @return
+	 */
+	public List<Map<String, Object>> rateCalculate2Sum(double borrowSum, double yearRate, int borrowTime) {
+		if (borrowSum < 0 || yearRate < 0 || borrowTime < 0) {
+			return null;
+		}
+
+		DecimalFormat df = new DecimalFormat("#.00");
+		int mon = borrowTime;
+		// 月利率
+		double i = yearRate * 1.0f / 12;
+		borrowSum = Double.parseDouble(df.format(borrowSum));
+		// 每月还息 = 借款金额*月利率
+		double monPayRate = Double.parseDouble(df.format(borrowSum * i));// borrowSum
+																			// *
+																			// i;//
+		double allSum = monPayRate * mon + borrowSum;// 还款本息总额
+		// 本息余额
+		double payRemain = Double.parseDouble(df.format(allSum));
+		double monForA = 0;
+		double monForRateA = 0;
+		List<Map<String, Object>> lists = new ArrayList<Map<String, Object>>();
+		Map<String, Object> map = null;
+		try {
+			for (int j = 1; j <= mon; j++) {
+				payRemain = Convert.strToDouble(df.format(payRemain - monPayRate), 0);
+				// 除了最后一个月，其余月份还的本息就是月还的利息
+				monForRateA = monPayRate;
+				if (j == mon) {
+					// 最后一个月还本金
+					monForRateA = Convert.strToDouble(df.format(borrowSum + monPayRate), 0);
+					monForA = Convert.strToDouble(df.format(borrowSum), 0);
+					payRemain = 0;
+				}
+				// i*100 月利率以百分比显示
+				map = addToMap(j, monForRateA, monForA, monPayRate, payRemain, Convert.strToDouble((df.format(i * 100)), 0), Convert.strToDouble((df.format(allSum)), 0));
+				lists.add(map);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return lists;
+	}
+
+	/**
+	 * 获取代金券的规则
+	 */
+
+	public boolean addUserVoucher(long userId, double minMoney, double maxMoney, String rbname, int passDate, double realMoney) {
+		rbname=Utility.filteSqlInfusion(rbname);
+		boolean result = false;
+		userVoucherDao.addUserVoucher(userId, minMoney, maxMoney, rbname, passDate, realMoney);
+		return result;
+	}
+
+	public PageBean queryRechargeDetailForPageByRechargeTime(Long userId, String startTime, String endTime, Long curPage, Long pageSize, String pageType) {
+		List<RechargeDetail> rechargeDetails = rechargeDetailDao.queryRechargeList(userId, startTime, endTime, (curPage - 1) * pageSize, pageSize);
+		Map<String, Long> newsCountMap = rechargeDetailDao.queryRechargeCountByRechargeTime(userId, startTime, endTime);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(newsCountMap.get("rechargeDetailCount"));
+		pageBean.setPage(rechargeDetails);
+		return pageBean;
+	}
+
+	public Map<String, Object> queryWithdraw(Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Person person = personDao.queryPersonByUserId(userId);
+		if (person == null) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "用户的个人信息未填写,无法申请提现");
+			return jsonMap;
+		}
+		// 需要加载信息 真实姓名 手机号码 帐户余额 可用余额 冻结总额 提现银行
+		String realName = person.getRealName();
+		User user = userDao.queryUserById(userId);
+		// 绑定的银行卡信息单独查询
+		List<BankCard> bankList = bankCardDao.querySuccessBankInfoList(userId);
+		if (bankList == null || bankList.size() == 0) {
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "未添加银行卡信息");
+			return jsonMap;
+		}
+		boolean re = userService.checkSign(userId);
+		if (!re) {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "*你的账号出现异常，请速与管理员联系！");
+			return jsonMap;
+		}
+		jsonMap.put("handleSum", user.getUsableSum() + user.getFreezeSum());
+		jsonMap.put("usableSum", user.getUsableSum());
+		jsonMap.put("freezeSum", user.getFreezeSum());
+		jsonMap.put("max_withdraw", Constants.WITHDRAW_MAX);// 最大充值金额，超过之后要收取手续费
+		jsonMap.put("bankList", bankList);
+		jsonMap.put("realName", realName);
+		jsonMap.put("bindingPhone", user.getMobilePhone());
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryWithdrawFee(Long userId, Double withdrawMoney, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		// 汇付取现
+		// String withdrawId= ret+"";
+		User user = userDao.queryUserById(userId);
+		Double usableSum = user.getUsableSum();
+		Double slbaoTotalAmt = user.getSlbaoTotalAmt();
+		if (withdrawMoney < 100) {
+			jsonMap.put("code", "3");
+			jsonMap.put("msg", "提现金额不能小于100元");
+			return jsonMap;
+		}
+		if (withdrawMoney > usableSum) {
+			jsonMap.put("code", "3");
+			jsonMap.put("msg", "提现金额不能超过可用余额");
+			return jsonMap;
+		}
+
+		Map<String, BigDecimal> sumRecharge = rechargeDetailDao.queryRechargeAmountWithin15Days(userId);
+		BigDecimal rechargeSize = sumRecharge.get("rechargeMoney");// 15天内充值金额
+		Map<String, BigDecimal> investRecharge = investDao.queryInvestAmountWithin15Days(userId);
+		BigDecimal investSize = investRecharge.get("investAmount"); // 15天内投资金额
+		Map<String, BigDecimal> repayRecharge = investRepaymentDao.queryInvestRepaymentAmountWithin15Days(userId);
+		BigDecimal repaySize = repayRecharge.get("repaySum"); // 15天内还款
+		BigDecimal feeMoney = rechargeSize.subtract(investSize).subtract(repaySize);// 收费金额
+		Map<String, BigDecimal> withDrawMap = withdrawDao.queryWithdrawAmountWithin15Days(userId);
+		BigDecimal withDrawMoney = withDrawMap.get("sum");// 15天内提现金额
+		DecimalFormat df = new DecimalFormat("0.00");
+		BigDecimal usableSumBd = new BigDecimal(usableSum).add(new BigDecimal(slbaoTotalAmt));
+		BigDecimal withdrawMoneyBd = new BigDecimal(withdrawMoney);
+		/**
+		 * 不收费金额=实际可用金额-充值后未投标可收费的金额(usableSum-feeMoney)
+		 * 收费金额=提现金额-不收费金额(withdrawMoney-(usableSum-feeMoney))
+		 **/
+		if (feeMoney.compareTo(new BigDecimal(0)) > 0) {
+
+			if ((usableSumBd.subtract(feeMoney)).compareTo(withdrawMoneyBd) > 0) {
+				// 可用金额-充值后未投标可收费的金额>提现金额 无手续费
+				jsonMap.put("code", "1");
+				jsonMap.put("msg", "无手续费");
+				return jsonMap;
+
+			} else {
+				BigDecimal moneyDs = feeMoney.subtract(withDrawMoney);
+
+				double moneyDD = moneyDs.doubleValue();
+				BigDecimal moneyDt = new BigDecimal(StrictMath.abs(moneyDD));
+				// double sumD= moneyDD*0.005;
+				BigDecimal sumD;
+				BigDecimal sumMon;// 提现金额
+
+				if (withdrawMoneyBd.compareTo(withdrawMoneyBd.subtract(moneyDt)) > 0) {
+					if (moneyDD > 0) {
+						if ((usableSumBd.subtract(new BigDecimal(moneyDD))).compareTo(withdrawMoneyBd) < 0) {
+							BigDecimal reMaoney = withdrawMoneyBd.subtract(usableSumBd.subtract(new BigDecimal(moneyDD)));
+							sumMon = reMaoney;
+							sumD = sumMon.multiply(new BigDecimal(0.005));
+							String sumMoney = df.format(sumD);
+							jsonMap.put("code", "2");
+							jsonMap.put("msg", sumMoney);
+							return jsonMap;
+						} else {
+							// 不要钱
+							jsonMap.put("code", "1");
+							jsonMap.put("msg", "无手续费");
+							return null;
+						}
+
+					} else {
+						if (withdrawMoneyBd.compareTo(rechargeSize) >= 0) {
+							sumMon = withdrawMoneyBd;
+							sumD = sumMon.multiply(new BigDecimal(0.005));
+							String sumMoney = df.format(sumD);
+							jsonMap.put("code", "2");
+							jsonMap.put("msg", sumMoney);
+							return jsonMap;
+						}
+						if (withdrawMoneyBd.compareTo(moneyDt) < 0) {
+							// 不要钱
+							jsonMap.put("code", "1");
+							jsonMap.put("msg", "无手续费");
+							return jsonMap;
+						} else {
+							sumMon = withdrawMoneyBd.subtract(moneyDt);
+							sumD = sumMon.multiply(new BigDecimal(0.005));
+							String sumMoney = df.format(sumD);
+							jsonMap.put("code", "2");
+							jsonMap.put("msg", sumMoney);
+							return jsonMap;
+						}
+
+					}
+				} else {
+					sumMon = moneyDt;
+					sumD = sumMon.multiply(new BigDecimal(0.005));
+				}
+
+				String sumMoney = df.format(sumD);
+				jsonMap.put("code", "2");
+				jsonMap.put("msg", sumMoney);
+				return jsonMap;
+			}
+
+		} else {
+			// 不要钱
+			jsonMap.put("code", "1");
+			jsonMap.put("msg", "无手续费");
+			return jsonMap;
+
+		}
+	}
+
+	/**
+	 * 提现
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> addWithdraw(Long userId, String dealpwd, String code, String codeType, Double withdrawMoney, String bankId, String pageType, String randomCode,
+			String recivePhone) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		User user = userDao.queryUserById(userId);
+		if (null != user) {
+			String pwd = user.getPassword();
+			String del = user.getDealpwd();
+			if (pwd.equals(del)) {
+				jsonMap.put("error", "-3");
+				jsonMap.put("msg", "请您修改交易密码！");
+				return jsonMap;
+			}
+		}
+		if (StringUtils.isBlank(dealpwd)) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "提现密码不能为空");
+			return jsonMap;
+		}
+		if (StringUtils.isBlank(code)) {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "验证码不能为空");
+			return jsonMap;
+		}
+
+		if (randomCode != null && recivePhone != null) {
+			if (StringUtils.isBlank(randomCode)) {
+				jsonMap.put("error", "19");
+				jsonMap.put("msg", "请先获取手机验证码");
+				return jsonMap;
+			}
+			try {
+				if (!code.equals(AppUtil.checkUserId(randomCode))) {
+					jsonMap.put("error", "4");
+					jsonMap.put("msg", "验证码不正确");
+					return jsonMap;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			String withdrawCode = (String) sessionGetAttribute(codeType);
+			if (StringUtils.isBlank(withdrawCode)) {
+				jsonMap.put("error", "19");
+				jsonMap.put("msg", "请获取手机验证码");
+				return jsonMap;
+			}
+			if (!code.equals(withdrawCode)) {
+				jsonMap.put("error", "4");
+				jsonMap.put("msg", "验证码不正确");
+				return jsonMap;
+			}
+		}
+
+		double usableSum = user.getUsableSum();// 余额
+		String withdrawMoneyStr = "";
+		if (withdrawMoney <= 0) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "提现金额不能小于0元");
+			return jsonMap;
+		}
+
+		if (withdrawMoney < 100) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "提现金额不能小于100元");
+			return jsonMap;
+		}
+		/**
+		 * if(withdrawMoney>50000) { jsonMap.put("error", "5");
+		 * jsonMap.put("msg", "提现金额最高不能超过50000元");
+		 * JSONUtils.printObject(jsonMap); return null; }
+		 */
+		if (withdrawMoney > usableSum) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "提现金额不能超过可用余额");
+			return jsonMap;
+		}
+
+		String openAcctId = bankId;
+		if (StringUtils.isBlank(openAcctId)) {
+			jsonMap.put("error", "6");
+			jsonMap.put("msg", "银行卡不能为空");
+			return jsonMap;
+		}
+
+		String withdrawPhone = (String) sessionGetAttribute(codeType + Constants._PHONE);
+		if (withdrawPhone != null && !withdrawPhone.equals(user.getMobilePhone())) {
+			jsonMap.put("error", "7");
+			jsonMap.put("msg", "绑定手机号跟接收验证码手机号不一致");
+			return jsonMap;
+		}
+
+		dealpwd = com.shove.security.Encrypt.MD5(dealpwd.trim() + IConstants.PASS_KEY);
+		String userDealPwd = user.getDealpwd();
+
+		if (!dealpwd.equals(userDealPwd)) {// 交易密码错误
+			jsonMap.put("error", "8");
+			jsonMap.put("msg", "交易密码错误");
+			return jsonMap;
+		}
+		boolean re = userService.checkSign(userId);
+		if (!re) {
+			jsonMap.put("error", "11");
+			jsonMap.put("msg", "*你的账号出现异常，请速与管理员联系！");
+			return jsonMap;
+		}
+		// ------modify 2013-05-02 判断该用户所属的组是否能申请提现
+		Group group = groupDao.queryUserCashStatus(userId, IConstants.CASH_STATUS_OFF);
+		if (group != null) {// 该用户所属组的提现权利被限制
+			jsonMap.put("error", "9");
+			jsonMap.put("msg", "很抱歉，您暂时不能提现");
+			return jsonMap;
+		}
+
+		String ordId = GenerateSequenceNo.generateSequenceNo();
+
+		String usrCustId = user.getIpayAccount();
+
+		Map<String, BigDecimal> sumRecharge = rechargeDetailDao.queryRechargeAmountWithin15Days(userId);
+		BigDecimal rechargeSize = sumRecharge.get("rechargeMoney");// 15天内充值金额
+		Map<String, BigDecimal> investRecharge = investDao.queryInvestAmountWithin15Days(userId);
+		BigDecimal investSize = investRecharge.get("investAmount"); // 15天内投资金额
+		Map<String, BigDecimal> repayRecharge = investRepaymentDao.queryInvestRepaymentAmountWithin15Days(userId);
+		BigDecimal repaySize = repayRecharge.get("repaySum"); // 15天内还款
+		BigDecimal feeMoneyBd = rechargeSize.subtract(investSize).subtract(repaySize);// 收费金额
+		Map<String, BigDecimal> withDrawMap = withdrawDao.queryWithdrawAmountWithin15Days(userId);
+		BigDecimal withDrawMoneyDb = withDrawMap.get("sum");// 15天内提现金额
+		double feeMoney = feeMoneyBd.doubleValue();
+		double withDrawMoney = withDrawMoneyDb.doubleValue();// 15天内提现金额
+		DecimalFormat df = new DecimalFormat("0.00");
+
+		String retUrl = getBasePath() + "WEB-PC/reDwTrade.do"; // 同步回调
+		String bgRetUrl = getBasePath() + "reAsyncmerServerUrl.do"; // 异步回调
+		String merPriv = userId + "-" + pageType; // merPriv
+		String page = "";
+		if (pageType.equals(Constants.PHONEPAGE) || pageType.equals(Constants.REACTAPP)) {
+			page = "2";
+		}
+		/**
+		 * 不收费金额=实际可用金额-充值后未投标可收费的金额(usableSum-feeMoney)
+		 * 收费金额=提现金额-不收费金额(withdrawMoney-(usableSum-feeMoney))
+		 **/
+		if (feeMoney > 0) {
+			if (usableSum - feeMoney > withdrawMoney) {
+				// 可用金额-充值后未投标可收费的金额>提现金额 无手续费
+				BigDecimal moneyBD = new BigDecimal(withdrawMoney); // 取现金额
+				BigDecimal sumBD = new BigDecimal(2);// 手续费
+				double moneySum = moneyBD.add(sumBD).doubleValue();
+
+				withdrawMoneyStr = df.format(withdrawMoney);
+				// 如果提现金额+手续费金额>可用余额，则客户的实际到账金额=提现金额-手续费金额
+				if (moneySum > usableSum) {
+					withdrawMoney = moneyBD.subtract(sumBD).doubleValue();
+					withdrawMoneyStr = df.format(withdrawMoney);
+				}
+				String html = ChinapnrInterface.cash(ordId, usrCustId, withdrawMoneyStr, openAcctId, retUrl, bgRetUrl, merPriv, page, pageType);
+				jsonMap.put("html", html);
+				jsonMap.put("error", "0");
+				jsonMap.put("msg", "成功");
+
+			} else {
+				// 收费金额=提现金额-不收费金额(withdrawMoney-(usableSum-feeMoney))
+
+				// BigDecimal usableSumD = new BigDecimal(usableSum);
+				// BigDecimal sumSizeD = new BigDecimal(feeMoney);
+				BigDecimal withDrawMoneyD = new BigDecimal(withDrawMoney);
+				BigDecimal moneyDs = new BigDecimal(feeMoney).subtract(withDrawMoneyD);
+				double moneyDD = moneyDs.doubleValue();
+				double moneyDt = StrictMath.abs(moneyDD);
+				// double moneyDD = moneyDs.doubleValue();
+				// double sumD= moneyDD*0.005;
+				double sumD = 0.00;
+				double sumMon;// 提现金额
+				if (withdrawMoney > withdrawMoney - moneyDt) {
+					if (moneyDD > 0) {
+						if (usableSum - moneyDD < withdrawMoney) {
+							double reMaoney = withdrawMoney - (usableSum - moneyDD);
+							sumMon = reMaoney;
+							sumD = sumMon * 0.005;
+							String sumMoney = df.format(sumD);
+
+							BigDecimal moneyBD = new BigDecimal(withdrawMoney); // 取现金额
+							BigDecimal sumBD = new BigDecimal(Double.parseDouble(sumMoney) + 2);// 手续费的金额使用格式化之后的金额sumMoney
+							double moneySum = moneyBD.add(sumBD).doubleValue();
+
+							withdrawMoneyStr = df.format(withdrawMoney);
+							// 如果提现金额+手续费金额>可用余额，则客户的实际到账金额=提现金额-手续费金额
+							if (moneySum > usableSum) {
+								withdrawMoney = moneyBD.subtract(sumBD).doubleValue();
+								withdrawMoneyStr = df.format(withdrawMoney);
+							}
+
+							String html = ChinapnrInterface.cashD(ordId, usrCustId, sumMoney, withdrawMoneyStr, openAcctId, retUrl, bgRetUrl, merPriv, page, pageType);
+							jsonMap.put("html", html);
+							jsonMap.put("error", "0");
+							jsonMap.put("msg", "成功");
+						} else {
+							// 不要钱
+							BigDecimal moneyBD = new BigDecimal(withdrawMoney); // 取现金额
+							BigDecimal sumBD = new BigDecimal(2);// 手续费
+							double moneySum = moneyBD.add(sumBD).doubleValue();
+
+							withdrawMoneyStr = df.format(withdrawMoney);
+							// 如果提现金额+手续费金额>可用余额，则客户的实际到账金额=提现金额-手续费金额
+							if (moneySum > usableSum) {
+								withdrawMoney = moneyBD.subtract(sumBD).doubleValue();
+								withdrawMoneyStr = df.format(withdrawMoney);
+							}
+
+							String html = ChinapnrInterface.cash(ordId, usrCustId, withdrawMoneyStr, openAcctId, retUrl, bgRetUrl, merPriv, page, pageType);
+							jsonMap.put("html", html);
+							jsonMap.put("error", "0");
+							jsonMap.put("msg", "成功");
+						}
+
+					} else {
+						if (withdrawMoney >= rechargeSize.doubleValue()) {
+							sumMon = withdrawMoney;
+							sumD = sumMon * 0.005;
+							String sumMoney = df.format(sumD);
+
+							BigDecimal moneyBD = new BigDecimal(withdrawMoney); // 取现金额
+							BigDecimal sumBD = new BigDecimal(Double.parseDouble(sumMoney) + 2);// 手续费的金额使用格式化之后的金额sumMoney
+							double moneySum = moneyBD.add(sumBD).doubleValue();
+
+							withdrawMoneyStr = df.format(withdrawMoney);
+							// 如果提现金额+手续费金额>可用余额，则客户的实际到账金额=提现金额-手续费金额
+							if (moneySum > usableSum) {
+								withdrawMoney = moneyBD.subtract(sumBD).doubleValue();
+								withdrawMoneyStr = df.format(withdrawMoney);
+							}
+							String html = ChinapnrInterface.cashD(ordId, usrCustId, sumMoney, withdrawMoneyStr, openAcctId, retUrl, bgRetUrl, merPriv, page, pageType);
+							jsonMap.put("html", html);
+							jsonMap.put("error", "0");
+							jsonMap.put("msg", "成功");
+						}
+						if (withdrawMoney < moneyDt) {
+							// 不要钱
+							BigDecimal moneyBD = new BigDecimal(withdrawMoney); // 取现金额
+							BigDecimal sumBD = new BigDecimal(2);// 手续费
+							double moneySum = moneyBD.add(sumBD).doubleValue();
+
+							withdrawMoneyStr = df.format(withdrawMoney);
+							// 如果提现金额+手续费金额>可用余额，则客户的实际到账金额=提现金额-手续费金额
+							if (moneySum > usableSum) {
+								withdrawMoney = moneyBD.subtract(sumBD).doubleValue();
+								withdrawMoneyStr = df.format(withdrawMoney);
+							}
+
+							String html = ChinapnrInterface.cash(ordId, usrCustId, withdrawMoneyStr, openAcctId, retUrl, bgRetUrl, merPriv, page, pageType);
+							jsonMap.put("html", html);
+							jsonMap.put("error", "0");
+							jsonMap.put("msg", "成功");
+						} else {
+							double withMoney = withdrawMoney - moneyDt;
+							sumMon = withMoney;
+							sumD = sumMon * 0.005;
+							String sumMoney = df.format(sumD);
+
+							BigDecimal moneyBD = new BigDecimal(withdrawMoney); // 取现金额
+							BigDecimal sumBD = new BigDecimal(Double.parseDouble(sumMoney) + 2);// 手续费的金额使用格式化之后的金额sumMoney
+							double moneySum = moneyBD.add(sumBD).doubleValue();
+
+							withdrawMoneyStr = df.format(withdrawMoney);
+							// 如果提现金额+手续费金额>可用余额，则客户的实际到账金额=提现金额-手续费金额
+							if (moneySum > usableSum) {
+								withdrawMoney = moneyBD.subtract(sumBD).doubleValue();
+								withdrawMoneyStr = df.format(withdrawMoney);
+							}
+
+							String html = ChinapnrInterface.cashD(ordId, usrCustId, sumMoney, withdrawMoneyStr, openAcctId, retUrl, bgRetUrl, merPriv, page, pageType);
+							jsonMap.put("html", html);
+							jsonMap.put("error", "0");
+							jsonMap.put("msg", "成功");
+						}
+
+					}
+
+				} else {
+					sumMon = moneyDt;
+					sumD = sumMon * 0.005;
+				}
+
+				String sumMoney = df.format(sumD);
+
+				BigDecimal moneyBD = new BigDecimal(withdrawMoney); // 取现金额
+				BigDecimal sumBD = new BigDecimal(Double.parseDouble(sumMoney) + 2);// 手续费的金额使用格式化之后的金额sumMoney
+				double moneySum = moneyBD.add(sumBD).doubleValue();
+
+				withdrawMoneyStr = df.format(withdrawMoney);
+				// 如果提现金额+手续费金额>可用余额，则客户的实际到账金额=提现金额-手续费金额
+				if (moneySum > usableSum) {
+					withdrawMoney = moneyBD.subtract(sumBD).doubleValue();
+					withdrawMoneyStr = df.format(withdrawMoney);
+				}
+
+				String html = ChinapnrInterface.cashD(ordId, usrCustId, sumMoney, withdrawMoneyStr, openAcctId, retUrl, bgRetUrl, merPriv, page, pageType);
+				jsonMap.put("html", html);
+				jsonMap.put("error", "0");
+				jsonMap.put("msg", "成功");
+			}
+
+		} else {
+			// 不要钱
+			BigDecimal moneyBD = new BigDecimal(withdrawMoney); // 取现金额
+			BigDecimal sumBD = new BigDecimal(2);// 手续费
+			double moneySum = moneyBD.add(sumBD).doubleValue();
+
+			withdrawMoneyStr = df.format(withdrawMoney);
+			// 如果提现金额+手续费金额>可用余额，则客户的实际到账金额=提现金额-手续费金额
+			if (moneySum > usableSum) {
+				withdrawMoney = moneyBD.subtract(sumBD).doubleValue();
+				withdrawMoneyStr = df.format(withdrawMoney);
+			}
+
+			String html = ChinapnrInterface.cash(ordId, usrCustId, withdrawMoneyStr, openAcctId, retUrl, bgRetUrl, merPriv, page, pageType);
+			jsonMap.put("html", html);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		}
+		return jsonMap;
+	}
+
+	public PageBean queryWithdrawForPageByApplyTime(Long userId, String startTime, String endTime, Long curPage, Long pageSize, String pageType) {
+		List<Withdraw> withdraws = withdrawDao.queryWithdrawListForPage(userId, startTime, endTime, (curPage - 1) * pageSize, pageSize);
+		Map<String, Long> withdrawCountMap = withdrawDao.queryWithdrawCountByApplyTime(userId, startTime, endTime);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(withdrawCountMap.get("withdrawCount"));
+		pageBean.setPage(withdraws);
+		return pageBean;
+	}
+
+	public Map<String, Object> queryInfoRevealed(String chosese) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		// 查询总投资和总收益
+		Map<String, Object> totalInvestAmountMap = investDao.queryTotalInvestAmount();
+		// 注册用户数
+		Map<String, Object> totalUserMap = userDao.queryTotalUser();
+
+		// 成交笔数
+		Map<String, Object> turnoverCount = investDao.dealNumber();
+
+		// 已还本金
+		Map<String, Object> repayAmount = investRepaymentDao.repayAmount("repayAmount", 2);
+
+		// 待还本金
+		Map<String, Object> unRepayAmount = investRepaymentDao.repayAmount("unRepayAmount", 1);
+
+		// 投资人人数
+		Map<String, Object> investorCount = userDao.getInvestorCount();
+
+		Double totalInvest = Double.parseDouble(totalInvestAmountMap.get("investAmount") + "");
+		// 人均累计投资金额
+		Double avgUserInvest = totalInvest / Double.parseDouble(investorCount.get("investorCount") + "");
+
+		// 笔均投资额
+		Double avgInvest = totalInvest / Double.parseDouble(turnoverCount.get("dealNumber") + "");
+
+		DecimalFormat df = new DecimalFormat("0.00");
+		jsonMap.putAll(totalInvestAmountMap);
+		jsonMap.putAll(totalUserMap);
+		jsonMap.putAll(turnoverCount);
+		jsonMap.putAll(repayAmount);
+		jsonMap.putAll(unRepayAmount);
+		jsonMap.putAll(investorCount);
+		jsonMap.put("avgUserInvest", df.format(avgUserInvest));
+		jsonMap.put("avgInvest", df.format(avgInvest));
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	public boolean queryBanckCard(String cardNo, long suerId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = bankCardDao.queryBanckCard(cardNo, suerId);
+		if (map != null && !StringUtils.isBlank(Convert.strToStr(map.get("id") + "", ""))) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * @describe: 取消提现
+	 * @author: xiaojin
+	 * @param userId
+	 * @param jsonObject
+	 * @param basePath
+	 * @return
+	 */
+	public Map<String, Object> deleteWithdraw(long userId, JSONObject jsonObject, String basePath, String ip, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		long withDrawId = Convert.strToLong(String.valueOf(jsonObject.get("wId")), -1);
+		if (withDrawId < 0) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "提现记录不存在");
+			return jsonMap;
+		}
+		// 修改提现记录状态
+		Map<String, String> resultMap = deleteWithdrawInfo(userId, withDrawId, basePath, ip, pageType);
+		long result = -1;
+		result = Convert.strToLong(resultMap.get("ret"), -1);
+		userService.updateSign(userId);// 更换校验码
+		if (result < 0) {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "取消失败");
+			return jsonMap;
+		} else {
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "取消成功");
+			return jsonMap;
+		}
+	}
+
+	/**
+	 * 删除提现信息
+	 * 
+	 * @param userId
+	 * @param wid
+	 * @return
+	 * @throws Exception
+	 * @throws DataException
+	 */
+	public Map<String, String> deleteWithdrawInfo(long userId, long wid, String basePath, String ip, String pageType) {
+		long ret = -1;
+		Map<String, String> map = new HashMap<String, String>();
+		String bgRetUrl = basePath + "pubCallBack.do";
+		String merPriv = "UsrUnFreeze";
+		// 解冻汇付冻结金额
+		List<String> list = withdrawDao.queryWithdrawTrxIdById(wid);
+		if (list != null && list.size() > 0) {
+			String trxId = list.get(0);
+			JSONObject js = JSONObject.fromObject(ChinapnrInterface.usrUnFreeze(trxId, trxId, bgRetUrl, merPriv));
+			try {
+				log.info("提现取消，解冻提现金额处理结果：" + java.net.URLDecoder.decode(js.getString("RespDesc"), "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				log.error(e);
+			}
+			if (js.getInt("RespCode") != 0) {
+				map.put("ret", "-100");
+				map.put("ret_desc", "解冻提现金额失败");
+				return map;
+			}
+		}
+
+		Map<String, Object> withdrawCancelMap = new HashMap<String, Object>();
+		withdrawCancelMap.put("in_uid", userId);
+		withdrawCancelMap.put("in_wid", wid);
+		withdrawCancelMap.put("in_ip", ip);
+		withdrawCancelMap.put("in_date", new Date());
+		withdrawCancelMap.put("out_ret", "");
+		withdrawCancelMap.put("out_desc", "");
+
+		withdrawDao.callAmountWithdrawCancelProcedure(withdrawCancelMap);
+		ret = Convert.strToLong(String.valueOf(withdrawCancelMap.get("out_ret")), -1);
+		map.put("ret", ret + "");
+		map.put("ret_desc", String.valueOf(withdrawCancelMap.get("out_desc")));
+		if (ret > 0) {
+			// 得到用户信息
+			User user = userDao.queryUserById(userId);
+			OperationLog operationLog = new OperationLog();
+			operationLog.setOperationTable("t_withdraw");
+			operationLog.setOperationUser(user.getUsername());
+			operationLog.setOperationIp(ip);
+			operationLog.setOperationType(0);
+			operationLog.setOperationMoney(0d);
+			operationLog.setOperationRemarks("取消提现-" + pageType);
+			operationLog.setUserId(userId);
+			operationLog.setOperationTime(new Date());
+			operationLog.setOperationAround(Constants.OPERATION_TYPE_1);
+			// 增加系统操作日志
+			operationLogDao.addOperationLog(operationLog);
+		}
+		return map;
+	}
+
+	/**
+	 * 
+	 * @describe:充值初始化
+	 * @author: xiaojin
+	 * @param userId
+	 * @param pageType
+	 * @return
+	 */
+	public Map<String, Object> loadRechargeInit(Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		User user = userDao.queryUserById(userId);
+		if (StringUtils.isBlank(user.getIpayAccount())) {// 判断是否为空
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "您还未注册汇付，请先注册汇付！");
+			return jsonMap;
+		}
+		requestSetAttribute("ipay", user.getIpayAccount());
+		Person person = personDao.queryPersonByUserId(userId);
+		boolean re = userService.checkSign(userId);
+		if (!re) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "*你的账号出现异常，请速与管理员联系！");
+			return jsonMap;
+		}
+		jsonMap.put("realName", person.getRealName());
+		jsonMap.put("username", user.getUsername());
+		jsonMap.put("usableSum", ConvertUtil.doubleToString(user.getUsableSum()));
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+}

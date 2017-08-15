@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>我的账号 - 我要借款</title>
+	<link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/mod-loan.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#e04c16">
+		<div class="warp-1000 ">
+			<a href="index.html"><img src="img/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">登录</a></li>
+						<li><a href="#"><i class="ico ico-red-package"></i>注册领红包</a></li>
+						<li><a href="#">我要投资</a></li>
+						<li><a href="#">新手指引</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.html" class="logo"><img src="img/logo.png"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li class="">
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	
+	<div class="mod-index">
+		<div class="warp-1000">
+			<div class="mod-transform-list mod-loan">
+				<h2>我要借款</h2>
+                
+                <div class="mod-form table pd30 clearfix">
+                    <div class="box fl">
+                        <div class="ibox">
+                            <h1>个人借款</h1>
+                            <div class="m clearfix"><img src="img/loan_pic_001.jpg"/><p>如果您需要资金周转，并且在贷平台上注册过账户，您可以通过发布净值借款、秒还借款、信用借款、实地考察借款、担保借款，解决您的燃眉之急。</p></div>
+                            <h4>如何发布</h4>
+                            <p class="intro">借款通过初审后，会在"我要投资"页面挂出，被购买完后即完成借款流程，发布前需要通过实名认证和VIP认证。</p>
+                            <p class="pbtn"><button class="btn">发布个人借款</button></p>
+                        </div>
+                    </div>
+                    
+                    <div class="box fr">
+                        <div class="ibox">
+                            <h1>企业融资</h1>
+                            <div class="m clearfix"><img src="img/loan_pic_002.jpg"/><p>如果您的企业需要筹集资金，并且在贷平台上注册过账户，您可以通过发布净企业融资来达到筹集基金，扩大规模的目的。</p></div>
+                            <h4>如何发布</h4>
+                            <p class="intro">填写企业名称，注册码和其他相关信息，提交审核通过后，您即可在平台上进行融资。</p>
+                            <p class="pbtn"><button class="btn">申请企业融资</button></p>
+                        </div>
+                    </div>
+				</div>
+                
+                  
+			</div>
+		</div>
+	</div>
+
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="img/cpright_001.png"/></a>
+					<a href="#"><img src="img/cpright_002.png"/></a>
+					<a href="#"><img src="img/cpright_003.png"/></a>
+                  <a href="#"><img src="img/cpright_004.png"/></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->
+<div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-qq"></i></p>
+				<p>客服QQ</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-weichet"></i></p>
+				<p>官方微信</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-feedback"></i></p>
+				<p>意见反馈</p>
+			</a>
+		</li>
+	</ul>
+</div>
+</body>
+</html>

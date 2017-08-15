@@ -1,0 +1,14 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface BorrowSubTypeDao {
+	
+	public long queryBorrowtypeinfolistCount();
+
+	public List<Map<String, Object>> queryBorrowtypeinfolist(long pageNum, long pageSize);
+
+	public void updateStateBorrowType(Long id, Integer state);
+	
+}

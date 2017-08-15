@@ -1,0 +1,16 @@
+define(function (require,exports,module) {
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('我的赠券',true,false);
+		},
+		data:function(){
+			return {
+				titleName:''
+			}
+		},
+		template:'<div class="content">'+
+					'<router-view transition="fadeIn"></router-view>'+
+				'</div>'
+	});
+	module.exports = VueComponent;
+})

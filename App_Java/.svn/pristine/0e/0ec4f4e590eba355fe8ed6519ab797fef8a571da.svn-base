@@ -1,0 +1,28 @@
+package com.pjzb.service.common;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.MessageDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Message;
+import com.pjzb.entity.OperationLog;
+
+@Service
+public class CommonService {
+	
+	@Autowired
+	private MessageDao messageDao;
+	
+	@Autowired
+	private OperationLogDao operationLogDao;
+	
+	
+	public Message queryMessageByTypeId(Integer typeId){
+		return messageDao.queryMessageByTypeId(typeId);
+	}
+
+	public long addOperationLog(OperationLog operationLog){
+		return operationLogDao.addOperationLog(operationLog);
+	}
+}

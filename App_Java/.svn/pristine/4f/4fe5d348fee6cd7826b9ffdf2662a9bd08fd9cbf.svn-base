@@ -1,0 +1,29 @@
+.mod-comment{
+	ul{
+		margin-top: -16px;
+	}
+	li{
+		padding: 16px 0;
+		border-bottom: 1px solid #cbcbcb;
+		overflow: hidden;
+		.face{
+			float: left;
+			img{
+				width: 72px;
+				height: 88px;
+			}
+		}
+		.main{
+			font-size: 14px;
+			padding-left: 110px;
+			color: #1e1e1e;
+			.time{
+				color: #8d8d8d;
+				float: right;
+			}
+			p{
+				margin: 10px 0;
+			}
+		}
+	}
+}

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.OperateReportDao">
+
+
+	<!--  后台-运营数据 (t_operate_report) -begin -->
+	<resultMap type="operateReport" id="operateReportResultMap">
+		<id column="id" property="id" />
+		<result column="month" property="month" />
+		<result column="createTime" property="createTime" />
+		<result column="totalInvestAmount" property="totalInvestAmount" />
+		<result column="totalMonthAmount" property="totalMonthAmount" />
+		<result column="monthUnRepayAmount" property="monthUnRepayAmount" />
+		<result column="totalIncome" property="totalIncome" />
+		<result column="monthIncome" property="monthIncome" />
+		<result column="totalUser" property="totalUser" />
+		<result column="monthUser" property="monthUser" />
+		<result column="totalInvestUser" property="totalInvestUser" />
+		<result column="monthInvestUser" property="monthInvestUser" />
+		<result column="monthAvgAmount" property="monthAvgAmount" />
+		<result column="penAvgAmount" property="penAvgAmount" />
+		<result column="manProp" property="manProp" />
+		<result column="womanProp" property="womanProp" />
+		<result column="hjbUnrepay" property="hjbUnrepay" />
+		<result column="pjbUnrepay" property="pjbUnrepay" />
+		<result column="djbUnrepay" property="djbUnrepay" />
+		<result column="less18" property="less18" />
+		<result column="o1824" property="o1824" />
+		<result column="o2529" property="o2529" />
+		<result column="o3034" property="o3034" />
+		<result column="o3539" property="o3539" />
+		<result column="o4049" property="o4049" />
+		<result column="exc50" property="exc50" />
+		<result column="beijing" property="beijing" />
+		<result column="tianjin" property="tianjin" />
+		<result column="hebei" property="hebei" />
+		<result column="shanxi" property="shanxi" />
+		<result column="neimenggu" property="neimenggu" />
+		<result column="liaoning" property="liaoning" />
+		<result column="jilin" property="jilin" />
+		<result column="heilongjiang" property="heilongjiang" />
+		<result column="shanghai" property="shanghai" />
+		<result column="jiangsu" property="jiangsu" />
+		<result column="zhejiang" property="zhejiang" />
+		<result column="anhui" property="anhui" />
+		<result column="jiangxi" property="jiangxi" />
+		<result column="fujian" property="fujian" />
+		<result column="shandong" property="shandong" />
+		<result column="taiwan" property="taiwan" />
+		<result column="henan" property="henan" />
+		<result column="hubei" property="hubei" />
+		<result column="hunan" property="hunan" />
+		<result column="guangdong" property="guangdong" />
+		<result column="guangxi" property="guangxi" />
+		<result column="hainan" property="hainan" />
+		<result column="hongkong" property="hongkong" />
+		<result column="macao" property="macao" />
+		<result column="chongqing" property="chongqing" />
+		<result column="sichuan" property="sichuan" />
+		<result column="yunan" property="yunan" />
+		<result column="tibet" property="tibet" />
+		<result column="guizhou" property="guizhou" />
+		<result column="shaanxi" property="shaanxi" />
+		<result column="gansu" property="gansu" />
+		<result column="qinghai" property="qinghai" />
+		<result column="ningxia" property="ningxia" />
+		<result column="xinjiang" property="xinjiang" />
+	</resultMap>
+
+	<insert id="insertOperateReport">
+		INSERT INTO t_operate_report(month,createTime,totalInvestAmount,totalMonthAmount,monthUnRepayAmount,totalIncome,monthIncome,totalUser,monthUser,
+		totalInvestUser,monthInvestUser,monthAvgAmount,penAvgAmount,manProp,womanProp,hjbUnrepay,pjbUnrepay,djbUnrepay,less18,o1824,o2529,o3034,o3539,o4049,exc50,
+		beijing,tianjin,hebei,shanxi,neimenggu,liaoning,jilin,heilongjiang,shanghai,jiangsu,zhejiang,anhui,jiangxi,fujian,shandong,taiwan,henan,hubei,hunan
+		,guangdong,guangxi,hainan,hongkong,macao,chongqing,sichuan,yunan,tibet,guizhou,shaanxi,gansu,qinghai,ningxia,xinjiang)
+		VALUES(#{month},#{createTime},#{totalInvestAmount},#{totalMonthAmount},#{monthUnRepayAmount},#{totalIncome},#{monthIncome},#{totalUser},#{monthUser},
+		#{totalInvestUser},#{monthInvestUser},#{monthAvgAmount},#{penAvgAmount},#{manProp},#{womanProp},#{hjbUnrepay},#{pjbUnrepay},#{djbUnrepay},#{less18},#{o1824},#{o2529},
+		#{o3034},#{o3539},#{o4049},#{exc50},#{beijing},#{tianjin},#{hebei},#{shanxi},#{neimenggu},#{liaoning},#{jilin},#{heilongjiang},#{shanghai},#{jiangsu},
+		#{zhejiang},#{anhui},#{jiangxi},#{fujian},#{shandong},#{taiwan},#{henan},#{hubei},#{hunan},#{guangdong},#{guangxi},#{hainan},#{hongkong},#{macao},
+		#{chongqing},#{sichuan},#{yunan},#{tibet},#{guizhou},#{shaanxi},#{gansu},#{qinghai},#{ningxia},#{xinjiang})
+	</insert>
+
+	<select id="queryOperateReportCountByMonth" resultType="java.lang.Long" parameterType="java.lang.String">
+		SELECT COUNT(1) AS monthCount FROM t_operate_report a WHERE a.`month`=#{month}
+	</select>
+
+	<select id="queryOperateReportList" resultMap="operateReportResultMap">
+			SELECT * FROM t_operate_report a WHERE 1=1 
+		<if test="param1 != null and  param2 != null">
+			AND date_format(str_to_date(a.`month`,'%Y%c'),'%Y-%m') BETWEEN #{0} AND #{1}
+		</if>
+		 	ORDER BY a.id DESC LIMIT #{2},#{3}
+	</select>
+	
+	<select id="queryOperateReportCount" resultType="java.lang.Long">
+			SELECT COUNT(1) FROM t_operate_report a WHERE 1=1 
+		<if test="param1 != null and  param2 != null">
+			AND date_format(str_to_date(a.`month`,'%Y%c'),'%Y-%m') BETWEEN #{0} AND #{1}
+		</if>
+	</select>
+	
+	<!--  后台-运营数据(t_operate_report) -end -->
+
+
+	<!-- app端运营报告(t_operate_report_page) -begin -->
+	<resultMap type="operateReportPage" id="operateReportPageMap">
+		<id column="id" property="id" />
+		<result column="month" property="month" />
+		<result column="imgPath" property="imgPath" />
+		<result column="uploadTime" property="uploadTime" />
+		<result column="imgType" property="imgType" />
+		<result column="imgName" property="imgName" />
+	</resultMap>
+
+	<select id="queryOperateReportPage" resultType="map">
+		SELECT a.`month` AS `month`,a.imgPath AS
+		imgPath,DATE_FORMAT(a.uploadTime,'%Y-%m-%d %H:%i:%s') AS uploadTime
+		FROM t_operate_report_page a WHERE a.imgType=2 ORDER BY a.id DESC
+		LIMIT #{0}, #{1}
+	</select>
+
+	<select id="queryAppOperateReportCountByImgType" resultType="long">
+		SELECT COUNT(1) AS operateReportCount FROM t_operate_report_page a 
+		<if test="imgType != null">
+			WHERE a.imgType = #{imgType}
+		</if>
+	</select>
+
+	<select id="queryOperateReportPageByMonth" resultType="map" parameterType="string">
+		SELECT * FROM t_operate_report_page a  WHERE a.`month`= #{0} ORDER BY id DESC
+	</select>
+
+	<select id="queryAppOperateReportListForPage" resultType="java.util.Map">
+		SELECT * FROM t_operate_report_page ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<insert id="addAppOperateReport">
+		INSERT INTO t_operate_report_page (month,imgPath,uploadTime,imgType,imgName)
+		VALUE (#{month},#{imgPath},#{uploadTime},#{imgType},#{imgName})
+	</insert>
+	
+	<delete id="deleteAppOperateReportById">
+		DELETE FROM t_operate_report_page WHERE id = #{0}
+	</delete>
+	
+	<delete id="deleteAppOperateReportByIds">
+		DELETE FROM t_operate_report_page WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</delete>
+	
+	<select id="queryAppOperateReportById" resultType="operateReportPage">
+		SELECT * FROM t_operate_report_page WHERE id = #{0}
+	</select>
+	
+	<update id="updateAppOperateReportById">
+		UPDATE t_operate_report_page SET month=#{month},imgPath=#{imgPath},uploadTime=#{uploadTime},imgName=#{imgName} 
+		WHERE id = #{id}
+	</update>
+	
+	<!--  app端运营报告(t_operate_report_page)  -end -->
+	
+	
+	
+	<!--  pc端运营报告(t_yybg) -end -->
+	<resultMap type="yybg" id="yybgResultMap">
+		<id column="id" property="id" />
+		<result column="filePath" property="filePath" />
+		<result column="fileName" property="fileName" />
+		<result column="userName" property="userName" />
+		<result column="dateTime" property="dateTime" />
+		<result column="imgPath" property="imgPath" />
+	</resultMap>
+	
+	<select id="queryYybgListForPage" resultType="java.util.Map">
+		SELECT * FROM t_yybg ORDER BY id DESC
+	</select>
+	
+	<select id="querYybgCount" resultType="java.lang.Long">
+		SELECT count(1) AS counts FROM t_yybg
+	</select>
+	
+	<insert id="addYybg">
+		INSERT INTO t_yybg (imgPath,userName,dateTime) VALUE (#{imgPath},#{userName},#{dateTime})
+	</insert>
+	
+	<update id="updateYybgById">
+		UPDATE t_yybg SET filePath=#{filePath},fileName=#{fileName} WHERE id = #{id}
+	</update>
+	
+	<update id="updateYybgImgById">
+		UPDATE t_yybg SET imgPath=#{imgPath} WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteYybgById">
+		DELETE FROM t_yybg WHERE id=#{0}
+	</delete>
+	
+	<!--  pc端运营报告(t_yybg) -end -->
+	
+	 
+
+
+
+</mapper>
+
+
+
+
+
+
+
+

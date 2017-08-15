@@ -1,0 +1,7 @@
+eclipse.preferences.version=1
+encoding//resources/config.properties=UTF-8
+encoding//resources/config/dev/config.properties=UTF-8
+encoding//resources/config/proc/config.properties=UTF-8
+encoding//resources/config/test/config.properties=UTF-8
+encoding//resources/log4j.properties=UTF-8
+encoding/<project>=UTF-8

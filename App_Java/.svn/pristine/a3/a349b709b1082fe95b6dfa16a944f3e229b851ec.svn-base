@@ -1,0 +1,21 @@
+package com.pjzb.service.common;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.OperationLog;
+
+@Service
+public class OperationLogService {
+	
+	@Autowired
+	private OperationLogDao operationLogDao;
+	
+	
+	
+	public void addOperationLog(OperationLog operationLog){
+		operationLogDao.addOperationLog(operationLog);
+	}
+
+}

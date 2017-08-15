@@ -1,0 +1,294 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * InvestRepayment entity. @author MyEclipse Persistence Tools
+ */
+
+public class InvestRepayment implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long repayId;
+	private String repayPeriod;
+	private Date repayDate;
+	private Date realRepayDate;
+	private Double recivedPrincipal;
+	private Double recivedInterest;
+	private Double hasPrincipal;
+	private Double hasInterest;
+	private Integer interestOwner;
+	private Double recivedFi;
+	private Integer isLate;
+	private Integer lateDay;
+	private Integer isWebRepay;
+	private Double principalBalance;
+	private Double interestBalance;
+	private Long investId;
+	private Long owner;
+	private String ownerlist;
+	private Integer repayStatus;
+	private Double imanageFee;
+	private Double imanageFeeRate;
+	private Integer isDebt;
+	private Long borrowId;
+	private Integer circulationForpayStatus;
+	private Double hasFi;
+
+	// Constructors
+
+	/** default constructor */
+	public InvestRepayment() {
+	}
+
+	/** full constructor */
+	public InvestRepayment(Long repayId, String repayPeriod, Date repayDate,
+			Date realRepayDate, Double recivedPrincipal,
+			Double recivedInterest, Double hasPrincipal, Double hasInterest,
+			Integer interestOwner, Double recivedFi, Integer isLate,
+			Integer lateDay, Integer isWebRepay, Double principalBalance,
+			Double interestBalance, Long investId, Long owner,
+			String ownerlist, Integer repayStatus, Double imanageFee,
+			Double imanageFeeRate, Integer isDebt, Long borrowId,
+			Integer circulationForpayStatus, Double hasFi) {
+		this.repayId = repayId;
+		this.repayPeriod = repayPeriod;
+		this.repayDate = repayDate;
+		this.realRepayDate = realRepayDate;
+		this.recivedPrincipal = recivedPrincipal;
+		this.recivedInterest = recivedInterest;
+		this.hasPrincipal = hasPrincipal;
+		this.hasInterest = hasInterest;
+		this.interestOwner = interestOwner;
+		this.recivedFi = recivedFi;
+		this.isLate = isLate;
+		this.lateDay = lateDay;
+		this.isWebRepay = isWebRepay;
+		this.principalBalance = principalBalance;
+		this.interestBalance = interestBalance;
+		this.investId = investId;
+		this.owner = owner;
+		this.ownerlist = ownerlist;
+		this.repayStatus = repayStatus;
+		this.imanageFee = imanageFee;
+		this.imanageFeeRate = imanageFeeRate;
+		this.isDebt = isDebt;
+		this.borrowId = borrowId;
+		this.circulationForpayStatus = circulationForpayStatus;
+		this.hasFi = hasFi;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getRepayId() {
+		return this.repayId;
+	}
+
+	public void setRepayId(Long repayId) {
+		this.repayId = repayId;
+	}
+
+	public String getRepayPeriod() {
+		return this.repayPeriod;
+	}
+
+	public void setRepayPeriod(String repayPeriod) {
+		this.repayPeriod = repayPeriod;
+	}
+
+	public Date getRepayDate() {
+		return this.repayDate;
+	}
+
+	public void setRepayDate(Date repayDate) {
+		this.repayDate = repayDate;
+	}
+
+	public Date getRealRepayDate() {
+		return this.realRepayDate;
+	}
+
+	public void setRealRepayDate(Date realRepayDate) {
+		this.realRepayDate = realRepayDate;
+	}
+
+	public Double getRecivedPrincipal() {
+		return this.recivedPrincipal;
+	}
+
+	public void setRecivedPrincipal(Double recivedPrincipal) {
+		this.recivedPrincipal = recivedPrincipal;
+	}
+
+	public Double getRecivedInterest() {
+		return this.recivedInterest;
+	}
+
+	public void setRecivedInterest(Double recivedInterest) {
+		this.recivedInterest = recivedInterest;
+	}
+
+	public Double getHasPrincipal() {
+		return this.hasPrincipal;
+	}
+
+	public void setHasPrincipal(Double hasPrincipal) {
+		this.hasPrincipal = hasPrincipal;
+	}
+
+	public Double getHasInterest() {
+		return this.hasInterest;
+	}
+
+	public void setHasInterest(Double hasInterest) {
+		this.hasInterest = hasInterest;
+	}
+
+	public Integer getInterestOwner() {
+		return this.interestOwner;
+	}
+
+	public void setInterestOwner(Integer interestOwner) {
+		this.interestOwner = interestOwner;
+	}
+
+	public Double getRecivedFi() {
+		return this.recivedFi;
+	}
+
+	public void setRecivedFi(Double recivedFi) {
+		this.recivedFi = recivedFi;
+	}
+
+	public Integer getIsLate() {
+		return this.isLate;
+	}
+
+	public void setIsLate(Integer isLate) {
+		this.isLate = isLate;
+	}
+
+	public Integer getLateDay() {
+		return this.lateDay;
+	}
+
+	public void setLateDay(Integer lateDay) {
+		this.lateDay = lateDay;
+	}
+
+	public Integer getIsWebRepay() {
+		return this.isWebRepay;
+	}
+
+	public void setIsWebRepay(Integer isWebRepay) {
+		this.isWebRepay = isWebRepay;
+	}
+
+	public Double getPrincipalBalance() {
+		return this.principalBalance;
+	}
+
+	public void setPrincipalBalance(Double principalBalance) {
+		this.principalBalance = principalBalance;
+	}
+
+	public Double getInterestBalance() {
+		return this.interestBalance;
+	}
+
+	public void setInterestBalance(Double interestBalance) {
+		this.interestBalance = interestBalance;
+	}
+
+	public Long getInvestId() {
+		return this.investId;
+	}
+
+	public void setInvestId(Long investId) {
+		this.investId = investId;
+	}
+
+	public Long getOwner() {
+		return this.owner;
+	}
+
+	public void setOwner(Long owner) {
+		this.owner = owner;
+	}
+
+	public String getOwnerlist() {
+		return this.ownerlist;
+	}
+
+	public void setOwnerlist(String ownerlist) {
+		this.ownerlist = ownerlist;
+	}
+
+	public Integer getRepayStatus() {
+		return this.repayStatus;
+	}
+
+	public void setRepayStatus(Integer repayStatus) {
+		this.repayStatus = repayStatus;
+	}
+
+	public Double getImanageFee() {
+		return this.imanageFee;
+	}
+
+	public void setImanageFee(Double imanageFee) {
+		this.imanageFee = imanageFee;
+	}
+
+	public Double getImanageFeeRate() {
+		return this.imanageFeeRate;
+	}
+
+	public void setImanageFeeRate(Double imanageFeeRate) {
+		this.imanageFeeRate = imanageFeeRate;
+	}
+
+	public Integer getIsDebt() {
+		return this.isDebt;
+	}
+
+	public void setIsDebt(Integer isDebt) {
+		this.isDebt = isDebt;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Integer getCirculationForpayStatus() {
+		return this.circulationForpayStatus;
+	}
+
+	public void setCirculationForpayStatus(Integer circulationForpayStatus) {
+		this.circulationForpayStatus = circulationForpayStatus;
+	}
+
+	public Double getHasFi() {
+		return this.hasFi;
+	}
+
+	public void setHasFi(Double hasFi) {
+		this.hasFi = hasFi;
+	}
+
+}

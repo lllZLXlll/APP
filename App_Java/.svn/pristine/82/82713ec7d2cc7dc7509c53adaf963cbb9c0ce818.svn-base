@@ -1,0 +1,11 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.InvestRepayMessage;
+
+public interface InvestRepayMessageDao {
+	
+	public Long queryInvestRepayMessageCountByBorrowId(Long borrowId,Integer dataType,Long userId,Integer userType,Integer status);
+	
+	public void insertInvestRepayMessage(InvestRepayMessage investRepayMessage);
+
+}

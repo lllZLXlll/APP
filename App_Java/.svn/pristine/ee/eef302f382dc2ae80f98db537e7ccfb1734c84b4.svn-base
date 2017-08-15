@@ -1,0 +1,35 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.ExgoBorrowDao;
+import com.pjzb.entity.ExgoBorrow;
+
+
+@Service
+public class ExgoBorrowService {
+	
+	@Autowired
+	private ExgoBorrowDao exgoBorrowDao;
+	
+	
+	public List<ExgoBorrow> getExGoBorrow(){
+		return exgoBorrowDao.getExGoBorrow();
+	}
+	
+	public List<Map<String, Object>> queryExGoBorrow(){
+		return exgoBorrowDao.queryExGoBorrow();
+	}
+
+	public Map<String, Object> queryExgoBorrowById(long id){
+		return exgoBorrowDao.queryExgoBorrowById(id);
+	}
+
+	public Long addExgoBrowseCount(long id){
+		return exgoBorrowDao.addExgoBrowseCount(id);
+	}
+}

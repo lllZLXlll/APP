@@ -1,0 +1,43 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.BankCardDao;
+import com.pjzb.entity.BankCard;
+
+@Service
+public class BankCardService extends BaseController {
+	
+	@Autowired
+	private BankCardDao bankCardDao;
+	
+	
+	public List<BankCard> queryBankCardByUserId(Long userId){
+		return bankCardDao.queryBankCardByUserId(userId);
+	}
+	
+	public void deleteBanckCardByUserId(String cardNo,Long userId){
+		 bankCardDao.deleteBanckCardByUserId(cardNo, userId);
+	}
+
+	
+	public BankCard queryBanckCardByCardNOAndUserId(String cardNo,Long userId){
+		return bankCardDao.queryBanckCardByCardNOAndUserId(cardNo, userId);
+	}
+	
+	public void addBanckCard(BankCard bankCard){
+		bankCardDao.addBanckCard(bankCard);
+	}
+	
+	public List<BankCard> querySuccessBankInfoList(Long userId){
+		return bankCardDao.querySuccessBankInfoList(userId);
+	}
+
+	public void addBankCards(String cardNo, String bankName, String openBankId, String usrCustId) {
+		bankCardDao.addBanckCards(cardNo,bankName,openBankId,usrCustId);
+	}
+}

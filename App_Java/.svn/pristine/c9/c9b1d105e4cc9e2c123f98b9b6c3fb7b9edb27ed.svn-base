@@ -1,0 +1,9 @@
+package com.pjzb.service.admin.user;
+
+/**
+ * 
+ * @describe：管理员给用户充值
+ */
+public class AdminManagerForUserRechargeService {
+
+}

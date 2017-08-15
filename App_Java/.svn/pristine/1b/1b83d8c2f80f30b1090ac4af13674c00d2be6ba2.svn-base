@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.fund;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 充值记录
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminRechargeRecordService extends BaseController {
+
+}

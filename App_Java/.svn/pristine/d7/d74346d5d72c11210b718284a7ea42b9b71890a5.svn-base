@@ -1,0 +1,16 @@
+package com.pjzb.service.admin.borrow;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 手工转账
+ * @author xiaojin
+ *
+ */
+
+@Service
+public class AdminMantranAccountService extends BaseController{
+
+}

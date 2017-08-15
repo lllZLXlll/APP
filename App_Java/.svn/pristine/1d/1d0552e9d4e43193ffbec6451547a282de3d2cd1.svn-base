@@ -1,0 +1,20 @@
+package com.pjzb.service.common;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.GroupDao;
+import com.pjzb.entity.Group;
+
+@Service
+public class GroupService extends BaseController{
+	
+	@Autowired
+	private GroupDao groupDao;
+	
+	public Group queryUserCashStatus(Long userId,Integer cashStatus){
+		return groupDao.queryUserCashStatus(userId, cashStatus);
+	}
+
+}

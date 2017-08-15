@@ -1,0 +1,715 @@
+package com.pjzb.controller.admin;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Group;
+import com.pjzb.entity.RecommendUser;
+import com.pjzb.entity.Role;
+import com.pjzb.entity.UserRename;
+import com.pjzb.entity.vo.Higher;
+import com.pjzb.service.admin.user.AdminIsEnableUserService;
+import com.pjzb.service.admin.user.AdminManageGroupService;
+import com.pjzb.service.admin.user.AdminManagerForUserRechargeService;
+import com.pjzb.service.admin.user.AdminManagerListService;
+import com.pjzb.service.admin.user.AdminRecommendService;
+import com.pjzb.service.admin.user.AdminUserAliasService;
+import com.pjzb.service.admin.user.AdminUserBasicInfoService;
+import com.pjzb.service.admin.user.AdminUserGroupService;
+import com.pjzb.service.admin.user.AdminUserIntegralService;
+import com.pjzb.service.admin.user.AdminUserListService;
+
+/**
+ * 用户管理Controller
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminUserController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminUserController.class);
+
+	@Autowired
+	private AdminRecommendService adminRecommendService;
+
+	@Autowired
+	private AdminUserBasicInfoService adminUserBasicInfoService;
+
+	@Autowired
+	private AdminManageGroupService adminManageGroupService;
+
+	@Autowired
+	private AdminManagerListService adminManagerListService;
+
+	@Autowired
+	private AdminIsEnableUserService adminIsEnableUserService;
+
+	@Autowired
+	private AdminUserListService adminUserListService;
+
+	@Autowired
+	private AdminUserAliasService adminUserAliasService;
+
+	@Autowired
+	private AdminUserGroupService adminUserGroupService;
+
+	@Autowired
+	private AdminManagerForUserRechargeService adminManagerForUserRechargeService;
+	
+	@Autowired
+	private AdminUserIntegralService adminUserIntegralService;
+
+	/**
+	 * 
+	 * @describe:分页显示推荐人列表
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/recommendInit")
+	public String recommendInit(Model model, Long pageCurrent, Long pageSize, String userId, String userName, String recommendUserId, String recommendUsername, String tabid) {
+		return adminRecommendService.queryRecommendUserForPage(userId, userName, recommendUserId, recommendUsername, pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:根据id查询推荐人
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/queryRecommendById")
+	public String queryRecommendById(Model model, Long id, String tabid) {
+		return adminRecommendService.queryRecommendUserById(id, model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:增加推荐人初始化页面
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/addRecommendInit")
+	public String addRecommendInit(Model model, String tabid) {
+		return adminRecommendService.addRecommendInit(model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:增加推荐人
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/addRecommendUser")
+	@ResponseBody
+	public Map<String, Object> addRecommendUser(Model model, RecommendUser recommendUser, String tabid) {
+		try {
+			return adminRecommendService.addRecommendUser(recommendUser, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "推荐人增加异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:根据id更改推荐人信息
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/updateRecommendUserById")
+	@ResponseBody
+	public Map<String, Object> updateRecommendUserById(Model model, RecommendUser recommendUser, String tabid) {
+		try {
+			return adminRecommendService.updateRecommendUserById(recommendUser, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "推荐人修改异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:根据id删除推荐人
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/deleteRecommendById")
+	@ResponseBody
+	public Map<String, Object> deleteRecommendById(Model model, Long id) {
+		try {
+			return adminRecommendService.deleteRecommendById(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "推荐人删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:批量删除推荐人
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/deleteRecommendByIds")
+	@ResponseBody
+	public Map<String, Object> deleteRecommendByIds(Model model, Long[] delids) {
+		try {
+			return adminRecommendService.deleteRecommendByIds(delids);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("************推荐人批量删除异常异常*************");
+			return ajaxDoneInfo("300", "推荐人批量删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:导出推荐人信息
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/exporRecommendUserInfo")
+	@ResponseBody
+	public void exporRecommendUserInfo(Model model, HttpServletResponse response) {
+		adminRecommendService.queryRecommendUserInfo(response);
+	}
+
+	/**
+	 * 
+	 * @describe:分页显示推荐人列表
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/queryUserManageBaseInfoindex")
+	public String queryUserManageBaseInfoindex(Model model, String username, String realName, Long pageCurrent, Long pageSize, String tabid) {
+		return adminUserBasicInfoService.queryUserBaseInfo(model, username, realName, pageCurrent, pageSize, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:查询投资信息
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/queryUserInvestorInfo")
+	public String queryUserInvestorInfo(Model model, Long userId, String beginDate, String endDate, Long pageCurrent, Long pageSize, String tabid) {
+		return adminUserBasicInfoService.queryUserInvestorInfo(model, userId, beginDate, endDate, pageCurrent, pageSize, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:分页查询管理组
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/queryRoleList")
+	public String queryRoleList(Model model, Long pageCurrent, Long pageSize, String tabid) {
+		return adminManageGroupService.queryRoleList(pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:增加或修改管理组初始化
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateRoleInit")
+	public String addRoleInit(Model model, Long id, String type, String tabid) {
+		return adminManageGroupService.querySaveOrUpdateRoleInit(model, id, type, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:获取权限菜单
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/getPermissionsMenu")
+	@ResponseBody
+	public List<Higher> getPermissionsMenu(Long id) {
+		return adminManageGroupService.getPermissionsMenu(id);
+	}
+
+	/**
+	 * 
+	 * @describe:增加或修改管理组
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateRole")
+	@ResponseBody
+	public Map<String, Object> saveOrUpdateRole(Model model, Role role, String tabid, String menu) {
+		try {
+			return adminManageGroupService.saveOrUpdateRole(role, tabid, menu, getSessionAdminInfo(), getRemortIp());
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (role.getId() == null) {
+				return ajaxDoneInfo("300", "管理组增加异常", "", "");
+			} else {
+				return ajaxDoneInfo("300", "管理组修改异常", "", "");
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:删除管理组
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/deleteRoleById")
+	@ResponseBody
+	public Map<String, Object> deleteRoleById(Long id) {
+		try {
+			return adminManageGroupService.deleteRoleById(id, getSessionAdminInfo(), getRemortIp());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "管理组删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:查询管理员列表
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/queryAdminInit")
+	public String queryAdminInit(Model model, Long pageCurrent, Long pageSize, String userName, Integer enable, Long roleId, String tabid) {
+		return adminManagerListService.queryAdminList(userName, enable, roleId, pageCurrent, pageSize, model, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:是否禁用管理员
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/updateAdminEnable")
+	@ResponseBody
+	public Map<String, Object> updateAdminEnable(Admin admin) {
+
+		try {
+			return adminManagerListService.updateAdminEnable(admin);
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (admin.getEnable() == 1) {
+				return ajaxDoneInfo("300", "管理员启用异常", "", "");
+			} else {
+				return ajaxDoneInfo("300", "管理员禁用异常", "", "");
+			}
+
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:增加或修改管理员初始化
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateAdminInit")
+	public String saveOrUpdateAdminInit(Model model, Long id, String type, String tabid) {
+		return adminManagerListService.querySaveOrUpdateAdminInit(model, id, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:保存或修改管理员
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateAdmin")
+	@ResponseBody
+	public Map<String, Object> saveOrUpdateAdmin(Admin admin, String mgrId, String tabid, String ip) {
+		try {
+			return adminManagerListService.saveOrUpdateAdmin(admin, mgrId, getSessionAdminInfo(), tabid, ip);
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (admin.getId() == null) {
+				return ajaxDoneInfo("300", "管理员新增异常", "", "");
+			} else {
+				return ajaxDoneInfo("300", "管理员修改异常", "", "");
+			}
+
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:删除管理员
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/deleteAdmin")
+	@ResponseBody
+	public Map<String, Object> deleteAdmin(Long id) {
+		try {
+			return adminManagerListService.deleteAdminById(id, getSessionAdminInfo(), getRemortIp());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "管理员删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:查询禁用用户列表初始化
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/queryLockedUsersInit")
+	public String queryIsEnableUserList(Model model, String userName, String realName, String beginTime, String endTime, Long pageCurrent, Long pageSize, Integer enable,
+			String tabid) {
+		return adminIsEnableUserService.queryIsEnableUserList(model, userName, realName, beginTime, endTime, pageCurrent, pageSize, enable, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:批量启用或禁用用户
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/enableUserByUserIds")
+	@ResponseBody
+	public Map<String, Object> enableUserByUserIds(Model model, Long[] ids, Integer enable) {
+		String msg = null;
+		try {
+			msg = enable == 1 ? "启用" : "禁用";
+			return adminIsEnableUserService.updateEnableUserByUserIds(ids, enable, msg);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "批量" + msg + "用户异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:启用或禁用用户
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/enableUserByUserId")
+	@ResponseBody
+	public Map<String, Object> enableUserByUserId(Model model, Long[] id, Integer enable) {
+		String msg = null;
+		try {
+			msg = enable == 1 ? "启用" : "禁用";
+			return adminIsEnableUserService.updateEnableUserByUserIds(id, enable, msg);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "用户" + msg + "异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:查询用户信息
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/queryUserManageInfoIndex")
+	public String queryUserManageInfoIndex(Model model, String tabid, String userName, String realName, String recommendUsernname, Long pageCurrent, Long pageSize) {
+		return adminUserListService.queryUserInfoList(model, tabid, userName, realName, recommendUsernname, pageCurrent, pageSize);
+	}
+	
+	/**
+	 * 
+	 * @describe:导出用户信息
+	 * @author: yuluosheng
+	 */
+	@RequestMapping(value = "/exportUserManageInfo")
+	@ResponseBody
+	public void exportUserManageInfo(Model model, HttpServletResponse response, String userName, String realName, String recommendUsernname) {
+		adminUserListService.exportUserManageInfo(response, userName, realName, recommendUsernname);
+	} 
+
+	/**
+	 * 
+	 * @describe:查询用户别名信息
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/userRenameInit")
+	public String userRenameInit(Model model, String tabid, String realName, String userName, String rename, Long pageCurrent, Long pageSize) {
+		return adminUserAliasService.queryUserAliasList(model, tabid, realName, userName, rename, pageCurrent, pageSize);
+	}
+
+	/**
+	 * 
+	 * @describe:更改用户签名
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/updateSign")
+	@ResponseBody
+	public Map<String, Object> updateSign(Long userId) {
+		try {
+			return adminUserListService.updateSign(userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "更新异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:查看用户详细信息
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/queryUserInfo")
+	public String queryUserInfo(Model model, Long userId) {
+		return adminUserListService.queryUserInfo(model, userId);
+	}
+
+	/**
+	 * 
+	 * @describe:增加或修改别名初始化
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateUseraliasInit")
+	public String saveOrUpdateUseraliasInit(Model model, Long id, String type, String tabid) {
+		return adminUserAliasService.querySaveOrUpdateUseraliasInit(model, id, type, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:删除用户别名
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/deleteUserRename")
+	@ResponseBody
+	public Map<String, Object> deleteUserRename(Long id) {
+		try {
+			return adminUserAliasService.deleteUserRenameById(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "用户别名删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:保存或修改用户名的别名
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateUserRename")
+	@ResponseBody
+	public Map<String, Object> saveOrUpdateUserRename(UserRename userRename, String type, String tabid) {
+		try {
+			return adminUserAliasService.saveOrUpdateUserRename(userRename, type, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (type != null && type.equals("add")) {
+				return ajaxDoneInfo("300", "别名新增异常", "", "");
+			} else {
+				return ajaxDoneInfo("300", "别名修改异常", "", "");
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:查询用户组
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/queryGroupInit")
+	public String queryGroupInit(Model model, String tabid, String groupName, Long pageCurrent, Long pageSize) {
+		return adminUserGroupService.queryUserGroupInfoList(model, tabid, groupName, pageCurrent, pageSize);
+	}
+
+	/**
+	 * 
+	 * @describe：新增或修改用户组初始化
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateUserGroupInit")
+	public String saveOrUpdateUserGroupInit(Model model, String tabid, String groupName, Long id, Long pageCurrent, Long pageSize) {
+		return adminUserGroupService.querySaveOrUpdateUserGroupInit(model, tabid, groupName, id, pageCurrent, pageSize);
+	}
+
+	/**
+	 * 
+	 * @describe:修改或保存用户组
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/saveOrUpdateUserGroup")
+	@ResponseBody
+	public Map<String, Object> saveOrUpdateUserGroup(String tabid, Group group, String[] userNames) {
+		try {
+			return adminUserGroupService.saveOrUpdateUserGroup(tabid, group, userNames, getSessionAdminInfo());
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (group.getId() == null) {
+				return ajaxDoneInfo("300", "新增用户组异常", "", "");
+			} else {
+				return ajaxDoneInfo("300", "修改用户组异常", "", "");
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:删除用户组
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/deleteGroup")
+	@ResponseBody
+	public Map<String, Object> deleteGroup(Long id) {
+		try {
+			return adminUserGroupService.deleteGroup(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "用户组删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:查询用户组成员
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/queryUserGroupMemberList")
+	public String queryUserGroupMemberList(Model model, String tabid, String username, String realName, String startAllSum, String endAllSum, String startUsableSum,
+			String endUsableSum, Long groupId, Long pageCurrent, Long pageSize) {
+		return adminUserGroupService.queryUserGroupMemberList(model, tabid, username, realName, startAllSum, endAllSum, startUsableSum, endUsableSum, groupId, pageCurrent,
+				pageSize);
+	}
+
+	/**
+	 * 
+	 * @describe:删除用户组成员
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/deleteUserGroup")
+	@ResponseBody
+	public Map<String, Object> deleteUserGroup(Long id, Long userId) {
+		try {
+			return adminUserGroupService.deleteUserGroup(id, userId, getSessionAdminInfo(), getRemortIp());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "用户组用户删除异常", "", "");
+		}
+	}
+
+	/**
+	 * 同步汇付客户号
+	 * 
+	 * @param ids
+	 * @return
+	 * @author Li zeyang
+	 */
+	/*
+	 * @RequestMapping(value = "/synchIpayAccount")
+	 * 
+	 * @ResponseBody public Map<String, Object> synchIpayAccount(String ids) {
+	 * return adminManagerForUserRechargeService.synchIpayAccount(ids); }
+	 */
+	/**
+	 * 管理员给用户充值初始化
+	 * 
+	 * @param model
+	 * @param tabid
+	 * @param username
+	 * @param realName
+	 * @param pageCurrent
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/queryUserManageIndex")
+	public String queryUserManageIndex(Model model, String tabid, String userName, String realName, Long pageCurrent, Long pageSize) {
+		return adminManagerForUserRechargeService.queryUserManageIndex(model, tabid, userName, realName, pageCurrent, pageSize);
+	}
+	
+	/**
+	 * 充值页面初始化
+	 * @param model
+	 * @param tabid
+	 * @param userid
+	 * @param realName
+	 * @param username
+	 * @param ipayAccount
+	 * @param cellPhone
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/checkRechangeUserInfo")
+	public String checkRechangeUserInfo(Model model, String tabid, String userId, String realName, String username, String ipayAccount, String cellPhone) {
+		return adminManagerForUserRechargeService.queryRechangeUserInfoInit(model, tabid, userId, realName, username, ipayAccount, cellPhone);
+	}
+	
+	@RequestMapping(value = "/ipayPayment")
+	@ResponseBody
+	public Map<String, Object> ipayPayment() {
+		return adminManagerForUserRechargeService.ipayPayment();
+	}
+
+	/**
+	 * 
+	 * @describe:同步汇付号
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/synchIpayAccount")
+	@ResponseBody
+	public Map<String, Object> synchIpayAccount(String userId, String tabid) {
+		return adminUserListService.addIpayAccount(userId, tabid);
+	}
+
+	/**
+	 * 
+	 * @describe:同步法大大
+	 * @author: xiaojin
+	 */
+	@RequestMapping(value = "/synchFaDaDa")
+	@ResponseBody
+	public Map<String, Object> deleteUserGroup(String userId, String tabid) {
+		try {
+			return adminUserListService.addFadada(userId, tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "同步法大大异常", "", "");
+		}
+	}
+
+	@RequestMapping(value = "/queryUserManageintegralindex")
+	public String queryUserManageintegralindex(Model model, String tabid, String userName, Integer viprecode,
+			Integer creditcode, Long pageNum, Long pageSize) throws Exception {
+		return adminUserIntegralService.queryUserManageintegralindex(model, tabid, userName, viprecode,
+				creditcode, pageNum, pageSize);
+	}
+	
+	@RequestMapping(value = "/exportUserManageintegral")
+	@ResponseBody
+	public void exportUserManageintegral(Model model, HttpServletResponse response, String userName, Integer viprecode,
+			Integer creditcode) {
+		if (userName != null && userName.trim().length() > 0) {
+			userName = userName.substring(0, userName.indexOf(","));
+		}
+		adminUserIntegralService.exportUserManageintegral(response, userName, viprecode, creditcode);
+	}
+	
+	@RequestMapping(value = "/userintegralcreditinfo")
+	public String userintegralcreditinfo(Model model, String tabid, String id, Integer type, Long pageNum, Long pageSize) throws Exception {
+		return adminUserIntegralService.userintegralcreditinfo(model, tabid, id, type, pageNum, pageSize);
+	}
+	
+	@RequestMapping(value = "/exportUsercredit")
+	@ResponseBody
+	public void exportUsercredit(Model model, HttpServletResponse response, String id, Integer type) {
+		if (id != null && id.trim().length() > 0 && id.indexOf(",") != -1) {
+			id = id.substring(0, id.indexOf(","));
+		}
+		adminUserIntegralService.exportUsercredit(response, id, type);
+	}
+	
+	@RequestMapping(value = "/addintegral")
+	public String addintegral(Model model, String id, String tabid) throws NumberFormatException, Exception {
+		if (id != null && id.trim().length() > 0 && id.indexOf(",") != -1) {
+			id = id.substring(0, id.indexOf(","));
+		}
+		return adminUserIntegralService.addintegral(model, id, tabid);
+	}
+	
+	@RequestMapping(value = "/addintegralreal")
+	@ResponseBody
+	public Map<String, Object> addintegralreal(Model model, String id, String tabid, Integer type, Integer integral, String remark) {
+		try{
+			if (id != null && id.trim().length() > 0 && id.indexOf(",") != -1) {
+				id = id.substring(0, id.indexOf(","));
+			}
+			return adminUserIntegralService.addintegralreal(id, tabid, type, integral, remark);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ajaxDoneInfo("300", "添加信用分异常", "", "");
+		}
+	}
+	
+}

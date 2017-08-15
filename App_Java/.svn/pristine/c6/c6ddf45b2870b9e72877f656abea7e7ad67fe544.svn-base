@@ -1,0 +1,16 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.BillCode;
+
+public interface BillCodeDao {
+	
+	public void addBillCode(BillCode billCode);
+	
+	public void insertBillCode(BillCode billCode);
+
+	public BillCode queryBillCodeByPmerBillNo(String pmerBillNo);
+	
+	public String queryBillCode(String pMerBillNo);
+	
+	
+}

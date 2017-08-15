@@ -1,0 +1,116 @@
+package com.pjzb.service.admin.user;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.UserDao;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DesSecurityUtil;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 
+ * @describe：管理员给用户充值
+ */
+@Service
+public class AdminManagerForUserRechargeService extends BaseController  {
+
+	@Autowired
+	private UserDao userDao;
+	
+	public String queryUserManageIndex(Model model, String tabid, String userName, String realName, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" :userName;
+			realName = realName == null ? "" :realName;
+			List<Map<String, Object>> lists = userDao.queryUserManagePage((pageNum - 1) * pageSize, pageSize,userName,realName);
+			long count = userDao.queryUserManageCount(userName,realName);
+			if (lists != null) {
+				Iterator<Map<String, Object>> iter = lists.iterator();
+				DesSecurityUtil ds = new DesSecurityUtil();
+				int i = 0;
+				while (iter.hasNext()) {
+					Map<String, Object> maps = iter.next();
+					lists.get(i).put("ids", ds.encrypt(maps.get("id").toString()));
+					i++;
+				}
+			}
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(lists);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询管理员给用户充值异常**************************");
+		}
+		return "/admin/user/manageruserrecharge/list.jsp";
+	}
+
+	/*public Map<String, Object> synchIpayAccount(String ids) {
+		long id = Convert.strToLong(
+				new DesSecurityUtil().decrypt(ids),0);
+		Map<String, Object> map = userDao.queryUserInfo(id);
+		String idNo = map.get("idNo") == null ? "" : map.get("idNo")+"";
+		if (idNo == null || idNo.length() <= 0) {
+			map.put("RespCode", "fail");
+			map.put("msg", "身份证号为空，不能查询汇付信息");
+			JSONUtils.printObject(map);
+			return ajaxDoneInfo("300", "身份证号为空，不能查询汇付信息", "", "");
+		}
+
+		JSONObject jsonObject = JSONObject.fromObject(ChinapnrInterface
+				.queryUsrInfo(idNo));
+		log.info("汇付用户信息查询：" + jsonObject.toString());
+		if (jsonObject.getInt("RespCode") != 0) {
+			String msg = java.net.URLDecoder.decode(
+					jsonObject.getString("RespDesc"), "utf-8");
+			map.put("RespCode", "fail");
+			map.put("msg", "同步失败:" + msg);
+			JSONUtils.printObject(map);
+		} else {
+			String UsrCustId = jsonObject.getString("UsrCustId");
+			String UsrId = Convert.strToStr(jsonObject.getString("UsrId"), "");// 该字段格式为:xxxx_123456789
+			long userId = Convert.strToLong(
+					UsrId.substring(UsrId.indexOf("_") + 1), -1);
+			Long result = userService.addipayAccount(userId, UsrCustId, "");
+			if (result > 0) {
+				userService.updateSign(userId);
+				// 个人CA证书申请接口（审核模式）
+				String response = FddClient.invokeSyncPersonAuto(
+						map.get("realName"), map.get("email"), idNo,
+						map.get("cellPhone"));
+				JSONObject jobj1 = JSONObject.fromObject(response);
+				if (jobj1.getInt("code") == 1000) { // 上传文件成功
+					String customer = jobj1.getString("customer_id");
+					// long customer = Convert.strToLong(cust, 1);
+					userService.addFadada(userId, customer);
+				}
+				map.put("RespCode", "OK");
+				map.put("msg", "已同步成功！汇付客户号为：" + UsrCustId);
+				JSONUtils.printObject(map);
+			} else {
+				map.put("RespCode", "fail");
+				map.put("msg", "同步失败！插入汇付客户号失败");
+				JSONUtils.printObject(map);
+			}
+		}
+		return null;
+	}*/
+}

@@ -1,0 +1,642 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * OperateReport entity. @author MyEclipse Persistence Tools
+ */
+
+public class OperateReport implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String month;
+	private Date createTime;
+	private Double totalInvestAmount;
+	private Double totalMonthAmount;
+	private Double monthUnRepayAmount;
+	private Double totalIncome;
+	private Double monthIncome;
+	private Long totalUser;
+	private Long monthUser;
+	private Long totalInvestUser;
+	private Long monthInvestUser;
+	private Double monthAvgAmount;
+	private Double penAvgAmount;
+	private String manProp;
+	private String womanProp;
+	private Double hjbUnrepay;
+	private Double pjbUnrepay;
+	private Double djbUnrepay;
+	private String less18;
+	private String o1824;
+	private String o2529;
+	private String o3034;
+	private String o3539;
+	private String o4049;
+	private String exc50;
+	private String beijing;
+	private String tianjin;
+	private String hebei;
+	private String shanxi;
+	private String neimenggu;
+	private String liaoning;
+	private String jilin;
+	private String heilongjiang;
+	private String shanghai;
+	private String jiangsu;
+	private String zhejiang;
+	private String anhui;
+	private String jiangxi;
+	private String fujian;
+	private String shandong;
+	private String taiwan;
+	private String henan;
+	private String hubei;
+	private String hunan;
+	private String guangdong;
+	private String guangxi;
+	private String hainan;
+	private String hongkong;
+	private String macao;
+	private String chongqing;
+	private String sichuan;
+	private String yunan;
+	private String tibet;
+	private String guizhou;
+	private String shaanxi;
+	private String gansu;
+	private String qinghai;
+	private String ningxia;
+	private String xinjiang;
+
+	// Constructors
+
+	/** default constructor */
+	public OperateReport() {
+	}
+
+	/** full constructor */
+	public OperateReport(String month, Date createTime,
+			Double totalInvestAmount, Double totalMonthAmount,
+			Double monthUnRepayAmount, Double totalIncome, Double monthIncome,
+			Long totalUser, Long monthUser, Long totalInvestUser,
+			Long monthInvestUser, Double monthAvgAmount, Double penAvgAmount,
+			String manProp, String womanProp, Double hjbUnrepay,
+			Double pjbUnrepay, Double djbUnrepay, String less18, String o1824,
+			String o2529, String o3034, String o3539, String o4049,
+			String exc50, String beijing, String tianjin, String hebei,
+			String shanxi, String neimenggu, String liaoning, String jilin,
+			String heilongjiang, String shanghai, String jiangsu,
+			String zhejiang, String anhui, String jiangxi, String fujian,
+			String shandong, String taiwan, String henan, String hubei,
+			String hunan, String guangdong, String guangxi, String hainan,
+			String hongkong, String macao, String chongqing, String sichuan,
+			String yunan, String tibet, String guizhou, String shaanxi,
+			String gansu, String qinghai, String ningxia, String xinjiang) {
+		this.month = month;
+		this.createTime = createTime;
+		this.totalInvestAmount = totalInvestAmount;
+		this.totalMonthAmount = totalMonthAmount;
+		this.monthUnRepayAmount = monthUnRepayAmount;
+		this.totalIncome = totalIncome;
+		this.monthIncome = monthIncome;
+		this.totalUser = totalUser;
+		this.monthUser = monthUser;
+		this.totalInvestUser = totalInvestUser;
+		this.monthInvestUser = monthInvestUser;
+		this.monthAvgAmount = monthAvgAmount;
+		this.penAvgAmount = penAvgAmount;
+		this.manProp = manProp;
+		this.womanProp = womanProp;
+		this.hjbUnrepay = hjbUnrepay;
+		this.pjbUnrepay = pjbUnrepay;
+		this.djbUnrepay = djbUnrepay;
+		this.less18 = less18;
+		this.o1824 = o1824;
+		this.o2529 = o2529;
+		this.o3034 = o3034;
+		this.o3539 = o3539;
+		this.o4049 = o4049;
+		this.exc50 = exc50;
+		this.beijing = beijing;
+		this.tianjin = tianjin;
+		this.hebei = hebei;
+		this.shanxi = shanxi;
+		this.neimenggu = neimenggu;
+		this.liaoning = liaoning;
+		this.jilin = jilin;
+		this.heilongjiang = heilongjiang;
+		this.shanghai = shanghai;
+		this.jiangsu = jiangsu;
+		this.zhejiang = zhejiang;
+		this.anhui = anhui;
+		this.jiangxi = jiangxi;
+		this.fujian = fujian;
+		this.shandong = shandong;
+		this.taiwan = taiwan;
+		this.henan = henan;
+		this.hubei = hubei;
+		this.hunan = hunan;
+		this.guangdong = guangdong;
+		this.guangxi = guangxi;
+		this.hainan = hainan;
+		this.hongkong = hongkong;
+		this.macao = macao;
+		this.chongqing = chongqing;
+		this.sichuan = sichuan;
+		this.yunan = yunan;
+		this.tibet = tibet;
+		this.guizhou = guizhou;
+		this.shaanxi = shaanxi;
+		this.gansu = gansu;
+		this.qinghai = qinghai;
+		this.ningxia = ningxia;
+		this.xinjiang = xinjiang;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getMonth() {
+		return this.month;
+	}
+
+	public void setMonth(String month) {
+		this.month = month;
+	}
+
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public Double getTotalInvestAmount() {
+		return this.totalInvestAmount;
+	}
+
+	public void setTotalInvestAmount(Double totalInvestAmount) {
+		this.totalInvestAmount = totalInvestAmount;
+	}
+
+	public Double getTotalMonthAmount() {
+		return this.totalMonthAmount;
+	}
+
+	public void setTotalMonthAmount(Double totalMonthAmount) {
+		this.totalMonthAmount = totalMonthAmount;
+	}
+
+	public Double getMonthUnRepayAmount() {
+		return this.monthUnRepayAmount;
+	}
+
+	public void setMonthUnRepayAmount(Double monthUnRepayAmount) {
+		this.monthUnRepayAmount = monthUnRepayAmount;
+	}
+
+	public Double getTotalIncome() {
+		return this.totalIncome;
+	}
+
+	public void setTotalIncome(Double totalIncome) {
+		this.totalIncome = totalIncome;
+	}
+
+	public Double getMonthIncome() {
+		return this.monthIncome;
+	}
+
+	public void setMonthIncome(Double monthIncome) {
+		this.monthIncome = monthIncome;
+	}
+
+	public Long getTotalUser() {
+		return this.totalUser;
+	}
+
+	public void setTotalUser(Long totalUser) {
+		this.totalUser = totalUser;
+	}
+
+	public Long getMonthUser() {
+		return this.monthUser;
+	}
+
+	public void setMonthUser(Long monthUser) {
+		this.monthUser = monthUser;
+	}
+
+	public Long getTotalInvestUser() {
+		return this.totalInvestUser;
+	}
+
+	public void setTotalInvestUser(Long totalInvestUser) {
+		this.totalInvestUser = totalInvestUser;
+	}
+
+	public Long getMonthInvestUser() {
+		return this.monthInvestUser;
+	}
+
+	public void setMonthInvestUser(Long monthInvestUser) {
+		this.monthInvestUser = monthInvestUser;
+	}
+
+	public Double getMonthAvgAmount() {
+		return this.monthAvgAmount;
+	}
+
+	public void setMonthAvgAmount(Double monthAvgAmount) {
+		this.monthAvgAmount = monthAvgAmount;
+	}
+
+	public Double getPenAvgAmount() {
+		return this.penAvgAmount;
+	}
+
+	public void setPenAvgAmount(Double penAvgAmount) {
+		this.penAvgAmount = penAvgAmount;
+	}
+
+	public String getManProp() {
+		return this.manProp;
+	}
+
+	public void setManProp(String manProp) {
+		this.manProp = manProp;
+	}
+
+	public String getWomanProp() {
+		return this.womanProp;
+	}
+
+	public void setWomanProp(String womanProp) {
+		this.womanProp = womanProp;
+	}
+
+	public Double getHjbUnrepay() {
+		return this.hjbUnrepay;
+	}
+
+	public void setHjbUnrepay(Double hjbUnrepay) {
+		this.hjbUnrepay = hjbUnrepay;
+	}
+
+	public Double getPjbUnrepay() {
+		return this.pjbUnrepay;
+	}
+
+	public void setPjbUnrepay(Double pjbUnrepay) {
+		this.pjbUnrepay = pjbUnrepay;
+	}
+
+	public Double getDjbUnrepay() {
+		return this.djbUnrepay;
+	}
+
+	public void setDjbUnrepay(Double djbUnrepay) {
+		this.djbUnrepay = djbUnrepay;
+	}
+
+	public String getLess18() {
+		return this.less18;
+	}
+
+	public void setLess18(String less18) {
+		this.less18 = less18;
+	}
+
+	public String getO1824() {
+		return this.o1824;
+	}
+
+	public void setO1824(String o1824) {
+		this.o1824 = o1824;
+	}
+
+	public String getO2529() {
+		return this.o2529;
+	}
+
+	public void setO2529(String o2529) {
+		this.o2529 = o2529;
+	}
+
+	public String getO3034() {
+		return this.o3034;
+	}
+
+	public void setO3034(String o3034) {
+		this.o3034 = o3034;
+	}
+
+	public String getO3539() {
+		return this.o3539;
+	}
+
+	public void setO3539(String o3539) {
+		this.o3539 = o3539;
+	}
+
+	public String getO4049() {
+		return this.o4049;
+	}
+
+	public void setO4049(String o4049) {
+		this.o4049 = o4049;
+	}
+
+	public String getExc50() {
+		return this.exc50;
+	}
+
+	public void setExc50(String exc50) {
+		this.exc50 = exc50;
+	}
+
+	public String getBeijing() {
+		return this.beijing;
+	}
+
+	public void setBeijing(String beijing) {
+		this.beijing = beijing;
+	}
+
+	public String getTianjin() {
+		return this.tianjin;
+	}
+
+	public void setTianjin(String tianjin) {
+		this.tianjin = tianjin;
+	}
+
+	public String getHebei() {
+		return this.hebei;
+	}
+
+	public void setHebei(String hebei) {
+		this.hebei = hebei;
+	}
+
+	public String getShanxi() {
+		return this.shanxi;
+	}
+
+	public void setShanxi(String shanxi) {
+		this.shanxi = shanxi;
+	}
+
+	public String getNeimenggu() {
+		return this.neimenggu;
+	}
+
+	public void setNeimenggu(String neimenggu) {
+		this.neimenggu = neimenggu;
+	}
+
+	public String getLiaoning() {
+		return this.liaoning;
+	}
+
+	public void setLiaoning(String liaoning) {
+		this.liaoning = liaoning;
+	}
+
+	public String getJilin() {
+		return this.jilin;
+	}
+
+	public void setJilin(String jilin) {
+		this.jilin = jilin;
+	}
+
+	public String getHeilongjiang() {
+		return this.heilongjiang;
+	}
+
+	public void setHeilongjiang(String heilongjiang) {
+		this.heilongjiang = heilongjiang;
+	}
+
+	public String getShanghai() {
+		return this.shanghai;
+	}
+
+	public void setShanghai(String shanghai) {
+		this.shanghai = shanghai;
+	}
+
+	public String getJiangsu() {
+		return this.jiangsu;
+	}
+
+	public void setJiangsu(String jiangsu) {
+		this.jiangsu = jiangsu;
+	}
+
+	public String getZhejiang() {
+		return this.zhejiang;
+	}
+
+	public void setZhejiang(String zhejiang) {
+		this.zhejiang = zhejiang;
+	}
+
+	public String getAnhui() {
+		return this.anhui;
+	}
+
+	public void setAnhui(String anhui) {
+		this.anhui = anhui;
+	}
+
+	public String getJiangxi() {
+		return this.jiangxi;
+	}
+
+	public void setJiangxi(String jiangxi) {
+		this.jiangxi = jiangxi;
+	}
+
+	public String getFujian() {
+		return this.fujian;
+	}
+
+	public void setFujian(String fujian) {
+		this.fujian = fujian;
+	}
+
+	public String getShandong() {
+		return this.shandong;
+	}
+
+	public void setShandong(String shandong) {
+		this.shandong = shandong;
+	}
+
+	public String getTaiwan() {
+		return this.taiwan;
+	}
+
+	public void setTaiwan(String taiwan) {
+		this.taiwan = taiwan;
+	}
+
+	public String getHenan() {
+		return this.henan;
+	}
+
+	public void setHenan(String henan) {
+		this.henan = henan;
+	}
+
+	public String getHubei() {
+		return this.hubei;
+	}
+
+	public void setHubei(String hubei) {
+		this.hubei = hubei;
+	}
+
+	public String getHunan() {
+		return this.hunan;
+	}
+
+	public void setHunan(String hunan) {
+		this.hunan = hunan;
+	}
+
+	public String getGuangdong() {
+		return this.guangdong;
+	}
+
+	public void setGuangdong(String guangdong) {
+		this.guangdong = guangdong;
+	}
+
+	public String getGuangxi() {
+		return this.guangxi;
+	}
+
+	public void setGuangxi(String guangxi) {
+		this.guangxi = guangxi;
+	}
+
+	public String getHainan() {
+		return this.hainan;
+	}
+
+	public void setHainan(String hainan) {
+		this.hainan = hainan;
+	}
+
+	public String getHongkong() {
+		return this.hongkong;
+	}
+
+	public void setHongkong(String hongkong) {
+		this.hongkong = hongkong;
+	}
+
+	public String getMacao() {
+		return this.macao;
+	}
+
+	public void setMacao(String macao) {
+		this.macao = macao;
+	}
+
+	public String getChongqing() {
+		return this.chongqing;
+	}
+
+	public void setChongqing(String chongqing) {
+		this.chongqing = chongqing;
+	}
+
+	public String getSichuan() {
+		return this.sichuan;
+	}
+
+	public void setSichuan(String sichuan) {
+		this.sichuan = sichuan;
+	}
+
+	public String getYunan() {
+		return this.yunan;
+	}
+
+	public void setYunan(String yunan) {
+		this.yunan = yunan;
+	}
+
+	public String getTibet() {
+		return this.tibet;
+	}
+
+	public void setTibet(String tibet) {
+		this.tibet = tibet;
+	}
+
+	public String getGuizhou() {
+		return this.guizhou;
+	}
+
+	public void setGuizhou(String guizhou) {
+		this.guizhou = guizhou;
+	}
+
+	public String getShaanxi() {
+		return this.shaanxi;
+	}
+
+	public void setShaanxi(String shaanxi) {
+		this.shaanxi = shaanxi;
+	}
+
+	public String getGansu() {
+		return this.gansu;
+	}
+
+	public void setGansu(String gansu) {
+		this.gansu = gansu;
+	}
+
+	public String getQinghai() {
+		return this.qinghai;
+	}
+
+	public void setQinghai(String qinghai) {
+		this.qinghai = qinghai;
+	}
+
+	public String getNingxia() {
+		return this.ningxia;
+	}
+
+	public void setNingxia(String ningxia) {
+		this.ningxia = ningxia;
+	}
+
+	public String getXinjiang() {
+		return this.xinjiang;
+	}
+
+	public void setXinjiang(String xinjiang) {
+		this.xinjiang = xinjiang;
+	}
+
+}

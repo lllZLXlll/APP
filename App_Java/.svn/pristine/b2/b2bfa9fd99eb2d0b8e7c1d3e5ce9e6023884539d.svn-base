@@ -1,0 +1,208 @@
+package com.pjzb.service.front;
+
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.NoticeDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.SMSInterfaceDao;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.SendSms;
+import com.pjzb.entity.Sms;
+import com.pjzb.entity.SmsContent;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.SMSUtil;
+import com.shove.data.ConnectionManager;
+import com.shove.data.DataException;
+
+@Service
+public class SMSInterfaceService {
+	public static Log log = LogFactory.getLog(SMSInterfaceService.class);
+
+	@Autowired
+	private SMSInterfaceDao sMSInterfaceDao;
+
+	private ConnectionManager connectionManager;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private NoticeDao noticeDao;
+
+	public ConnectionManager getConnectionManager() {
+		return connectionManager;
+	}
+
+	/**
+	 * 更新短信接口信息
+	 */
+	public Long updateSMS(Integer id, String UserID, String Account, String Password, String status, String url) {
+		return sMSInterfaceDao.updateSMS(id, UserID, Account, Password, status, url);
+	}
+
+	/**
+	 * 根据Id获取短信接口信息详情
+	 */
+	public Map<String, String> getSMSById(Integer id) {
+		return sMSInterfaceDao.getSMSById(id);
+	}
+
+	/**
+	 * 根据Id获取用户个人信息
+	 * 
+	 * @param conn
+	 * @param id
+	 * @return
+	 * @throws SQLException
+	 * @throws DataException
+	 */
+	public Map<String, Object> getSmsIphone(long id) throws Exception {
+		return sMSInterfaceDao.getSmsIphone(id);
+	}
+
+	/**
+	 * 根据Id获取用户个人信息
+	 */
+	public Map<String, Object> getSmsConetnt(long id, int status) {
+		return sMSInterfaceDao.getSmsConetnt(id, status);
+	}
+
+	/**
+	 * 获取短信接口列表
+	 */
+	public List<Map<String, Object>> findBySMS() {
+		return sMSInterfaceDao.findBySMS();
+	}
+
+	public SmsContent querySmsContentByStatus(Integer status) {
+		return sMSInterfaceDao.querySmsContentByStatus(status);
+	}
+
+	public Sms querySmsById(Integer id) {
+		return sMSInterfaceDao.querySmsById(id);
+	}
+
+	public void insertSendsms(SendSms sendSms) {
+		sMSInterfaceDao.insertSendsms(sendSms);
+	}
+
+	/**
+	 * 发送模板短信
+	 * 
+	 * @return
+	 */
+	public void sendSMSModer(long id, String investSum, int status) {
+		try {
+			// 根据id集合获取用户phone
+			Person smsMap = personDao.queryPersonByUserId(id);
+			String phone = smsMap.getCellPhone();
+			// 或者短信内容
+			SmsContent moderContent = querySmsContentByStatus(status);
+			String content = null;
+			if (status == 1) {
+				content = moderContent.getContent();
+				content = "【" + IConstants.PRO_GLOBLE_NAME + "】" + content;
+				content = content.replaceAll("investSum", investSum);
+			} else if (status == 2) {
+				content = moderContent.getContent();
+				content = "【" + IConstants.PRO_GLOBLE_NAME + "】" + content;
+				content = content.replaceAll("cash", investSum);
+			} else if (status == 3) {
+				content = moderContent.getContent();
+			} else if (status == 4) {
+				content = moderContent.getContent();
+				content = "【" + IConstants.PRO_GLOBLE_NAME + "】" + content;
+				content = content.replaceAll("payments", investSum);
+			} else if (status == 5) {
+				content = moderContent.getContent();
+			} else if (status == 6) {
+				content = moderContent.getContent();
+				content = "【" + IConstants.PRO_GLOBLE_NAME + "】" + content;
+				content = content.replaceAll("auctionBasePrice", investSum);
+			}
+			Sms map = querySmsById(1);
+			String retCode = SMSUtil.sendSMS(map.getUserId(), map.getUrl(), map.getAccount(), map.getPassword(), content, phone, null);
+			if (retCode.equals("Sucess")) {
+				// 添加短信记录
+				SendSms sendSms = new SendSms();
+				sendSms.setContent(content);
+				sendSms.setSplitId(String.valueOf(id));
+				sendSms.setSplitPhone(phone);
+				sendSms.setStatus(2);
+				sendSms.setSendTime(new Date());
+				insertSendsms(sendSms);
+			} else {
+				SendSms sendSms = new SendSms();
+				sendSms.setContent(content);
+				sendSms.setSplitId(String.valueOf(id));
+				sendSms.setSplitPhone(phone);
+				sendSms.setStatus(1);
+				sendSms.setSendTime(new Date());
+				insertSendsms(sendSms);
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+	}
+
+//	/**
+//	 * 发送模板短信
+//	 */
+//	public String sendSMSModer(long id, String investSum, int status) {
+//		try {
+//
+//			// 根据id集合获取用户phone
+//			SMSInterfaceService sMSInterfaceService = new SMSInterfaceService();
+//			Map<String, Object> smsMap = sMSInterfaceService.getSmsIphone(id);
+//			String phone = smsMap.get("cellPhone").toString();
+//			// 或者短信内容
+//			Map<String, Object> moderContent = sMSInterfaceService.getSmsConetnt(id, status);
+//			String content = null;
+//			if (status == 1) {
+//				content = moderContent.get("content") + "";
+//				content = "【" + IConstants.PRO_GLOBLE_NAME + "】" + content;
+//				content = content.replaceAll("investSum", investSum);
+//			} else if (status == 2) {
+//				content = moderContent.get("content") + "";
+//				content = "【" + IConstants.PRO_GLOBLE_NAME + "】" + content;
+//				content = content.replaceAll("cash", investSum);
+//			} else if (status == 3) {
+//				content = moderContent.get("content") + "";
+//			} else if (status == 4) {
+//				content = moderContent.get("content") + "";
+//				content = "【" + IConstants.PRO_GLOBLE_NAME + "】" + content;
+//				content = content.replaceAll("payments", investSum);
+//			} else if (status == 5) {
+//				content = moderContent.get("content") + "";
+//			} else if (status == 6) {
+//				content = moderContent.get("content") + "";
+//				content = "【" + IConstants.PRO_GLOBLE_NAME + "】" + content;
+//				content = content.replaceAll("auctionBasePrice", investSum);
+//			}
+//
+//			Map<String, String> map = sMSInterfaceService.getSMSById(1);
+//
+//			SMSUtil.sendSMS(map.get("UserID"), map.get("url"), map.get("Account"), map.get("Password"), content, phone, null);
+//			SendSms sendSMS = new SendSms();
+//			sendSMS.setContent(content);
+//			sendSMS.setSplitId(id + "");
+//			sendSMS.setSplitPhone(phone);
+//			sMSInterfaceDao.sendSMSs(sendSMS);
+//			return null;
+//		} catch (Exception e) {
+//			log.error(e);
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
+
+}

@@ -1,0 +1,9 @@
+package com.pjzb.dao;
+ 
+import java.util.Map;
+
+public interface AppVersionDao {
+	
+	public Map<String, Object> queryAppVersionByType(Integer type);
+
+}

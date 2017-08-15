@@ -1,0 +1,111 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.ApplyDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Apply;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+
+/**
+ * 企业融资申请表
+ * 
+ * @author zlx
+ * 
+ */
+
+@Service
+public class AdminCompanyFinanceFormService extends BaseController {
+
+	@Autowired
+	private ApplyDao applyDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryborrowfabiao(Model model, long pageNum, long pageSize, String state, String tname, String telphone, String tabid) {
+		try {
+			long count = applyDao.queryborrowfabiaoCount(state, tname, telphone);
+			PageBean pageBean = new PageBean(pageNum, pageSize, count, (count > 0) ? applyDao.queryborrowfabiao(state, tname, telphone, (pageNum - 1) * pageSize, pageSize) : null);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("state", state);
+			model.addAttribute("tname", tname);
+			model.addAttribute("telphone", telphone);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询企业融资申请异常**************************");
+		}
+		return "/admin/borrow/companyfinanceform/list.jsp";
+	}
+
+	public Map<String, Object> deleteBorrowfabiao(Admin admin, String delids) throws RuntimeException {
+		if (delids == null || "".equals(delids.trim())) {
+			return ajaxDoneInfo("300", "删除企业融资申请失败，未选中任何记录", "", "");
+		}
+		long result = applyDao.deleteBorrowfabiao(delids.split(","));
+		if (result > 0) {
+			operationLogDao.addOperationLog(new OperationLog("t_apply", admin.getUserName(), IConstants.DELETE, admin.getLastIp(), new Date(), 0d, "删除id为" + delids + "的企业融资申请表记录",
+					2, admin.getId()));
+			return ajaxDoneInfo("200", "删除企业融资申请成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "删除企业融资申请失败", "", "");
+		}
+	}
+
+	/**
+	 * @describe:企业融资申请查询
+	 * @author: zlx
+	 */
+	public Apply queryCompanyById(Model model, long id, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return applyDao.queryApplyById(id);
+	}
+
+	/**
+	 * @describe:企业融资申请修改状态
+	 * @author: zlx
+	 */
+	public Long updateState(Long id, int state) throws RuntimeException {
+		try {
+			return applyDao.updateState(id, state);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			throw new RuntimeException("**********************企业融资申请修改状态异常***************************");
+		}
+	}
+
+	/**
+	 * @describe:企业融资申请 导出
+	 * @author: zlx
+	 */
+	public void exportinborrowfa(HttpServletResponse response) {
+		try {
+			List<Map<String, Object>> applyList = applyDao.queryborrowfabiaoExport();
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("企业融资申请列表", applyList, new String[] { "企业名称", "注册号", "联系人", "联系电话", "城市所在地", "借款金额（¥）", "借款期限（月）", "状态" }, new String[] {
+					"companyname", "registnumber", "tname", "telephone", "cityaddress", "borrowAmount", "deadline", "state" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业融资申请导出异常***************************");
+		}
+	}
+
+}

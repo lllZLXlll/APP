@@ -1,0 +1,9 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.BorrowRole;
+
+public interface BorrowRoleDao {
+	
+	public BorrowRole queryBorrowRoleByApplyId(Long applyId);
+
+}

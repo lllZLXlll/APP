@@ -1,0 +1,30 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.CloseNetWork;
+import com.shove.data.DataSet;
+
+/**
+ * 关闭网站
+ * @author Administrator
+ *
+ */
+public interface CloseNetWorkDao {
+
+	/**
+	 * 更新网站状态（开启或禁用）
+	 */
+	public Long updateNetWork(Integer status,String content);
+	
+	/**
+	 * 获取网站信息
+	 */
+	public Map<String, Object> getNetWorkById();
+	
+	public int p_init(DataSet ds, List<Object> outParameterValues, int out_ret,String out_desc);
+
+	public CloseNetWork  queryNetWorkById();
+
+}

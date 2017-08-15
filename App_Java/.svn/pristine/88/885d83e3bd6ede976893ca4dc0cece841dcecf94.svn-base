@@ -1,0 +1,53 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.SendSms;
+import com.pjzb.entity.Sms;
+import com.pjzb.entity.SmsContent;
+import com.pjzb.entity.UserSendcode;
+
+/**
+ * 后台短信接口
+ * @author Administrator
+ *
+ */
+public interface SMSInterfaceDao {
+	
+	/**
+	 * 更新短信接口信息
+	 */
+	public Long updateSMS(Integer id,String UserID,String Account,String Password,String status,String url);
+		
+	
+	/**
+	 * 根据Id获取短信接口信息详情
+	 */
+	public Map<String,String> getSMSById(Integer id);
+	     
+	/**
+	 * 根据Id获取用户的手机等信息
+	 */
+	public Map<String,String> getSmsIphone(long id);
+	     
+	/**
+	 * 根据ID查询发送内容信息
+	 */
+	public Map<String,String> getSmsConetnt(long id,int status);
+	
+	public List<Map<String, Object>> findBySMS();
+	
+	public SmsContent querySmsContentByStatus(Integer status);
+	
+	public Sms querySmsById(Integer id);
+	
+	public void insertSendsms(SendSms sendSms);
+	
+	public Long sendSMSs(SendSms sendSms);
+	
+	public Map<String, Long> queryUserSendCodeByPhone(String phone);
+	
+	public void saveUserSendcode(UserSendcode userSendcode);
+
+}

@@ -1,0 +1,113 @@
+package com.pjzb.service.common;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AppVersionDao;
+import com.pjzb.entity.AppVersion;
+import com.pjzb.util.Constants;
+ 
+@Service
+public class AppVersionService extends BaseController{
+
+	@Autowired
+	private AppVersionDao appVersionDao;  	
+
+	public Map<String, Object> queryAppVersionByType(Integer type){
+		Map<String, Object> map = appVersionDao.queryAppVersionByType(type);
+		return map;
+	}
+
+	public String queryAppVersionForPage(Long pageNum, Long pageSize, Model model, String tabid,String beginTime,String endTime) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = appVersionDao.queryAppVersionForPage((pageNum - 1) * pageSize, pageSize,
+					beginTime,endTime,true);
+			long count = appVersionDao.queryAppVersionCount(beginTime,endTime);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询app版本异常**************************");
+		}
+		return "/admin/system/appversion/list.jsp";
+	}
+
+	public String addAppVersionInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/system/appversion/add.jsp";
+	}
+
+	public Map<String, Object> addAppVersion(Model model, String tabid,AppVersion appVersion) throws RuntimeException{
+		try{
+			appVersion.setCreateTime(new Date());
+			long result = appVersionDao.addAppVersion(appVersion);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "app版本管理增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "app版本管理增加失败", "", "");
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**********app版本管理增加异常***************");
+		}
+	}
+
+	public String updateAppVersionByIdInit(Model model, String tabid,Long id) {
+		try {
+			model.addAttribute("appVersion", appVersionDao.queryAppVersionById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询app版本管理异常**************************");
+		}
+		return "/admin/system/appversion/edit.jsp";
+	}
+
+	public Map<String, Object> updateAppVersionById(String tabid, AppVersion appVersion) throws RuntimeException{
+		try{
+			long result = appVersionDao.updateAppVersionById(appVersion);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "app版本修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "app版本修改失败", "", "");
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**********app版本修改异常***************");
+		}
+	}
+
+	public Map<String, Object> deleteAppVersionById(String tabid, Long id) throws RuntimeException{
+		try {
+			long result = appVersionDao.deleteAppVersionById(id);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************app版本删除异常******************");
+		}
+	}
+	
+}

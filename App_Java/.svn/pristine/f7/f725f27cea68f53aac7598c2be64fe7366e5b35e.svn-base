@@ -1,0 +1,35 @@
+<div class="content">
+    <div class="share-top">
+        <div class="flex">
+            <p>股东构成：</p>
+            <p class="share-title" v-bind:class="{active:data[0]}" @click="change(1)">赣州城投集团</p>
+            <p class="share-title" v-bind:class="{active:data[1]}" @click="change(2)">盛汇资产</p>
+        </div>
+    </div>
+    <div class="share-content" v-if="data[0]" transition="scale">
+        <p class="share-c-t">承建项目</p>
+        <div class="share-c-img">
+            <p v-for="list in imgList">
+                <img :src="list.img" />
+                <span>{{list.title}}</span>
+            </p>
+        </div>
+        <div class="share-text">
+            <p>{{partone}}</p>
+            <p>{{parttwo}}</p>
+            <p>{{partthree}}</p>
+            <p>{{partfour}}</p>
+        </div>
+    </div>
+    <div class="share-content" v-if="data[1]" transition="scale">
+        <p class="share-c-t">办公环境</p>
+        <div class="share-c-img">
+            <p v-for="list in imgListTwo">
+                <img :src="list.img" />
+            </p>
+        </div>
+        <div class="share-text">
+            <p>{{partShen}}</p>
+        </div>
+    </div>
+</div>

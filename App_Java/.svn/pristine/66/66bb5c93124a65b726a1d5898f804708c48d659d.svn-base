@@ -1,0 +1,29 @@
+<div class="content content-login">
+	<template v-for="list in dataList">
+		<div class="text-item">
+			<label> <i class="icon icon-color" :class="[list.iconClass]"></i>
+			</label>
+			<input type="{{list.inputType}}" placeholder="{{list.placeholder}}" v-getvalue="[list.dataBind]" maxlength="{{list.max}}" >
+			<button type="button" v-if="list.showMsg" href="javascript:void(0);" @click="getCode($event)" class="btn-msg btn-img">
+				<img v-bind:src="codeImg" alt="" />
+			</button>
+		</div>
+	</template>
+	<div class="pull-box">
+		<div class="pull-bg" :style={width:bgWidth+"px"}></div>
+		<div v-bind:class={"pull-default-true":pullTest,"pull-default":!pullTest} v-text="tipText"></div>
+		<div class="pull-btn" v-bind:class={"pull-btn-true":pullTest} :style={left:btnLeft+"px"} v-touch:move="move" v-touch:start="start" v-touch:end="end"></div>
+	</div>
+	<div class="text-item-submit">
+		<button type="button" v-on:click="login" class="btn btn-submit">立即登录</button>
+	</div>
+	<div class="text-item-more">
+		<p class="align-left">
+			<a v-link={path:"/forget/",query:{show:true}} >忘记密码</a>
+		</p>
+		<p class="align-right">
+			没有账户，
+			<a v-link={path:"/regist",query:{show:true}} >立即注册</a>
+		</p>
+	</div>
+</div>

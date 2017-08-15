@@ -1,0 +1,18 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Emp;
+
+public interface EmpDao {
+
+	List<Map<String, Object>> queryEmpManageInfoIndex(String empNo, String empName, long l, Long pageSize);
+
+	long queryEmpManageInfoIndexCount(String empNo, String empName);
+
+	long deleteEmpById(Long id);
+
+	long addEmp(Emp emp);
+	
+}

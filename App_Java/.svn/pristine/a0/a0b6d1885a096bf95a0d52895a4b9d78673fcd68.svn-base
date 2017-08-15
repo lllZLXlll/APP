@@ -1,0 +1,34 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/about/About.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('关于',false,true);
+		},
+		data: function(){
+			return {
+				elmList:[
+				{name:'公司简介',iconClass:'icon-accountabout ',aLink:{path:'/aboutus'},notice:false,noticeNum:0},
+				{name:'股东背景',iconClass:'icon-accountbg ',aLink:{path:'/shareholder'},notice:false,noticeNum:2},
+				{name:'普金资讯',iconClass:'icon-accountnew ',aLink:{path:'/dynamic'},notice:false,noticeNum:0},
+				{name:'新标预告',iconClass:'icon-accountyg ',aLink:{path:'/newsport',query:{flag:1}},notice:false,noticeNum:0},
+				{name:'帮助中心',iconClass:'icon-accounthelp ',aLink:{path:'/help'},notice:false,noticeNum:0},
+				{name:'平台公告',iconClass:'icon-notice_ab',aLink:{path:'/newsport',query:{flag:2}},notice:false,noticeNum:0},
+				{name:'问题反馈',iconClass:'icon-accountanswer',aLink:{path:'/feedback'},notice:false,noticeNum:0},
+				{name:'产品介绍',iconClass:'icon-accountfollow',aLink:{path:'/introduced'},notice:false,noticeNum:0},
+				{name:'在线客服',iconClass:'icon-accountcust',aLink:'#',notice:false,noticeNum:0}
+				]
+			}
+		},
+		methods:{
+			clickEvent: function(index){
+				if(index == 8){
+					window.location.href = 'tel://400-606-2079';
+				}else{
+					router.go(this.elmList[index].aLink);
+				}
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

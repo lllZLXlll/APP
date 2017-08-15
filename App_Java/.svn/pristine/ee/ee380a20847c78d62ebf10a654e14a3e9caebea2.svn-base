@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.InvestHistoryDao">
+
+	<select id="getInvestHistory" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT id FROM t_invest_history WHERE id = #{0}
+	</select>
+	
+
+	<update id="updateInvestHistory" parameterType="invest">
+		UPDATE t_invest_history
+		<trim prefix="set" suffixOverrides=",">
+			<if test="investAmount != null">investAmount=#{investAmount},</if>
+			<if test="monthRate != null">monthRate=#{monthRate},</if>
+			<if test="investor != null">investor=#{investor},</if>
+			<if test="borrowId != null ">borrowId=#{borrowId},</if>
+			<if test="investTime != null">investTime=#{investTime},</if>
+			<if test="oriInvestor != null">oriInvestor=#{oriInvestor},</if>
+			<if test="realAmount != null">realAmount=#{realAmount},</if>
+			<if test="hasPi != null">hasPI=#{hasPi},</if>
+			<if test="deadline != null">deadline=#{deadline},</if>
+			<if test="hasDeadline != null">hasDeadline=#{hasDeadline},</if>
+			<if test="recivedPrincipal != null">recivedPrincipal=#{recivedPrincipal},</if>
+			<if test="recievedInterest != null">recievedInterest=#{recievedInterest},</if>
+			<if test="hasPrincipal != null">hasPrincipal=#{hasPrincipal},</if>
+			<if test="hasInterest != null">hasInterest=#{hasInterest},</if>
+			<if test="recivedFi != null">recivedFI=#{recivedFi},</if>
+			<if test="hasFi != null">hasFI=#{hasFi},</if>
+			<if test="manageFee != null">manageFee=#{manageFee},</if>
+			<if test="reward != null ">reward=#{reward},</if>
+			<if test="repayStatus != null ">repayStatus=#{repayStatus},</if>
+			<if test="flag != null">flag=#{flag},</if>
+			<if test="isAutoBid != null ">isAutoBid=#{isAutoBid},</if>
+			<if test="isDebt != null ">isDebt=#{isDebt},</if>
+			<if test="checkPrincipal != null">check_principal=#{checkPrincipal},</if>
+			<if test="checkInterest != null">check_interest=#{checkInterest},</if>
+			<if test="minInvestId != null ">min_invest_id=#{minInvestId},</if>
+			<if test="maxInvestId != null ">max_invest_id=#{maxInvestId},</if>
+			<if test="adjustPrincipal != null">adjust_principal=#{adjustPrincipal},</if>
+			<if test="downloadUrl != null">download_url=#{downloadUrl},</if>
+			<if test="viewpdfUrl != null ">viewpdf_url=#{viewpdfUrl},</if>
+			<if test="firstInvest != null ">firstInvest=#{firstInvest},</if>
+			<if test="lastInvest != null ">lastInvest=#{lastInvest},</if>
+			<if test="maxInvestt != null ">maxInvest=#{maxInvest},</if>
+			<if test="pushdate != null ">pushdate=#{pushdate},</if>
+			<if test="pushstate != null ">pushstate=#{pushstate},</if>
+			<if test="moneyRecord != null">moneyRecord=#{moneyRecord},</if>
+			<if test="voucherId != null">voucherId=#{voucherId},</if>
+			<if test="circulationInterest != null">circulationInterest=#{circulationInterest},</if>
+			<if test="circulationForpayStatus != null ">circulationForpayStatus=#{circulationForpayStatus},</if>
+			<if test="reason != null">reason=#{reason},</if>
+			<if test="repayDate != null">repayDate=#{repayDate},</if>
+			<if test="billcode != null">billcode=#{billcode},</if>
+			<if test="trxId != null">trxId=#{trxId},</if>
+			<if test="investId != null">investId=#{investId},</if>
+			<if test="contractId != null">contract_id=#{contractId},</if>
+			<if test="pageType != null">pageType=#{pageType},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<insert id="addInvestHistory" parameterType="invest">
+		INSERT INTO
+		t_invest_history (
+		id,
+		investAmount,
+		monthRate, investor, borrowId,
+		investTime, oriInvestor,
+		realAmount,
+		hasPI,
+		deadline,
+		hasDeadline, recivedPrincipal,
+		recievedInterest,
+		hasPrincipal,
+		hasInterest, recivedFI, hasFI,
+		manageFee, reward,
+		repayStatus,
+		flag, isAutoBid,
+		isDebt,
+		check_principal, check_interest,
+		min_invest_id,
+		max_invest_id,
+		adjust_principal, download_url,
+		viewpdf_url,
+		firstInvest,
+		lastInvest, maxInvest,
+		pushdate, pushstate,
+		moneyRecord, voucherId,
+		circulationInterest,
+		circulationForpayStatus,
+		reason,
+		repayDate, billcode, trxId,
+		investId, contract_id,
+		pageType
+		)
+		VALUES (
+		#{id},
+		#{investAmount}, #{monthRate}, #{investor}, #{borrowId}, #{investTime},
+		#{oriInvestor},
+		#{realAmount}, #{hasPi}, #{deadline}, #{hasDeadline}, #{recivedPrincipal},
+		#{recievedInterest},
+		#{hasPrincipal}, #{hasInterest}, #{recivedFi}, #{hasFi}, #{manageFee}, #{reward},
+		#{repayStatus},
+		#{flag}, #{isAutoBid}, #{isDebt}, #{checkPrincipal}, #{checkInterest},
+		#{minInvestId},
+		#{maxInvestId}, #{adjustPrincipal}, #{downloadUrl}, #{viewpdfUrl}, #{firstInvest},
+		#{lastInvest}, #{maxInvest}, #{pushdate}, #{pushstate},
+		#{moneyRecord}, #{voucherId}, #{circulationInterest},
+		#{circulationForpayStatus}, #{reason}, #{repayDate}, #{billcode},
+		#{trxId}, #{investId}, #{contractId},
+		#{pageType}
+		)
+	</insert>
+
+</mapper>
+
+
+

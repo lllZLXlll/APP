@@ -1,0 +1,97 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * RecommendUser entity. @author MyEclipse Persistence Tools
+ */
+
+public class RecommendUser implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Long recommendUserId;
+	private Long moneyTypeId;
+	private Double rewardMoney;
+	private Date rewardTime;
+	private Long maintenanceman;
+
+	// Constructors
+
+	/** default constructor */
+	public RecommendUser() {
+	}
+
+	/** full constructor */
+	public RecommendUser(Long userId, Long recommendUserId, Long moneyTypeId,
+			Double rewardMoney, Date rewardTime, Long maintenanceman) {
+		this.userId = userId;
+		this.recommendUserId = recommendUserId;
+		this.moneyTypeId = moneyTypeId;
+		this.rewardMoney = rewardMoney;
+		this.rewardTime = rewardTime;
+		this.maintenanceman = maintenanceman;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getRecommendUserId() {
+		return this.recommendUserId;
+	}
+
+	public void setRecommendUserId(Long recommendUserId) {
+		this.recommendUserId = recommendUserId;
+	}
+
+	public Long getMoneyTypeId() {
+		return this.moneyTypeId;
+	}
+
+	public void setMoneyTypeId(Long moneyTypeId) {
+		this.moneyTypeId = moneyTypeId;
+	}
+
+	public Double getRewardMoney() {
+		return this.rewardMoney;
+	}
+
+	public void setRewardMoney(Double rewardMoney) {
+		this.rewardMoney = rewardMoney;
+	}
+
+	public Date getRewardTime() {
+		return this.rewardTime;
+	}
+
+	public void setRewardTime(Date rewardTime) {
+		this.rewardTime = rewardTime;
+	}
+
+	public Long getMaintenanceman() {
+		return this.maintenanceman;
+	}
+
+	public void setMaintenanceman(Long maintenanceman) {
+		this.maintenanceman = maintenanceman;
+	}
+
+}

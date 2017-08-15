@@ -1,0 +1,160 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="${basePath }admin/borrowmanagefeeindex.do" method="post">
+      	<input type="hidden" name="tabid" value="${tabid}">
+        <input type="hidden" name="pageSize" value="${pageSize}">
+        <input type="hidden" name="pageCurrent" value="${model.pageCurrent}">
+        <div class="bjui-searchBar">
+            <br/>
+            &nbsp;&nbsp;
+            <label>借款类型:</label>
+            <select data-toggle="selectpicker" name="borrowWay">
+	           	<option value="-1">--请选择--</option>
+	           	<option value="2" ${borrowWay == 2 ? 'selected' : ''}>体验标</option>
+	           	<option value="3" ${borrowWay == 3 ? 'selected' : ''}>多金宝</option>
+	           	<option value="4" ${borrowWay == 4 ? 'selected' : ''}>普金保</option>
+	           	<option value="5" ${borrowWay == 5 ? 'selected' : ''}>新手标</option>
+	           	<option value="6" ${borrowWay == 6 ? 'selected' : ''}>恒金保</option>
+	        </select>
+            &nbsp;
+            <label>用户名：</label><input type="text" id="customNo" value="${userName }" name="userName" class="form-control">&nbsp;
+             <label>审核时间：</label>
+            <input type="text" name="beginTime" id="beginDate"  data-toggle="datepicker"
+                       data-pattern="yyyy-MM-dd HH:mm:ss" value="${beginTime }"  readonly="readonly" >&nbsp;-&nbsp;
+            </label> <input type="text" name="endTime" id="endDate"  data-toggle="datepicker"
+                       data-pattern="yyyy-MM-dd HH:mm:ss" value="${endTime }" readonly="readonly" >&nbsp;
+            <button type="button" class="btn-default" id="searchButton" data-icon="search">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+            &nbsp;&nbsp;
+        </div>
+    </form>
+    <div style="text-align: center;margin-bottom: 7px">
+    
+    <span style="font-size: 16px;">当前页的招标借款金额合计（￥）：</span>
+    <span style="font-size: 16px;font-weight: bold;">
+    <fmt:formatNumber value="${tenderAmount}" type="currency" pattern="#,##0.00"/></span>&nbsp;元&nbsp;&nbsp;&nbsp;&nbsp;
+    <span style="font-size: 16px;">招标借款金额合计（￥）：</span>
+    <span style="font-size: 16px;font-weight: bold;">
+    <fmt:formatNumber value="${tenderBorrowAmount }" type="currency" pattern="#,##0.00"/></span>&nbsp;元&nbsp;&nbsp;&nbsp;&nbsp;
+    
+     <span style="font-size: 16px;">平台管理费合计（￥）：</span>
+    <span style="font-size: 16px;font-weight: bold;">
+    <fmt:formatNumber value="${currentPageBorrowmanagefee }" type="currency" pattern="#,##0.00"/></span>&nbsp;元&nbsp;&nbsp;&nbsp;&nbsp;
+    
+    </div>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+        <thead>
+            <tr align="center">
+                <th align="center">序号</th>
+                <th align="center">用户名</th>
+                <th align="center">真实姓名</th>
+                <th align="center">标的类型</th>
+                <th align="center">借款标题</th>
+                <th align="center">借款金额（￥元）</th>
+                <th align="center">利率</th>
+                <th align="center">期限</th>
+                <th align="center">状态</th>
+                <th align="center">审核时间</th>
+                <th align="center">平台管理费（￥元）</th>
+                <th align="center">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        	<c:set var="count" value="${(pageBean.pageNum-1)*pageBean.pageSize}"></c:set> 
+        	<c:forEach items="${pageBean.page }" var="borrow" varStatus="status">
+				<tr data-id="65" align="center">
+				 	<td>${status.index+1+count }</td>
+	                <td>${borrow.username }</td>
+	                <td>${borrow.realName }</td>
+	                <td>${borrow.borrowWayName }</td>
+	                <td><a href="../WEB-PC/invest.html?id=${borrow.id}" target="view_frame">${borrow.borrowTitle }</a></td>
+	                <td><fmt:formatNumber value="${borrow.borrowAmount }" type="currency" pattern="#,##0.00"/>
+	                </td>
+	                <td>${borrow.annualRate }%</td>
+	                <td>
+	                	${borrow.deadline }
+	                	<c:if test="${borrow.isDayThe == 1}">个月</c:if>
+	                	<c:if test="${borrow.isDayThe != 1}">天</c:if>
+	                </td>
+	                <td>
+	                	<c:if test="${borrow.borrowStatus == 1 }">等待资料</c:if>
+	                	<c:if test="${borrow.borrowStatus == 2 }">招标中</c:if>
+	                	<c:if test="${borrow.borrowStatus == 3 }">已满标</c:if>
+	                	<c:if test="${borrow.borrowStatus == 4 }">还款中</c:if>
+	                	<c:if test="${borrow.borrowStatus == 5 }">已还完</c:if>
+	                	<c:if test="${borrow.borrowStatus == 6 }">流标</c:if>
+	                	<c:if test="${borrow.borrowStatus == 7 }">未开放</c:if>
+	                </td>
+	                  <td>
+						<fmt:formatDate value="${borrow.auditTime }" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+	                <td>${borrow.manageFee }</td>
+	                <td>
+                		<a href="javascript:;" 
+                		data-toggle="navtab" 
+                		data-options="{id:'borrowFinancingManageMoney${borrow.id }', url:'borrowmanagefeeinfo.do?id=${borrow.id}&tabid=borrowFinancingManageMoney${borrow.id }', title:'标的融资管理费详情'}" 
+                		class="btn btn-green">
+                			详情
+                		</a>
+	                </td>
+            	</tr>
+            </c:forEach>
+            <c:if test="${pageBean.page == null or pageBean.page == '[]' }">
+            	<tr align="center">
+            		<td align="center" colspan="11">暂无数据</td>
+            	</tr>
+            </c:if>
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+            	<option value="10">10</option>
+            	<option value="20" selected="selected">20</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 ${pageBean.totalNum } 条</span>
+    </div>
+    <div class="pagination-box" data-toggle="pagination" data-total="${pageBean.totalNum }" data-page-size="${pageBean.pageSize }" data-page-current="1">
+    </div>
+</div>
+<script type="text/javascript">
+	$("#searchButton").click(function(){
+		var beginTime = $("#beginDate").val();
+		var endTime = $("#endDate").val();
+		beginTime = beginTime.replace(/-/g, '/');
+		endTime = endTime.replace(/-/g, '/');
+		var date1 = new Date(beginTime); // 开始时间
+		var date2 = new Date(endTime); // 结束时间
+		var beginTimeLength=beginTime.trim().length;
+		var endTimeLength=endTime.trim().length;
+		if (beginTimeLength == 0 && endTimeLength==0) {
+			$('#pagerForm').submit();
+		} else {
+			if (beginTimeLength == 0 && endTimeLength>0) {
+				$(this).alertmsg('warn', '开始时间不能为空');
+				return;
+			}
+			
+			if (beginTimeLength > 0 && endTimeLength==0) {
+				$(this).alertmsg('warn', '结束时间不能为空');
+				return;
+			}
+			if (date1 > date2) {
+				$(this).alertmsg('warn', '结束时间不能小于开始时间');
+				return;
+			} else {
+				$('#pagerForm').submit();
+			}
+		}
+	});
+</script>

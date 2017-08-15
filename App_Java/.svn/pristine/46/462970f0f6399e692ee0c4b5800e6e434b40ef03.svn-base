@@ -1,0 +1,49 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Group;
+import com.pjzb.entity.GroupUser;
+
+public interface GroupDao {
+
+	// t_group表 begin
+	public Group queryUserCashStatus(Long userId, Integer cashStatus);
+
+	public Group queryGroupByGroupName(String groupName);
+
+	public long addGroup(Group group);
+
+	public long deleteGroupById(Long id);
+
+	public long updateGroupById(Group group);
+
+	public Group queryGroupById(Long id);
+
+	public List<Group> queryGroupByCashStatus(Integer cashStatus);
+
+	// t_group表 begin
+
+	// t_group_user表 begin
+	public long deleteGroupUserByGroupId(Long groupId);
+
+	public long addGroupUser(GroupUser groupUser);
+
+	public List<Long> queryGroupUserByGroupId(Long groupId);
+
+	public List<Map<String, Object>> queryGroupUserPersonForPage(String username, String realName, Double startAllSum, Double endAllSum, Double startUsableSum,
+			Double endUsableSum, Long groupId, Long index, Long pageSize);
+
+	public Long queryGroupUserPersonForCount(String username, String realName, Double startAllSum, Double endAllSum, Double startUsableSum, Double endUsableSum, Long groupId);
+
+	public long deleteGroupUserById(Long id);
+
+	public List<Map<String, Object>> queryUserGroupForPage(String groupName, long index, long pageSize);
+
+	public Long queryUserGroupForCount(@Param("groupName") String groupName);
+	// t_group_user表 end
+
+}

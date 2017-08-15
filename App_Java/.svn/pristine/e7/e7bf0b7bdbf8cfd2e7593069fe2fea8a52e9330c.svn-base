@@ -1,0 +1,159 @@
+.mod-manage-money{
+	h2{
+		font-size: 18px;
+		font-weight: bold;
+		margin-bottom: 20px;
+	}
+	a{
+		color: #3180bf
+	}
+	.white-box{
+		padding: 30px;
+		border-radius: 3px;
+		background: #fff;
+		margin-bottom: 50px;
+	}
+	.big{
+		font-size: 18px;
+		padding: 0;
+		a{
+			font-size: 16px;
+		}
+	}
+	.normal{
+		font-size: 16px;
+	}
+	.tip{
+		color: #8d8d8d;
+		font-size: 14px;
+		line-height: 32px;
+	}
+	.two-column{
+		.item{
+			float: left;
+		}
+		.first{
+			border-right: 1px solid #cbcbcb;
+		}
+		table.usr-info{
+			font-size: 16px;
+			color: #1e1e1e;
+			td{
+				padding-right: 40px;
+				padding-bottom: 20px;
+				vertical-align: middle;
+				img{
+					width: 160px;
+					height: 200px;
+				}
+			}
+		}
+		.make-sure, .last{
+			padding: 0 40px;
+		}
+		.make-sure{
+			.tip{
+				margin-top: 40px;
+			}
+			.big{
+				margin-bottom: 18px;
+			}
+		}
+
+		.process{
+			position: relative;
+			display: inline-block;
+			width: 210px;
+			height: 8px;
+			.bar {
+				position: relative;
+				border-radius: 4px;
+				background: #E8E8E8;
+				width: 98%;
+				height: 6px;
+				margin: 0 auto;
+				display: block;
+				.bar {
+					position: absolute;
+					left: 0;
+					top: 0;
+					height: 6px;
+					background: #3180BF;
+					border-radius: 4px;
+				}
+			}
+			.num {
+				color: #3180BF;
+				font-size: 12px;
+				position: absolute;
+				top: -4px;
+				right: -30px;
+				margin-left: -10px;
+			}
+		}
+	}
+	.usr-info-detail{
+		.ico-ok{
+			margin: 0 4px;
+		}
+		.item{
+			padding-bottom: 30px;
+			margin-bottom: 30px;
+			border-bottom: 1px solid #cbcbcb;
+			overflow: hidden;
+			font-size: 16px;
+			.face{
+				float: left;
+				margin-right: 35px;
+				img{
+					width: 130px;
+					height: 160px;
+				}
+				&.big{
+					img{
+						width: 160px;
+						height: 200px;
+					}
+				}
+			}
+			table{
+				td{
+					padding: 8px 60px 8px 0;
+					.level{
+						font-size: 10px;
+						background: #eb6f00;
+						color: #fff;
+						padding: 1px 8px;
+						line-height: 1;
+						display: inline-block;
+						margin-left: 4px;
+						em{
+							font-size: 14px;
+						}
+					}
+				}
+				.btn-inline{
+					font-size: 12px;
+					padding: 0px 10px;
+				}
+			}
+		}
+		.tip{
+			line-height: 18px;
+		}
+		.detail{
+			h3{
+				font-weight: bold;
+				font-size: 16px;
+				margin-bottom: 10px;
+			}
+			li{
+				margin-bottom: 35px;
+				&.last{
+					margin-bottom: 0;
+				}
+			}
+			font-size: 14px;
+		}
+	}
+}

@@ -1,0 +1,11 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.TrfReconciliation;
+
+public interface TrfReconciliationDao {
+
+	public void deleteTrfReconciliation(String pnrDate);
+
+	public Long addTrfReconciliation(TrfReconciliation trfReconciliation);
+
+}

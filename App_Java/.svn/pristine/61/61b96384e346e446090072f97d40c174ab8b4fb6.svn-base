@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.admin.SiteInformationDao">
+	
+	<select id="querySiteAll" resultType="java.util.Map">
+		select * from t_site_information order by id desc
+	</select>
+	
+	<update id="updateSiteById">
+		update t_site_information set 
+		siteName = #{siteName}, companyName = #{companyName}, postcode = #{postcode}, principal = #{principal}, 
+		address = #{address}, contact = #{contact}, telephone = #{telephone}, cellphone = #{cellphone},
+		fax = #{fax}, emial = #{emial}, qq = #{qq}, servicePhone = #{servicePhone}, certificate = #{certificate}, 
+		regionName = #{regionName} where id = #{id}
+	</update>
+
+</mapper>
+
+
+

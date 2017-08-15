@@ -1,0 +1,57 @@
+<%@page import="com.sun.org.apache.xml.internal.serialize.Printer"%>
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@include file="/include/taglib.jsp" %>
+<style>
+.mod-topbar{position:fixed;top:0;left:0;width:100%;z-index:10000;}
+.mod-topbar .nav-list li{z-index:9999!important;}
+</style>
+<!--顶部状态栏 开始-->
+ <!-- top2 -->
+ 		<div class="mod-topbar " style="border-bottom:1px solid #eee;box-shadow: 0 0 1px #ccc;">
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.do" class="logo"><img src="css/shImages/pujinziben.png"/></a>
+				<ul class="nav-list clearfix">
+					<li id="li_1"><a href="index.do">首页</a></li>
+					<li id="li_2">
+						<a href="userfinance.do">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<s:iterator value="#application.borrowSubTypeUsableList" var="subType" status="myStatus">
+							<li><a href="userfinance.do?xx=${subType.id}">${subType.name}</a></li>
+							</s:iterator>
+							<li id="li_3"><a href="queryFrontAllDebt.do">债权转让</a></li>
+						</ul>
+					</li>
+					 <li id="li_5"><a href="usersecurity.do">安全保障</a></li>
+					<li id="li_6"><a href="usercenter.do">个人中心</a></li> 
+					<li id="li_8"><a href="aboutCompany.do">关于我们</a>
+					<ul class="children">
+							<li id="li_3"><a href="aboutHzhb.do?xx=1">股东背景</a></li>
+							<li id="li_3"><a href="aboutCompany.do">公司简介</a></li>
+							<li id="li_3"><a href="aboutPtzz.do">平台资质</a></li>
+							<li id="li_3"><a href="aboutTdzs.do">管理团队</a></li>
+							<li id="li_3"><a href="aboutadviser.do">顾问团队</a></li>
+							<li id="li_3"><a href="IndustryNews.do?xx=4">公司动态</a></li>
+							<li id="li_3"><a href="paltreport.do">平台公告</a></li>
+							<li id="li_3"><a href="aboutZxns.do">招贤纳士</a></li>
+							<li id="li_3"><a href="aboutUs.do">联系我们</a></li>
+						</ul>
+					</li>						
+				</ul>
+				
+			</div>
+		</div>
+		</div>
+ <script type="text/javascript">
+$(function() {
+	$('.nav-list>li').hover(function() {
+		$('.nav-list>li').removeClass('hover');
+			$(this).addClass('hover');
+	}, function() {
+		$('.nav-list>li').removeClass('hover');
+	});
+});
+</script>	
+ <!-- top2 -->
+ 
+<!--顶部主导航 结束-->

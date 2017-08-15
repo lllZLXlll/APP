@@ -1,0 +1,32 @@
+package com.pjzb.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.PlatFormCost;
+import com.pjzb.entity.RedBagManage;
+
+public interface PlatFormCostDao {
+
+	// t_platform_cost表 begin
+	public List<PlatFormCost> queryPlatFormCostByView(Integer showView);
+
+	public List<PlatFormCost> queryPlatFormCostByTypesList(@Param("types") Integer types, @Param("index") long index, @Param("pageSize") long pageSize);
+
+	public long queryPlatFormCostByTypesCount(@Param("types") Integer types);
+
+	public PlatFormCost queryPlatFormCostById(long id);
+
+	public long updatePlatFormCostById(PlatFormCost platFormCost);
+
+	// t_platform_cost表 end
+
+	// t_redbag_manage表 begin
+	public List<RedBagManage> queryRedBagManageList(@Param("index") long index, @Param("pageSize") long pageSize);
+
+	public long queryRedBagManageCount();
+
+	// t_redbag_manage表 end
+
+}

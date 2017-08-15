@@ -1,0 +1,212 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * BankCard entity. @author MyEclipse Persistence Tools
+ */
+
+public class BankCard implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String cardUserName;
+	private String bankName;
+	private String branchBankName;
+	private String cardNo;
+	private Integer cardMode;
+	private String modifiedCardNo;
+	private String modifiedBankName;
+	private String modifiedBranchBankName;
+	private Date commitTime;
+	private Date modifiedTime;
+	private Integer modifiedCardStatus;
+	private Integer cardStatus;
+	private Date checkTime;
+	private Long userId;
+	private Long checkUser;
+	private String remark;
+	private String openBankId;
+
+	// Constructors
+
+	/** default constructor */
+	public BankCard() {
+	}
+
+	/** full constructor */
+	public BankCard(String cardUserName, String bankName,
+			String branchBankName, String cardNo, Integer cardMode,
+			String modifiedCardNo, String modifiedBankName,
+			String modifiedBranchBankName, Date commitTime,
+			Date modifiedTime, Integer modifiedCardStatus,
+			Integer cardStatus, Date checkTime, Long userId,
+			Long checkUser, String remark, String openBankId) {
+		this.cardUserName = cardUserName;
+		this.bankName = bankName;
+		this.branchBankName = branchBankName;
+		this.cardNo = cardNo;
+		this.cardMode = cardMode;
+		this.modifiedCardNo = modifiedCardNo;
+		this.modifiedBankName = modifiedBankName;
+		this.modifiedBranchBankName = modifiedBranchBankName;
+		this.commitTime = commitTime;
+		this.modifiedTime = modifiedTime;
+		this.modifiedCardStatus = modifiedCardStatus;
+		this.cardStatus = cardStatus;
+		this.checkTime = checkTime;
+		this.userId = userId;
+		this.checkUser = checkUser;
+		this.remark = remark;
+		this.openBankId = openBankId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getCardUserName() {
+		return this.cardUserName;
+	}
+
+	public void setCardUserName(String cardUserName) {
+		this.cardUserName = cardUserName;
+	}
+
+	public String getBankName() {
+		return this.bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+
+	public String getBranchBankName() {
+		return this.branchBankName;
+	}
+
+	public void setBranchBankName(String branchBankName) {
+		this.branchBankName = branchBankName;
+	}
+
+	public String getCardNo() {
+		return this.cardNo;
+	}
+
+	public void setCardNo(String cardNo) {
+		this.cardNo = cardNo;
+	}
+
+	public Integer getCardMode() {
+		return this.cardMode;
+	}
+
+	public void setCardMode(Integer cardMode) {
+		this.cardMode = cardMode;
+	}
+
+	public String getModifiedCardNo() {
+		return this.modifiedCardNo;
+	}
+
+	public void setModifiedCardNo(String modifiedCardNo) {
+		this.modifiedCardNo = modifiedCardNo;
+	}
+
+	public String getModifiedBankName() {
+		return this.modifiedBankName;
+	}
+
+	public void setModifiedBankName(String modifiedBankName) {
+		this.modifiedBankName = modifiedBankName;
+	}
+
+	public String getModifiedBranchBankName() {
+		return this.modifiedBranchBankName;
+	}
+
+	public void setModifiedBranchBankName(String modifiedBranchBankName) {
+		this.modifiedBranchBankName = modifiedBranchBankName;
+	}
+
+	public Date getCommitTime() {
+		return this.commitTime;
+	}
+
+	public void setCommitTime(Date commitTime) {
+		this.commitTime = commitTime;
+	}
+
+	public Date getModifiedTime() {
+		return this.modifiedTime;
+	}
+
+	public void setModifiedTime(Date modifiedTime) {
+		this.modifiedTime = modifiedTime;
+	}
+
+	public Integer getModifiedCardStatus() {
+		return this.modifiedCardStatus;
+	}
+
+	public void setModifiedCardStatus(Integer modifiedCardStatus) {
+		this.modifiedCardStatus = modifiedCardStatus;
+	}
+
+	public Integer getCardStatus() {
+		return this.cardStatus;
+	}
+
+	public void setCardStatus(Integer cardStatus) {
+		this.cardStatus = cardStatus;
+	}
+
+	public Date getCheckTime() {
+		return this.checkTime;
+	}
+
+	public void setCheckTime(Date checkTime) {
+		this.checkTime = checkTime;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getCheckUser() {
+		return this.checkUser;
+	}
+
+	public void setCheckUser(Long checkUser) {
+		this.checkUser = checkUser;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public String getOpenBankId() {
+		return this.openBankId;
+	}
+
+	public void setOpenBankId(String openBankId) {
+		this.openBankId = openBankId;
+	}
+
+}

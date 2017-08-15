@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.RedmoneyrecordDao">
+	
+	<resultMap type="redmoneyrecord" id="redmoneyrecordResultMap">
+		<id column="id" property="id" />
+		<result column="rbName" property="rbName" />
+		<result column="uid" property="uid" />
+		<result column="inserttime" property="inserttime" />
+		<result column="activesatus" property="activesatus" />
+		<result column="activetime" property="activetime" />
+		<result column="usestatus" property="usestatus" />
+		<result column="usetime" property="usetime" />
+		<result column="islock" property="islock" />
+		<result column="lockendtime" property="lockendtime" />
+		<result column="redmoneytype" property="redmoneytype" />
+		<result column="loansignid" property="loansignid" />
+		<result column="recivecode" property="recivecode" />
+		<result column="loanrcordid" property="loanrcordid" />
+		<result column="isshow" property="isshow" />
+		<result column="mintendMoney" property="mintendMoney" />
+		<result column="redmoneytype2" property="redmoneytype2" />
+		<result column="useendtime" property="useendtime" />
+		<result column="ismoneysatus" property="ismoneysatus" />
+		<result column="handleMoney" property="handleMoney" />
+		<result column="rechargeUid" property="rechargeUid" />
+	</resultMap>
+
+	<insert id="addRedmoneyRecord" parameterType="redmoneyrecord">
+		insert into t_redmoneyrecord(money,rbName,uid,inserttime,activesatus,activetime,usestatus,usetime,islock,lockendtime,redmoneytype
+		,loansignid,recivecode,loanrcordid,isshow,mintendMoney,redmoneytype2,useendtime,ismoneysatus,handleMoney,rechargeUid) 
+		values(#{money},#{rbName},#{uid},#{inserttime},#{activesatus},#{activetime},#{usestatus},#{usetime},#{islock},#{lockendtime},#{redmoneytype},
+		#{loansignid},#{recivecode},#{loanrcordid},#{isshow},#{mintendMoney},#{redmoneytype2},#{useendtime},#{ismoneysatus},#{handleMoney},#{rechargeUid})
+	</insert>
+	
+	<select id="queryRedmoneyrecordByUserIdAndType" resultType="java.util.Map">
+		SELECT COUNT(1) AS redmoneyrecordCount FROM t_redmoneyrecord t WHERE t.usestatus=1 AND t.uid=#{0} AND t.redmoneytype=#{1}
+	</select>
+	
+	<select id="getUerVocherById" resultType="java.util.Map" parameterType="java.lang.Long">
+		select * from t_redmoneyrecord where redmoneytype = 1 and usestatus = 1 and uid =#{userId} 
+	</select>
+	
+	
+	<select id="queryRedmoneyrecordByRedmoneytypeAndUid" resultMap="redmoneyrecordResultMap" >
+		SELECT * FROM t_redmoneyrecord a WHERE a.redmoneytype=#{0} AND a.uid=#{1}
+	</select>
+	
+	<update id="updateVocherAmt">
+		update t_redmoneyrecord set usestatus =#{0},usetime= now() WHERE uid = #{1}  and id= #{2}
+	</update>
+
+
+	<update id="updateRedmoneyrecordByUsestatus">
+		UPDATE t_redmoneyrecord SET usestatus=3 WHERE usestatus=1 AND datediff(useendtime, NOW())&lt;0
+	</update>
+	
+	
+	<select id="queryRedmoneyrecordByRedmoneytypeAndId" resultMap="redmoneyrecordResultMap" >
+		select * from t_redmoneyrecord where redmoneytype = #{0} and id =#{1}
+	</select>
+	
+	<update id="updateRedmoneyrecordById">
+		UPDATE t_redmoneyrecord SET activetime=#{0},usestatus=#{1},usetime=#{2} WHERE id=#{3}
+	</update>
+	
+	
+	
+</mapper>
+
+
+
+
+
+
+

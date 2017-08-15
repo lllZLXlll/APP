@@ -1,0 +1,79 @@
+package com.pjzb.controller.admin;
+
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.Admin;
+import com.pjzb.service.admin.login.AdminLoginService;
+import com.pjzb.util.Constants;
+
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminLoginController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminLoginController.class);
+
+	@Autowired
+	private AdminLoginService adminLoginService;
+
+	@RequestMapping(value = "/adminInit")
+	public String adminInit() {
+		return "/admin/index/index.jsp";
+	}
+
+	@RequestMapping(value = "/loginInit")
+	public String loginInit() {
+		return "/admin/login/login.jsp";
+	}
+
+	/**
+	 * 
+	 * @describe:后台管理员登录
+	 * @author: xiaojin
+	 * @param model
+	 * @param username
+	 * @param password
+	 * @param code
+	 * @return
+	 */
+	@RequestMapping(value = "/adminlogin")
+	public String adminlogin(Model model, String username, String password, String code) {
+		try {
+			return adminLoginService.checkLogin(model, username, password, code, session(), application(), getRemortIp(), chosese());
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**************登录异常****************");
+			model.addAttribute("msg", "登录异常");
+			model.addAttribute("userName", username);
+			model.addAttribute("pwd", password);
+			return "/admin/login/login.jsp";
+		}
+	}
+
+	/**
+	 * 
+	 * @describe:后台管理员退出登录
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/logout")
+	public String logout() {
+		Admin admin = getSessionAdminInfo();
+		Map<Long, String> applicationAdminMap = (Map<Long, String>) application().getAttribute(Constants.APPLICATION_ADMIN);
+		if (applicationAdminMap != null) {
+			if (applicationAdminMap.size() > 0) {
+				applicationAdminMap.remove(admin.getId());
+			}
+		}
+		sessionRemoveAttribute(Constants.SESSION_ADMIN);
+		return "redirect:/admin/loginInit.do";
+	}
+
+}

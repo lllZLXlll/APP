@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.ExgoBorrowDao">
+
+	<resultMap type="exGoBorrow" id="exGoBorrowResultMap">
+		<id column="id" property="id" />
+		<result column="borrowTitle" property="borrowTitle" />
+		<result column="imgPath" property="imgPath" />
+		<result column="borrowWay" property="borrowWay" />
+		<result column="borrowInfo" property="borrowInfo" />
+		<result column="deadline" property="deadline" />
+		<result column="paymentMode" property="paymentMode" />
+		<result column="borrowAmount" property="borrowAmount" />
+		<result column="annualRate" property="annualRate" />
+		<result column="minTenderedSum" property="minTenderedSum" />
+		<result column="maxTenderedSum" property="maxTenderedSum" />
+		<result column="raiseTerm" property="raiseTerm" />
+		<result column="detail" property="detail" />
+		<result column="tradeType" property="tradeType" />
+		<result column="publisher" property="publisher" />
+		<result column="excitationType" property="excitationType" />
+		<result column="visitors" property="visitors" />
+		<result column="remainTimeStart" property="remainTimeStart" />
+		<result column="auditOpinion" property="auditOpinion" />
+		<result column="borrowStatus" property="borrowStatus" />
+		<result column="excitationSum" property="excitationSum" />
+		<result column="excitationMode" property="excitationMode" />
+		<result column="hasInvestAmount" property="hasInvestAmount" />
+		<result column="investNum" property="investNum" />
+		<result column="purpose" property="purpose" />
+		<result column="hasPwd" property="hasPwd" />
+		<result column="investPwd" property="investPwd" />
+		<result column="publishTime" property="publishTime" />
+		<result column="publishIp" property="publishIp" />
+		<result column="remainTimeEnd" property="remainTimeEnd" />
+		<result column="auditTime" property="auditTime" />
+		<result column="hasDeadline" property="hasDeadline" />
+		<result column="isAutoBid" property="isAutoBid" />
+		<result column="manageFee" property="manageFee" />
+		<result column="isDayThe" property="isDayThe" />
+		<result column="autoBidEnableTime" property="autoBidEnableTime" />
+		<result column="version" property="version" />
+		<result column="frozenMargin" property="frozenMargin" />
+		<result column="smallestFlowUnit" property="smallestFlowUnit" />
+		<result column="circulationNumber" property="circulationNumber" />
+		<result column="hasCirculationNumber" property="hasCirculationNumber" />
+		<result column="nidLog" property="nidLog" />
+		<result column="sort" property="sort" />
+		<result column="feestate" property="feestate" />
+		<result column="feelog" property="feelog" />
+		<result column="businessDetail" property="businessDetail" />
+		<result column="assets" property="assets" />
+		<result column="moneyPurposes" property="moneyPurposes" />
+		<result column="circulationMode" property="circulationMode" />
+		<result column="circulationStatus" property="circulationStatus" />
+		<result column="undertaker" property="undertaker" />
+		<result column="borrowShow" property="borrowShow" />
+		<result column="hasRepoNumber" property="hasRepoNumber" />
+		<result column="agent" property="agent" />
+		<result column="counterAgent" property="counterAgent" />
+		<result column="amountScale" property="amountScale" />
+		<result column="borrowType" property="borrowType" />
+		<result column="publisherWay" property="publisherWay" />
+		<result column="authCount" property="authCount" />
+		<result column="billcode" property="billcode" />
+		<result column="trxId" property="trxId" />
+		<result column="loansOk" property="loansOk" />
+		<result column="unfreeOk" property="unfreeOk" />
+		<result column="borrowTypeSubId" property="borrowTypeSubId" />
+		<result column="projectScore" property="projectScore" />
+		<result column="borrowSum" property="borrowSum" />
+		<result column="invmAmount" property="invmAmount" />
+	</resultMap>
+	
+
+	<select id="getExGoBorrow" resultMap="exGoBorrowResultMap">
+		SELECT *  FROM `t_exGo_borrow` a
+	</select>
+	
+	
+	<select id="queryExGoBorrow" resultType= "java.util.Map">
+	SELECT `a`.`id` AS `id`,DATE_FORMAT(a.publishTime,'%Y-%m-%d %H:%i:%s') AS publishTime,`a`.`deadline` AS `deadline`,
+	`a`.`imgPath` AS `imgPath`,`a`.`borrowTitle` AS `borrowTitle`,`a`.`sort` AS `sorts`,`f_formatAmount` (`a`.`borrowAmount`) AS `borrowAmount`,
+	`a`.`annualRate` AS `annualRate`,`f_injectPoint` (((`a`.`hasInvestAmount` / `a`.`borrowAmount`) * 100)) AS `schedules`,
+	`f_formatAmount` ((`a`.`borrowAmount` - `a`.`hasInvestAmount`)) AS `investNum`,`a`.`borrowWay` AS `borrowWay`,
+	`a`.`borrowStatus` AS `borrowStatus`,`a`.`excitationType` AS `excitationType`,`a`.`excitationSum` AS `excitationSum`,
+	`a`.`hasPWD` AS `hasPWD`,`a`.`paymentMode` AS `paymentMode`,`a`.`borrowShow` AS `borrowShow`,`a`.`projectScore` AS `projectScore`,
+	`a`.`borrowTypeSubId` AS `borrowTypeSubId`FROM `t_exGo_borrow` a
+	</select>
+	
+	<select id="queryExgoBorrowById" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT *  FROM `v_t_exgo_detail` a where id=#{id}
+	</select>
+	
+	<update id="addExgoBrowseCount"> 
+		 update t_exgo_borrow set visitors = visitors+1 where id = #{id}	 
+	</update>	
+	
+	
+	<select id="callExGoBorrowJoinProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL p_exGo_borrow_join(
+			  	 #{in_bid,jdbcType=BIGINT,mode=IN},
+				 #{in_uid,jdbcType=BIGINT,mode=IN},
+				 #{in_basepath,jdbcType=VARCHAR,mode=IN},
+				 #{in_invest_amount,jdbcType=DOUBLE,mode=IN},
+				 #{in_invest_time,jdbcType=DATE,mode=IN},
+				 #{in_status,jdbcType=INTEGER,mode=IN},
+				 #{in_num,jdbcType=INTEGER,mode=IN},
+				 #{in_billcode,jdbcType=VARCHAR,mode=IN},
+				 #{out_ret ,jdbcType=INTEGER,mode=OUT},
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT},
+				 #{out_ordid ,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }  
+	</select>  
+	
+	
+	<update id="updateExGoMonney">
+		UPDATE t_exGo_borrow SET borrowAmount = borrowAmount-#{0}, borrowSum = borrowSum + #{0},investNum = investNum + 1  where id = #{1}
+	</update>
+	
+	<update id="updateExGoBorrowAccount">
+		UPDATE t_exGo_borrow  SET detail = #{0},annualRate = #{1},borrowAmount = borrowAmount + #{2},deadline =#{3} WHERE  id =#{4}
+	</update>
+	
+	
+	
+	
+	
+</mapper>
+
+
+

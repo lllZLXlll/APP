@@ -1,0 +1,37 @@
+package com.pjzb.service.admin.loan;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowInspectionDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+
+@Service
+public class AdminUnDealInspectService {
+	
+	@Autowired
+	private BorrowInspectionDao borrowInspectionDao;
+	
+	public String queryBorrowInspectionList(Model model, String tabid, Long pageNum, Long pageSize, String userName, String borrowTitle,Admin admin) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		userName = ConvertUtil.objToStrConvert(userName);
+		borrowTitle = ConvertUtil.objToStrConvert(borrowTitle);
+		long count = borrowInspectionDao.queryBorrowInspectionForPageByLoanUserIdCount(userName, borrowTitle, admin.getLoanUserId());
+		List<Map<String, Object>> page = borrowInspectionDao.queryBorrowInspectionForPageByLoanUserId(userName, borrowTitle, admin.getLoanUserId(), (pageNum - 1) * pageSize,
+				pageSize);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, page));
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowTitle", borrowTitle);
+		return "/admin/loan/undealinspect/list.jsp";
+	}
+
+}

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.SMSInterfaceDao">
+
+	<update id="updateSMS">
+		update t_sms set UserID = #{UserID},
+		Account =
+		#{Account}, Password = #{Password}, status = #{status}, url
+		= #{url}
+		where id = #{1};
+	</update>
+
+	<select id="getSMSById" resultType="java.util.Map">
+		select * from t_sms where id
+		= #{id}
+	</select>
+
+	<select id="getSmsIphone" resultType="java.util.Map">
+		select * from t_person
+		where userId = #{id}
+	</select>
+
+	<select id="getSmsConetnt" resultType="java.util.Map">
+		select * from t_smscontent
+		where status = #{1}
+	</select>
+
+	<select id="findBySMS" resultType="java.util.Map">
+		select * from t_sms
+	</select>
+
+	<insert id="sendSMSs" parameterType="sendSms">
+		INSERT INTO t_sendsms(
+		content, sendTime, splitId,
+		splitPhone, status
+		)VALUES(
+		#{content}, #{sendTime}, #{splitId}, #{splitPhone}, #{status}
+		)
+	</insert>
+
+	<resultMap type="smsContent" id="smsContentResultMap">
+		<id column="id" property="id"/>
+		<result column="content" property="content"/>
+		<result column="sendTime" property="sendTime"/>
+		<result column="status" property="status"/>
+		<result column="uid" property="uid"/>
+	</resultMap>
+	
+	<select id="querySmsContentByStatus" resultMap="smsContentResultMap">
+		select * from t_smscontent where status =#{status}
+	</select>
+	
+	
+	<resultMap type="sms" id="smsResultMap">
+		<id column="id" property="id"/>
+		<result column="UserID" property="userId"/>
+		<result column="Account" property="account"/>
+		<result column="Password" property="password"/>
+		<result column="url" property="url"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	
+	<select id="querySmsById" resultMap="smsResultMap">
+		SELECT * FROM t_sms a WHERE a.id=#{id}
+	</select>
+	
+	<insert id="insertSendsms" >			
+		insert into t_sendsms (
+			content, splitId, splitPhone, status, sendTime
+		) values (
+			#{content}, #{splitId}, #{splitPhone}, #{birthday}, #{highestEdu}
+		)
+	</insert>
+	
+	
+	<select id="queryUserSendCodeByPhone" resultType= "java.util.Map" parameterType="java.lang.String" >
+	    SELECT COUNT(1) AS countCode FROM t_user_sendcode a WHERE datediff(a.sendTime, NOW())=0 AND a.phone=#{phone} AND a.type in ('wapRegist','regist')
+	</select>
+	
+	<insert id="saveUserSendcode" parameterType="userSendcode" >
+		insert into t_user_sendcode(sendTime,ipArea,phone,content,status,type) values(#{sendTime},#{ipArea},#{phone},#{content},#{status},#{type})
+	</insert>
+	
+	
+</mapper>
+
+
+

@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 平台收费管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminPlatformChargeService extends BaseController {
+
+}

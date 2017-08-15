@@ -1,0 +1,10 @@
+package com.pjzb.dao;
+
+
+public interface UserIntegralDao {
+	
+	public Long addUserLoginLog(Long id);
+//	
+//	public void saveUserSendcode(UserSendcode userSendcode);
+
+}

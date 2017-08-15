@@ -1,0 +1,268 @@
+package com.pjzb.service.front;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.vo.BorrowDebtVo;
+import com.pjzb.util.Constants;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+import com.shove.security.Encrypt;
+
+
+@Service
+public class BorrowService {
+	
+	@Autowired
+	private BorrowDao borrowDao ;
+
+	public HashMap<String, Object> paramChangeToMap(JSONObject jsonObject){
+		String t = String.valueOf(jsonObject.get("tt")); 
+		String y = String.valueOf(jsonObject.get("yy"));  
+		String x = String.valueOf(jsonObject.get("xx")); 
+//		String flages = String.valueOf(jsonObject.get("flages"));
+		int flagesint = Convert.strToInt(String.valueOf(jsonObject.get("flages")), 0);
+		String titles =String.valueOf(jsonObject.get("titles"));
+
+		String paymentMode =String.valueOf(jsonObject.get("paymentMode"));
+		String purpose =String.valueOf(jsonObject.get("purpose"));
+		String reward =String.valueOf(jsonObject.get("reward"));
+		String arStart =String.valueOf(jsonObject.get("arStart"));
+		String arEnd =String.valueOf(jsonObject.get("arEnd"));
+		String type = String.valueOf(jsonObject.get("type")); 
+		
+		int timeersint = Convert.strToInt(String.valueOf(jsonObject.get("timeers")), 0);
+		int deadlinesint = Convert.strToInt(String.valueOf(jsonObject.get("deadlines")), 0);
+		int ratesint = Convert.strToInt(String.valueOf(jsonObject.get("rates")), 0);
+		 
+		String borrowType = "";
+		String borrow_t="";
+		
+		//申明变量
+		String deadlinestart = "";
+		String deadlineend = "";
+		String borrowWay ="";
+		String Ratestart ="";
+		String Rateend ="";
+		
+		// 截取查询的类型，防止非常规操作
+		if (StringUtils.isNotBlank(type)) {
+			String[] types = type.split(",");
+			if (types.length > 0) {
+				for (int n = 0; n < types.length; n++) {
+					// 是数字类型则添加到borrowType中
+					if (StringUtils.isNumericSpace(types[n])) {
+						borrowType += "," + types[n];
+					}
+				}
+				if (StringUtils.isNotBlank(borrowType)) {
+					borrowType = borrowType.substring(1, borrowType.length());
+				}
+			} else {
+				if (StringUtils.isNumericSpace(type)) {
+					borrowType = type;
+				}
+			}
+		}
+		
+		
+		
+		if("".equals(t)||"0".equals(t)){
+			deadlinestart ="";
+			deadlineend ="";
+			
+		}else if("1".equals(t)){
+			deadlinestart ="1";
+			deadlineend ="3";
+		}else if("2".equals(t)){
+			deadlinestart ="3";
+			deadlineend ="6";
+		}else if("3".equals(t)){
+			deadlinestart ="6";
+			deadlineend ="9";
+		}
+		else if("4".equals(t)){
+			deadlinestart ="9";
+			deadlineend ="";
+		}
+		
+		if("".equals(y)||"0".equals(y)){
+			Ratestart ="";
+		    Rateend ="";
+		}else if("1".equals(y)){
+			Ratestart ="";
+			Rateend ="10";
+		}else if("2".equals(y)){
+			Ratestart ="10";
+			Rateend ="15";
+		}else if("3".equals(y)){
+			Ratestart ="15";
+			Rateend ="25";
+		}
+		
+		if("".equals(x)||"0".equals(x)){
+			borrowWay ="";
+		}else if("1".equals(x)){
+			borrowWay ="1";
+		}else if("2".equals(x)){
+			borrowWay ="2";
+		}else if("3".equals(x)){
+			borrowWay ="3";
+		}else if("4".equals(x)){
+			borrowWay ="4";
+		}else{
+			//其余类型
+			int borrowWayInt = -1;
+			try{
+				borrowWayInt = Integer.parseInt(x);
+			}catch(Exception ee){ }
+			if(borrowWayInt != -1){
+				borrowWay = x;
+			}
+		}
+		List<Integer> borrowStatus = new ArrayList<Integer>();
+		 
+		borrowStatus.add(2);
+		borrowStatus.add(3);
+		borrowStatus.add(4);
+		borrowStatus.add(5);
+//		borrowStatus ="2,3,4,5";
+		Long curPage =Convert.strToLong(String.valueOf(jsonObject.get(Constants.CURPAGE)),Constants.LONG_1);
+		
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("borrow_t", borrow_t);
+		map.put("borrowStatus", borrowStatus);
+		map.put("borrowWay", borrowWay);
+		map.put("titles", titles);
+		map.put("paymentMode", paymentMode);
+		map.put("purpose", purpose);
+		map.put("deadlinestart", deadlinestart);
+		map.put("deadlineend", deadlineend);
+		map.put("reward", reward);
+		map.put("arStart", arStart);
+		map.put("arEnd", arEnd);
+		map.put("Ratestart", Ratestart);
+		map.put("Rateend", Rateend);
+		map.put("flages", flagesint);
+		map.put("timeers", timeersint);
+		map.put("deadlines", deadlinesint);
+		map.put("rates", ratesint);
+		map.put("order", IConstants.SORT_TYPE_DESC);
+		map.put("curPage", (curPage-1)*Constants.PAGE_SIZE_10);
+		map.put("pageSize", Constants.PAGE_SIZE_10);
+		
+		return map;
+	}
+	
+	public PageBean queryBorrowByCondition(HashMap<String, Object> map,Long curPage,Long pageSize){
+		List<Map<String, Object>> borrowListDetail= borrowDao.queryBorrowListByCondition(map);
+		Map<String, Long> borrowCount=borrowDao.queryBorrowCountByCondition(map);
+		
+		PageBean pageBean=new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(borrowCount.get("borrowTotalNum"));
+		pageBean.setPage(borrowListDetail);
+		return pageBean;
+	}
+
+	
+	public List<Map<String, Object>> queryLastestBorrow(Integer borrowTypeSubId){
+		return borrowDao.queryLastestBorrow(borrowTypeSubId);
+	}
+	
+
+	public BorrowDebtVo queryBorrowInfo(Long id){
+		return borrowDao.queryBorrowInfo(id);
+	}
+	
+	public List<Map<String, Object>> getRecommendBorrow(Integer recommend){
+		return borrowDao.getRecommendBorrow(recommend);
+	}
+	
+	public Map<String, Object> queryBorrowDetailById(Long id){
+		return borrowDao.queryBorrowDetailById(id);
+	}
+	
+	public Long addBrowseCount(long borrowId){
+		borrowDao.updateRemainTime(borrowId);
+		return borrowDao.addBrowseCount(borrowId);
+	}
+	
+	public Map<String, Object> queryUserInfoByBorrowId(long borrowId){
+		return borrowDao.queryUserInfoByBorrowId(borrowId);
+	}
+	
+	public List<Map<String, Object>> queryUserIdentifiedByidAdmin(long borrowId){
+		return borrowDao.queryUserIdentifiedByidAdmin(borrowId);
+	}
+	public List<Map<String, Object>> findRelatedDocuments(long borrowId,String basePath){
+		return borrowDao.findRelatedDocuments(borrowId,basePath);
+	}
+	
+	public List<Map<String, Object>> queryUserImageByid(long typeId, long userId,Integer groupId){
+		return borrowDao.queryUserImageByid(typeId, userId,groupId);
+	}
+	
+	public List<Map<String, Object>> findOtherData(long typeId, long userId,Integer groupId,String basePath){
+		return borrowDao.findOtherData(typeId, userId,groupId,basePath);
+	}
+	
+	public long queryBorrowerByBorrowId(long borrowId) {
+		return borrowDao.queryBorrowerByBorrowId(borrowId);
+	}
+	
+	public Map<String, Object> queryBorrowerImgpath(long borrowId) {
+		return borrowDao.queryBorrowerImgpath(borrowId);
+	} 
+	
+	public Map<String, Object> getInvestStatus(long borrowId) {
+		return borrowDao.getInvestStatus(borrowId);
+	}
+
+	public Map<String, Object> queryBorrowSumMomeny(long borrowId, long invest_id) {
+		return borrowDao.queryBorrowSumMomeny(borrowId, invest_id);
+	}
+
+	public Borrow queryBorrowById(long borrowId) {
+		return borrowDao.queryBorrowById(borrowId);
+	}
+		
+	public Map<String, Object> queryBorrowTypeLogByNid(String identifier) {
+		return borrowDao.queryBorrowTypeLogByNid(identifier);
+	}
+	public Map<String, Object> queryBorrowInvest(long id) {
+		return borrowDao.queryBorrowInvest(id);
+	}
+	
+	/**
+	 * 根据ID查询本期还款信息
+	 * @param typeId
+	 * @param userId
+	 * @param groupId
+	 * @return
+	 */
+	public List<Map<String, Object>> queryRePayByid(long borrowId){
+		return borrowDao.queryRePayByid(borrowId);
+	}
+	
+	public Map<String, String> queryNoviceStandard(Long borrowId){
+		return borrowDao.queryNoviceStandard(borrowId);
+	}
+	
+	public Map<String, Long> getInvestPWD(Long borrowId,String investPWD){
+		investPWD = Encrypt.MD5(investPWD);
+		return borrowDao.getInvestPWD(borrowId,investPWD);
+	}
+}

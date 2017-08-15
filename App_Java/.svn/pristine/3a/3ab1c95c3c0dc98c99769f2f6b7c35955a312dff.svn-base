@@ -1,0 +1,48 @@
+define(function (require,exports,module) {
+	//首页
+	var VueComponent = Vue.extend({
+		methods:{
+			ipay:function(){
+				if(!Storage.getItem('ipayAccount')){
+					$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+						router.go({path:'/registpay'});
+					});
+					return;
+				}else{
+					router.go({path:"/ipay"});
+				}
+			},
+			cashing:function(){
+				if(this.updatepwd == '1'){
+					$.alert('您还没有设置交易密码，请先设置交易密码!',function(){
+						router.go({path:'/changepwd'});
+					});
+					return;
+				};
+				if(Storage.getItem('ipayAccount')){
+					if(Storage.getItem('bankNum')>0){
+						router.go({path:"/cashing"});
+					}else{
+		        		$.alert('您还未绑定银行卡，请先绑定银行卡！',function(){
+		        			router.go({path:'/bankcard'});
+		        		});
+					}
+				}else{
+					$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+						router.go({path:'/registpay'});
+					});
+				}
+			}
+		},
+		template:'<div class="account-top"><img src="images/accountbg.png"/>'+
+				'<div class="account-content"><div class="account-total">'+
+				'<p>账户资产总额</p><h3>{{accountData[0]}}</h3></div>'+
+				'<div class="account-amt flex"><div class="amt-left">'+
+				'<p>可用金额</p><p>{{accountData[1]}}</p></div>'+
+				'<div class="amt-center"><p>待收总额</p><p>{{accountData[2]}}</p></div>'+
+				'<div class="amt-right"><p>已赚收益</p><p>{{accountData[3]}}</p></div></div></div>'+
+				'</div><div class="account-recharge"><button type="button" @click="ipay">充值</button>'+
+				'<button type="button" @click="cashing">提现</button></div>'
+	});
+	module.exports = VueComponent;
+})

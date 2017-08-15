@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>关于我们</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#0f0100">
+		<div class="warp-1000 ">
+			<a href="#"><img src="http://lorempixel.com/1000/80/"></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">你好，licky</a></li>
+						<li><a href="#">消息 <span class="blue">1</span></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="#" class="logo"><img src="http://lorempixel.com/160/47/"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li>
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li class="hover"><a href="#">我的账户</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	<!--左右两栏布局-->
+	<div class="mod-two-column about">
+		<div class="warp-1000">
+			<div class="side-bar">
+				<div class="menu">
+					<dl>
+                    	<dt><a href="#">关于我们</a></dt>
+						<dd><a href="#">关于我们</a></dd>
+						<dd class="on"><a href="#">联系我们</a></dd>
+                      <dd><a href="#">平台公告</a></dd>
+					</dl>
+				</div>
+			</div>
+			<div class="main">
+				<div class="text-data">
+					<div class="item">
+						<h1>深圳市前海普金资本管理有限公司</h1>
+						<p>
+							地址：深圳市福田区金田路2030号卓越世纪中心4号楼38A<br/>
+							电话：0755-12345678<br/>
+							传真：0755-12345678
+						</p>
+					</div>
+					<div class="item">
+						<h1>客服联系方式</h1>
+						<p>
+							如您在使用普金资本的过程中有任何疑问，请您与我们的客服人员进行联系<br/>
+							全国统一服务热线：0755-12345678<br/>
+							官方咨询QQ：100000<br/>
+							邮箱：@shenghuizichan
+						</p>
+					</div>
+                  <div class="item">
+						<h1>关注我们</h1>
+						<p>
+							如需了解更多关于普金资本的动态可以关注我们的官方新浪微博、腾讯微博以及官方微信<br/>
+							新浪微博：http://weibo.com/shenghuizichan<br/>
+							腾讯微博：http://qq.com/shenghuizichan<br/>
+							微信：搜索公众账号shzccom，或扫描二维码<br/>
+                         <img class="v-code" src="shImages/v_code.png"/>
+						</p>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<!--左右两栏布局-->
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">安全保障</a>
+			<a href="#">联系我们</a>
+			<a href="#">收益计算器</a>
+			<a href="#">合同查询</a>
+			<a href="#">坛子</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->

@@ -1,0 +1,11 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.Materialimagedetal;
+
+public interface MaterialimagedetalDao {
+
+	public Long insertMaterialimagedetal(Materialimagedetal materialimagedetal);
+	
+	public Long deleteMaterialimagedetalById(Long id);
+
+}

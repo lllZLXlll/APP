@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.MaterialimagedetalDao">
+
+	<resultMap type="materialimagedetal" id="materialimagedetalResultMap">
+		<id column="id" property="id"/>
+		<result column="imagePath" property="imagePath"/>
+		<result column="materialsauthid" property="materialsauthid"/>
+		<result column="option" property="option"/>
+		<result column="checktime" property="checktime"/>
+		<result column="uploadingTime" property="uploadingTime"/>
+		<result column="auditStatus" property="auditStatus"/>
+		<result column="visiable" property="visiable"/>
+	</resultMap>
+
+	<insert id="insertMaterialimagedetal"  parameterType="materialimagedetal">
+	 INSERT INTO t_materialimagedetal(imagePath,materialsauthid,`option`,checktime,uploadingTime,auditStatus,visiable)
+	 VALUES(#{imagePath},#{materialsauthid},#{option},#{checktime},#{uploadingTime},#{auditStatus},#{visiable})
+	</insert>
+	
+	<select id="queryMaterialimagedetalById" parameterType="java.lang.Long">
+		SELECT * FROM t_materialimagedetal a WHERE a.id=#{id}
+	</select>
+
+	<delete id="deleteMaterialimagedetalById" parameterType="java.lang.Long">
+		DELETE FROM t_materialimagedetal WHERE id=#{id}
+	</delete>
+	
+</mapper>
+
+
+
+
+
+
+
+
+

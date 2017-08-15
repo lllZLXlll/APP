@@ -1,0 +1,115 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Activity;
+import com.pjzb.entity.ActivityRecommendInvestAward;
+
+public interface ActivityDao {
+
+	public List<Map<String, Object>> queryActivityByEndTimeForPage(long index, long pageSize);
+
+	public long queryActivityCount();
+
+	public List<Map<String, Object>> queryActivityListForPage(long l, Long pageSize, boolean b);
+
+	public long addActivity(Activity activity);
+
+	public long deleteActivityById(Long id);
+
+	public long deleteActivityByIds(List<Long> list);
+
+	public long updateActivityById(Activity activity);
+
+	public Activity queryActivityById(Long id);
+
+	public List<Map<String, Object>> queryAwardInit(long l, Long pageSize, String borrowName, String realName, int awardMoney, int faFangStatus);
+
+	public long queryAwardInitCounts(String borrowName, String realName, int awardMoney, int faFangStatus);
+
+	public List<Map<String, Object>> queryAwardInitTwo(long l, Long pageSize, String borrowName, String realName, int awardType, int status);
+
+	public long queryAwardInitTwoCounts(String borrowName, String realName, int awardType, int status);
+
+	public List<Map<String, Object>> queryAwardInitThree(long l, Long pageSize, String borrowName, String realName, int borrowTimeInt, int awardMoney, int status);
+
+	public long queryAwardInitThreeCounts(String borrowName, String realName, int borrowTimeInt, int awardMoney, int status);
+
+	public List<Map<String, Object>> queryAwardInitFour(long l, Long pageSize, String realName, int awardMoneyI, int status);
+
+	public long queryAwardInitFourCounts(String realName, int awardMoneyI, int status);
+
+	public List<Map<String, Object>> queryAwardInitFive(long l, Long pageSize, String realName, int awardTypeInit, int status);
+
+	public long queryAwardInitFiveCounts(String realName, int awardTypeInit, int status);
+
+	public long updateAwardNewInvest(Long id);
+
+	public Map<String, Object> queryNewUserfirstInvestAward(Long id);
+
+	public long updateAwardStatus(Long id, String date);
+
+	public List<Map<String, Object>> queryNewUserfirstInvestAwardByIds(List<Long> list);
+
+	public long updateAwardStatusByIds(@Param(value = "list") List<Long> list, @Param(value = "f") String format);
+
+	public Map<String, Object> queryGrabInvestAward(Long id);
+
+	public long updateGrabInvest(Long id, String format);
+
+	public List<Map<String, Object>> queryAwardGrabInvestByIds(List<Long> list);
+
+	public long updateAwardGrabInvestByIds(@Param(value = "list") List<Long> list, @Param(value = "f") String format);
+
+	public List<Map<String, Object>> queryAwardInitTwos(long l, Long pageSize, String borrowName, String realName, int awardTypeInit, int status);
+
+	public Map<String, Object> queryAwardOldInvest(Long id);
+
+	public long updateAwardOldInvest(Long id, String format);
+
+	public List<Map<String, Object>> queryAwardOldInvestByIds(List<Long> list);
+
+	public long updateAwardOldInvestByIds(@Param(value = "list") List<Long> list, @Param(value = "f") String format);
+
+	public List<Map<String, Object>> queryAwardInitThrees(long l, Long pageSize, String borrowName, String realName, int borrowTimeInt, int awardMoneyI, int status);
+
+	public Map<String, Object> queryAwardInviteInvest(Long id);
+
+	public long updateAwardInviteInvest(Long id, String format);
+
+	public long updateAwardInviteInvestByIds(@Param(value = "list") List<Long> list, @Param(value = "f") String format);
+
+	public List<Map<String, Object>> queryAwardInviteInvestByIds(List<Long> list);
+
+	public long updateAwardCumulateInvest(Long id, String format);
+
+	public long updateAwardCumulateInvestByIds(@Param(value = "list") List<Long> list, @Param(value = "f") String format);
+
+	// t_activity_recommendinvestaward表begin
+	public long addActivityRecommendInvestaWard(@Param(value = "investTimeRange") String investTimeRange, @Param(value = "beginDate") String beginDate,
+			@Param(value = "endDate") String endDate);
+
+	public List<Map<String, Object>> queryRecommendInvestList(String borrowTitle, String name, String recommendName, int status, int money, long index, long pageSize);
+
+	public long queryRecommendInvestCount(String borrowTitle, String name, String recommendName, int status, int money);
+
+	public List<Map<String, Object>> queryActivityRecommendInvestAwardByIds(@Param(value = "ids") Long[] ids);
+
+	public BigDecimal queryActivityRecommendInvestAwardCount(@Param(value = "ids") Long[] ids);
+	
+	public long updateActivityRecommendInvestAward(ActivityRecommendInvestAward activityRecommendInvestAward);
+	// t_activity_recommendinvestaward表end
+
+	public List<Map<String, Object>> queryInvestWinGift(String realName, Integer l, Integer state, Long pageSize, Long pageSize2);
+
+	public long queryInvestWinGiftCount(String realName, Integer awardType, Integer state);
+
+	public long updateInvestWinGift(String[] array);
+
+	public List<Map<String, Object>> exportInvestWinGift(String realName, int awardType, int state);
+
+}

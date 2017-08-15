@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="renderer" content="webkit">
+	<title>理财工具箱-普金资本-安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<meta name="keywords" content="抵押贷款计算器，贷款计算器，网贷计算器,理财计算器，收益计算器" />
+	<meta name="description" content="普金资本是目前国内拥有国资系背景的P2P理财平台，为P2P网贷和理财用户提供安全、高效的互联网金融理财服务。普金资本，以“国资系、可信赖”的企业理念，为理财用户提供安全稳定的网上理财通道，快速实现资金周转，实现财富稳定增长。" />
+	<link rel="stylesheet" href="src/css/public.css">
+	<link rel="stylesheet" href="src/css/index.css">
+</head>
+<body>
+	<!--[if lt IE 8]>
+    <div class="show-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  	<![endif]-->
+	<!-- top -->
+	<div class="top" id="top">
+	</div>
+	<!-- nav -->
+	<div class="nav">
+		<div class="wrap cl">
+			<div class="logo"><a href="index.html"><img src="src/images/logo.png" alt="普金资本"></a></div>
+			<div class="nav-bar">
+				<ul>
+					<li class="icon icon-acc"><a href="account.html">我的账户</a></li>
+					<!-- <li><a href="javascript:void(0);">信息披露</a></li> -->
+					<li><a href="about.html">信息披露</a></li>
+					<!-- <li><a href="javascript:void(0);" onclick="newPointer()">新手指导</a></li> -->
+					<li><a href="safety.html">安全保障</a></li>
+					<li class="active">
+						<a href="invest_list.html">投资理财</a>
+						<div class="sub-nav">
+							<a href="invest_list.html#006">恒金保</a>
+							<a href="invest_list.html#004">普金保</a>
+							<a href="invest_list.html#003">多金宝</a>
+							<a href="creditor_list.html">债权转让</a>
+							<p class="left"></p>
+							<p class="right"></p>
+						</div>
+					</li>
+					<li><a href="index.html">首页</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="calculator">
+		<div class="calculator-top">
+			<h3>收益计算器</h3>
+			<ul class="calculator-from">
+				<li>
+					<p class="top">投资金额（元）</p>
+					<p class="bottom"><input type="text" maxlength="10" class="input-text" id="money"/></p>
+				</li>
+				<li>
+					<p class="top">年化收益率（%）</p>
+					<p class="bottom"><input type="text" maxlength="5" class="input-text" id="annualRate"/></p>
+				</li>
+				<li>
+					<p class="top">还款期限（月）</p>
+					<p class="bottom"><input type="text" maxlength="2" class="input-text" id="time"/></p>
+				</li>
+				<li>
+					<p class="top">还款方式</p>
+					<p class="bottom">
+						<select class="input-text" id="repayWay"/>
+							<option value="1">等额本息还款</option>
+							<option value="2">一次还本付息</option>
+							<option value="3">先息后本</option>
+						</select>
+					</p>
+				</li>
+				<li>
+					<p class="top"></p>
+					<p class="bottom">
+						<button type="button" class="btn">开始计算</button>
+					</p>
+				</li>
+			</ul>
+		</div>
+		<div class="calculator-bottom">
+			<div class="auth">
+				<p><span class="big">计算结果</span>（每个月将偿还/收到：<span class="color" id="monAmt">0.00</span>元 月利率：<span class="rate"  id="monRate">0.00</span> 还款/收到本息总额：<span class="color" id="allPay">0.00</span>元）</p>
+			</div>
+			<ul class="list-box">
+				<li class="title">
+					<div class="children0">期数</div>
+					<div class="children1">月还本息</div>
+					<div class="children2">月还本金</div>
+					<div class="children3">月还利息</div>
+					<div class="children4">本息余额</div>
+				</li>
+			</ul>
+			<ul class="list-box listData"></ul>
+		</div>
+	</div>
+	<div id="ajaxFooter"></div>
+	<!--[if lt IE 9]>
+	    <script src="src/libs/json2.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="src/libs/jquery.js"></script>
+	<script type="text/javascript" src="src/libs/public.js"></script>
+	<!-- 客服QQ -->
+	<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php"></script>
+	<script type="text/javascript" src="scripts/calculator.js"></script>
+</body>
+</html>

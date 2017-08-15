@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 邮件短信
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminEmailMessageService extends BaseController {
+
+}

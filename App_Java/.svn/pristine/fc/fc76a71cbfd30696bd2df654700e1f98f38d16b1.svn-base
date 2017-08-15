@@ -1,0 +1,39 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.RecommendUser;
+
+public interface RecommendUserDao {
+	
+	public List<Map<String, Object>> queryRecommendUserRank();
+
+	public List<Map<String,Object>> queryRecommendUser(@Param("id")Long id, @Param("userId")Long userId, @Param("recommendUserId")Long recommendUserId);
+	
+	public long addRecommendUser(RecommendUser recommendUser);
+
+	public List<Map<String, Object>> queryfindRecommendUserPage(Long userId, String beginTime, String endTime, long index, Long pageSize);
+
+	public Long queryfindRecommendUserCounts(Long userId, String beginTime, String endTime);
+
+	public Map<String, Object> getRecommendUserByuserId(long userId);
+
+	public void addrewardMoney(long userId, int i, Date inserttime);
+	
+	public List<Map<String, Object>> queryRecommendUserForPage(Long userId,String username,Long recommendUserId,String recommendUsername,Long index, Long pageSize,boolean flag);
+	
+	public long queryRecommendUserCount(Long userId,String username,Long recommendUserId,String recommendUsername);
+	
+	public Map<String, Object> queryRecommendUserById(Long id);
+	
+	public long deleteRecommendById(Long id);
+	
+	public Map<String, Object> queryRecommendFriendByUserId(Long recommendUserId,long userId);
+	
+	public long updateRecommendUserById(RecommendUser recommendUser);
+	
+}

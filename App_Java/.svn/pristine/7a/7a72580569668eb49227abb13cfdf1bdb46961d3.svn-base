@@ -1,0 +1,45 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/about/Shareholder.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('股东背景',true,false);
+		},
+		data:function(){
+			return {
+				data:[true,false],
+				imgList:[
+				       {img:'images/ct_01.png',title:'人民医院新院'},
+				       {img:'images/ct_02.png',title:'红旗大道东延返迁房'},
+				       {img:'images/ct_03.png',title:'沙石大桥'},
+				       {img:'images/ct_04.png',title:'锦江山庄'},
+				       {img:'images/ct_05.png',title:'自然博物馆'},
+				       {img:'images/ct_06.png',title:'赣州高等师范专科学校'}
+				       ],
+				imgListTwo:[
+							       {img:'images/sh_01.png'},
+							       {img:'images/sh_02.png'},
+							       {img:'images/sh_03.png'},
+							       {img:'images/sh_04.png'},
+							       {img:'images/sh_05.png'},
+							       {img:'images/sh_06.png'}
+							       ],       
+				partShen:'盛汇资产管理有限公司（简称：赣州盛汇）是由江西盛汇资产管理有限公司和赣州盛汇高管共同持股于2015年5月18日正式成立，主要从事融资担保、产业投资、资产收购、股权管理等主要业务。赣州盛汇因改革而生、凭创新而兴，依托本土银行良好的资源合作关系，以投资成长期、成熟期项目开局，逐步在服务全市经济社会发展大局中形成了民营资本联合国营资本共同参与投资运营的经营架构。凭借稳健的投资理念与丰富的资产管理经验，公司积极开拓基础设施建设、房地产等领域业务，成为整合社会闲置资金与优质资产投资的桥梁。赣州盛汇正坚定不移走市场化转型发展之路，努力加快打造成为集金融综合服务、资产综合管理为一体，以金融控股为主要特征的资产运营公司。',
+				partone:'赣州城市开发投资集团有限责任公司（简称“赣州城投集团”）成立于2004年3月，2009年9月股权改制为市政府直属',
+				parttwo:'2015年，集团主体信用级别达到AA+，成为江西省内非省会城市中首个主体信用等级达到AA+的城投类公司。成功发起设立300亿元赣南苏区振兴发展产业投资基金，这是国家级首支专项支持革命老区的大体量产业投资基金。集团综合实力在全国城投类企业中排名第43位，是我省唯一一家进入全国50强的城投公司。',
+				partthree:'现集团资产总额突破600亿元，净资产355亿元。2015年承建市人民医院新院、黄金大桥、南门口下穿隧道等项目39个（其中续建项目25个，新建项目14个），项目投资43亿元。',
+				partfour:'赣州城投集团紧紧围绕赣南苏区振兴发展战略，立足做大做强做优，秉承“诚信为本、绩效为先、奉献为责、创新为魂”的企业精神，定位为“三大主体”（即城市建设融资主体、城市投资建设主体和城市国有资源运营主体），致力于打造集融资、投资、建设、运营、管理为一体的资产超千亿元的全国知名、省内一流的国有城市建设投资运营集团。'
+			}
+		},
+		methods:{
+			change:function(a){
+				if(a==1){
+					this.$set('data',[true,false]);
+				}else{
+					this.$set('data',[false,true]);
+				}
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

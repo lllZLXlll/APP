@@ -1,0 +1,76 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * SlbaoEarnings entity. @author MyEclipse Persistence Tools
+ */
+
+public class SlbaoEarnings implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Double income;
+	private Date recordTime;
+	private String remarks;
+
+	// Constructors
+
+	/** default constructor */
+	public SlbaoEarnings() {
+	}
+
+	/** full constructor */
+	public SlbaoEarnings(Long userId, Double income, Date recordTime, String remarks) {
+		this.userId = userId;
+		this.income = income;
+		this.recordTime = recordTime;
+		this.remarks = remarks;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Double getIncome() {
+		return this.income;
+	}
+
+	public void setIncome(Double income) {
+		this.income = income;
+	}
+
+	public Date getRecordTime() {
+		return this.recordTime;
+	}
+
+	public void setRecordTime(Date recordTime) {
+		this.recordTime = recordTime;
+	}
+
+	public String getRemarks() {
+		return this.remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
+}

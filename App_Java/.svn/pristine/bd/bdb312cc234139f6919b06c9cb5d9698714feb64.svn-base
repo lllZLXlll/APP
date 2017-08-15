@@ -1,0 +1,82 @@
+package com.pjzb.service.admin.user;
+
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.EmpDao;
+import com.pjzb.entity.Emp;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DesSecurityUtil;
+/**
+ * 员工列表
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminEmpListService extends BaseController {
+
+	@Autowired
+	private EmpDao empDao;
+	
+	public String queryEmpManageInfoIndex(Model model, String tabid, String empNo, String empName, Long pageNum, Long pageSize) {
+		try{
+			pageNum = pageNum == null ? 1l : pageNum;
+			pageSize = pageSize == null ? 20l : pageSize;
+			empNo = empNo==null?"":empNo;
+			empName = empName==null?"":empName;
+			
+			List<Map<String, Object>> list = empDao.queryEmpManageInfoIndex(empNo, empName, (pageNum - 1) * pageSize, pageSize);
+			long count = empDao.queryEmpManageInfoIndexCount(empNo, empName);
+	
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("empNo", empNo);
+			model.addAttribute("empName", empName);
+			model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询员工列表异常**************************");
+		}
+		return "/admin/user/emplist/list.jsp";
+	}
+
+	public Map<String, Object> deleteEmpById(Long id) {
+		try {
+			long result = empDao.deleteEmpById(id);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("************员工删除异常******************");
+		}
+	}
+
+	public String addintegral(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/user/emplist/add.jsp";
+	}
+
+	public Map<String, Object> addEmp(Emp emp, String tabid) {
+		emp.setCreateTime(new Date());
+		long result = empDao.addEmp(emp);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "员工增加成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "员工增加失败", "", "");
+		}
+	}
+
+}

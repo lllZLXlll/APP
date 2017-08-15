@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.RedmoneyrecordDao">
+
+	<resultMap type="redmoneyrecord" id="redmoneyrecordResultMap">
+		<id column="id" property="id" />
+		<result column="rbName" property="rbName" />
+		<result column="uid" property="uid" />
+		<result column="inserttime" property="inserttime" />
+		<result column="activesatus" property="activesatus" />
+		<result column="activetime" property="activetime" />
+		<result column="usestatus" property="usestatus" />
+		<result column="usetime" property="usetime" />
+		<result column="islock" property="islock" />
+		<result column="lockendtime" property="lockendtime" />
+		<result column="redmoneytype" property="redmoneytype" />
+		<result column="loansignid" property="loansignid" />
+		<result column="recivecode" property="recivecode" />
+		<result column="loanrcordid" property="loanrcordid" />
+		<result column="isshow" property="isshow" />
+		<result column="mintendMoney" property="mintendMoney" />
+		<result column="redmoneytype2" property="redmoneytype2" />
+		<result column="useendtime" property="useendtime" />
+		<result column="ismoneysatus" property="ismoneysatus" />
+		<result column="handleMoney" property="handleMoney" />
+		<result column="rechargeUid" property="rechargeUid" />
+	</resultMap>
+
+	<insert id="addRedmoneyRecord" parameterType="redmoneyrecord">
+		insert into
+		t_redmoneyrecord(money,rbName,uid,inserttime,activesatus,activetime,usestatus,usetime,islock,lockendtime,redmoneytype
+		,loansignid,recivecode,loanrcordid,isshow,mintendMoney,redmoneytype2,useendtime,ismoneysatus,handleMoney,rechargeUid)
+		values(#{money},#{rbName},#{uid},#{inserttime},#{activesatus},#{activetime},#{usestatus},#{usetime},#{islock},#{lockendtime},#{redmoneytype},
+		#{loansignid},#{recivecode},#{loanrcordid},#{isshow},#{mintendMoney},#{redmoneytype2},#{useendtime},#{ismoneysatus},#{handleMoney},#{rechargeUid})
+	</insert>
+
+	<select id="queryRedmoneyrecordByUserIdAndType" resultType="java.util.Map">
+		SELECT COUNT(1) AS redmoneyrecordCount FROM t_redmoneyrecord t WHERE t.usestatus=1 AND t.uid=#{0} AND
+		t.redmoneytype=#{1}
+	</select>
+
+	<select id="getUerVocherById" resultType="java.util.Map" parameterType="java.lang.Long">
+		select * from t_redmoneyrecord where redmoneytype = 1 and usestatus = 1 and uid =#{userId}
+	</select>
+
+
+	<select id="queryRedmoneyrecordByRedmoneytypeAndUid" resultMap="redmoneyrecordResultMap">
+		SELECT * FROM t_redmoneyrecord a WHERE a.redmoneytype=#{0} AND a.uid=#{1}
+	</select>
+
+	<update id="updateVocherAmt">
+		update t_redmoneyrecord set usestatus =#{0},usetime= now() WHERE uid = #{1} and id= #{2}
+	</update>
+
+
+	<update id="updateRedmoneyrecordByUsestatus">
+		UPDATE t_redmoneyrecord SET usestatus=3 WHERE usestatus=1 AND  useendtime &lt; NOW()
+	</update>
+
+
+	<select id="queryRedmoneyrecordByRedmoneytypeAndId" resultMap="redmoneyrecordResultMap">
+		select * from t_redmoneyrecord where redmoneytype = #{0} and id =#{1}
+	</select>
+
+	<update id="updateRedmoneyrecordById">
+		UPDATE t_redmoneyrecord SET activetime=#{0},usestatus=#{1},usetime=#{2} WHERE id=#{3}
+	</update>
+
+	<update id="updateVocherAmtById">
+		UPDATE t_redmoneyrecord SET usestatus = 1,usetime=ADDDATE(NOW(),0) WHERE id = #{0}
+	</update>
+
+	<select id="queryRedmoneyrecordForPage" resultType="java.util.Map" parameterType="map">
+		SELECT p.realName,a.id,b.username,a.money,a.rbName,a.inserttime,a.useendtime,a.activesatus,a.usestatus,a.usetime,
+		a.redmoneytype from t_redmoneyrecord a,t_user b left join t_person p on b.id = p.userId WHERE a.uid=b.id 
+		<if test='userName!=null and userName!=""'>
+			AND b.username LIKE '%' #{userName} '%'
+		</if>
+		<if test="redmoneytype!=null">
+			AND a.redmoneytype=#{redmoneytype}
+		</if>
+		<if test="usestatus!=null">
+			AND a.usestatus=#{usestatus}  
+		</if>
+		<if test='realName!=null and realName!=""'>
+			AND p.realName LIKE '%' #{realName} '%'
+		</if>
+		<if test='money!=null and money > 0'>
+			AND a.money = #{money}
+		</if>
+		<if test='startTime!=null and startTime != ""'>
+			AND a.inserttime >= #{startTime}
+		</if>
+		<if test='endTime != null and endTime != ""'>
+			<![CDATA[ AND a.inserttime <= #{endTime} ]]>
+		</if>
+		ORDER BY a.id DESC LIMIT #{pageNum},#{pageSize}
+	</select>
+	
+	<select id="queryRedmoneyrecordCount" resultType="java.lang.Long" parameterType="map">
+		SELECT COUNT(1) from t_redmoneyrecord a,t_user b left join t_person p on b.id = p.userId WHERE a.uid=b.id 
+		<if test='userName!=null and userName!=""'>
+			AND b.username LIKE '%' #{userName} '%'
+		</if>
+		<if test="redmoneytype!=null">
+			AND a.redmoneytype=#{redmoneytype}
+		</if>
+		<if test="usestatus!=null">
+			AND a.usestatus=#{usestatus}  
+		</if>
+		<if test='realName!=null and realName!=""'>
+			AND p.realName LIKE '%' #{realName} '%'
+		</if>
+		<if test='money!=null and money > 0'>
+			AND a.money = #{money}
+		</if>
+		<if test='startTime!=null and startTime != ""'>
+			AND a.inserttime >= #{startTime}
+		</if>
+		<if test='endTime != null and endTime != ""'>
+			<![CDATA[ AND a.inserttime <= #{endTime} ]]>
+		</if>
+	</select>
+
+	<select id="queryRedmoneyrecordCountById" resultType="long">
+		SELECT COUNT(*) count FROM t_redmoneyrecord a WHERE a.usestatus=1 AND a.uid = #{0}
+	</select>
+	
+
+</mapper>
+
+
+
+
+
+
+

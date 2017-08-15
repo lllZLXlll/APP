@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.borrow;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 体验金添加金额
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminExpGoldAddMoneyService extends BaseController{
+
+}

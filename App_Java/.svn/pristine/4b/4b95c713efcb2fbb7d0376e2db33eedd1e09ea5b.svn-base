@@ -1,0 +1,301 @@
+package com.pjzb.controller.front;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.User;
+import com.pjzb.service.common.OperationLogService;
+import com.pjzb.service.common.SafeCenterService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.IConstants;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 修改登录、交易密码、绑定邮箱、找回密码
+ * 
+ * @author Administrator
+ * 
+ */
+@Controller
+@RequestMapping(value = "/front")
+public class FrontSafeCenterController extends BaseController {
+	public static Log log = LogFactory.getLog(FrontSafeCenterController.class);
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private OperationLogService operationLogService;
+
+	@Autowired
+	private SafeCenterService safeCenterService;
+
+	/**
+	 * 获取安全中心数据
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/safeCenterData")
+	@ResponseBody
+	public Map<String, Object> safeCenterData() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			User user = getSessionUserInfo();
+			long userId = user.getId();
+			String tab_type = requestGetParameter("tab_type") == null ? null : requestGetParameter("tab_type");
+			String yy = requestGetParameter("yy") == null ? null : requestGetParameter("yy");
+
+			jsonMap.putAll(safeCenterService.checkSafeCenterData(userId, tab_type, yy, chosese()));
+
+			return jsonMap; // 返回个人资料详情
+		} catch (Exception e) {
+			e.printStackTrace();
+			return jsonMap;
+		}
+	}
+
+	/**
+	 * 找回登录密码(用户未登录)
+	 * @return
+	 */
+	@RequestMapping(value = "/findLoginPwd")
+	@ResponseBody
+	public Map<String, Object> findLoginPwd() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			jsonMap=safeCenterService.updateUserPassword(jsonObject,chosese());
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			jsonMap.put("error", "7");
+			jsonMap.put("msg", "找回登录密码异常，"+Constants.CUSTOMER_MSG);
+
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 重置密码
+	 * @return
+	 */
+	@RequestMapping(value = "/resetLoginPwd")
+	@ResponseBody
+	public Map<String, Object> resetLoginPwd() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			} 
+			
+			jsonMap.putAll(safeCenterService.checkResetLoginPwd(jsonObject, chosese()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			jsonMap.put("error", "7");
+			jsonMap.put("msg", "重置密码异常，"+Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 修改用户登录密码
+	 * @return
+	 */
+	@RequestMapping(value = "/changeLoginPassword")
+	@ResponseBody
+	public String changeLoginPassword() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String retString = "";
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				retString = "8";
+				return retString;
+			} 
+			
+			User user = getSessionUserInfo();
+			jsonMap.putAll(safeCenterService.checkChangeLoginPassword(jsonObject, user, chosese()));
+
+			if (jsonMap.get("error").equals("0")) {
+				sessionSetAttribute(Constants.SESSION_USER,user);
+			}  
+			retString = jsonMap.get("error").toString();
+			return retString;
+		} catch (Exception e) {
+			e.printStackTrace(); 
+			retString = "8";
+			return retString;
+		}
+	}
+		
+	/**
+	 * 找回交易密码
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/updateUserdealpwd")
+	@ResponseBody
+	public Map<String, Object> updateUserdealpwd() { 
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "404");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			
+			User user = getSessionUserInfo();
+			jsonMap.putAll(safeCenterService.checkUserdealpwd(jsonObject, user, chosese()));
+			
+		} catch (Exception e) {
+			e.printStackTrace(); 
+			jsonMap.put("error", "8");
+			jsonMap.put("msg", "修改交易密码异常，请联系客服！");
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 设置交易密码
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/updateDealPwd")
+	@ResponseBody
+	public Map<String, Object> updateDealPwd() { 
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "404");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			
+			User user = getSessionUserInfo();
+			jsonMap.putAll(safeCenterService.checkUserdealpwd(jsonObject, user, chosese()));
+			
+		} catch (Exception e) {
+			e.printStackTrace(); 
+			jsonMap.put("error", "8");
+			jsonMap.put("msg", "修改交易密码异常，请联系客服！");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 变更手机号码
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/updateBindingMobile")
+	@ResponseBody
+	public Map<String, Object> updateBindingMobile() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "404");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			String updateMobile = (String) sessionGetAttribute("updateMobile");
+			String updateMobileCodeSession = (String) sessionGetAttribute("updateMobileCode");
+			jsonMap.putAll(safeCenterService.checkBindingMobile(jsonObject, updateMobile, updateMobileCodeSession, getSessionUserId(), chosese()));
+
+			if (jsonMap.get("error").equals("0")) {
+				sessionRemoveAttribute("updateMobileCode");
+				sessionRemoveAttribute("updateMobile");
+				sessionRemoveAttribute(IConstants.SESSION_USER);
+			}
+			return jsonMap;
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "7");
+			jsonMap.put("msg", "变更手机号码异常，请联系客服！");
+			return jsonMap;
+		}
+	}
+
+
+	/**
+	 * 发送信息给用户绑定邮箱（新版）
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/sendEmailForUserSet")
+	@ResponseBody
+	public Map<String, Object> sendEmailForUserSet(){
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		try { 
+			
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("mailAddress", "3");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			
+			User user = getSessionUserInfo();
+			jsonMap.putAll(safeCenterService.checkSendEmailForUserSet(jsonObject,user,getBasePath(),chosese()));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("mailAddress", "2");
+			return jsonMap;
+		}
+		return jsonMap;
+	}
+	
+
+	@RequestMapping(value = "/bindingEmail")
+	@ResponseBody
+	public Map<String, Object> bindingEmail(){
+
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		try { 
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "404");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			
+			jsonMap.putAll(safeCenterService.checkBindingEmail(jsonObject,chosese()));
+			if(jsonMap.get("error").equals("0")){
+				sessionSetAttribute("user", jsonMap.get("user"));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return jsonMap;
+		}
+		return jsonMap;
+	}
+	
+}

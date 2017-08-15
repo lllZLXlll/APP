@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<meta name="format-detection" content="telephone=no; email=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<title>新手注册送体验金—普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+		<link rel="stylesheet" href="css/activity_5.css">	
+	</head>
+	<script type="text/javascript">
+		function onhundle(){
+			if(window.Native){
+				var param = {
+					app:true,
+					selectedTab:'home'
+				}
+				setTimeout(function(){
+				try{
+					window.reactNativePostmsg(JSON.stringify(param));
+				}catch(e){
+					window.postMessage(JSON.stringify(param));
+				}
+				},500);
+			}else{
+				window.location.href = '../app.html#!/index';
+			}
+		}
+	</script>	
+	<body>
+		<div class="activity-content">
+			<div class="title">
+				<h3 class="title_i">新手注册赠送18888元体验金活动公告</h3>
+				<p>发布时间:2017-08-05 14:35:56</p>
+			</div>
+			<div class="text">
+				<p>尊敬的普金资本用户：</p>
+				<p>为帮助新用户更好的体验普金资本的投资流程，现特推出新手注册赠送18888元体验金活动。体验标每日发放额度1888800元。</p>
+				<p>活动时间：2017年8月5日—2017年9月5日</p>
+				<p>活动对象：所有在活动期间新注册的用户</p>
+				<p>活动规则：在活动期间新用户注册普金资本账户即可获得18888元体验金奖励（体验金直接发放到您的普金资本账户中，需手动投资体验标即可产生收益）。</p>
+				<p>普金资本拥有所有最终解释权。如有疑问，欢迎致电400-606-2079。</p>
+				<h2>普金资本运营（赣州）有限公司</h2>
+				<h2>2017年8月5日</h2>			
+			</div>			
+		</div>
+	</body>
+	<script type="text/javascript" src="srcipt/init.js"></script>
+</html>

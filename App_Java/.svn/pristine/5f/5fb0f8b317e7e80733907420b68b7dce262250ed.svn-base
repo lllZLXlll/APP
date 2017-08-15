@@ -1,0 +1,45 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Withdraw;
+
+public interface WithdrawDao {
+	
+	public Map<String, BigDecimal> queryWithdrawAmountWithin15Days(Long userId);
+	
+	public Withdraw queryWithdrawByBillCode(String billcode);
+	
+	public void callAmountWithdrawProcedure(Map<String, Object> map);
+	
+	public List<Withdraw> queryWithdrawListForPage(Long userId,String startTime, String endTime,Long index,Long num);
+	
+	public Map<String, Long> queryWithdrawCountByApplyTime(Long userId,String startTime, String endTime);
+	
+	public List<String> queryWithdrawTrxIdById(long id);
+	
+	public void callAmountWithdrawCancelProcedure(Map<String, Object> map);
+
+	public long queryAllWithdrawListCount(String userName, String state, String startTime, String endTime);
+
+	public List<Map<String, Object>> queryAllWithdrawList(String userName, String state, String startTime,
+			String endTime, long l, long pageSize);
+
+	public Map<String, String> queryAllWithdrawListMap(String userName, String state, String startTime, String endTime);
+
+	public Map<String, Object> queryWithdrawShowInfo(long id);
+
+	public Map<String, Object> querySuccessBid(long userId);
+
+	public Map<String, Object> querySuccessWithdraw(long userId, int ws);
+
+	public Map<String, Object> callWithdrawProcedure(Map<String, Object> map);
+
+	public void updateBorrowTrxId(long id, String string);
+
+	public void callAmountWithdrawTransferProcedure(Map<String, Object> map);
+
+	public List<Map<String, Object>> exportAllWithdraw(String userName, String state, String startTime, String endTime);
+}

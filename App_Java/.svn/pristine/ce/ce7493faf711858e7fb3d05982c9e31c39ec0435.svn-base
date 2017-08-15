@@ -1,0 +1,75 @@
+define(function (require,exports,module) {
+	var Storage = window.Storage = exports;
+	
+		Storage.setItem = function(key,val){
+			if(isWuHeng){
+				window.localStorage.setItem(key,val);
+			}else{
+				Storage.setCookie(key,val,{maxAge:600000});
+			}
+		};
+		Storage.getItem = function(key){
+			if(isWuHeng){
+				return window.localStorage.getItem(key);
+			}else{
+				var name = Storage.getCookie(key);
+				return name;
+			}
+		};
+		Storage.clear = function(){
+			if(isWuHeng){
+				window.localStorage.clear();
+			}else{
+				Storage.clearCookie();
+			}
+		}
+		Storage.isLocalStorageSupported = function() {
+		    var testKey = 'testWu',
+		        storage = window.sessionStorage;
+		    try {
+		        storage.setItem(testKey, 'testValue');
+		        storage.removeItem(testKey);
+		        return true;
+		    } catch (error) {
+		        return false;
+		    }
+		}
+		Storage.getCookiesObj = function(){
+	       var cookies = {};
+	         if(document.cookie){
+	             var objs = document.cookie.split('; ');
+	             for(var i in objs){
+	                 var index = objs[i].indexOf('='),
+	                     name = objs[i].substr(0, index),
+	                     value = objs[i].substr(index + 1, objs[i].length);    
+	                 cookies[name] = value;
+	             }
+	         }
+	         return cookies;
+	     }
+		Storage.setCookie = function(name, value,opts){
+	         if(name && value){
+	             var cookie = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+	             if(opts){
+	                 if(opts.maxAge){
+	                     cookie += '; max-age=' + opts.maxAge; 
+	                 }
+	             }
+	             document.cookie = cookie;
+	         }else{
+	             return '';
+	         }
+		};
+	//获取cookie
+		Storage.getCookie = function(name){
+		    return decodeURIComponent(Storage.getCookiesObj()[name]) || null;
+		};
+	//清除所有cookie
+		Storage.clearCookie = function(){
+	        var cookies = Storage.getCookiesObj();
+	        for(var key in cookies){
+	            document.cookie = key + '=; max-age=0';
+	        }
+	    }
+		var isWuHeng = Storage.isLocalStorageSupported();
+})

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>公共弹出框_上传</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+    <script>
+    	$(function() {
+			$('.trans-bg').css({'width':$(window).width() , 'height':$(window).height()});
+			$('.mod-lightbox').css({'margin-left':-0.5*$('.mod-lightbox').width() , 'margin-top':-0.5*$('.mod-lightbox').height()});
+			$('.mod-lightbox .title .close').click(function() {
+				$('.trans-bg').css({'display':'none'});
+				$('.mod-lightbox').css({'display':'none'});
+			});
+		});
+    </script>
+</head>
+<body>
+	
+    <!--lightbox start-->
+    dasdfaf
+	<div class="trans-bg"></div>
+    <div class="mod-lightbox mod-lightbox-repayment  mod-lightbox-upload">
+        <div class="title"><h1>上传</h1><a class="close" href="#" title="关闭"></a></div>
+        <!--设置容器内容高度-->
+        <div class="box img" style="width:600px; height:430px; overflow-y:scroll;">
+			<div class="mod-form ">
+				<div class="tip">
+					<p>身份认证：您上传的身份证扫描件需和您绑定的身份证一致，否则将无法通过认证。<br/>
+					认证说明：<br/>
+					1.请您上传本人身份证原件的正、反两面的第二代身份证照片。<br/>
+					2.户口本，须包括全家户口信息；<br/>
+					3.本人近期生活照；<br/>
+					4. 请确认您上传的资料是清晰的、未经修改的照片，每张照片最大限制为1M。
+					</p>
+					<br/>
+
+					<h2>已上传资料：</h2><br/>
+				</div>
+                    
+				<div class="data">
+					<table>
+					<thead>
+						<tr>
+							<td class="td1">全选<input type="checkbox" id="select" name="checkbox4"></td>
+							<td class="td2">序号</td>
+							<td class="td3">名称</td>
+							<td class="td4">图片</td>
+							<td class="td5">状态</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><input type="checkbox" id="select" name="checkbox4"></td>
+							<td>1</td>
+							<td>身份证1</td>
+							<td><img src="#"/></td>
+							<td>待提交</td>
+						</tr>
+						<tr>
+							<td><input type="checkbox" id="select" name="checkbox4"></td>
+							<td>2</td>
+							<td>信用借款</td>
+							<td><img src="#"/></td>
+							<td>12.00%</td>
+						</tr>
+					</tbody>
+					</table>
+				</div>
+
+				<div class="item">
+						<input class="btn_upload" type="button" value="上传资料">
+					</div>
+
+				<div class="item">
+					<button class="btn">提交审核</button>
+				</div>
+
+
+			</div>
+        </div>
+    </div>
+    <!--lightbox end-->
+    
+</body>

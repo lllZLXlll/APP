@@ -1,0 +1,15 @@
+package com.pjzb.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Select;
+
+public interface SelectDao {
+	
+	public List<Select> querySelectByTypeIdAndDeleted(@Param("typeId")Long typeId,@Param("deleted")Integer deleted);
+	
+	public Select querySelectById(Long id);
+
+}

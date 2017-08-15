@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.RecommendUserDao">
+	
+	<resultMap type="recommendUser" id="recommendUserResultMap">
+		<id column="id" property="id" />
+		<result column="userId" property="userId" />
+		<result column="recommendUserId" property="recommendUserId" />
+		<result column="moneyTypeId" property="moneyTypeId" />
+		<result column="rewardMoney" property="rewardMoney" />
+		<result column="rewardTime" property="rewardTime" />
+		<result column="maintenanceman" property="maintenanceman" />
+	</resultMap>
+	
+	<select id="queryRecommendUserByUserId" resultMap="recommendUserResultMap">
+	  	SELECT * FROM t_recommend_user a WHERE a.userId=#{userId}
+	</select>
+	
+	<select id="queryRecommendUserRank" resultType="java.util.Map">
+	    SELECT CASE WHEN @rowtotal = c.num THEN @rownum WHEN @rowtotal := c.num THEN @rownum :=@rownum + 1 WHEN @rowtotal = 0 THEN 
+	    @rownum :=@rownum + 1 END AS rank ,INSERT(c.mobilePhone,4,4,'****') AS mobilePhone,c.num AS num FROM (select b.mobilePhone,count(1) 
+	    as num from t_recommend_user t,t_user b WHERE t.recommendUserId=b.id group by t.recommendUserId order by num desc) c,
+	    (SELECT @rownum := 0 ,@rowtotal := NULL) r LIMIT 0,10;
+	</select>
+
+	<select id="queryRecommendUser" resultType="java.util.Map">
+	    SELECT * from t_recommend_user where 1 = 1
+	    <if test="id!=null and id>0">
+	    	and id = #{id}
+	    </if>
+	    <if test="userId!=null and userId>0">
+	    	and userId = #{userId}
+	    </if>
+	    <if test="recommendUserId!=null  and recommendUserId>0">
+	    	and recommendUserId = #{recommendUserId}
+	    </if>
+	</select>
+
+	<insert id="addRecommendUser">
+		INSERT INTO t_recommend_user(userId, recommendUserId,moneyTypeId,rewardMoney,rewardTime,maintenanceman) 
+		VALUES(#{userId}, #{recommendUserId}, #{moneyTypeId}, #{rewardMoney}, #{rewardTime}, #{maintenanceman})
+	</insert>
+	
+	<update id="updateRecommendUserById">
+		UPDATE t_recommend_user 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="userId != null">userId=#{userId},</if>
+			<if test="recommendUserId != null">recommendUserId=#{recommendUserId},</if>
+			<if test="moneyTypeId != null">moneyTypeId=#{moneyTypeId},</if>
+			<if test="rewardMoney != null">rewardMoney=#{rewardMoney},</if>
+			<if test="rewardTime != null">rewardTime=#{rewardTime},</if>
+			<if test="maintenanceman != null">maintenanceman=#{maintenanceman},</if>
+		</trim>
+		WHERE id=#{id}
+	</update>
+
+	<select id="queryfindRecommendUserPage" resultType="java.util.Map">
+	    SELECT * from v_t_recommendfriend_list WHERE 1 = 1
+	    
+	    <if test="param2!=null and param2!='' and param3!=null and param3!=''">
+	    	AND createTime &gt;= #{1} and createTime  &lt;= #{2}
+	    </if>
+	    AND recommendUserId=#{0} LIMIT #{3},#{4}
+	</select>
+
+	<select id="queryfindRecommendUserCounts" resultType="java.lang.Long">
+	    SELECT COUNT(1) AS counts from v_t_recommendfriend_list WHERE 1 = 1
+	    <if test="param2!=null and param2!='' and param3!=null and param3!=''">
+	    	AND createTime &gt;= #{1} and createTime  &lt;= #{2}
+	    </if>
+	    AND recommendUserId=#{0}
+	</select>
+	
+	<select id="getRecommendUserByuserId" resultType="map">
+   		SELECT * FROM t_recommend_user WHERE userId = #{0}
+	</select>
+
+	<update id="addrewardMoney">
+		UPDATE t_recommend_user SET rewardMoney = #{1}, rewardTime = #{2} WHERE userId = #{0}		
+	</update>
+	
+	
+	<select id="queryRecommendUserForPage" resultType="java.util.Map">
+	    SELECT * FROM ( SELECT tru.id AS id, tru.userId AS userId, tu1.realName AS realName, tru.recommendUserId AS recommendUserId, 
+	    tu2.realName AS recommendUsername, tru.moneyTypeId AS moneyTypeId, tru.rewardMoney AS rewardMoney,DATE_FORMAT( tru.rewardTime,'%Y-%m-%d %H:%i:%s') AS rewardTime, 
+	    tu3.realName AS maintenanceman FROM t_recommend_user tru LEFT JOIN t_person tu1 ON tru.userId = tu1.userId LEFT JOIN t_person tu2 
+	    ON tru.recommendUserId =tu2.userId LEFT JOIN t_person tu3 ON tru.maintenanceman = tu3.userId ORDER BY tru.id DESC ) a WHERE 1=1
+	    
+	    <if test="param1!=null">  
+			 AND a.userId=#{0}
+		</if>
+		
+		<if test="param2!=null">  
+			 AND a.realName=#{1}
+		</if>
+		
+		<if test="param3!=null">  
+			 AND a.recommendUserId=#{2}
+		</if>
+		
+		<if test="param4!=null">  
+			 AND a.recommendUsername=#{3}
+		</if>
+		
+		<if test="param7==true">  
+			 LIMIT #{4},#{5}
+		</if>
+		
+	    
+	</select>
+	
+	<select id="queryRecommendUserCount" resultType="java.lang.Long">
+	     SELECT COUNT(1) FROM ( SELECT tru.userId AS userId, tu1.realName AS realName, tru.recommendUserId AS recommendUserId, 
+	    tu2.realName AS recommendUsername FROM t_recommend_user tru LEFT JOIN t_person tu1 ON tru.userId = tu1.userId LEFT 
+	     JOIN t_person tu2 ON tru.recommendUserId =tu2.userId LEFT JOIN t_person tu3 ON tru.maintenanceman =
+	      tu3.userId ORDER BY tru.id DESC ) a WHERE 1=1
+	    <if test="param1!=null">  
+			 AND a.userId=#{0}
+		</if>
+		
+		<if test="param2!=null">  
+			 AND a.realName=#{1}
+		</if>
+		
+		<if test="param3!=null">  
+			 AND a.recommendUserId=#{2}
+		</if>
+		
+		<if test="param4!=null">  
+			 AND a.recommendUsername=#{3}
+		</if>
+	</select>
+	
+	<select id="queryRecommendUserById" resultType="java.util.Map">
+		select tru.id as id,tru.userId as userId,tu1.realName as realName,tru.recommendUserId as recommendUserId,tu2.realName as 
+		recommendUsername,tru.moneyTypeId as moneyTypeId,tru.rewardMoney as rewardMoney,tru.rewardTime as rewardTime,tru.maintenanceman 
+		as maintenanceman from t_recommend_user tru LEFT JOIN t_person tu1 on tru.userId=tu1.userId LEFT JOIN t_person tu2 on 
+		tru.recommendUserId=tu2.userId LEFT JOIN t_person tu3 ON tru.maintenanceman=tu3.userId  WHERE tru.id=#{id}
+	</select>
+
+	<delete id="deleteRecommendById">
+		DELETE FROM t_recommend_user WHERE id=#{id}
+	</delete>
+	
+	<delete id="deleteRecommendByIds">
+		DELETE FROM t_recommend_user WHERE id IN
+		<foreach item="ids" index="index" collection="ids"
+				open="(" separator="," close=")">
+				#{ids}
+		</foreach>
+		
+	</delete>
+	
+	<select id="queryRecommendFriendByUserId" resultType="java.util.Map">
+		SELECT * FROM v_t_recommendfriend_list WHERE recommendUserId=#{0} AND userId=#{1} LIMIT 0,1
+	</select>
+	
+	<select id="queryRecommendUserCountByUserId" resultType="java.lang.Long">
+		SELECT COUNT(1) AS recommendCount  from t_recommend_user WHERE userId=#{userId}
+	</select>
+	
+	
+
+</mapper>
+
+
+
+
+

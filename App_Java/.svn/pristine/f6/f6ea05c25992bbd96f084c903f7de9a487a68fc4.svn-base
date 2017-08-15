@@ -1,0 +1,66 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/login/Login.html');
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('登录',this.$route.query.show,false);
+		},
+		data: function(){
+			return {
+				dataList:[
+					{inputType:'text',iconClass:'icon-username',placeholder:'请输入手机号码',max:11,dataBind:'username',showMsg:false},
+					{inputType:'password',iconClass:'icon-icon-lock',placeholder:'请输入登录密码',max:16,dataBind:"password",showMsg:false},
+					{inputType:'text',iconClass:'icon-icon-msg',placeholder:'请输入图形验证码',max:4,dataBind:"imgCode",showMsg:true}
+				],
+				codeImg:'../shzc/imageCode.do?pageId=userlogin',
+				username:'',password:'',imgCode:''
+			}
+		},
+		methods:{
+			getCode: function(el){
+				var img = el.target;
+				var timenow = new Date();
+			    var src = "../shzc/imageCode.do?pageId=userlogin&d="+timenow;
+			    img.setAttribute('src',src);
+			},
+			login: function(){
+				var _this = this;
+				if(this.username==''){
+					$.toast('请输入手机号');
+					return;
+				};
+				if(!mobilePhone.test(this.username)){
+					$.toast('请输入正确的手机号码！');
+					return;
+				}
+				if(this.password==''){
+					$.toast('请输入密码');
+					return;
+				}
+				if(this.imgCode==''){
+					$.toast('请输入验证码');
+					return;
+				}
+				var customerId = this.username;
+				var param={name:this.username,pwd:this.password,code:this.imgCode,pageId:'userlogin'};
+				utils.ajax({
+		            url:'../front/login.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	if(data.error==0){
+		            		Storage.setItem('uid',data.id);
+		            		Storage.setItem('customerId',customerId);
+		            		Storage.setItem('ipayAccount',data.ipayAccount);
+		            		Storage.setItem('loginCount',data.loginCount);
+		            		router.go({name:'index',append:true});
+		            	}else{
+		            		$.alert(data.msg);
+		            	}
+		            }
+		        })
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

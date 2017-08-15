@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<meta name="format-detection" content="telephone=no; email=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<title>APP下载—普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<link rel="stylesheet" href="css/appDownLoad.css">
+</head>
+<body>
+	<div class="activity">
+ 		<img class="img" alt="app下载" src="images/appDownLoad/download_1.png">
+ 		<div class="iosDiv">
+ 			<a href="https://itunes.apple.com/cn/app/%E6%99%AE%E9%87%91%E8%B5%84%E6%9C%AC/id1213605344?mt=8">
+ 				<img class="img" alt="app下载" src="images/appDownLoad/download_iosBtn.png">
+ 				<span class="text">ios下载</span>
+				</a>
+ 		</div>
+ 		<div class="androidDiv">
+ 			<a href="http://android.myapp.com/myapp/detail.htm?apkName=com.pjzbapp">
+ 				<img class="img" alt="app下载" src="images/appDownLoad/download_androidBtn.png">
+ 				<span class="text">安卓下载</span>
+ 			</a>
+			</div>
+		 <img class="img" alt="app下载" src="images/appDownLoad/download_2.png">
+		 <img class="img" alt="app下载" src="images/appDownLoad/download_3.png">
+		 <img class="img" alt="app下载" src="images/appDownLoad/download_4.png">
+	</div>
+	<script type="text/javascript" src="srcipt/init.js"></script>
+</body>
+</html>

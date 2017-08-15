@@ -1,0 +1,175 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.RechargeDetailDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DesSecurityUtil;
+import com.pjzb.util.ExcelUtils;
+import com.shove.Convert;
+/**
+ * 充值记录
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminRechargeRecordService extends BaseController {
+	@Autowired
+	private RechargeDetailDao rechargeDetailDao;
+
+	public String queryRechargeRecordInit(Model model, String tabid, Long pageNum, Long pageSize,String userName, String beginTime, String endTime, Long rechargeType, Long result) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? null : userName;
+			rechargeType = rechargeType == null ? null : rechargeType;
+			int awardTypeInt = Convert.strToInt(rechargeType+"", -1); 
+			result = result == null ? null: result;
+			int resultInt = Convert.strToInt(result+"", -1);
+			beginTime = beginTime == null ?  null: beginTime;
+			endTime = endTime == null ? null : endTime;
+			List<Map<String, Object>> list = rechargeDetailDao.queryRechargeRecord((pageNum - 1) * pageSize, pageSize, userName, beginTime, endTime, awardTypeInt, resultInt);
+			long count = rechargeDetailDao.queryInvestStatisCount(userName, beginTime, endTime, awardTypeInt, resultInt);
+			Map<String, Object> map = rechargeDetailDao.queryRechargeSum(userName, beginTime, endTime, awardTypeInt, resultInt);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("userName", userName);
+			model.addAttribute("rechargeType", awardTypeInt);
+			model.addAttribute("result", resultInt);
+			model.addAttribute("beginTime", beginTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("map", map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询充值记录异常**************************");
+		}
+		return "/admin/fund/rechargerecord/list.jsp";
+	}
+
+	public void exportRechargeRecord(HttpServletResponse response, Long pageNum, Long pageSize, String userName, String beginTime, String endTime, Long rechargeType,
+			Long result) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? null : userName;
+			if(userName.equals(",")){
+				userName = userName.substring(0, userName.indexOf(","));
+			}
+			rechargeType = rechargeType == null ? null : rechargeType;
+			int awardTypeInt = Convert.strToInt(rechargeType+"", -1); 
+			result = result == null ? null: result;
+			int resultInt = Convert.strToInt(result+"", -1);
+			beginTime = beginTime == null ?  null: beginTime;
+			endTime = endTime == null ? null : endTime;
+			/*if(beginTime.equals(",")){
+				beginTime = beginTime.substring(0, beginTime.indexOf(","));
+			}*/
+			if(endTime.equals(",")){
+				endTime = endTime.substring(0, endTime.indexOf(","));
+			}
+			List<Map<String, Object>> list = rechargeDetailDao.queryRechargeRecords((pageNum - 1) * pageSize, pageSize, userName, beginTime, endTime, awardTypeInt, resultInt);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("充值记录列表", list, new String[] {  "用户名", "充值类型", "充值金额", "费率", "到账金额", "充值时间", "状态" }, new String[] {
+					"username","rechargeTypes", "rechargeMoney", "cost", "realMoney", "rechargeTime", "results" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************充值记录导出异常***************************");
+		}
+	}
+
+	public String queryRechargeFirstInit(Model model, String tabid, Long pageNum, Long pageSize, String userName, String beginTime, String endTime, Long rechargeType) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? null : userName;
+			rechargeType = rechargeType == null ? null : rechargeType;
+			int awardTypeInt = Convert.strToInt(rechargeType+"", -1); 
+			beginTime = beginTime == null ?  null: beginTime;
+			endTime = endTime == null ? null : endTime;
+			List<Map<String, Object>> list = rechargeDetailDao.queryRechargeFirstList((pageNum - 1) * pageSize, pageSize, userName, beginTime, endTime, awardTypeInt);
+			long count = rechargeDetailDao.queryRechargeFirstListCount(userName, beginTime, endTime, awardTypeInt);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("userName", userName);
+			model.addAttribute("rechargeType", awardTypeInt);
+			model.addAttribute("beginTime", beginTime);
+			model.addAttribute("endTime", endTime);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询第一次充值充值记录异常**************************");
+		}
+		return "/admin/fund/rechargerecord/listfirst.jsp";
+	}
+
+	public void exportRechargeFirst(HttpServletResponse response, Long pageNum, Long pageSize, String userName, String beginTime, String endTime, Long rechargeType) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? null : userName;
+			if(userName.equals(",")){
+				userName = userName.substring(0, userName.indexOf(","));
+			}
+			rechargeType = rechargeType == null ? null : rechargeType;
+			int awardTypeInt = Convert.strToInt(rechargeType+"", -1); 
+			beginTime = beginTime == null ?  null: beginTime;
+			endTime = endTime == null ? null : endTime;
+			/*if(beginTime.equals(",")){
+				beginTime = beginTime.substring(0, beginTime.indexOf(","));
+			}*/
+			if(endTime.equals(",")){
+				endTime = endTime.substring(0, endTime.indexOf(","));
+			}
+			List<Map<String, Object>> list = rechargeDetailDao.queryRechargeFirsts((pageNum - 1) * pageSize, pageSize, userName, beginTime, endTime, awardTypeInt);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("第一次充值记录列表", list, new String[] {  "用户名", "充值类型", "充值金额", "费率", "到账金额", "充值时间", "状态" }, new String[] {
+					"username","rechargeTypes", "rechargeMoney", "cost", "realMoney", "rechargeTime", "results" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************第一次充值记录导出异常***************************");
+		}
+	}
+
+	public String queryOneFirstChargeDetails(Model model, String id) {
+		try {
+			Long rechargeId = Convert.strToLong(id, -1L);
+			Map<String, Object> list = rechargeDetailDao.queryOneFirstChargeDetails(rechargeId, false);
+			if (list != null) {
+				String resultId = list.get("result").toString();
+				if (resultId.equals(0 + "")) {// 失败
+					list.put("realMoney", "0.00");
+				}
+			}
+			model.addAttribute("item", list);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/fund/rechargerecord/show.jsp";
+	}
+
+}

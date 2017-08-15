@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pjzb.dao.RiskDetailDao">
+
+	<resultMap type="riskDetail" id="riskDetailResultMap">
+		<id column="id" property="id" />
+		<result column="riskInCome" property="riskInCome" />
+		<result column="riskSpending" property="riskSpending" />
+		<result column="riskDate" property="riskDate" />
+		<result column="riskBalance" property="riskBalance" />
+		<result column="riskType" property="riskType" />
+		<result column="resource" property="resource" />
+		<result column="trader" property="trader" />
+		<result column="borrowId" property="borrowId" />
+		<result column="remark" property="remark" />
+		<result column="operator" property="operator" />
+	</resultMap>
+
+	<select id="queryTotalRisk" resultType="java.util.Map">
+	     SELECT ((SUM(riskInCome)-SUM(riskSpending))) AS total FROM t_risk_detail
+	</select>
+
+
+	<select id="queryCurrentRisk" resultType="java.util.Map">
+	     SELECT sum(riskInCome) as riskInCome,sum(riskSpending) as riskSpending FROM t_risk_detail WHERE riskDate=NOW()
+	</select>
+	
+	<select id="queryRiskDetailMax" resultMap="riskDetailResultMap">
+	     SELECT * FROM t_risk_detail a WHERE a.id=(select MAX(b.id) from t_risk_detail b)
+	</select>
+	
+	<insert id="insertRiskDetail" parameterType="riskDetail">
+		INSERT INTO t_risk_detail(riskInCome,riskSpending,riskDate,riskBalance,riskType,resource,trader,borrowId,remark,operator) 
+		VALUES(#{riskInCome},#{riskSpending},#{riskDate},#{riskBalance},#{riskType},#{resource},#{trader},#{borrowId},#{remark},
+		#{operator})
+	</insert>
+	
+	<select id="queryRiskBalance" resultType="java.util.Map">
+	     SELECT sum(riskInCome-riskSpending) riskBalance FROM t_risk_detail
+	</select>
+
+</mapper>
+
+
+

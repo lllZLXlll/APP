@@ -1,0 +1,198 @@
+package com.pjzb.service.admin.borrow;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.BorrowManageDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.WebUtil;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 手工放款
+ */
+
+@Service
+public class AdminManualBorrowService extends BaseController {
+
+	@Autowired
+	private BorrowManageDao borrowManageDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private UserService userService;
+
+	public Map<String, Object> updateHandloanslist(Model model, String billcode) throws RuntimeException {
+		try {
+			List<Map<String, Object>> investList = new ArrayList<Map<String, Object>>();
+			String bgRetUrl = WebUtil.getWebPath() + "/pubCallBack.do";
+
+			investList = borrowManageDao.queryInvestByBorrowId(billcode);
+			if (investList == null || investList.size() == 0) {
+				return ajaxDoneInfo("300", "订单号不存在", "", "");
+			}
+			Map<String, Object> invesmap = investList.get(0);
+			JSONObject jobj = null;
+			String jsonStr = null;
+			double totalFee = 0;
+			double sumfee = 0;
+			String divDetails = "";
+
+			double borrowAmt = Convert.strToDouble(invesmap.get("borrowAmount").toString(), 0.00);// 借款金额
+
+			for (int i = 0, size = investList.size(); i < size; i++) {
+				Map<String, Object> investMap = investList.get(i);
+				// 手续费分账户明细
+				JSONObject json1 = new JSONObject();
+				double investAmt = Convert.strToDouble(investMap.get("TransAmt") + "", 0); // 投资金额
+				double realFee = 0; // 实际扣除手续费
+				double totalRealFee = 0;
+
+				divDetails = "[";
+
+				// 2015-3-18 手续费改为按比例收取 by cqm
+				if (i == investList.size() - 1) {
+					realFee = totalFee - sumfee;
+				} else {
+					realFee = totalFee * investAmt / borrowAmt;
+					realFee = Convert.strToDouble(new DecimalFormat("0.00").format(realFee), 0.00);
+				}
+				sumfee += realFee;
+				totalRealFee = realFee;
+
+				json1.put("DivCustId", ChinapnrConfig.CHINAPNR_MERCUSTID);
+				json1.put("DivAcctId", ChinapnrConfig.CHINAPNR_SYQCJR);
+				json1.put("DivAmt", new DecimalFormat("0.00").format(realFee));
+				divDetails += json1.toString();
+
+				divDetails += "]";
+
+				if (totalRealFee <= 0 || "[]".equals(divDetails)) {
+					totalRealFee = 0.00;
+					divDetails = "";
+				}
+				// 投资用的代金券
+				double moneyRecord = Convert.strToDouble(investMap.get("moneyRecord") + "", 0.00);
+				JSONObject json = new JSONObject();
+				json.put("LoansVocherAmt", new DecimalFormat("0.00").format(moneyRecord));
+				DecimalFormat df = new DecimalFormat("0.00");
+				String sumMoney = df.format(moneyRecord);
+
+				if ("0.00".equals(sumMoney)) {
+					jsonStr = ChinapnrService.loans(investMap.get("OrdId") + "", investMap.get("OrdDate") + "",
+							investMap.get("OutCustId") + "", investMap.get("TransAmt") + "",
+							new DecimalFormat("0.00").format(totalRealFee) + "", investMap.get("OrdId") + "",
+							investMap.get("OrdDate") + "", investMap.get("InCustId") + "", divDetails, "", bgRetUrl,
+							investMap.get("trxId") + "", investMap.get("trxId") + "");
+
+				} else {
+					jsonStr = ChinapnrService.loansRecord(investMap.get("OrdId") + "", investMap.get("OrdDate") + "",
+							investMap.get("OutCustId") + "", investMap.get("TransAmt") + "",
+							new DecimalFormat("0.00").format(totalRealFee) + "", investMap.get("OrdId") + "",
+							investMap.get("OrdDate") + "", investMap.get("InCustId") + "", divDetails, "", bgRetUrl,
+							investMap.get("trxId") + "", investMap.get("trxId") + "", json.toString() + "");
+				}
+
+				jobj = JSONObject.fromObject(jsonStr);
+				log.info("汇付放款返回处理结果:" + jsonStr.toString());
+				if (jobj.getInt("RespCode") != 0) {
+					return ajaxDoneInfo("300",
+							"汇付放款失败msg:" + java.net.URLDecoder.decode(jobj.getString("RespDesc"), "utf-8"), "", "");
+				} else {
+					long publisher = Convert.strToLong(investMap.get("publisher") + "", 1);
+					// 更改借款人可用的资金
+					userDao.updateUserUsableSum(publisher, investAmt);
+
+					// 查询投资后的账户金额
+					Map<String, Object> userSumMap1 = userDao.queryUserAmountAfterHander(publisher);
+					if (userSumMap1 == null) {
+						userSumMap1 = new HashMap<String, Object>();
+					}
+					double usableSum1 = Convert.strToDouble(userSumMap1.get("usableSum") + "", 0);
+					double freezeSum1 = Convert.strToDouble(userSumMap1.get("freezeSum") + "", 0);
+					double forPI1 = Convert.strToDouble(userSumMap1.get("forPI") + "", 0);
+
+					Fundrecord fundrecord = new Fundrecord();
+					fundrecord.setUserId(publisher);
+					fundrecord.setFundMode("借款成功(手工放款)");
+					fundrecord.setHandleSum(investAmt);
+					fundrecord.setUsableSum(usableSum1);
+					fundrecord.setFreezeSum(freezeSum1);
+					fundrecord.setDueinSum(forPI1);
+					fundrecord.setTrader(-1l);
+					fundrecord.setRecordTime(new Date());
+					fundrecord.setRemarks("借款[标的ID：" + investMap.get("subOrdId") + "]复审通过,筹到资金[" + investAmt + "]元");
+					fundrecord.setIncome(investAmt);
+					fundrecord.setSpending(0.0);
+					fundrecord.setBorrowId(-1l);
+					fundrecord.setRepaymentId(-1l);
+					fundrecord.setOperateType(101);
+					fundrecord.setAccountSum(0.0);
+					fundrecordDao.addFundRecord(fundrecord);
+
+					userService.updateSign(Convert.strToLong(investMap.get("publisher") + "", 1));
+
+					long investorId = Convert.strToLong(investMap.get("investor") + "", 1);
+					// 更改投资人冻结的资金
+					userDao.updateUserFreezeSum(investorId, moneyRecord - investAmt);
+
+					// 查询投资后的账户金额
+					Map<String, Object> userSumMap2 = userDao.queryUserAmountAfterHander(investorId);
+					if (userSumMap2 == null) {
+						userSumMap2 = new HashMap<String, Object>();
+					}
+					double usableSum2 = Convert.strToDouble(userSumMap2.get("usableSum") + "", 0);
+					double freezeSum2 = Convert.strToDouble(userSumMap2.get("freezeSum") + "", 0);
+					double forPI2 = Convert.strToDouble(userSumMap2.get("forPI") + "", 0);
+
+					fundrecord = new Fundrecord();
+					fundrecord.setUserId(investorId);
+					fundrecord.setFundMode("扣除投标金额(手工放款)");
+					fundrecord.setHandleSum(investAmt);
+					fundrecord.setUsableSum(usableSum2);
+					fundrecord.setFreezeSum(freezeSum2);
+					fundrecord.setDueinSum(forPI2);
+					fundrecord.setTrader(-1l);
+					fundrecord.setRecordTime(new Date());
+					fundrecord.setRemarks("借款[标的ID：" + investMap.get("subOrdId") + "]审核通过");
+					fundrecord.setIncome(0.0);
+					fundrecord.setSpending(investAmt);
+					fundrecord.setBorrowId(-1l);
+					fundrecord.setRepaymentId(-1l);
+					fundrecord.setOperateType(101);
+					fundrecord.setAccountSum(0.0);
+					fundrecordDao.addFundRecord(fundrecord);
+
+					userService.updateSign(investorId);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**********************手工放款异常***************************");
+		}
+		return ajaxDoneInfo("200", "汇付放款成功", "", "");
+	}
+
+}

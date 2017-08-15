@@ -1,0 +1,16 @@
+define(function (require,exports,module) {
+	//首页
+	var VueComponent = Vue.extend({
+		template:'<div class="index-logo"><div class="row no-gutter"><div class="col-33">'+
+        '<i class="icon">&#xe60a;</i>'+
+        '<p>实力雄厚</p>'+
+        '<span>国资背景</span></div><div class="col-33">'+
+        '<i class="icon">&#xe60c;</i>'+
+        '<p>安全稳健</p>'+
+        '<span>资金保障</span></div><div class="col-33">'+
+        '<i class="icon">&#xe60b;</i>'+
+        '<p>新手福利</p>'+
+        '<span>注册有奖</span></div></div></div>'
+	});
+	module.exports = VueComponent;
+})

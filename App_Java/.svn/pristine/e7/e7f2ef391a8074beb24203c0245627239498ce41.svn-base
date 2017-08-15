@@ -1,0 +1,70 @@
+<div class="content" id="scoll">
+    <div class="track-fund infinite-scroll infinite-scroll-bottom"  data-distance="100">
+        <ul>
+            <li class="track-title">
+                <p>时间</p>
+                <p>操作类型</p>
+                <p>收支</p>
+                <p>余额</p>
+            </li>
+            <li v-if="dataLength">
+                <span>暂无资金明细</span>
+            </li>
+            <template v-for="list in dataList">
+                <li track-by="{{list.id}}">
+                    <p>{{list.recordTime | timeSub}}</p>
+                    <p>{{list.fundMode}}</p>
+                    <p>{{list.income | inOrOut list.spending}}</p>
+                    <p>{{list.usableSum}}</p>
+                </li>
+            </template>
+        </ul>
+    </div>
+    <div class="infinite-scroll-preloader" v-show="model">
+        <div class="preloader"></div>
+    </div>
+</div>
+<div class="panel-overlay"></div>
+<div class="panel panel-right panel-cover" id="panel-track">
+    <div class="content-block">
+        <p class="track-panel-title">类型</p>
+        <div class="track-check">
+            <label>
+                <input type="radio" name="track" v-model="fundMode" value="提现成功">
+                <p>提现成功</p>
+            </label>
+            <label>
+                <input type="radio" name="track" v-model="fundMode" value="提现冻结金额">
+                <p>提现冻结金额</p>
+            </label>
+        </div>
+        <div class="track-check">
+            <label>
+                <input type="radio" name="track" v-model="fundMode" value="借款成功">
+                <p>借款成功</p>
+            </label>
+            <label>
+                <input type="radio" name="track" v-model="fundMode" value="冻结投标金额">
+                <p>冻结投标金额</p>
+            </label>
+        </div>
+        <div class="track-check">
+            <label>
+                <input type="radio" name="track" v-model="fundMode" value="汇付充值">
+                <p>汇付充值</p>
+            </label>
+            <label>
+                <input type="radio" name="track" v-model="fundMode" checked value="">
+                <p>全部</p>
+            </label>
+        </div>
+        <p class="track-panel-title mrt">时间</p>
+        <div class="track-check">
+            <input type="text" readonly id="beginDate" v-getvalue="beginDate" placeholder="起始时间"/>
+            <input type="text" id="endDate" readonly placeholder="结束时间" />
+        </div>
+        <p class="track-btn">
+            <button type="button" @click="submit">查询</button>
+        </p>
+    </div>
+</div>

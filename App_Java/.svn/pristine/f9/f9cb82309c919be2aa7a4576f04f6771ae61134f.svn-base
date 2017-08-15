@@ -1,0 +1,247 @@
+package com.pjzb.task;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.SlbaoDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+@Service
+public class JobSLBaoService {
+	public static Log log = LogFactory.getLog(JobSLBaoService.class);
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+	
+	@Autowired
+	private SlbaoDao slbaoDao; 
+
+	// 成功的个数
+	private static int successNum = 0;
+
+	private synchronized void successNum() {
+		successNum++;
+	}
+
+	@SuppressWarnings({ "static-access" })
+	public void updatSlbaoEarnings() throws Exception {
+		List<Map<String, Object>> ipayAccountUserList = userDao.queryAllIpayAccountUser();
+		if (ipayAccountUserList != null) {
+			// 任务总数
+			int size = ipayAccountUserList.size();
+
+			log.info("总人数size = " + size);
+
+			// 启动30个线程， 计算多少人一个线程
+			if (size > 30) {
+				List<Thread> threads = new ArrayList<Thread>();
+				// 分组线程处理人数
+				int count = 0;
+				// 最后一个线程处理的人数
+				int countend = 0;
+				// 线程分组数量
+				int groupCount = 30;
+				// 循环开始下标位置
+				int start = 0;
+				// 循环结束下标位置
+				int end = 0;
+
+				count = size / groupCount;
+				countend = count + size % groupCount; // 最后一个线程处理的人数
+				for (int i = 0; i < groupCount; i++) {
+					if ((i + 1) == groupCount) {
+						end = start + countend - 1;
+						log.info("groupCount = " + groupCount + ",size = " + size + ", count = " + countend);
+						Threads t = new Threads("处理生利宝收益线程 " + (i + 1), start, size, ipayAccountUserList);
+						start = (i + 1) * count;
+						threads.add(t);
+						t.start();
+						break;
+					} else {
+						end = start + count - 1; // start:0 end:799
+						log.info("groupCount = " + groupCount + ",end = " + end + ", count = " + count);
+						Threads t = new Threads("处理生利宝收益线程 " + (i + 1), start, end + 1, ipayAccountUserList);
+						start = (i + 1) * count;
+						threads.add(t);
+						t.start();
+					}
+
+				}
+
+				for (Thread t : threads) {
+					t.join();
+					log.info(t.currentThread() + " join...");
+				}
+
+			} else {
+				for (Map<String, Object> ipayAccountUser : ipayAccountUserList) {
+					Long userId = -1L;
+					try {
+						String ipayAccount = ipayAccountUser.get("ipayAccount") + "";
+						double accumulatedIncome = Convert
+								.strToDouble(ipayAccountUser.get("slbaoAccumulatedIncome") + "", 0);
+						userId = Convert.strToLong(ipayAccountUser.get("id") + "", 0);
+						JSONObject jsonObject = new JSONObject();
+						jsonObject = JSONObject.fromObject(ChinapnrInterface.querySLBaoAccount(ipayAccount));
+						if (!jsonObject.isEmpty()) {
+							log.info(userId + ":返回生利宝账户信息：" + jsonObject.toString());
+
+							if (jsonObject.getInt("RespCode") != 0) {
+								String msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+								log.info(userId + ":   汇付返回msg:" + msg);
+							} else {
+								double totalAsset = Convert.strToDouble(jsonObject.getString("TotalAsset"), 0);// 生利宝余额
+								double totalProfit = Convert.strToDouble(jsonObject.getString("TotalProfit"), 0);// 历史累计收益
+
+								// 当生利宝累计收益大于0，并且大于用户当前收益，则增加一条生利宝的收益记录
+								if (totalProfit > 0 && totalProfit > accumulatedIncome) {
+									double money = totalProfit - accumulatedIncome;
+									userDao.updateSlBaoAmount(totalAsset, totalProfit, userId);
+									slbaoDao.addSlbaoEarnings(userId, totalAsset, money);
+									// userService.updateSign(userId);//
+									// 更换校验码
+								}
+
+							}
+						}
+						successNum();
+						log.info("successNum------生利宝收益处理人数------->" + successNum);
+					} catch (Exception e) {
+						e.printStackTrace();
+						operationLogDao.addOperationLog(new OperationLog("t_slbao_earnings", "定时器异常记录",
+								IConstants.INSERT, "", new Date(), 0d, "计算生利宝每日收益异常记录", 1, userId));
+					}
+				}
+
+			}
+
+			log.info("successNum------生利宝收益处理总数------->" + successNum);
+			successNum = 0;
+		}
+	}
+
+	class Threads extends Thread {
+		private String name;
+		private int start;
+		private int end;
+		private List<Map<String, Object>> ipayAccountUserList;
+
+		public Threads(String name, int start, int end, List<Map<String, Object>> ipayAccountUserList) {
+			this.setName(name);
+			this.name = name;
+			this.start = start;
+			this.end = end;
+			this.ipayAccountUserList = ipayAccountUserList;
+		}
+
+		@Override
+		public void run() {
+			log.info("生利宝收益子线程[" + name + "]开始..." + "for --> start=" + start + ", end=" + end);
+			for (int i = start; i < end; i++) {
+				Long userId = -1L;
+				try {
+					Map<String, Object> ipayAccountUser = ipayAccountUserList.get(i);
+
+					String ipayAccount = ipayAccountUser.get("ipayAccount") + "";
+					double accumulatedIncome = Convert.strToDouble(ipayAccountUser.get("slbaoAccumulatedIncome") + "",
+							0);
+					userId = Convert.strToLong(ipayAccountUser.get("id") + "", 0);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject = JSONObject.fromObject(ChinapnrInterface.querySLBaoAccount(ipayAccount));
+					if (!jsonObject.isEmpty()) {
+						log.info(userId + ":返回生利宝账户信息：" + jsonObject.toString());
+						if (jsonObject.getInt("RespCode") != 0) {
+							String msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+							log.info(userId + ":   汇付返回msg:" + msg);
+						} else {
+							double totalAsset = Convert.strToDouble(jsonObject.getString("TotalAsset"), 0);
+							double totalProfit = Convert.strToDouble(jsonObject.getString("TotalProfit"), 0);
+							// 当生利宝累计收益大于0，并且大于用户当前收益，则增加一条生利宝的收益记录
+							if (totalProfit > 0 && totalProfit > accumulatedIncome) {
+								double money = totalProfit - accumulatedIncome;
+								userDao.updateSlBaoAmount(totalAsset, totalProfit, userId);
+								slbaoDao.addSlbaoEarnings(userId, totalAsset, money);
+								// userService.updateSign(userId);// 更换校验码
+							}
+
+						}
+					}
+					successNum();
+					log.info("successNum------生利宝收益处理人数------->" + successNum);
+				} catch (Exception e) {
+					e.printStackTrace();
+					try {
+						operationLogDao.addOperationLog(new OperationLog("t_slbao_earnings", "定时器异常记录",
+								IConstants.INSERT, "", new Date(), 0d, "计算生利宝每日收益异常记录", 1, userId));
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+
+		}
+	}
+
+	/**
+	 * 每天12点定时计算生利宝异常用户的每日收益
+	 */
+	public void updatSlbaoEarningsException() {
+		List<Map<String, Object>> ipayAccountUserList = userDao.queryAllExceptionUser(DateUtil.dateToYMD(new Date()));
+		if(ipayAccountUserList != null){
+
+			for(Map<String, Object> ipayAccountUser : ipayAccountUserList){
+				Long userId = -1L;
+				try {
+					String ipayAccount = ipayAccountUser.get("ipayAccount")+"";
+					double accumulatedIncome = Convert.strToDouble(ipayAccountUser.get("slbaoAccumulatedIncome")+"", 0);
+					userId = Convert.strToLong(ipayAccountUser.get("id")+"", 0);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject = JSONObject.fromObject(ChinapnrInterface.querySLBaoAccount(ipayAccount));
+					if(!jsonObject.isEmpty()){
+						log.info(userId+":返回生利宝账户信息："+jsonObject.toString());
+						
+						if (jsonObject.getInt("RespCode") != 0) {
+							String msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+							log.info(userId+":   汇付返回msg:"+msg);
+						} else { 
+							double totalAsset = Convert.strToDouble(jsonObject.getString("TotalAsset"), 0);
+							double totalProfit = Convert.strToDouble(jsonObject.getString("TotalProfit"), 0);
+							
+							//当生利宝累计收益大于0，并且大于用户当前收益，则增加一条生利宝的收益记录
+							if(totalProfit > 0 && totalProfit > accumulatedIncome){
+								double money = totalProfit - accumulatedIncome;
+								userDao.updateSlBaoAmount(totalAsset, totalProfit, userId);
+								slbaoDao.addSlbaoEarnings(userId, totalAsset, money);
+//									userService.updateSign(userId);// 更换校验码
+							}
+						}
+					}
+					successNum();
+					log.info("successNum------生利宝收益处理人数------->" + successNum);
+				} catch (Exception e) { 
+					e.printStackTrace();
+				}	
+			}
+			
+		}
+	}
+
+}

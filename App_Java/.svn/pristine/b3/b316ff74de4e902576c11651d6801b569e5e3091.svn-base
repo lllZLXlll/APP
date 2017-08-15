@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.pjzb.dao.BankCardDao">
+
+	<resultMap type="bankCard" id="bankCardResultMap">
+		<id column="id" property="id" />
+		<result column="cardUserName" property="cardUserName" />
+		<result column="bankName" property="bankName" />
+		<result column="branchBankName" property="branchBankName" />
+		<result column="cardNo" property="cardNo" />
+		<result column="cardMode" property="cardMode" />
+		<result column="modifiedCardNo" property="modifiedCardNo" />
+		<result column="modifiedBankName" property="modifiedBankName" />
+		<result column="modifiedBranchBankName" property="modifiedBranchBankName" />
+		<result column="commitTime" property="commitTime" />
+		<result column="modifiedTime" property="modifiedTime" />
+		<result column="modifiedCardStatus" property="modifiedCardStatus" />
+		<result column="cardStatus" property="cardStatus" />
+		<result column="checkTime" property="checkTime" />
+		<result column="userId" property="userId" />
+		<result column="checkUser" property="checkUser" />
+		<result column="remark" property="remark" />
+		<result column="openBankId" property="openBankId" />
+		
+	</resultMap>
+	
+
+	<select id="queryBankCardByUserId" resultMap="bankCardResultMap">
+		SELECT * FROM t_bankcard a WHERE a.userId=#{userId} ORDER BY a.id DESC
+	</select>
+
+
+	<delete id="deleteBanckCardByUserId">
+	  DELETE FROM t_bankcard  WHERE cardNo=#{cardNo} AND userId=#{userId}
+	</delete>
+	
+
+	<select id="queryBanckCardByCardNOAndUserId" resultMap="bankCardResultMap">
+		SELECT * FROM t_bankcard a WHERE a.cardNo = #{0} and a.userId =#{1}
+	</select>
+	
+	<insert id="addBanckCard" parameterType="bankCard" >
+		INSERT INTO t_bankcard(cardUserName,bankName,branchBankName,cardNo,cardMode,modifiedCardNo,modifiedBankName,modifiedBranchBankName,
+		commitTime,modifiedTime,modifiedCardStatus,cardStatus,checkTime,userId,checkUser,remark,openBankId) 
+		VALUES(#{cardUserName},#{bankName},#{branchBankName},#{cardNo},#{cardMode},#{modifiedCardNo},#{modifiedBankName},
+		#{modifiedBranchBankName},#{commitTime},#{modifiedTime},#{modifiedCardStatus},#{cardStatus},#{checkTime},#{userId},#{checkUser},
+		#{remark},#{openBankId})
+	</insert>
+	
+	<select id="querySuccessBankInfoList" resultMap="bankCardResultMap">
+		SELECT * FROM t_bankcard a WHERE a.cardStatus=1 AND a.userId=#{userId}
+	</select>
+	
+	<select id="querySuccessBankInfoLists" resultType="java.util.Map">
+		SELECT * FROM t_bankcard WHERE cardStatus=1 AND userId=#{0}
+	</select>
+	
+	<select id="queryBanckCard" resultType="java.util.Map">
+		SELECT id FROM t_bankcard WHERE cardNo = #{0} AND userId = #{1}
+	</select>
+	
+	<insert id="addBanckCards">
+		INSERT INTO t_bankcard (userId,cardNo,cardUserName,bankName,cardStatus,openBankId,commitTime)
+		SELECT u.id,#{0},p.realName,#{1},1,#{2},now() FROM t_user u LEFT JOIN t_person p ON u.id = p.userId 
+		WHERE u.ipayAccount = #{3}
+	</insert>
+</mapper>
+
+
+
+
+

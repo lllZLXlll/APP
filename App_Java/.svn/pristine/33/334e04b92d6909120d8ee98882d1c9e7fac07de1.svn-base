@@ -1,0 +1,39 @@
+<div class="invest-list invest-list-friend infinite-scroll infinite-scroll-bottom" data-distance="100" >
+    <template  v-for="list in listData">
+        <div class="invest-list-content" track-by="{{list.id}}">
+            <div class="invest-title"> <i class="icon fl">&#xe61e;</i>
+                {{list.borrowTitle}}
+            </div>
+            <div class="invest-main row no-gutter">
+                <div class="col-25">
+                    <p>{{list.annualRate}}%</p>
+                    <p>年利率</p>
+                </div>
+                <div class="col-33">
+                    <p>
+                        {{list.borrowAmount}}
+                        <span>元</span>
+                    </p>
+                    <p>融资金额</p>
+                </div>
+                <div class="col-25">
+                    <p>
+                        {{list.deadline}}
+                        <span>月</span>
+                    </p>
+                    <p>投资期限</p>
+                </div>
+                <div class="col-17" v-html="status(list.borrowStatus)"></div>
+            </div>
+            <div class="invest-footer">
+                <p>投资金额：{{list.investAmount}}元</p>
+                <p>
+                </p>
+            </div>
+        </div>
+    </template>
+    <div v-if="showLength" class="invest-nobody">暂无投资记录</div>
+    <div class="infinite-scroll-preloader" v-show="model">
+        <div class="preloader"></div>
+    </div>
+</div>

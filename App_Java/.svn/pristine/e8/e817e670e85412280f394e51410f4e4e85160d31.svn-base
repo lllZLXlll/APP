@@ -1,0 +1,223 @@
+var param = {};
+
+/**   
+*
+* @Description 发送post请求 当有拦截器返回信息进行处理
+* @param url 请求地址
+* @param param 请求参数
+* @param callBack 成功后回调方法
+*
+*/ 
+$.shovePost = function(url,param,callBack){
+	url = url+"?shoveDate"+new Date().getTime();
+	$.post(url,param,function(data){
+		if(data == "noLogin"){
+			window.location.href="login.do";
+			return;
+		}
+		if(data=="network"){
+		   window.location.href="weihui.jsp";
+		  return;
+		}
+		if(data=="virtual"){
+		   window.location.href="noPermission.do";
+		  return;
+		}
+		if(data == "pagejump"){
+			window.location.href="adminMessage.do";
+			return;
+		}
+		callBack(data);
+	});
+}
+
+function shovePost(url,param,callBack){
+	url = url+"?shoveDate"+new Date().getTime();
+	$.post(url,param,function(data){
+		if(data == "noLogin"){
+			window.location.href="login.do";
+			return;
+		}
+		if(data=="network"){
+		   window.location.href="weihui.jsp";
+		  return;
+		}
+		if(data=="virtual"){
+		   window.location.href="noPermission.do";
+		  return;
+		}
+		if(data == "pagejump"){
+			window.location.href="adminMessage.do";
+			return;
+		}
+		callBack(data);
+	});
+}
+
+/**   
+*    
+* @Description 跳转页面方法
+* @param i 跳转页数
+*    
+*/
+function doJumpPage(i){
+	//if(i==""){
+	//	alert("输入格式不正确12!");
+	//	return;
+	//}
+	if(isNaN(i)){
+		alert("输入格式不正确!");
+		return;
+	}
+	$("#pageNum").val(i);
+	param["pageBean.pageNum"]=i;
+	//回调页面方法
+	initListInfo(param);
+}
+
+function checkbox_All_Reverse(obj,itemName){
+	$("input[name=" + itemName + "]").attr("checked",obj.checked);
+}
+
+//表格隔行变色
+function trEvenColor(){
+	$("#tableTr tr:even").css("background-color","#f9f9f9");
+}
+
+function setCookies(cookieName,value,days){
+	$.cookie(cookieName, value, { expires: days });
+}
+function getCookies(cookieName){
+	return $.cookie(cookieName);
+}
+
+ function getFlexObject(movieName) {   
+    return document[movieName];   
+}
+
+$(function(){
+	trEvenColor();
+})
+
+function hideAndShow(str){
+	$(str).hide();
+	$(str).show();
+}
+function Alert(text,fn){
+    new Dialog(text,true,fn);
+}
+function Dialog(text,flag,fn){
+    if(flag){
+        this.Dom = ['<div class="ui-dialog">',
+            '<div class="ui-peek"></div>',
+            '<div class="ui-content">',
+                '<div class="dialog-head">',
+                    '<h2>提示框</h2>',
+                    '<a href="javascript:void(0);" class="ui-dialog-close">×</a>',
+                '</div>',
+                '<div class="dialog-text">',
+                    '<p>{text}</p>',
+                '</div>',
+                '<div class="dialog-botton">',
+                    '<button class="dialog-true" href="javascript:void(0);">确定</button>',
+                '</div>',
+            '</div>',
+        '</div>'].join("");
+    }else{
+        this.Dom = ['<div class="ui-dialog">',
+            '<div class="ui-peek"></div>',
+            '<div class="ui-content">',
+                '<div class="dialog-head">',
+                    '<h2>提示框</h2>',
+                    '<a href="javascript:void(0);" class="ui-dialog-close">×</a>',
+                '</div>',
+                '<div class="dialog-text">',
+                    '<p>{text}</p>',
+                '</div>',
+                '<div class="dialog-botton">',
+                    '<a class="dialog-false" href="javascript:void(0);">取消</a>',
+                    '<button class="dialog-true" type="button">确定</button>',
+                '</div>',
+            '</div>',
+        '</div>'].join("");
+    }
+    if(fn)this.fn = fn;
+    this.text = text;
+    this.init();
+}
+Dialog.prototype.init = function(){
+    this.initDom();
+    this.initEvent();
+    this.showDom();
+};
+Dialog.prototype.initDom = function(){
+    var node = document.createElement('div');
+    node.innerHTML = this.Dom.replace('{text}',this.text);
+    this.dom = node.childNodes[0];
+};
+Dialog.prototype.initEvent = function(){
+    var _this = this;
+    if(document.addEventListener){
+        this.dom.addEventListener('click',function(e){
+            try{
+                if(e.target.tagName == 'A'){
+                    _this.hideDom();
+                }else if(e.target.tagName == 'BUTTON'){
+                    _this.hideDom(true);
+                }
+            }catch(a){
+                if(e.srcElement.nodeName == 'A'){
+                    _this.hideDom();
+                }else if(e.srcElement.nodeName == 'BUTTON'){
+                    _this.hideDom(true);
+                }
+            }
+            // if(e.target.tagName!=null){
+            //     if(e.target.tagName == 'A'){
+            //         _this.hideDom();
+            //     }
+            // }else if(e.srcElement.nodeName == 'A'){
+            //     _this.hideDom();
+            // }
+        }, false)
+    }else{
+        this.dom.attachEvent('onclick', function(e){
+            try{
+                if(e.target.tagName == 'A'){
+                    _this.hideDom();
+                }else if(e.target.tagName == 'BUTTON'){
+                    _this.hideDom(true);
+                }
+            }catch(a){
+                if(e.srcElement.nodeName == 'A'){
+                    _this.hideDom();
+                }else if(e.srcElement.nodeName == 'BUTTON'){
+                    _this.hideDom(true);
+                }
+            }
+            // if(e.target.tagName!=null){
+            //     if(e.target.tagName == 'A'){
+            //         _this.hideDom();
+            //     }
+            // }else if(e.srcElement.nodeName == 'A'){
+            //     _this.hideDom();
+            // }
+        })
+    }
+};
+Dialog.prototype.showDom = function(){
+    document.body.appendChild(this.dom);
+}
+Dialog.prototype.hideDom = function(flag){
+	if(flag){
+		if(this.fn){
+			this.fn.call(this);
+			document.body.removeChild(this.dom);
+		}else{
+			document.body.removeChild(this.dom);
+		}
+	}else{
+		document.body.removeChild(this.dom);
+	}
+}
+window.alert = Alert;

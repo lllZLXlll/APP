@@ -1,0 +1,113 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/account/Cashing.html');
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			utils.setAppConfig('提现',true,false);
+		},
+		route:{
+			data: function(transition){
+				var _this = this;
+				var param={uid:Storage.getItem('uid')};
+				utils.ajax({
+			        url:'../front/queryWithdraw.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		_this.$set('bankList',data.bankList);
+			        		_this.$set('bankNo',data.bankList[0].cardNo);
+			        		_this.$set('bankName',data.bankList[0].bankName);
+			        		var bankNoList = [],bankNameList=[];
+			        		for(var i=0;i<data.bankList.length;i++){
+			        			bankNoList.push(data.bankList[i].cardNo);
+			        			bankNameList.push(data.bankList[i].bankName)
+			        		};
+			        		_this.$set('bankNoList',bankNoList);
+			        		_this.$set('bankNameList',bankNameList);
+			        		_this.$set('username',data.bindingPhone);
+			        	}else{
+			        		$.alert(data.msg);
+			        	}
+			        },
+			        complete:function(){
+			        	transition.next();
+			        }
+			    })
+			},
+			waitForData: true
+		},
+		data: function(){
+			return {
+				bankNo:'',bankName:'',amt:'',password:'',smsCode:'',btnclass:'btn btn-msg',btnText:'获取验证码',clickInit:true,
+				username:'',recivePhone:'',randomCode:'',
+				listData:[
+				          {inputType:'text',placeholder:'请输入提现金额',max:16,iconClass:'icon-moneyamt',dataBind:'amt'},
+				          {inputType:'password',placeholder:'请输入交易密码',max:16,iconClass:'icon-icon-lock',dataBind:'password'},
+				          {inputType:'text',placeholder:'请输入短信验证码',max:4,iconClass:'icon-icon-msg',dataBind:'smsCode',msg:true},
+				          ]
+			}
+		},
+		methods:{
+			getSms: function(){
+				utils.getSmsCode(this,'resetPwd');
+			},
+			bankList: function(){
+				var _this = this;
+				$(this).picker({
+				  toolbarTemplate: '<header class="bar bar-nav bar-picker">\
+				  <button class="button button-link pull-right close-picker">确定</button>\
+				  <h1 class="title">银行卡修改</h1>\
+				  </header>',
+				  cols: [
+				    {
+				      textAlign: 'center',
+				      values: _this.bankNoList
+				    }
+				  ],
+				  onClose: function(obj){
+					  _this.$set('bankNo',obj.value[0]);
+					  for(var i=0;i<_this.bankNoList.length;i++){
+						  if(_this.bankNoList[i] == obj.value[0]){
+							  _this.$set('bankName',_this.bankNameList[i]);
+						  }
+					  }
+				  }
+				});
+				$(this).picker('open');
+			},
+			submit: function(){
+				if(this.amt == ''){
+					$.toast('金额不能为空');return;
+				}
+				if(this.password == ''){
+					$.toast('交易密码不能为空');return;
+				}
+				if(this.smsCode == ''){
+					$.toast('请填写短信验证码');return;
+				}
+				if(!AmtRegExp.test(this.amt)){
+					$.toast('金额格式不正确');return;
+				}
+				if(this.recivePhone == ''){
+					$.toast('请获取短信验证码');return;
+				}
+				var param={uid:Storage.getItem('uid'),dealpwd:this.password,code:this.smsCode,randomCode:this.randomCode,
+						recivePhone:this.recivePhone,money:this.amt,bankId:this.bankNo};
+				utils.ajax({
+		            url:'../front/addWithdraw.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	if(data.error =='0'){
+		            		$('#returnHtml').html(data.html.replace('target="_blank"',''));
+		            	}else{
+		            		$.alert(data.msg);
+		            	}
+		            }
+		        })
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

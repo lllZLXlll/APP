@@ -1,0 +1,83 @@
+package com.pjzb.service.admin.loan;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.BorrowInspectionDao;
+import com.pjzb.entity.Admin;
+
+/**
+ * 月检管理
+ *
+ */
+@Service
+public class AdminMonthInspectService extends BaseController {
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private BorrowInspectionDao borrowInspectionDao;
+
+	public String loanManageInit(Model model, String tabid, Long pageCurrent, Long pageSize, String userName,
+			String borrowTitle, Long borrowStatus, Long borrowWay) {
+		Admin admin = getSessionAdminInfo();
+
+		long count = borrowDao.queryBorrowAllByConditionCount(userName, borrowWay, borrowStatus, admin.getLoanUserId(),
+				borrowTitle);
+
+		List<Map<String, Object>> page = borrowDao.queryBorrowAllByCondition(userName, borrowWay, borrowStatus,
+				admin.getLoanUserId(), borrowTitle, (pageCurrent - 1) * pageSize, pageSize);
+
+		List<Map<String, Object>> lists = borrowDao.queryAllWaitingBorrow();
+		Vector<String> ids = new Vector<String>();
+		if (lists != null && lists.size() > 0) {
+			for (Map<String, Object> map : lists) {
+				ids.add(map.get("id").toString());
+			}
+		}
+		if (page != null && page.size() > 0) {
+			for (Map<String, Object> map : page) {
+				if (ids.contains(map.get("id").toString())) {
+					map.put("flag", "0");
+				} else {
+					map.put("flag", "1");
+				}
+			}
+		}
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowTitle", borrowTitle);
+		model.addAttribute("borrowStatus", borrowStatus);
+		model.addAttribute("borrowWay", borrowWay);
+		model.addAttribute("pageBean", new PageBean(pageCurrent, pageSize, count, page));
+
+		return "/admin/loan/monthinspect/list.jsp";
+	}
+
+	public String borrowInspectionInit(Model model, String tabid, long pageNum, long pageSize, String userName,
+			String borrowTitle) {
+		Admin admin = getSessionAdminInfo();
+
+		long count = borrowInspectionDao.queryBorrowInspectionForPageByLoanUserIdCount(userName, borrowTitle,
+				admin.getLoanUserId());
+
+		List<Map<String, Object>> page = borrowInspectionDao.queryBorrowInspectionForPageByLoanUserId(
+				userName, borrowTitle, admin.getLoanUserId(), (pageNum - 1) * pageSize, pageSize);
+
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, page));
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowTitle", borrowTitle);
+
+		return "/admin/loan/monthinspect/list-untreated.jsp";
+	}
+
+}

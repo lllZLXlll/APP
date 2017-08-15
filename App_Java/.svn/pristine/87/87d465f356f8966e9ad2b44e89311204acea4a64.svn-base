@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>关于我们_公司介绍</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#0f0100">
+		<div class="warp-1000 ">
+			<a href="#"><img src="http://lorempixel.com/1000/80/"></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">你好，licky</a></li>
+						<li><a href="#">消息 <span class="blue">1</span></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="#" class="logo"><img src="http://lorempixel.com/160/47/"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li>
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li class="hover"><a href="#">我的账户</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	<!--左右两栏布局-->
+	<div class="mod-two-column about about_company">
+		<div class="warp-1000">
+			<div class="side-bar">
+				<div class="menu">
+					<dl>
+                    	<dt><a href="#">关于我们</a></dt>
+						<dd><a href="#">关于我们</a></dd>
+						<dd class="on"><a href="#">联系我们</a></dd>
+                      <dd><a href="#">平台公告</a></dd>
+					</dl>
+				</div>
+			</div>
+			<div class="main">
+				<div class="text-data">
+					<p>深圳普金资本投资有限公司是由赣州城市开发投资集团有限公司联合赣州普金资本管理有限公司共同设立，由赣州普金资本管理有限公司控股的法人企业，公司注册资本3000万元。</p>
+					<p>赣州城市开发投资集团有限责任公司（简称“赣州城投集团”）成立于2004年3月，2009年9月股权改制为市政府直属、市国资委监管的国有独资企业（其中市国资委持股60%，市发投集团持股40%），注册资本金为10亿元。集团现有全资子公司11家，合资公司1个（华开（赣州）城市投资有限公司），参股了赣州银行、江西中财宝辉担保有限公司、章贡区农信联社、赣州金盛源担保有限公司、赣州益生宜居低碳环保材料有限公司等6个大型企业集团。</p>
+					<p>赣州城投集团自2009年股改转制为国有控股企业以来，累计实现融资239亿元（连续两年发行企业债券共计40亿元），完成投资220亿元；直接组织实施的城市建设项目108个，已完工69个；完成房屋建筑面积260万平方米，城区道路桥梁总长120公里，已成为市本级政府主要的融资平台及中心城区城市建设主力军。截止2014年末，集团总资产达552.8亿元，净资产345.3亿元，资产负债率37.5%，全年实现营业收入12.7亿元，净利润3.5亿元，筹集资金87亿元，完成投资43.7亿元。</p>
+					<p>按照“政府主导、企业主体、市场运作”的理念，赣州城投集团紧紧围绕赣南苏区振兴发展战略，立足做大做强做优，秉承“诚信为本 绩效为先 奉献为责 创新为魂”的企业精神，定位为“三大主体”（即城市建设融资主体、城市投资建设主体和城市国有资源运营主体），通过组建工程管理、资产经营和投资管理三个子公司，致力于打造集融资、投资、建设、运营、管理为一体的资产超千亿元的全国知名、省内一流的国有城市建设投资运营集团。</p>
+					<p>“e路易贷”是一家专业从事互联网金融服务的平台，平台由*******公司运营，顺应金融普惠化趋势，将专业信贷管理方法与互联网科技相结合，将网上金融和网下金融的同步发展相结合，致力于为投融双方提供直接对接的新渠道，使每个人都可以成为信用的传播者和使用者，促进信用交易的透明化、阳光化，实现交易的市场化，实现投资人、借款人和交易平台共赢。为有资金需求和理财需求的客户搭建一个“诚信、敬业、规范、高效”的网络互动平台。</p>
+					<p>“e路易贷”汇集国内外资深管理专家团队研发出四个金融产品:<br/>
+					1、成投标：挑选赣州城投旗下所管理之优质城投项目为项目源；<br/>
+					2、供应链标：挑选赣州城投优质供应商所提供融资需求项目；<br/>
+					3、首付标：挑选黑马地产所代理楼盘之购房人需垫部分首付融资需求为项目源；<br/>
+					4、抵押标：由小贷公司或合作机构提供有抵押物且有第三方担保的融资项目为项目源；<br/>
+					其中供应链标的每年核放5亿元的额度，由赣州城投集团具备优质还款来源及100%反担保物的上下游客户作为融资需求者，无疑是为广大理财客户提供了一个非常安全的理财市场。
+					</p>
+					<p>“e路易贷”将凭借资金、资源、人才、管理经验等优势，按照“运作规范化、管理系统化、服务人性化”的模式，我们坚持市场化运作、法人管理和专业化操作，秉承防范风险、化解风险和诚信经营的理念，建立完善的公司治理制度，为创业者和投资者搭建通往成功的桥梁，为投资人和融资者创造最大的经济效益。
+					</p>
+
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<!--左右两栏布局-->
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">安全保障</a>
+			<a href="#">联系我们</a>
+			<a href="#">收益计算器</a>
+			<a href="#">合同查询</a>
+			<a href="#">坛子</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->

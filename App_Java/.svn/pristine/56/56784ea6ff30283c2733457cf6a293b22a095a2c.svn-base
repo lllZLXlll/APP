@@ -1,0 +1,25 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+public interface SlbaoRecordDao {
+
+	List<Map<String, Object>> findBorrowInvestByConditionI(String recordTimeStart, String recordTimeEnd, Long userId, Long pageNum, Long pageSize);
+
+	List<Map<String, Object>> findBorrowInvestByConditionO(String recordTimeStart, String recordTimeEnd, Long userId, Long pageNum, Long pageSize);
+
+	List<Map<String, Object>> findBorrowInvestByConditionAll(String recordTimeStart, String recordTimeEnd, Long userId, Long pageNum, Long pageSize);
+
+	List<Map<String, Object>> querySlbaRecordByType(Long id, Integer type, Long pageno, Long pageSize6Long,
+			String startTime, String endTime);
+
+	long querySlbaRecordCountByType(Long id, Integer type, String startTime, String endTime);
+
+	public long addSLBaoRecord(Long valueOf, Integer fundMode, double doubleValue, double d, double e, double f, Date date,
+			String trim, String transType, int l, int slbType);
+
+	Map<String, Object> querySLBaoRecord(String trim);
+	
+}

@@ -1,0 +1,11 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.OperateReport;
+
+public interface OperateReportDao {
+	
+	public Long queryOperateReportCountByMonth(String month);
+	
+	public void insertOperateReport(OperateReport operateReport);
+
+}

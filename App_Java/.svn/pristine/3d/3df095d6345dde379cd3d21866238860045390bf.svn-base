@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * seo设置
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminSEOsetService extends BaseController{
+
+}

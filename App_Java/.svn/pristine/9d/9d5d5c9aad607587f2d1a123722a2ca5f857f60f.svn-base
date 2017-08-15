@@ -1,0 +1,138 @@
+package com.pjzb.service.admin.borrow;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RiskDetailDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.RiskDetail;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.IConstants;
+
+/**
+ * 手工转账
+ * 
+ * @author zlx
+ * 
+ */
+
+@Service
+public class AdminMantranAccountService extends BaseController {
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private RiskDetailDao riskDetailDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public Map<String, Object> updateHandTransferAccountslist(Model model, String inUsrCustId, String transAmt, String basePath) throws RuntimeException {
+		model.addAttribute("inUsrCustId", inUsrCustId);
+		model.addAttribute("transAmt", transAmt);
+		try {
+			Admin admin = (Admin) session().getAttribute("admin");
+			if (inUsrCustId == null || inUsrCustId.trim().length() == 0) {
+				return ajaxDoneInfo("300", "请输入汇付账号", "", "");
+			}
+			if (transAmt == null || transAmt.trim().length() == 0) {
+				return ajaxDoneInfo("300", "请输入转账金额", "", "");
+			}
+
+			User userMap = userDao.queryUserByIpayAccount(inUsrCustId);
+			if (userMap == null) {
+				return ajaxDoneInfo("300", "该汇付账号不存在", "", "");
+			}
+
+			String bgRetUrl = basePath + "pubCallBack.do";
+			String outAcctId = ChinapnrConfig.CHINAPNR_SYQCJR;
+			String outCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+			String inAcctId = "";
+			JSONObject json = new JSONObject();
+			SimpleDateFormat dfs = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+			json = JSONObject.fromObject(chinapnrService.transfer(dfs.format(new Date()), outCustId, outAcctId, transAmt, inUsrCustId, inAcctId, bgRetUrl));
+			if (json.get("RespCode").equals("000")) {
+				try {
+					Long l = userDao.updateUseruseableSumByIpayAccount(inUsrCustId, Double.parseDouble(transAmt));
+					if (l == 1) {
+						Map<String, Object> userSumMap2 = userDao.queryUserAmountAfterHander(userMap.getId());
+						if (userSumMap2 == null) {
+							userSumMap2 = new HashMap<String, Object>();
+						}
+						double usableSum2 = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap2.get("usableSum")));
+						double freezeSum2 = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap2.get("freezeSum")));
+						double forPI2 = ConvertUtil.convertDouble(ConvertUtil.convertString(userSumMap2.get("forPI")));
+						fundrecordDao.addFundRecord(new Fundrecord(userMap.getId(), "平台定向转账(手工转账)", Double.parseDouble(transAmt), usableSum2, freezeSum2, forPI2, -1l, "收到平台转账["
+								+ Double.parseDouble(transAmt) + "]元", Double.parseDouble(transAmt), 0.0, -1l, -1l, 101, 0.0, new Date()));
+
+						RiskDetail map = riskDetailDao.queryRiskDetailMax();
+
+						operationLogDao.addOperationLog(new OperationLog("t_fundrecord与t_risk_detail", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(),
+								Double.parseDouble(transAmt), userMap.getId() + "收到平台转账" + transAmt + "元", 2, admin.getId()));
+
+						RiskDetail riskDetail = new RiskDetail();
+						riskDetail.setRiskSpending(Double.parseDouble(transAmt));
+						riskDetail.setOperator(admin.getId());
+						riskDetail.setTrader(userMap.getId());
+						riskDetail.setRemark("平台手工转账给用户");
+						riskDetail.setRiskBalance(map.getRiskBalance() - Double.parseDouble(transAmt));
+						riskDetail.setRiskDate(new Date());
+						riskDetail.setRiskType("支出");
+						riskDetail.setResource("平台转账支出");
+						riskDetailDao.insertRiskDetail(riskDetail);
+
+						userService.updateSign(userMap.getId());
+						return ajaxDoneInfo("200", "手工转账成功", "", "");
+					} else {
+						return ajaxDoneInfo("300", "手工转账失败", "", "");
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					log.info(e);
+					throw new RuntimeException("**********************手工转账异常***************************");
+				}
+			} else if ((json.get("RespCode").equals("-102"))) {
+				return ajaxDoneInfo("300", "该用户当日转账超过3笔", "", "");
+			} else if ((json.get("RespCode").equals("-103"))) {
+				return ajaxDoneInfo("300", "单笔金额不能超过200.00元", "", "");
+			} else if ((json.get("RespCode").equals("343")) || (json.get("RespCode").equals("356"))) {
+				return ajaxDoneInfo("300", "商户专属账户余额不足", "", "");
+			} else {
+				throw new RuntimeException("失败");
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			throw new RuntimeException("异常");
+		}
+	}
+
+}

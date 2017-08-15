@@ -1,0 +1,266 @@
+package com.pjzb.service.admin.borrow;
+
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.entity.Borrow;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DesSecurityUtil;
+import com.shove.Convert;
+
+/**
+ * 待审核的借款，招标中的借款,流标的借款
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminBorrowingService extends BaseController{
+
+	@Autowired
+	private BorrowDao borrowDao;
+	/**
+	 * 后台借款招标中的记录
+	 * @param model
+	 * @param id
+	 * @param status
+	 * @param auditOpinion
+	 * @param tabid
+	 * @param session
+	 * @return
+	 */
+	public String queryborrowTenderIn(Model model,Long pageNum,Long pageSize,String userName, Long borrowWay, String tabid){
+
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" : userName;
+			borrowWay = borrowWay == null ? -1 : borrowWay;
+
+			List<Map<String, Object>> payList = borrowDao.borrowTenderIn(userName, borrowWay, (pageNum-1)*pageSize,pageSize);
+
+			Long borrowTenderInCount = borrowDao.borrowTenderInCount(userName, borrowWay);
+			
+			Map<String, Object> repaymentMap = borrowDao.queryBorrowTotalTenderDetail();
+			// 统计当前页等待
+			double tenderAmount = 0;
+			if (payList != null) {
+				for (Map<String, Object> map : payList) {
+					tenderAmount = tenderAmount + Convert.strToDouble(map.get("borrowAmount") + "", 0);
+				}
+			}
+			DecimalFormat fmt = new DecimalFormat("0.00");	
+
+			PageBean pageBean=new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPage(payList);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(borrowTenderInCount);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("repaymentMap", repaymentMap);
+			model.addAttribute("tenderAmount", fmt.format(tenderAmount));
+			model.addAttribute("pageNum",  pageNum);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询借款招标中的记录异常********************");
+		}
+
+		return "/admin/borrow/borrowing/tenderinlist.jsp";
+	}
+	
+	/**
+	 * 后台借款流标的记录
+	 * @return
+	 */
+	public String borrowFlowMark(Model model,Long pageNum,Long pageSize,String userName, Long borrowWay, String tabid){
+
+		try {
+
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = userName == null ? "" : userName;
+			borrowWay = borrowWay == null ? -1 : borrowWay;
+
+			List<Map<String, Object>> payList = borrowDao.borrowFlowMark(userName, borrowWay, (pageNum-1)*pageSize,pageSize);
+			
+			
+			Long borrowTenderInCount = borrowDao.borrowFlowMarkCount(userName, borrowWay);
+			
+			Map<String, Object> repaymentMap = borrowDao.queryBorrowFlowMarkDetail();
+
+			// 统计当前页等待
+			double flowmarkAmount = 0;
+			if (payList != null) {
+				for (Map<String, Object> map : payList) {
+					flowmarkAmount = flowmarkAmount + Convert.strToDouble(map.get("borrowAmount") + "", 0);
+				}
+			}
+			DecimalFormat fmt = new DecimalFormat("0.00");	
+
+			PageBean pageBean=new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPage(payList);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(borrowTenderInCount);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userName", userName);
+			model.addAttribute("borrowWay", borrowWay);
+			model.addAttribute("repaymentMap", repaymentMap);
+			model.addAttribute("flowmarkAmount", fmt.format(flowmarkAmount));
+			model.addAttribute("pageNum",  pageNum);
+			model.addAttribute("tabid", tabid);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询借款流标的记录异常********************");
+		}
+		return "/admin/borrow/borrowing/flowmarklist.jsp";
+	}
+
+	/**
+	 * 根据id查询招标中借款信息
+	 * @param model
+	 * @param borrowId
+	 * @param tabid
+	 * @return
+	 */
+	public String queryborrowTenderInDetail(Model model, Long borrowId, String tabid) {
+		try {
+			Map<String, Object> borrowMTenderInDetail = borrowDao.queryBorrowTenderInDetailById(borrowId);
+			String nid_log = Convert.strToStr(borrowMTenderInDetail.get("nid_log")== null ? "" : "", "");
+			if (StringUtils.isNotBlank(nid_log)) {
+				Map<String, Object> typeLogMap = borrowDao.queryBorrowTypeLogByNid(nid_log.trim());
+				int stauts = Convert.strToInt(typeLogMap.get("subscribe_status").toString(), -1);
+				model.addAttribute("subscribes", stauts);
+			}
+
+			String mailContent = String.valueOf(borrowMTenderInDetail.get("mailContent"));
+			String newStr = changeStr2Str(mailContent);
+			borrowMTenderInDetail.put("mailContent", newStr);
+
+			String userId = String.valueOf(borrowMTenderInDetail.get("userId"));
+			String userId_admin = String.valueOf(borrowMTenderInDetail.get("userId_admin"));
+			DesSecurityUtil ds = new DesSecurityUtil();
+			String new_userId = ds.encrypt(userId.toString());
+			String new_userId_admin = ds.encrypt(userId_admin.toString());
+			borrowMTenderInDetail.put("new_userId", new_userId);
+			borrowMTenderInDetail.put("new_userId_admin", new_userId_admin);
+			
+			model.addAttribute("borrowMTenderInDetail", borrowMTenderInDetail);
+			model.addAttribute("tabid", tabid);  
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询招标中借款信息异常**************************");
+		}
+		return "/admin/borrow/borrowing/tenderindetail.jsp";
+	}
+
+	private String changeStr2Str(String mailContent) {
+		if (mailContent != null && !mailContent.equals("")) {
+			int ind1 = mailContent.indexOf("<");
+			int ind2 = mailContent.indexOf(">");
+			if (ind1 < 0 || ind2 < 0 || ind2 <= ind1) {
+				return mailContent;
+			}
+			String newStr = mailContent.substring(0, ind1) + mailContent.substring(ind2 + 1);
+			// 处理<a>链接的结束标签
+			newStr = newStr.replace("</a>", "");
+			return newStr;
+		}
+		return mailContent;
+	}
+	/**
+	 * 根据id查询流标借款信息
+	 * @param model
+	 * @param borrowId
+	 * @param tabid
+	 * @return
+	 */
+	public String queryborrowFlowMarkDetail(Model model, Long borrowId, String tabid) {
+		try {
+			Map<String, Object> borrowMFlowMarkDetail = borrowDao.queryBorrowFlowMarkDetailById(borrowId);
+			String nid_log = String.valueOf(borrowMFlowMarkDetail.get("nid_log"));
+			if (StringUtils.isNotBlank(nid_log)) {
+				Map<String, Object> typeLogMap = borrowDao.queryBorrowTypeLogByNid(nid_log.trim());
+				int stauts = Convert.strToInt(typeLogMap.get("subscribe_status").toString(), -1);
+				model.addAttribute("subscribes", stauts);
+			}
+			
+			
+			String userId = String.valueOf(borrowMFlowMarkDetail.get("userId"));
+			String userId_admin = String.valueOf(borrowMFlowMarkDetail.get("userId_admin"));
+			DesSecurityUtil ds = new DesSecurityUtil();
+			String new_userId = ds.encrypt(userId.toString());
+			String new_userId_admin = ds.encrypt(userId_admin.toString());
+			borrowMFlowMarkDetail.put("new_userId", new_userId);
+			borrowMFlowMarkDetail.put("new_userId_admin", new_userId_admin);
+			
+			model.addAttribute("borrowMFlowMarkDetail", borrowMFlowMarkDetail);
+			model.addAttribute("tabid", tabid); 			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询流标借款信息异常**************************");
+		}
+		return "/admin/borrow/borrowing/flowmarkdetail.jsp";
+	}
+
+	public String queryBorrowTenderInit(Model model, Long borrowId, String tabid) {
+		try {
+			Map<String, Object> borrowMTenderInDetail = borrowDao.queryBorrowTenderInDetailById(borrowId);
+			String nid_log = Convert.strToStr(borrowMTenderInDetail.get("nid_log")== null ? "" : "", "");
+			if (StringUtils.isNotBlank(nid_log)) {
+				Map<String, Object> typeLogMap = borrowDao.queryBorrowTypeLogByNid(nid_log.trim());
+				int stauts = Convert.strToInt(typeLogMap.get("subscribe_status").toString(), -1);
+				model.addAttribute("subscribes", stauts);
+			}
+
+			String mailContent = String.valueOf(borrowMTenderInDetail.get("mailContent"));
+			String newStr = changeStr2Str(mailContent);
+			borrowMTenderInDetail.put("mailContent", newStr);
+
+			String userId = String.valueOf(borrowMTenderInDetail.get("userId"));
+			String userId_admin = String.valueOf(borrowMTenderInDetail.get("userId_admin"));
+			DesSecurityUtil ds = new DesSecurityUtil();
+			String new_userId = ds.encrypt(userId.toString());
+			String new_userId_admin = ds.encrypt(userId_admin.toString());
+			borrowMTenderInDetail.put("new_userId", new_userId);
+			borrowMTenderInDetail.put("new_userId_admin", new_userId_admin);
+			
+			model.addAttribute("borrowMTenderInDetail", borrowMTenderInDetail);
+			model.addAttribute("tabid", tabid);  
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询招标中借款信息异常**************************");
+		}
+		return "/admin/borrow/borrowing/updatetender.jsp";
+	}
+
+	public Map<String, Object> updateBorrowTender(Borrow borrow, String tabid) {
+		long result = borrowDao.updateBorrowTender(borrow);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "招标借款修改成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "招标借款修改失败", "", "");
+		}
+	}
+
+}

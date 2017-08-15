@@ -1,0 +1,212 @@
+package com.pjzb.service.admin.fund;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DesSecurityUtil;
+import com.pjzb.util.ExcelUtils;
+import com.shove.Convert;
+import com.shove.web.Utility;
+
+/**
+ * 用户资金管理
+ * 
+ * @author zlx
+ * 
+ */
+@Service
+public class AdminUserFundService extends BaseController {
+
+	@Autowired
+	private RepaymentDao repaymentDao;
+
+	public String queryUserFundList(Model model, Long pageCurrent, Long pageSize, String userName, String realName, Double usableSumMin, Double usableSumMax)
+			throws RuntimeException {
+		try {
+			userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+			realName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(realName));
+			long count = repaymentDao.queryUserCashListCount((pageCurrent - 1) * pageSize, pageSize, userName, realName, usableSumMin, usableSumMax);
+
+			List<Map<String, Object>> page = repaymentDao.queryUserCashList((pageCurrent - 1) * pageSize, pageSize, userName, realName, usableSumMin, usableSumMax);
+
+			Map<String, Object> map = repaymentDao.queryUserCash((pageCurrent - 1) * pageSize, pageSize, userName, realName, usableSumMin, usableSumMax);
+
+			PageBean pageBean = new PageBean(pageCurrent, pageSize, count, page);
+
+			if (page != null) {
+				Iterator<Map<String, Object>> iter = page.iterator();
+				int i = 0;
+				while (iter.hasNext()) {
+					Map<String, Object> mapItem = iter.next();
+					page.get(i).put("ids", new DesSecurityUtil().encrypt(mapItem.get("userId").toString()));
+					i++;
+				}
+				pageBean.setPage(page);
+			}
+
+			model.addAttribute("map", map);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("pageCurrent", pageCurrent);
+			model.addAttribute("pageSize", pageSize);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("usableSumMin", usableSumMin);
+			model.addAttribute("usableSumMax", usableSumMax);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		return "/admin/fund/userfund/list.jsp";
+	}
+
+	public String queryUserFundRechargeInit(Model model, String tabid, Long pageCurrent, Long pageSize, String startTime, String endTime, String rechargeType, String state,
+			String userIdStr) {
+		try {
+			startTime = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(startTime));
+			endTime = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(endTime));
+			rechargeType = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(rechargeType));
+			state = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(state));
+			Long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1);
+			long count = repaymentDao.queryUserFundRechargeInfoCount(startTime, endTime, rechargeType, state, userId);
+			List<Map<String, Object>> page = repaymentDao.queryUserFundRechargeInfo(startTime, endTime, rechargeType, state, userId, (pageCurrent - 1) * pageSize, pageSize);
+
+			model.addAttribute("pageBean", new PageBean(pageCurrent, pageSize, count, page));
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("startTime", startTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("rechargeType", rechargeType);
+			model.addAttribute("state", state);
+			model.addAttribute("id", userIdStr);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/fund/userfund/list-charge.jsp";
+	}
+
+	/**
+	 * @describe:充值记录 导出
+	 * @author: zlx
+	 */
+	public void exportUserFundRecharge(HttpServletResponse response, String userIdStr) {
+		try {
+			long userId = -1l;
+			userIdStr = userIdStr.substring(0, userIdStr.indexOf(","));
+			if (!userIdStr.equals("-1")) {
+				userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1);
+			}
+			List<Map<String, Object>> page = repaymentDao.queryUserFundRechargeInfoExport(userId);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("充值记录列表", page, new String[] { "用户名", "充值类型", "充值金额（¥）", "手续费（¥）", "到账金额（¥）", "充值时间", "状态" }, new String[] { "username",
+					"type", "rechargeMoney", "poundage", "realMoney", "rechargeTime", "result" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业融资申请导出异常***************************");
+		}
+	}
+
+	public String queryUserFundWithdrawList(Model model, String tabid, long pageCurrent, long pageSize, String userName, String startTime, String endTime, Double sum,
+			String state, String userIdStr) {
+		try {
+			userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+			startTime = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(startTime));
+			endTime = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(endTime));
+			state = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(state));
+			Long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1);
+			long count = repaymentDao.queryUserFundWithdrawListCount(startTime, endTime, userName, sum, state, userId);
+			List<Map<String, Object>> page = repaymentDao.queryUserFundWithdrawList(startTime, endTime, userName, sum, state, userId, (pageCurrent - 1) * pageSize, pageSize);
+
+			model.addAttribute("pageBean", new PageBean(pageCurrent, pageSize, count, page));
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("startTime", startTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("userName", userName);
+			model.addAttribute("sum", sum);
+			model.addAttribute("state", state);
+			model.addAttribute("id", userIdStr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************提现记录查询异常***************************");
+		}
+		return "/admin/fund/userfund/list-withdraw.jsp";
+	}
+
+	public void exportUserFundWithdraw(HttpServletResponse response, String userIdStr) {
+		try {
+			long userId = -1l;
+			userIdStr = userIdStr.substring(0, userIdStr.indexOf(","));
+			if (!userIdStr.equals("-1")) {
+				userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1);
+			}
+			List<Map<String, Object>> page = repaymentDao.queryUserFundWithdrawListExport(userId);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("提现记录列表", page, new String[] { "用户名", "真实姓名", "提现账号", "提现银行", "提现总额（¥）", "到账金额（¥）", "手续费（¥）", "提现时间" }, new String[] {
+					"username", "realName", "acount", "bankName", "sum", "realAccount", "poundage", "applyTime" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业融资申请导出异常***************************");
+		}
+	}
+
+	public String queryUserFundRecordList(Model model, String tabid, long pageCurrent, long pageSize, String userIdStr, String userName) {
+		try {
+			userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+			Long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1);
+			long count = repaymentDao.queryUserFundRecordListCount(userId);
+			List<Map<String, Object>> page = repaymentDao.queryUserFundRecordList(userId, (pageCurrent - 1) * pageSize, pageSize);
+
+			model.addAttribute("pageBean", new PageBean(pageCurrent, pageSize, count, page));
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("id", userIdStr);
+			model.addAttribute("userName", userName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************资金记录查询异常***************************");
+		}
+		return "/admin/fund/userfund/list-money.jsp";
+	}
+
+	public String queryAllUserFundRecordList(Model model, String tabid, long pageCurrent, long pageSize, String userName) {
+		try {
+			userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+			long count = repaymentDao.queryAllUserFundRecordListCount(userName);
+			List<Map<String, Object>> page = repaymentDao.queryAllUserFundRecordList(userName, (pageCurrent - 1) * pageSize, pageSize);
+
+			model.addAttribute("pageBean", new PageBean(pageCurrent, pageSize, count, page));
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("userName", userName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************资金明细查询异常***************************");
+		}
+		return "/admin/fund/userfund/list-detail.jsp";
+	}
+
+	public void exportAllUserFundRecord(HttpServletResponse response) throws IOException, RuntimeException {
+		List<Map<String, Object>> page = repaymentDao.queryExportAllUserFundRecord();
+		HSSFWorkbook wb = ExcelUtils.exportExcelCommon("资金明细列表", page, new String[] { "用户名", "类型", "收入（¥）", "支出（¥）", "可用金额（¥）", "冻结金额（¥）", "待收金额（¥）", "总金额（¥）", "记录时间" },
+				new String[] { "username", "fundMode", "income", "spending", "usableSum", "freezeSum", "dueinSum", "totalSum", "recordTime" });
+		this.export(wb, new Date().getTime() + ".xls", response);
+
+	}
+}

@@ -1,0 +1,51 @@
+<%@ page language="java" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_1472191240_1133611.css">
+<link rel="stylesheet" type="text/css" href="wap/css/sm.css">
+<style>
+.p-icon{text-align:center;}
+.icon{color:#ef5656;font-size:4rem;}
+.result-title,.result-text{text-align:center;font-size:0.8rem;line-height:1.2rem;}
+a{color:#eb3d3d;}
+</style>
+<title>result</title>
+<script type="text/javascript" src="wap/script/zepto.min.js" charset='utf-8'></script>
+<script type="text/javascript">
+var timers=5;
+var tipId;
+$(function(){
+	tipId=window.setInterval(timer,1000);
+	var result = '${paramMap.result}';
+	if(result.indexOf('成功')){
+		$('.icon').addClass('icon-success');
+	}else{
+		$('.icon').addClass('icon-fail');
+	}
+});
+//定时
+function timer(){
+    if(timers>=1){
+      $("#secondId").html(""+timers+"秒钟后自动");
+      timers--;
+    }else{
+       window.clearInterval(tipId);
+       window.location.href="wap/app.html";
+    }
+}
+</script>
+</head>
+<body>
+<header class="bar bar-nav">
+<h1 class="title">反馈结果</h1></header>
+	<!--顶部主导航 结束-->
+	<div class="content"><div class="result"><p class="p-icon"><i class="icon"></i></p>
+	<p class="result-title">${paramMap.result}</p><p class="result-text">${paramMap.pErrMsg}</p>
+	<p class="result-text">
+	<span id="secondId">5秒钟后自动</span> &nbsp;<a href="wap/app.html">返回首页</a></p>
+	</div></div>
+</body>
+</html>

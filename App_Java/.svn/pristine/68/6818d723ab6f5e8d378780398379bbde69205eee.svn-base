@@ -1,0 +1,84 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DateUtil;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 汇付交易状态查询
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminChinapnrTranStatusQueryService extends BaseController {
+	
+	@Autowired
+	private InvestDao investDao;
+
+	public String TranStatusQueryIndex(Model model, String tabid, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = investDao.queryInvestList((pageNum - 1) * pageSize, pageSize);
+			long count = investDao.queryInvestListCount();
+			Map<String, Object> map = investDao.queryMoneySum();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("map", map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************汇付交易状态查询记录异常**************************");
+		}
+		return "/admin/fund/chinapnrtranstatusquery/list.jsp";
+	}
+
+	public String TranStatusQuery(Model model, String billcode, String investTime) {
+		try {
+			Map<String, Object> paramMap = new HashMap<String, Object>();
+			billcode = billcode == null ? null : billcode;
+			investTime = investTime == null ? null : investTime;
+			String queryTransType ="LOANS"; //放款交易查询 
+			String date = DateUtil.dateToYMD(DateUtil.strToYYMMDDDate(investTime));
+			JSONObject jsonObject = JSONObject.fromObject(ChinapnrInterface.queryTransStat(billcode, date, queryTransType));
+			log.info("交易状态查询："+jsonObject.toString());
+			if (jsonObject.getInt("RespCode") != 0) {
+				String msg = java.net.URLDecoder.decode(jsonObject.getString("RespDesc"), "utf-8");
+				paramMap.put("ret", "-10086"); 
+				paramMap.put("ret_desc", msg); 
+				model.addAttribute("paramMap", paramMap);
+			} else { 
+				//交易状态
+				String TransStat = jsonObject.getString("TransStat");
+				paramMap.put("ret", "000"); 
+				paramMap.put("ordID", billcode);
+				paramMap.put("TransStat", TransStat); 
+				model.addAttribute("paramMap", paramMap);
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/fund/chinapnrtranstatusquery/show.jsp";
+	}
+
+}

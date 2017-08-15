@@ -1,0 +1,59 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowStyleDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.IConstants;
+
+/**
+ * 还款方式
+ */
+@Service
+public class AdminShoveBorrowService extends BaseController {
+
+	@Autowired
+	private BorrowStyleDao borrowStyleDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryShoveBorrowAllInit(Model model, String tabid, long pageNum, long pageSize) {
+
+		long count = borrowStyleDao.queryShoveBorrowAllInitCount();
+		List<Map<String, Object>> page = borrowStyleDao.queryShoveBorrowAllInit((pageNum - 1) * pageSize, pageSize);
+
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, page));
+
+		return "/admin/borrow/shoveborrow/list.jsp";
+	}
+
+	public String updateShoveBorrowStyleInit(Model model, String tabid, Long id) {
+		Map<String, Object> item = borrowStyleDao.queryShoveBorrowById(id);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("item", item);
+		return "/admin/borrow/shoveborrow/update.jsp";
+	}
+
+	public Map<String, Object> updateShoveBorrowStyle(Model model, String tabid, Long id, String title, Long status, String contents, Admin admin) {
+		long count = borrowStyleDao.updateShoveBorrowStyle(id, title, status, contents);
+		if (count > 0) {
+			operationLogDao.addOperationLog(new OperationLog("t_borrow_style", admin.getUserName(), IConstants.UPDATE, admin.getLastIp(), new Date(), 0d, "修改还款方式信息", 2, admin
+					.getId()));
+			return ajaxDoneInfo("200", "还款方式修改成功", "dialog", tabid);
+		}
+		return ajaxDoneInfo("300", "还款方式修改失败", "", "");
+	}
+
+}

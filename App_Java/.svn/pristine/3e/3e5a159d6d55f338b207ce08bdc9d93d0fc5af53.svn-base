@@ -1,0 +1,137 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * SlbaoRecord entity. @author MyEclipse Persistence Tools
+ */
+
+public class SlbaoRecord implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private String fundMode;
+	private Double handleSum;
+	private Double usableSum;
+	private Double income;
+	private Double spending;
+	private Date recordTime;
+	private String paynumber;
+	private String remarks;
+	private Integer tradeStatus;
+
+	// Constructors
+
+	/** default constructor */
+	public SlbaoRecord() {
+	}
+
+	/** full constructor */
+	public SlbaoRecord(Long userId, String fundMode, Double handleSum, Double usableSum, Double income, Double spending, Date recordTime, String paynumber, String remarks,
+			Integer tradeStatus) {
+		this.userId = userId;
+		this.fundMode = fundMode;
+		this.handleSum = handleSum;
+		this.usableSum = usableSum;
+		this.income = income;
+		this.spending = spending;
+		this.recordTime = recordTime;
+		this.paynumber = paynumber;
+		this.remarks = remarks;
+		this.tradeStatus = tradeStatus;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getFundMode() {
+		return this.fundMode;
+	}
+
+	public void setFundMode(String fundMode) {
+		this.fundMode = fundMode;
+	}
+
+	public Double getHandleSum() {
+		return this.handleSum;
+	}
+
+	public void setHandleSum(Double handleSum) {
+		this.handleSum = handleSum;
+	}
+
+	public Double getUsableSum() {
+		return this.usableSum;
+	}
+
+	public void setUsableSum(Double usableSum) {
+		this.usableSum = usableSum;
+	}
+
+	public Double getIncome() {
+		return this.income;
+	}
+
+	public void setIncome(Double income) {
+		this.income = income;
+	}
+
+	public Double getSpending() {
+		return this.spending;
+	}
+
+	public void setSpending(Double spending) {
+		this.spending = spending;
+	}
+
+	public Date getRecordTime() {
+		return this.recordTime;
+	}
+
+	public void setRecordTime(Date recordTime) {
+		this.recordTime = recordTime;
+	}
+
+	public String getPaynumber() {
+		return this.paynumber;
+	}
+
+	public void setPaynumber(String paynumber) {
+		this.paynumber = paynumber;
+	}
+
+	public String getRemarks() {
+		return this.remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
+	public Integer getTradeStatus() {
+		return this.tradeStatus;
+	}
+
+	public void setTradeStatus(Integer tradeStatus) {
+		this.tradeStatus = tradeStatus;
+	}
+
+}

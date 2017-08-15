@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.admin.CloseNetWorkDao">
+	
+	<resultMap type="user" id="netWorkResultMap">
+		<id column="id" property="id" />
+		<result column="status" property="status" />
+		<result column="content" property="content" />
+	</resultMap>
+	
+	<update id="updateNetWork">
+		update t_closenetwork set status = #{status}, content = #{content} where id=1;
+	</update>
+	
+	<select id="getNetWorkById" resultMap="netWorkResultMap">
+		select * from t_closenetwork where id = 1
+	</select>
+	
+	<select id="p_init" resultType="java.lang.Integer">
+		CALL p_init(#{0}, #{1}, #{2}， #{3})
+	</select>
+
+</mapper>
+
+
+

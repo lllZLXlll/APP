@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>我的账户 - 发布借款 - 工作认证信息</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+	<script type="text/javascript" src="js/My97DatePicker/WdatePicker.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#e04c16">
+		<div class="warp-1000 ">
+			<a href="index.html"><img src="img/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">登录</a></li>
+						<li><a href="#"><i class="ico ico-red-package"></i>注册领红包</a></li>
+						<li><a href="#">我要投资</a></li>
+						<li><a href="#">新手指引</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.html" class="logo"><img src="img/logo.png"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li class="">
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							$(this).addClass('hover');
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	<!--左右两栏布局-->
+	<div class="mod-one-column">
+		<div class="warp-1000">
+			<h2>发布个借款</h2>
+			<div class="main">
+				<div class="tab">
+					<ul class="clearfix">
+						<li>填写基本资料<b></b></li>
+						<li class="on">工作认证信息<b></b></li>
+						<li>上传认证资料<b></b></li>
+						<li>发布贷款<b></b></li>
+					</ul>
+				</div>
+				<div class="mod-form">
+					<div class="tip small">
+						<p><span class="orange">*</span>为必填项，所有资料均会严格保密。</p>
+					</div>
+					<form>
+						<div class="item">
+							<span class="name"><h3>工作信息</h3></span>
+						</div>
+						<div class="item">
+							<span class="name">单位名称<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">职业状态<em class="orange">*</em></span>
+							<select>
+								<option>网络商家</option>
+							</select>
+						</div>
+						<div class="item">
+							<span class="name">工作城市<em class="orange">*</em></span>
+							<select>
+								<option>请选择</option>
+							</select>
+							<select>
+								<option>请选择</option>
+							</select>
+						</div>
+						<div class="item">
+							<span class="name">公司类别<em class="orange">*</em></span>
+							<select>
+								<option>请选择</option>
+							</select>
+						</div>
+						<div class="item">
+							<span class="name">公司行业<em class="orange">*</em></span>
+							<select>
+								<option>请选择</option>
+							</select>
+						</div>
+						<div class="item">
+							<span class="name">公司规模<em class="orange">*</em></span>
+							<select>
+								<option>请选择</option>
+							</select>
+						</div>
+						<div class="item">
+							<span class="name">职位<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">月收入<em class="orange">*</em></span>
+							<select class="larage">
+								<option>请选择</option>
+							</select>
+						</div>
+						<div class="item">
+							<span class="name">现单位工作年限<em class="orange">*</em></span>
+							<select class="larage">
+								<option>请选择</option>
+							</select>
+						</div>
+						<div class="item">
+							<span class="name">公司电话<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+							<span class="tip small">格式：0755-29556666 或 010-83881140 </span>
+						</div>
+						<div class="item">
+							<span class="name">工作邮箱<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">公司地址<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<h3>直系亲属联系人</h3>（在您贷款成功后，我们会通过电话核实您的紧急联系人信息）
+						</div>
+						<div class="item">
+							<span class="name">姓名<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">关系<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">手机号码<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<h3>其他联系人</h3>
+						</div>
+						<div class="item">
+							<span class="name">姓名<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">关系<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">手机号码<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<h3>更多其他联系人</h3>
+						</div>
+						<div class="item">
+							<span class="name">姓名<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">关系<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="item">
+							<span class="name">手机号码<em class="orange">*</em></span>
+							<input type="text" class="larage h-midi" placeholder="找零二">
+						</div>
+						<div class="tip ">
+							<p>请确保您填写的资料真实有效，所有资料将会严格保密。<br /> 
+							一旦被发现所填资料有虚假，将会影响您在贷的信用，对以后借款造成影响。</p>
+						</div>
+						<div class="item">
+							
+							<button class="btn">保存并下一步</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--左右两栏布局-->
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="img/cpright_001.png"/></a>
+					<a href="#"><img src="img/cpright_002.png"/></a>
+					<a href="#"><img src="img/cpright_003.png"/></a>
+                  <a href="#"><img src="img/cpright_004.png"/></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->
+<div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-qq"></i></p>
+				<p>客服QQ</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-weichet"></i></p>
+				<p>官方微信</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-feedback"></i></p>
+				<p>意见反馈</p>
+			</a>
+		</li>
+	</ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,387 @@
+package com.pjzb.task;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.pjzb.service.admin.borrow.AdminFullBorrowService;
+import com.pjzb.util.Constants;
+
+public class JobTask {
+	public static Log log = LogFactory.getLog(JobTask.class);
+
+	@Autowired
+	private JonDealOverdueDebtsService jonDealOverdueDebtsService;
+
+	@Autowired
+	private JobAutomaticRepayService jobAutomaticRepayService;
+
+	@Autowired
+	private JobSendRepayInfoToBorrowerService jobSendRepayInfoToBorrowerService;
+
+	@Autowired
+	private JobDealOverdueBorrowService jobDealOverdueBorrowService;
+
+	@Autowired
+	private JobCreateOperateReportService jobCreateOperateReportService;
+
+	@Autowired
+	private JobAutomaticUnlockAccountService jobAutomaticUnlockAccountService;
+
+	@Autowired
+	private JobCreateBorrowInspectionService jobCreateBorrowInspectionService;
+
+	@Autowired
+	private JobPendingReleaseLoanService jobPendingReleaseLoanService;
+
+	@Autowired
+	private JobAutoGrantExGoInterestService jobAutoGrantExGoInterestService;
+
+	@Autowired
+	private JobBeOverdueRepaymentService jobBeOverdueRepaymentService;
+
+	@Autowired
+	private JobRepayInfoCollectService jobRepayInfoCollectService;
+
+	@Autowired
+	private JobUpdateUnuseRedmoneyrecordService jobUpdateUnuseRedmoneyrecordService;
+
+	@Autowired
+	private JobAddExGoQuotaService jobAddExGoQuotaService;
+
+	@Autowired
+	private JobCreateRongTuWangDataService jobCreateRongTuWangDataService;
+
+	@Autowired
+	private JobDebitReconciliationService jobDebitReconciliationService;
+
+	@Autowired
+	private JobActivityService jobActivityService;
+
+	@Autowired
+	private AdminFullBorrowService adminFullBorrowService;
+
+	@Autowired
+	private JobSLBaoService jobSLBaoService;
+
+	// /**
+	// * 指定时间执行定时器(测试用)
+	// *
+	// */
+	// public void task() throws Exception {
+	// log.info("--------------指定时间执行定时器(测试用)开始--------------");
+	//
+	// adminFullBorrowService.autoUpdateBorrowFullScaleStatus();
+	//
+	// log.info("--------------指定时间执行定时器(测试用)结束--------------");
+	// }
+
+	/**
+	 * 每五分钟定时器
+	 * 
+	 */
+	public void timeMinutesTask() {
+		log.info("--------------每五分钟任务开始--------------");
+
+		// 距还款日期有7、3、1天且用户余额不足时，发短信提醒用户
+		if (Constants.ISDEMO.equals(Constants.ISDEMO_2)) {
+			try {
+				jobSendRepayInfoToBorrowerService.sendMsgToBorrow();
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error(e);
+				log.info("***********************距还款日期有7、3、1天且用户余额不足时，发短信提醒用户异常**************************");
+			}
+		}
+
+		// 处理过期借款
+		try {
+			jobDealOverdueBorrowService.dealOverdueBorrow();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************处理过期借款异常**************************");
+		}
+
+		// 处理过期债权
+		try {
+			jonDealOverdueDebtsService.dealDueDebt();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************处理过期债权异常**************************");
+		}
+
+		// 自动解锁
+		try {
+			jobAutomaticUnlockAccountService.autoUnlockAccount();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************** 自动解锁异常**************************");
+		}
+
+		// 自动还款
+		try {
+			jobAutomaticRepayService.autoRepayPayment();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************** 自动还款异常**************************");
+		}
+
+		// 自动发放体验金利息给用户
+		try {
+			jobAutoGrantExGoInterestService.autoGrantExGoInterest();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************自动发放体验金利息给用户异常**************************");
+		}
+
+		// 自动处理满标审核信息
+		try {
+			adminFullBorrowService.autoUpdateBorrowFullScaleStatus();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************自动处理满标审核信息异常**************************");
+		}
+
+		log.info("--------------每五分钟任务结束--------------");
+	}
+
+	/**
+	 * 每天00:00:00定时器
+	 * 
+	 */
+	public void dayZeroClockTask() throws Exception {
+		log.info("--------------每天00:00:00任务开始--------------");
+
+		// 待发布借款
+		try {
+			jobPendingReleaseLoanService.updateWaitPublishBorrow();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************处理待发布借款异常**************************");
+		}
+
+		// 逾期的还款
+		try {
+			jobBeOverdueRepaymentService.updateOverDueRepayment();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************逾期的还款异常**************************");
+		}
+
+		// 逾期的投资还款记录
+		try {
+			jobBeOverdueRepaymentService.updateOverDueInvestRepayment();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************逾期的投资还款记录异常**************************");
+		}
+
+		// 放还款对账
+		try {
+			jobRepayInfoCollectService.addReconciliation("LOANS");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************放还款对账异常**************************");
+		}
+
+		try {
+			jobRepayInfoCollectService.addReconciliation("REPAYMENT");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************放还款对账异常**************************");
+		}
+
+		// 未使用且过期的代、现金券改为过期状态
+		try {
+			jobUpdateUnuseRedmoneyrecordService.updateRedmoneyrecord();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************未使用且过期的代、现金券改为过期状态异常**************************");
+		}
+
+		// 生成融图网统计信息
+		try {
+			jobCreateRongTuWangDataService.createRongTuWangData();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************生成融图网统计信息异常**************************");
+		}
+
+		// 汇付扣款对账 zlx
+		try {
+			jobDebitReconciliationService.addTrfReconciliation();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************汇付扣款对账异常**************************");
+		}
+		// 汇付取现对账 zlx
+		try {
+			jobDebitReconciliationService.addCashReconciliation();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************** 汇付取现对账异常**************************");
+		}
+		// ------------------活动------------------------
+		// 活动1 zlx
+//		try {
+//			jobActivityService.insertNewUserFirstInvestAward();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			log.error(e);
+//			log.info("***********************活动1异常**************************");
+//		}
+//
+//		// 活动2 zlx
+//		try {
+//			jobActivityService.insertRobBorrowAward();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			log.error(e);
+//			log.info("***********************活动2异常**************************");
+//		}
+//
+//		// 活动3 zlx
+//		try {
+//			jobActivityService.insertOldUserAward();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			log.error(e);
+//			log.info("***********************活动3异常**************************");
+//		}
+//		// 活动4 zlx
+//		try {
+//			jobActivityService.insertInviteAward();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			log.error(e);
+//			log.info("***********************活动4异常**************************");
+//		}
+//
+//		// 活动5 zlx
+//		try {
+//			jobActivityService.insertCumulateInviteAward();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			log.error(e);
+//			log.info("***********************活动5异常**************************");
+//		}
+
+		// 活动6 zlx
+		try {
+			jobActivityService.insertNewUserFirstInvestAward();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************活动6异常**************************");
+		}
+
+		// 生成推荐投资（邀请奖励嗨翻天）统计信息 xj
+		try {
+			jobActivityService.createRecommendInvestInfo();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************生成推荐投资（邀请奖励）统计信息异常**************************");
+		}
+
+		log.info("--------------每天00:00:00任务结束--------------");
+	}
+
+	/**
+	 * 每天09:00:00定时器
+	 * 
+	 */
+	public void dayNineClockTask() {
+		log.info("--------------每天09:00:00任务开始--------------");
+
+		// 添加100个体验金的名额
+		try {
+			jobAddExGoQuotaService.updatExGoAccount();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************添加100个体验金的名额异常**************************");
+		}
+
+		log.info("--------------每天09:00:00任务结束--------------");
+
+	}
+
+	/**
+	 * 生利宝定时器 每天09:25:00定时器 每天18:00:00定时器
+	 */
+	public void slBaoTask() {
+		log.info("--------------每日9点25分任务处理开始，如果当天收益异常，在当天18点再处理一次--------------");
+
+		try {
+			jobSLBaoService.updatSlbaoEarnings();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************计算用户生利宝收益异常**************************");
+		}
+
+		log.info("--------------每日9点25分任务处理结束，如果当天收益异常，在当天18点再处理一次--------------");
+	}
+
+	/**
+	 * 生利宝异常记录定时器 每天12:00:00定时器
+	 */
+	public void slBaoExceptionTask() {
+		log.info("--------------每日12:00:00任务处理开始，计算生利宝收益异常记录重新计算一次--------------");
+
+		try {
+			jobSLBaoService.updatSlbaoEarningsException();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************计算异常用户生利宝收益异常**************************");
+		}
+
+		log.info("--------------每日12:00:00任务处理结束，计算生利宝收益异常记录重新计算一次--------------");
+	}
+
+	/**
+	 * 每月1号00:00:00定时定时器
+	 * 
+	 */
+	public void monthZeroClockTask() {
+		log.info("--------------每月1号00:00:00定时任务开始--------------");
+
+		// 生成月检任务
+		try {
+			jobCreateBorrowInspectionService.createBorrowInspection();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************** 生成月检任务异常**************************");
+		}
+
+		// 生成运营数据任务
+		try {
+			jobCreateOperateReportService.createOperateReport();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************月报数据生成异常**************************");
+		}
+
+		log.info("--------------每月1号00:00:00定时任务结束--------------");
+	}
+
+}

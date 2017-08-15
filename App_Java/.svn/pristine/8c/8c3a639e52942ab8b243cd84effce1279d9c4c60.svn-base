@@ -1,0 +1,58 @@
+package com.pjzb.service.admin.identify;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.UserDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+import com.shove.web.Utility;
+/**
+ * 基本资料认证
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminBasicDataAuthenService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+	
+	public String queryRechargeecordsInit(Model model, String tabid, Long pageNum, Long pageSize, String userName, String realName, String adminName, String auditStatus,
+			String certificateName) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+			realName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(realName));
+			adminName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(adminName));
+			int auditStatu = Convert.strToInt(auditStatus, -1);
+			int certificateNam = Convert.strToInt(certificateName, -1);
+			List<Map<String, Object>> list = userDao.queryRechargeecordsInit((pageNum - 1) * pageSize, pageSize,userName,realName,adminName,auditStatu,certificateNam);
+			long count = userDao.queryRechargeecordsCount(userName,realName,adminName,auditStatu,certificateNam);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("adminName", adminName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询基本资料认证异常**************************");
+		}
+		return "/admin/identify/basicdataauthen/list.jsp";
+	}
+
+}

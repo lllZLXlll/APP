@@ -1,0 +1,86 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/account/Registpay.html');
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			utils.setAppConfig('注册汇付天下',true,false);
+		},
+		methods: {
+			getSms: function(){
+				utils.getSmsCode(this,'resetPwd');
+			},
+			registPay: function(){
+				console.log(this.msgCode);
+				if(this.msgCode == ''){
+					$.toast('验证码不能为空');return;
+				};
+				if(this.idcard == ''){
+					$.toast('身份号不能为空');return;
+				};
+				if(this.realName == ''){
+					$.toast('真实姓名不能为空');return;
+				};
+				if(this.randomCode ==''){
+					$.toast('请先获取验证码');return;
+				}
+				var param={uid:Storage.getItem('uid'),randomCode:this.randomCode,recivePhone:this.recivePhone,code:this.msgCode
+						,realName:encodeURI(this.realName),idNo:this.idcard,cellphone:Storage.getItem('customerId'),sex:encodeURI(this.sex)};
+				utils.ajax({
+			        url:'../front/createIpsAcctApp.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error =='0'){
+			        		$('#registPay').html(data.html);
+			        	}else{
+			        		$.alert(data.msg);
+			        	}
+			        }
+			    });
+			}
+		},
+		route:{
+			data:function(){
+				var _this = this;
+				var param={uid:Storage.getItem('uid')};
+				utils.ajax({
+			        url:'../front/regIpayPersonal.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0' && data.idNo!=''){
+			        		_this.$set('listData[2].value',data.idNo);
+			        		_this.$set('listData[3].value',data.realName);
+			        		_this.$set('listData[2].disabled',true);
+			        		_this.$set('listData[3].disabled',true);
+			        		_this.$set('idcard',data.idNo);
+			        		_this.$set('realName',data.realName);
+			        		_this.$set('sex',data.sex);
+			        		if(data.sex =='女'){
+			        			_this.$set('man',false);
+			        			_this.$set('woman',true);
+			        		}
+			        	}else{
+			        		_this.$set('mobilePhone',Storage.getItem('customerId'));
+			        		_this.$set('idNo','');
+			        		_this.$set('realName','');
+			        	}
+			        }
+			    });
+			},waitForData:true
+		},
+		data: function(){
+			var _this = this;
+			return {
+				listData:[
+				   {name:'phoneNum',Msg:true,placeholder:'请输入手机号码',value:Storage.getItem('customerId'),max:16,iconClass:'icon-phone',disabled:true},
+				   {name:'msgCode',Msg:false,placeholder:'请输入验证码',max:4,iconClass:'icon-icon-msg ',disabled:false},
+				   {name:'idcard',Msg:true,placeholder:'请输入身份证号',max:18,iconClass:'icon-idcard',disabled:false},
+				   {name:'realName',Msg:true,placeholder:'请输入真实姓名',max:10,iconClass:'icon-realname ',disabled:false}
+				],clickInit:true,btnclass:'btn',btnText:'获取验证码',phoneNumber:Storage.getItem('customerId'),realName:'',
+				idcard:'',idcard:'',msgCode:'',randomCode:'',username:Storage.getItem('customerId'),sex:'男',man:true,woman:false
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

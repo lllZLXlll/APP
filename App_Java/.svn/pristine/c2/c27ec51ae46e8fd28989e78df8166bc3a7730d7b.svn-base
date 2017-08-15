@@ -1,0 +1,174 @@
+package com.pjzb.service.admin.declare;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.LinksDao;
+import com.pjzb.entity.Links;
+import com.pjzb.entity.Message;
+import com.pjzb.service.common.UploadService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+/**
+ * 友情链接
+ * @author xiaojin
+ *
+ */
+
+@Service
+public class AdminFriendLinkService extends BaseController {
+
+	@Autowired
+	private LinksDao linksDao;
+	
+	@Autowired
+	private UploadService uploadService;
+	
+	public String queryLinksListPageInit(Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = linksDao.queryLinksListForPage((pageNum - 1) * pageSize, pageSize,
+					true);
+			long count = linksDao.queryLinksListCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询网站咨询异常**************************");
+		}
+		return "/admin/declare/friendlink/list.jsp";
+	}
+
+	public String addLinksInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/declare/friendlink/add.jsp";
+	}
+
+	public Map<String, Object> addLinks(Links links, String tabid) {
+		long result = linksDao.addLinks(links);
+		try {
+			if (result > 0) {
+				return ajaxDoneInfo("200", "友情链接增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "友情链接增加失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "友情链接增加异常", "", "");
+		}
+	}
+
+	public Map<String, Object> uploadLinks(MultipartFile file, String dialogId, HttpServletRequest request) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			Calendar cal = Calendar.getInstance();
+			int month = cal.get(Calendar.MONTH) + 1;
+			int year = cal.get(Calendar.YEAR);
+			String fileName = ConvertUtil.dateConvert(new Date(), Constants.DATEYM_MILLI) + ".jpg";
+			String savePath = "upload/friendlink/" + year + "/" + month + "/";
+			String uploadResult = uploadService.upload(file, savePath, fileName, dialogId, request);
+			if (uploadResult.equals(Constants.SUCCESS)) {
+				map.put("companyImg", "../" + savePath + fileName);
+				map.put("statusCode", "200");
+				map.put("message", "上传成功");
+			} else {
+				map.put("statusCode", "300");
+				map.put("message", "上传失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************上传图片异常*****************");
+			map.put("statusCode", "300");
+			map.put("message", "上传异常");
+		}
+		return map;
+	}
+
+	public Map<String, Object> deleteLinksById(Long id) {
+		try {
+			long result = linksDao.deleteLinksById(id);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "删除异常", "", "");
+		}
+	}
+
+	public Map<String, Object> deleteLinksByIds(String delids) {
+		List<Long> list = new ArrayList<Long>();
+		try {
+			log.info("************批量删除友情链接delids***********" + delids);
+			String[] ids = delids.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				list.add(Convert.strToLong(ids[i]+"", 1L));
+			}
+			long result = linksDao.deleteLinksByIds(list);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "友情链接删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "友情链接删除失败", "", "");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "友情链接删除异常", "", "");
+		}
+	}
+
+	public String updateLinksByIdInit(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("links", linksDao.queryLinksById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询友情链接异常**************************");
+		}
+		return "/admin/declare/friendlink/edit.jsp";
+	}
+
+	public Map<String, Object> updateLinksById(Links links, String tabid) {
+		try {
+			long result = linksDao.updateLinksById(links);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "友情链接修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "友情链接修改失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			return ajaxDoneInfo("300", "友情链接修改异常", "", "");
+		}
+	}
+
+}

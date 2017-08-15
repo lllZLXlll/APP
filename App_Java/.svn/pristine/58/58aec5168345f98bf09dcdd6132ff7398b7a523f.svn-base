@@ -1,0 +1,12 @@
+package com.pjzb.dao;
+
+
+import com.pjzb.entity.CashReconciliation;
+
+public interface CashReconciliationDao {
+	
+	public long insertCashReconciliation(CashReconciliation cashReconciliation);
+
+	public void deleteCashReconciliation(String pnrDate);
+
+}

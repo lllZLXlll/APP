@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+
+	<!-- 自动扫描且只扫描@Controller -->
+	<context:component-scan base-package="com.pjzb" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<!-- 在IE低版本下接收Spring MVC @ResponseBody 返回的JSON 会提示下载保存 -->
+	<mvc:annotation-driven
+		ignoreDefaultModelOnRedirect="true" validator="validator">
+		<mvc:message-converters register-defaults="false">
+			<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes" value="application/json;charset=UTF-8" />
+			</bean>
+			<bean
+				class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+ 				<property name="objectMapper" ref="customObjectMapper" /> 
+				<property name="supportedMediaTypes" value="application/json;charset=UTF-8" />
+			</bean>
+		</mvc:message-converters>
+		<mvc:argument-resolvers>
+			<!-- 处理pageable的实例化，避免出现无法实例化接口的问题，并使得能够使用PageableDefault注解提供默认初始值 -->
+			<bean class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
+		</mvc:argument-resolvers>
+	</mvc:annotation-driven>
+	
+		<bean id="customObjectMapper" class="com.pjzb.util.CustomObjectMapper"></bean>
+
+
+	 <bean id="htmlviewResolver"    
+        class="org.springframework.web.servlet.view.InternalResourceViewResolver">   
+        <property name="viewClass" value="com.pjzb.util.HtmlResourceView"/>  
+        <property name="order" value="0" />  
+        <property name="prefix" value="/"/>   
+        <property name="contentType" value="text/html;charset=UTF-8"></property>    
+    </bean>  
+
+	<!-- 定义JSP文件的位置 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/pages" />
+	</bean>
+
+	
+	
+ <mvc:interceptors>   
+     <mvc:interceptor>   
+        <mvc:mapping path="/front/**" />   
+         <bean class="com.pjzb.interceptor.FrontLoginInterceptor">   
+         	<property name="uncheckUrls">  
+        	 	<list>  
+	         		<value>/front/index.do</value> 
+	         		<value>/front/resetLoginPwd.do</value> 
+	         		<value>/front/getMediaReport.do</value> 
+	         		<value>/front/indexInit.do</value> 
+	         		<value>/front/login.do</value> 
+	         		<value>/front/findLoginPwd.do</value> 
+	           		<value>/front/frontMediaReportDetails.do</value>  
+	          		<value>/front/frontNewsDetails.do</value>  
+	          		<value>/front/recommendInvestRank.do</value>  
+	          		<value>/front/isExistUserName.do</value>  
+	          		<value>/front/isExistPhone.do</value>  
+	          		<value>/front/register.do</value>   
+	          		<value>/front/startCaptchaAction.do</value>  
+	          		<value>/front/frontQueryNewsList.do</value>  
+	          		<value>/front/financeList.do</value>  
+	          		<value>/front/debtsAssignmentList.do</value>  
+	          		<value>/front/queryBorrowDetail.do</value>  
+	          		<value>/front/findDebtsById.do</value>  
+          			<value>/front/queryLinksType2.do</value>  
+          			<value>/front/financeInvestInit.do</value>
+          			<value>/front/bindingEmail.do</value> 
+          			<value>/front/informationRevealed.do</value>  
+          			<value>/front/yybgInit2.do</value>   
+          			<value>/front/closeWeb.do</value>  
+          			<value>/front/getIndustryNews.do</value>
+				</list>  
+         	</property>  
+       </bean> 
+     </mvc:interceptor>   
+     
+     <mvc:interceptor>   
+        <mvc:mapping path="/reactapp/**" />   
+         <bean class="com.pjzb.interceptor.AppRequestParamsInterceptor">   
+         <!-- app端不用拦截的请求加在这里 -->
+         	<property name="uncheckUrls">  
+        	 	<list>  
+	         		<value>/reactapp/toolsCalculate.do</value>
+	         		<value>/reactapp/getBannerAndBorrows.do</value>  
+	         		<value>/reactapp/getMediaReport.do</value>  
+	         		<value>/reactapp/getIndustryNews.do</value>
+	         		<value>/reactapp/login.do</value>    
+	         		<value>/reactapp/sendSMS.do</value>    
+	         		<value>/reactapp/checkMobilePhoneCode.do</value>    
+	         		<value>/reactapp/findUserLoginPasswd.do</value>    
+	         		<value>/reactapp/investList.do</value>    
+	         		<value>/reactapp/findBorrowDetail.do</value>    
+	         		<value>/reactapp/repaymentPlan.do</value>    
+	         		<value>/reactapp/debtsAssignmentList.do</value>    
+	         		<value>/reactapp/findDebtsById.do</value>    
+	         		<value>/reactapp/buyAuctingDebt.do</value>
+	         		<value>/reactapp/querytipsApp.do</value>
+	         		<value>/reactapp/informationRevealed.do</value>
+	         		<value>/reactapp/querytOperateReport.do</value>
+	         		<value>/reactapp/querytOperateReportPage.do</value>
+	         		<value>/reactapp/getActivity.do</value>
+	         		<value>/reactapp/qrCode.do</value>
+	         		<value>/reactapp/queryNewsList.do</value>
+	         		<value>/reactapp/queryLinksPage.do</value>
+	         		<value>/reactapp/register.do</value>
+	         		<value>/reactapp/getRecommendBorrow.do</value>
+				</list>  
+         	</property>  
+       </bean> 
+     </mvc:interceptor>    
+     
+      <mvc:interceptor>   
+        <mvc:mapping path="/admin/**" />   
+         <bean class="com.pjzb.interceptor.AdminLoginInterceptor">   
+<!--          admin端不用拦截的请求加在这里 -->
+         	<property name="uncheckUrls">  
+        	 	<list>  
+	         		<value>/admin/loginInit.do</value>
+	         		<value>/admin/adminlogin.do</value>
+	         		<value>/admin/viewAuthFadada.do</value>
+				</list>  
+         	</property>  
+       </bean> 
+     </mvc:interceptor>   
+     
+      
+ </mvc:interceptors>      
+
+	
+</beans>

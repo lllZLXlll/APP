@@ -1,0 +1,43 @@
+define(function (require,exports,module) {
+	var timeInt;
+	//新闻
+	var VueComponent = Vue.extend({
+		data:function(){
+			return {
+				newsList:[]
+			}
+		},
+		methods:{
+			noticeSlide:function(obj){
+			  if(!this.newsList){
+				  return;
+			  }
+			  if(this.newsList.length <= 1){
+				  return;
+			  }
+			  try{clearInterval(timeInt);}catch(e){};
+			  $('.notice-slider').css({transform: 'translate3d(0,0,0)'});
+			  var size = this.newsList.length;
+			  var index = 0; 
+			  timeInt = setInterval(function () {
+				  index++;
+				  if(index == size){
+					  index=0;
+				  };
+	              $('.notice-slider').css({transform: 'translate3d(0,-' + (index * 2) + 'rem,0)'});   
+	          }, 2000);
+			},
+			toDetail:function(sort,id){
+				router.go({path:'/dynamicdetail',query:{flag:1,id:id}});
+			}
+		},
+		ready:function(){
+			this.noticeSlide($('.notice-slider'));
+		},
+		template:'<div class="index-notice flex">'+
+        '<i class="icon icon-color">&#xe605;</i>'+
+        '<div class="notice-box"><ul class="notice-slider"><li v-for="list in newsList"><a @click="toDetail(list.sort,list.id)">{{list.title}}</a></li></ul></div>'+
+      '</div>'
+	});
+	module.exports = VueComponent;
+})

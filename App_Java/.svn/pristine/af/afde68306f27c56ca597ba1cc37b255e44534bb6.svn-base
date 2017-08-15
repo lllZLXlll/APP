@@ -1,0 +1,14 @@
+package com.pjzb.dao;
+
+import com.pjzb.entity.FaDaDa;
+
+public interface FaDaDaDao {
+
+	public FaDaDa queryFadadaByUserId(long userId);
+	
+	public Long addFadada(FaDaDa faDaDa);
+	
+	public Long updateFadada(FaDaDa faDaDa);
+
+	
+}

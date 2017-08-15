@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>公共弹出框_还款</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+    <script>
+    	$(function() {
+			$('.trans-bg').css({'width':$(window).width() , 'height':$(window).height()});
+			$('.mod-lightbox').css({'margin-left':-0.5*$('.mod-lightbox').width() , 'margin-top':-0.5*$('.mod-lightbox').height()});
+			$('.mod-lightbox .title .close').click(function() {
+				$('.trans-bg').css({'display':'none'});
+				$('.mod-lightbox').css({'display':'none'});
+			});
+		});
+    </script>
+</head>
+<body>
+	
+    <!--lightbox start-->
+    dasdfaf
+	<div class="trans-bg"></div>
+    <div class="mod-lightbox mod-lightbox-repayment">
+        <div class="title"><h1>还款</h1><a class="close" href="#" title="关闭"></a></div>
+        <!--设置容器内容高度-->
+        <div class="box img" style="width:400px; height:430px; overflow-y:scroll;">
+			<div class="mod-form ">
+					<div class="item">
+						<span class="name">账户余额：</span>
+						<div class="ipt">
+							<p>123455.56元</p>
+						</div>
+					</div>
+                    
+					<div class="item">
+						<label>
+							<span class="name">可用余额：</span>
+							<p>1255.56元</p>
+						</label>
+					</div>
+
+					<div class="item">
+						<label>
+							<span class="name">还款日期：</span>
+							<p>2015-05-28</p>
+						</label>
+					</div>
+
+                  	<div class="item">
+						<label>
+							<span class="name">待还本金：</span>
+							<p>22元</p>
+						</label>
+					</div>
+
+					<div class="item">
+						<label>
+							<span class="name">逾期本息：</span>
+							<p>5元</p>
+						</label>
+					</div>					
+
+					<div class="item">
+						<label>
+							<span class="name">需还金额：</span>
+							<p>56元</p>
+						</label>
+					</div>
+
+					<div class="item">
+						<label>
+							<span class="name">交易密码：</span>
+							<input type="text">
+						</label>
+					</div>
+
+                  	<div class="item">
+						<label>
+							<span class="name">验证码：</span>
+							<input type="text">
+                         	<img class="v_code" src="http://120.24.158.240/shzc_test/shzc/imageCode.do?pageId=userlogin">
+                         	<a href="#">换一换</a>
+						</label>
+					</div>
+
+					<div class="item">
+						<span class="name"></span><button class="btn">确认还款</button>
+					</div>
+			</div>
+        </div>
+    </div>
+    <!--lightbox end-->
+    
+</body>

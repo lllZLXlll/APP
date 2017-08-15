@@ -1,0 +1,41 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.InvestRepayment;
+
+public interface InvestRepaymentDao {
+	
+	public Map<String, BigDecimal> queryInvestRepaymentAmountWithin15Days(Long userId);
+
+	public void updateInvestDebtStatus(@Param("investId") long investId,@Param("owner") long owner, @Param("ownerStr") String ownerStr);
+	
+	public List<Map<String, Object>> queryInvestRepaymentMsg();
+	
+	public Map<String, BigDecimal> queryMonthTotalIncome(String startTime,String endTime);
+	
+	public BigDecimal queryUnRepayAmount();
+	
+	public BigDecimal findUnRepayAmountByBorrowTypeSubId(Integer borrowTypeSubId);
+	
+	public InvestRepayment queryInvestRepaymentByRepayId(Long repayId);
+
+	public Map<String, Object> repayAmount(String string, int i);
+	
+	public void updateInvestDebtStatus(long owner,String ownerlist,long investId);
+
+	public List<Map<String, Object>> queryOverDueInvestRepayment(String date);
+
+	public void updateOverDueInvestRepayment(long id, long repayId, double lateFee, int lateDay, int isLate);
+	
+	public List<Map<String, Object>> findBorrowForpayDetail(long investId,long owner);
+	
+	public List<Map<String, Object>> queryrInvestRepay(long borrow_id,String investor,String investId);
+
+	public void updateRepament(Long repaymentId);
+
+}

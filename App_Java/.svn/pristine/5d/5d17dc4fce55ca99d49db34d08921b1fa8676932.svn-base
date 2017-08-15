@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.GroupDao">
+
+	<resultMap type="group" id="groupResultMap">
+		<id column="id" property="id" />
+		<result column="groupName" property="groupName" />
+		<result column="groupRemark" property="groupRemark" />
+		<result column="cashStatus" property="cashStatus" />
+		<result column="adminId" property="adminId" />
+	</resultMap>
+	
+
+	<select id="queryUserCashStatus" resultMap="groupResultMap">
+		SELECT cashStatus FROM t_group a left JOIN  t_group_user b on a.id=b.groupId where userId=#{0} and cashStatus=#{1}
+	</select>
+
+	
+</mapper>
+
+
+
+
+
+
+
+

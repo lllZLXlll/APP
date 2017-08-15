@@ -1,0 +1,90 @@
+define(function (require,exports,module) {
+	var Dialog = require('components/Dialog.js');
+	Dialog.$mount().$appendTo(document.body);
+	var utils = window.utils = exports;
+	if(window.top!=window.self){
+		window.top.location = window.self.location;
+	}
+	utils.setAppConfig = function(title,left,display,right,rightText,openPanelId){
+		var App = window.router.app;
+    	App.$set('title',title);
+    	App.$set('left',left);
+    	App.$set('display',display);
+    	if(right){
+    		App.$set('right',right);
+    		App.$set('rightText',rightText);
+    		App.$set('openPanelId',openPanelId);
+    	}
+    };
+    utils.ajaxLoad = function(bool){
+    	if(bool){
+    		Dialog.hideDialog(); return;}
+    	Dialog.showDialog();
+    };
+    utils.ajax = function(options){
+		var DateTime = new Date().getTime();
+		if(Storage.getItem('customerId') && (DateTime - Storage.getItem('time'))>600000 && options.url!='../front/login.do'){
+			$.alert('您的登录已经超时，请重新登录！',function(){
+				Storage.clear();
+				router.go({path:'/login',query:{show:true}});
+			});
+		}else{
+			Storage.setItem('time',DateTime);
+			utils.ajaxLoad();
+			return $.ajax(options);
+		}
+	};
+	utils.getSmsCode = function(obj,name){
+		if(!obj.clickInit){return;};
+		var phone = obj.username;
+		if(!phone || phone == ''){
+			$.alert('请填写手机号');
+			return;
+		};
+		obj.$set('clickInit',false);
+		obj.$set('btnclass','btn btn-msg btn-disabled');
+//		var param={"info":"{cellPhone:'"+phone+"',smsType:'"+name+"'}"};
+		var param={cellPhone:phone,smsType:name};
+		utils.ajax({
+	        url:'../sendSMS.do',
+	        data:JSON.stringify(param),
+	        dataType:'json',
+	        success: function(data){
+	        	if(data.error =='0'){
+	        		var i = 60;
+	        		var time = setInterval(function(){
+	        			i--;
+	        			obj.$set('btnText',i+'s');
+	        			if(i == 0){
+	        				obj.$set('btnclass','btn btn-msg');
+	        				obj.$set('btnText','获取验证码');
+	        				obj.$set('clickInit',true);
+	        				clearInterval(time);
+	        			}
+	        		},1000);
+	        		obj.$set('recivePhone',data.recivePhone);
+	        		obj.$set('randomCode',data.randomCode);
+	        	}else{
+	        		$.alert(data.msg);
+	        		obj.$set('btnclass','btn btn-msg');
+	        		obj.$set('clickInit',true);
+	        	}
+	        }
+	    });
+	};
+	utils.stopDefault=function( e ) { 
+	    if ( e && e.preventDefault ) 
+	        e.preventDefault(); 
+	    else 
+	        window.event.returnValue = false; 
+	    return false; 
+	};
+	$(document).on('ajaxComplete', function(e, xhr, options){
+		utils.ajaxLoad(true);
+		if(xhr.response && JSON.parse(xhr.response).msg == '999'){
+			$.alert('系统维护中',function(){
+    			window.location.href = '../network/appweihu.jsp'
+    		})
+		};
+	})
+})

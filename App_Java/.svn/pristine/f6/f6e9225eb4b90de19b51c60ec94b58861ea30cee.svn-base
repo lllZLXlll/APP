@@ -1,0 +1,106 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * Noticecon entity. @author MyEclipse Persistence Tools
+ */
+
+public class Noticecon implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Integer noticeMode;
+	private Integer reciveRepayEnable;
+	private Integer showSucEnable;
+	private Integer loanSucEnable;
+	private Integer rechargeSucEnable;
+	private Integer capitalChangeEnable;
+	private Long userId;
+
+	// Constructors
+
+	/** default constructor */
+	public Noticecon() {
+	}
+
+	/** full constructor */
+	public Noticecon(Integer noticeMode, Integer reciveRepayEnable,
+			Integer showSucEnable, Integer loanSucEnable,
+			Integer rechargeSucEnable, Integer capitalChangeEnable, Long userId) {
+		this.noticeMode = noticeMode;
+		this.reciveRepayEnable = reciveRepayEnable;
+		this.showSucEnable = showSucEnable;
+		this.loanSucEnable = loanSucEnable;
+		this.rechargeSucEnable = rechargeSucEnable;
+		this.capitalChangeEnable = capitalChangeEnable;
+		this.userId = userId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Integer getNoticeMode() {
+		return this.noticeMode;
+	}
+
+	public void setNoticeMode(Integer noticeMode) {
+		this.noticeMode = noticeMode;
+	}
+
+	public Integer getReciveRepayEnable() {
+		return this.reciveRepayEnable;
+	}
+
+	public void setReciveRepayEnable(Integer reciveRepayEnable) {
+		this.reciveRepayEnable = reciveRepayEnable;
+	}
+
+	public Integer getShowSucEnable() {
+		return this.showSucEnable;
+	}
+
+	public void setShowSucEnable(Integer showSucEnable) {
+		this.showSucEnable = showSucEnable;
+	}
+
+	public Integer getLoanSucEnable() {
+		return this.loanSucEnable;
+	}
+
+	public void setLoanSucEnable(Integer loanSucEnable) {
+		this.loanSucEnable = loanSucEnable;
+	}
+
+	public Integer getRechargeSucEnable() {
+		return this.rechargeSucEnable;
+	}
+
+	public void setRechargeSucEnable(Integer rechargeSucEnable) {
+		this.rechargeSucEnable = rechargeSucEnable;
+	}
+
+	public Integer getCapitalChangeEnable() {
+		return this.capitalChangeEnable;
+	}
+
+	public void setCapitalChangeEnable(Integer capitalChangeEnable) {
+		this.capitalChangeEnable = capitalChangeEnable;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+}

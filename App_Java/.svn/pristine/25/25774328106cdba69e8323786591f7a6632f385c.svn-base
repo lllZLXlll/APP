@@ -1,0 +1,166 @@
+package com.pjzb.service.admin.count;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+
+/**
+ * 网站统计
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminWebCountService extends BaseController{
+	
+	@Autowired
+	private RepaymentDao repaymentDao;
+	
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String queryWebStatisInit(Model model, String tabid) {
+		try{
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("id", -1);
+			Map<String, Object> list = repaymentDao.callWebStatisProcedure(map);
+			model.addAttribute("webMap", list);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************查询网站统计异常**************************");
+		}
+		return "/admin/count/webcount/list.jsp";
+	}
+
+	public void exportWebStatis(HttpServletResponse response) {
+		try {
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("id", -1);
+			Map<String, Object> webMap = repaymentDao.callWebStatisProcedure(map);
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			Map<String, Object> map1 = new HashMap<String, Object>();
+			map1.put("covarianceName", "网站会员总金额");
+			map1.put("covarianceNum", webMap.get("webUserAmount"));
+			Map<String, Object> map2 = new HashMap<String, Object>();
+			map2.put("covarianceName", "网站会员总冻结金额");
+			map2.put("covarianceNum", webMap.get("webUserFreezeAmount"));
+			Map<String, Object> map3 = new HashMap<String, Object>();
+			map3.put("covarianceName", "网站会员总待收金额");
+			map3.put("covarianceNum", webMap.get("webUserForPI"));
+			Map<String, Object> map4 = new HashMap<String, Object>();
+			map4.put("covarianceName", "网站收入总金额");
+			map4.put("covarianceNum", webMap.get("webComeInAmount"));
+			Map<String, Object> map5 = new HashMap<String, Object>();
+			map5.put("covarianceName", "网站总VIP金额");
+			map5.put("covarianceNum", webMap.get("webVIPAmount"));
+			Map<String, Object> map8 = new HashMap<String, Object>();
+			map8.put("covarianceName", "网站总借款管理费金额");
+			map8.put("covarianceNum", webMap.get("borrowManageFee"));
+			Map<String, Object> map9 = new HashMap<String, Object>();
+			map9.put("covarianceName", "网站总借款逾期罚息金额");
+			map9.put("covarianceNum", webMap.get("borrowFI"));
+			Map<String, Object> map11 = new HashMap<String, Object>();
+			map11.put("covarianceName", "后台手动添加费用");
+			map11.put("covarianceNum", webMap.get("backAddAmount"));
+			Map<String, Object> map12 = new HashMap<String, Object>();
+			map12.put("covarianceName", "后台手动扣除费用");
+			map12.put("covarianceNum", webMap.get("backDelAmount"));
+			Map<String, Object> map13 = new HashMap<String, Object>();
+			map13.put("covarianceName", "网站成功充值总额");
+			map13.put("covarianceNum", webMap.get("webSucPrepaid"));
+			Map<String, Object> map14 = new HashMap<String, Object>();
+			map14.put("covarianceName", "网站线上充值总额");
+			map14.put("covarianceNum", webMap.get("onlinePrepaid"));
+			Map<String, Object> map15 = new HashMap<String, Object>();
+			map15.put("covarianceName", "网站线下充值总额");
+			map15.put("covarianceNum", webMap.get("downlinePrepaid"));
+			Map<String, Object> map16 = new HashMap<String, Object>();
+			map16.put("covarianceName", "网站提现总额");
+			map16.put("covarianceNum", webMap.get("cashWith"));
+			Map<String, Object> map17 = new HashMap<String, Object>();
+			map17.put("covarianceName", "网站提现手续费总额");
+			map17.put("covarianceNum", webMap.get("cashWithFee"));
+			Map<String, Object> map22 = new HashMap<String, Object>();
+			map22.put("covarianceName", "所有借款未还总额");
+			map22.put("covarianceNum", webMap.get("borrowForPI"));
+			Map<String, Object> map23 = new HashMap<String, Object>();
+			map23.put("covarianceName", "所有逾期网站垫付未还款金额");
+			map23.put("covarianceNum", webMap.get("webAdvinceForP"));
+			Map<String, Object> map24 = new HashMap<String, Object>();
+			map24.put("covarianceName", "借款逾期网站未垫付未还款金额");
+			map24.put("covarianceNum", webMap.get("borrowForAmount"));
+			Map<String, Object> map25 = new HashMap<String, Object>();
+			map25.put("covarianceName", "所有借款已还款总额");
+			map25.put("covarianceNum", webMap.get("borrowHasAmount"));
+			Map<String, Object> map26 = new HashMap<String, Object>();
+			map26.put("covarianceName", "所有借款正常还款总额");
+			map26.put("covarianceNum", webMap.get("borrowNomalRepayAmount"));
+			Map<String, Object> map27 = new HashMap<String, Object>();
+			map27.put("covarianceName", "借款逾期网站垫付后已还款总额");
+			map27.put("covarianceNum", webMap.get("webAdvinceHasP"));
+			Map<String, Object> map28 = new HashMap<String, Object>();
+			map28.put("covarianceName", "借款逾期的网站未垫付已还款总额");
+			map28.put("covarianceNum", webMap.get("webNoAdvinceHasP"));
+			Map<String, Object> map29 = new HashMap<String, Object>();
+			map29.put("covarianceName", "借款逾期网站垫付总额");
+			map29.put("covarianceNum", webMap.get("webAdviceAmount"));
+
+			list.add(map1);
+			list.add(map2);
+			list.add(map3);
+			list.add(map4);
+			list.add(map5);
+			list.add(map8);
+			list.add(map9);
+			list.add(map11);
+			list.add(map12);
+			list.add(map13);
+			list.add(map14);
+			list.add(map15);
+			list.add(map16);
+			list.add(map17);
+			list.add(map22);
+			list.add(map23);
+			list.add(map24);
+			list.add(map25);
+			list.add(map26);
+			list.add(map27);
+			list.add(map28);
+			list.add(map29);
+			
+			HSSFWorkbook wb = ExcelUtils.exportExcel("网站统计", list,
+					new String[] { "统计项", "金额" }, new String[] {
+							"covarianceName", "covarianceNum" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+			
+			Admin admin = getSessionAdminInfo();
+			OperationLog oLog = new OperationLog("pr_getWebStatis", admin
+					.getUserName(), IConstants.EXCEL, admin.getLastIp(), new Date(),0.0,
+					"导出网站统计列表", 2,admin.getId());
+			operationLogDao.addOperationLog(oLog);
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+	}
+
+}

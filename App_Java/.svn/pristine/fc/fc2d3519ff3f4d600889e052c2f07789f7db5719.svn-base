@@ -1,0 +1,120 @@
+<%@page import="com.sun.org.apache.xml.internal.serialize.Printer"%>
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@include file="/include/taglib.jsp" %>
+<style>
+#cnzz_stat_icon_1260871948{display:inline-block;}
+</style>
+<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php"></script>
+<script type="text/javascript">
+	BizQQWPA.addCustom({aty: '0', a: '0', nameAccount: 4006062079, selector: 'BizQQWPA'});
+	BizQQWPA.visitor({
+		nameAccount: '4006062079'
+	});
+</script>
+<!-- WPA Button Begin -->
+<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php?key=XzkzODE4ODYzNV80NDQwNDlfNDAwNjA2MjA3OV8"></script>
+<!-- WPA Button END -->
+
+
+<!--顶部状态栏 开始-->
+<div class="mod-common-footer">
+<div class="about_bottom warp-1000 clearfix">
+		<!-- <a href="aboutCompany.do">关于我们</a>
+		<a href="usersecurity.do">安全保障</a>
+		<a href="aboutUs.do">联系我们</a>
+		<a href="financetool.do">收益计算器</a>
+		<a href="queryHeTongInit.do">合同查询</a>
+		<a href="dzbbsLogin.do" target="_blank">讨论专区</a> -->
+		<div class="about_l">
+		
+		</div>
+		<div class="about_cel">
+			<p class="about_cel_text">财富热线：</p>
+			<p class="about_cel_no">400-606-2079</p>
+		</div>
+		<div class="about_cel about_mail">
+			<p class="about_cel_text">
+				<a target="_blank" href="http://weibo.com/pujinziben" class="about_sina"></a>
+				<a href="javascript:void(0);" class="about_wx line_02">
+					<span class="line_l_h">
+			   			<span class="line_l_sj"></span>
+			   			<span class="line_l_text">关注普金资本公众号</span>
+			   			<span class="line_l_pic"></span>
+			   		</span>
+				</a>
+				<a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=b21f94451a224d115c56e3e20626abf75f33fff218f82fd8dd4a04954f80c70d" class="about_qq"></a>
+				<a href="" class="about_rr"></a>
+			</p>
+			<p class="about_cel_no">admin@pujinziben.com</p>
+		</div>
+		<div class="about_user">
+			<a href="aboutCompany.do">关于我们</a>
+			<a href="usersecurity.do">安全保障</a>
+			<a href="aboutUs.do">联系我们</a>
+			<a href="queryHeTongInit.do">合同查询</a>
+			<a href="financetool.do">收益计算器</a>
+			<a href="aboutZxns.do">招贤纳士</a>
+			<a href="helpcenter.do">帮助中心</a>
+		</div>
+	</div>
+	<div class="cpright clearfix">
+		<div class="warp-1000">
+ 			<p style="text-align:center;">
+ 			版权所有 © 普金资本运营（赣州）有限公司  All rights reserved  备案确认书：<a href="http://www.miitbeian.gov.cn/publish/query/indexFirst.action" target="_blank">赣ICP备16004010号</a> 
+ 			<!-- 添加CNZZ数据之家：https://i.umeng.com/user/products -->
+			<script type="text/javascript">
+				var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+				document.write(unescape("%3Cspan id='cnzz_stat_icon_1260871948'%3E%3C/span%3E%3Cscript src='" + 
+						cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1260871948%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+			</script>
+ 			</p> 
+			<p class="imgs" style="text-align:center;">
+				<a id='___szfw_logo___' href='https://credit.szfw.org/CX20160720023638001698.html' target='_blank'><img src='http://icon.szfw.org/cert.png' border='0' /></a>
+<script type='text/javascript'>(function(){document.getElementById('___szfw_logo___').oncontextmenu = function(){return false;}})();</script>
+				<a id="jsl_speed_stat0" href="http://www.yunaq.com/" target="_blank" style="width:78px;height:27px;">知道创宇云安全</a>
+				<script charset="utf-8" type="text/javascript">
+				var site = document.domain;
+				try{var jsl_speed_stat = document.getElementById("jsl_speed_stat0");jsl_speed_stat.style.display="none";}catch(err){var jsl_speed_stat = null;}
+				document.write("<a style='background-color:#fff;' target='_blank' href='//www.yunaq.com/analytics/login/?site=" + site +"' title='知道创宇云安全统计'><img border='0' height='41'  src='//static.yunaq.com/static/images/stat/stat.png?v=20160429'></img></a>");
+				</script>
+				<!-- <a href="javascript:void(0);" style="margin-right:3px;"><img src="css/shImages/vseal.gif" height='41' /></a> -->
+				<!-- <a href="http://webscan.360.cn/index/checkwebsite/url/www.pujinziben.com"><img border="0" width="78" height="27"  src="http://img.webscan.360.cn/status/pai/hash/4bc276b04863a738aad6ee73d6a9e799"/></a>
+				 -->
+				<a id="_pingansec_bottomimagesmall_p2p" style="overflow:hidden;height:43px;"></a><script src="http://v.trustutn.org/js/cert.js?v=2"></script><script type="text/javascript"   src="http://si.trustutn.org/certShow?type=422&certType=4&sn=876160725000486996572"></script>
+				<a href="http://net.china.com.cn/" target="_blank"><img border="0"  height="41"  src="css/shImages/hulianwang.png"/></a>
+				<!--<a href="http://www.miitbeian.gov.cn/publish/query/indexFirst.action" target="_blank"><img border="0"  height="41"  src="css/shImages/gswangjian.png"/></a>-->
+			</p>
+		</div>
+	</div>
+</div>
+ <!--顶部主导航 结束-->
+ 
+ <div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="javascript:;" id="BizQQWPA" title="客服QQ">
+				<p class="ico"><img src="css/shImages/quicky_qq.png"/></p>
+			</a>
+		</li>
+		<li>
+			<a href="aboutUs.do" title="官方微信" class="line_02 line_left_p">
+				<p class="ico"><img src="css/shImages/quicky_weixin.png"/></p>
+				<p class="line_l_h">
+		   			<span class="line_l_sj"></span>
+		   			<span class="line_l_text">关注普金资本公众号</span>
+		   			<span class="line_l_pic"></span>
+		   		</p>
+			</a>
+		</li>
+		<li>
+			<a href="financetool.do" title="收益计算器"> 			
+				<p class="ico"><img src="css/shImages/quicky_feedback.png"/></p>
+			</a>
+		</li>
+		<li>
+            <a href="#" title="返回顶部">
+                <p class="ico"><img src="css/shImages/quicky_top.png"/></p>
+            </a>
+        </li>
+	</ul>
+</div>

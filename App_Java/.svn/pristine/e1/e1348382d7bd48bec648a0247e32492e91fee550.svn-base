@@ -1,0 +1,19 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.Map;
+
+import com.pjzb.entity.AutomaticRepayment;
+
+public interface AutomaticRepaymentDao {
+	
+	public AutomaticRepayment queryUserIsSetAutuRepayment(Long userId,Integer bidStatus);
+	
+	public Long updateAutoRepayment(Long id, int state, Date date);
+	
+	public Long addAutoRepayment(Long id, int state, Date date);
+	
+	
+	public Map<String, Object> queryAutoRepayment(long userId);
+
+}

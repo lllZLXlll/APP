@@ -1,0 +1,25 @@
+<div class="content content-news">
+    <div class="infinite-scroll infinite-scroll-bottom" data-distance="100">
+        <ul class="news">
+            <template v-for="list in dataList">
+                <li class="flex" track-by="{{list.id}}" @click="toDetail(list.id)">
+                    <p class="news-img">
+                        <img :src="list.imgPath"/>
+                    </p>
+                    <div>
+                        <p class="news-title">{{list.title | newsTitle}}</p>
+                        <p class="news-time"> <i class="icon">&#xe62a;</i>
+                            <span>{{list.publishTime | timeSub}}</span>
+                        </p>
+                    </div>
+                </li>
+            </template>
+            <li class="noNews" v-if="dataLength">
+                <span>暂无公告</span>
+            </li>
+        </ul>
+        <div class="infinite-scroll-preloader" v-show="model">
+            <div class="preloader"></div>
+        </div>
+    </div>
+</div>

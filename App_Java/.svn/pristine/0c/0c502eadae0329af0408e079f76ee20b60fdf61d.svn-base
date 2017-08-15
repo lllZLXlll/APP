@@ -1,0 +1,245 @@
+package com.pjzb.controller.app;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.service.front.FinanceService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+
+@Controller
+@RequestMapping(value = "/reactapp")
+public class AppFinanceController extends BaseController {
+	public static Log log = LogFactory.getLog(AppFinanceController.class);
+
+	@Autowired
+	private FinanceService financeService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	/**
+	 * 工具箱，利息计算器
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/toolsCalculate")
+	@ResponseBody
+	public Map<String, Object> toolsCalculate() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			double borrowSum = Convert.strToDouble(String.valueOf(jsonObject.get("borrowSum")), -1);
+			double yearRate = Convert.strToFloat(String.valueOf(jsonObject.get("yearRate")), -1);// 接收百分比
+			int borrowTime = Convert.strToInt(String.valueOf(jsonObject.get("borrowTime")), -1);// 接收的数字是月
+			int repayWay = Convert.strToInt(String.valueOf(jsonObject.get("repayWay")), -1);// 还款方式
+			String pageType = jsonObject.getString("pageType");
+			Map<String, Object> toolsCalculateMap = financeService.toolsCalculate(borrowSum, yearRate, borrowTime, repayWay, pageType);
+			jsonMap.putAll(toolsCalculateMap);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "计算成功");
+			return jsonMap;
+		} catch (Exception e) {
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "计算收益计算器异常");
+			return jsonMap;
+		}
+	}
+
+	/**
+	 * 充值记录
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/rechargeRecord")
+	@ResponseBody
+	public Map<String, Object> rechargeRecord() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+			String startTime = Convert.strToStr(String.valueOf(jsonObject.get("startTime")), null);
+			String endTime = Convert.strToStr(String.valueOf(jsonObject.get("endTime")), null);
+			PageBean pageBean = financeService.queryRechargeDetailForPageByRechargeTime(userId, startTime.equals("null") ? null : startTime, endTime.equals("null") ? null
+					: endTime, curPage, Constants.PAGE_SIZE_15, Constants.REACTAPP);
+			jsonMap.put("pageBean", pageBean);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "app端充值记录查询异常，请联系客服:400-606-2079 ");
+		}
+		return jsonMap;
+	}
+
+	@RequestMapping(value = "/findIpayAccountByUserId")
+	@ResponseBody
+	public Map<String, Object> findIpayAccountByUserId() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			Map<String, String> userMap = userService.findIpayAccountByUserId(userId);
+			jsonMap.put("user", userMap);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", Constants.PAGETYPE_APP + "充值查询异常,请联系客服:400-606-2079");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 提现初始化
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/queryWithdraw")
+	@ResponseBody
+	public Map<String, Object> queryWithdraw() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(financeService.queryWithdraw(userId, Constants.REACTAPP));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("msg", "1");
+			jsonMap.put("msg", Constants.PAGETYPE_APP + "申请提现异常,请联系客服:400-606-2079");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 在线充值
+	 * 
+	 * @return
+	 * @throws
+	 */
+	@RequestMapping(value = "/ipayPayment")
+	@ResponseBody
+	public Map<String, String> ipayPayment() {
+		Map<String, String> jsonMap = new HashMap<String, String>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(chinapnrService.addRecharge(userId, jsonObject, Constants.REACTAPP, getBasePath()));
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", getPageTypeFlag() + "在线充值异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 提现记录
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/withdrawList")
+	@ResponseBody
+	public Map<String, Object> withdrawList() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+			PageBean pageBean = financeService.queryWithdrawForPageByApplyTime(userId, null, null, curPage, Constants.PAGE_SIZE_15, Constants.REACTAPP);
+			jsonMap.put("pageBean", pageBean);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "提现记录查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	@RequestMapping(value = "/addWithdraw")
+	@ResponseBody
+	public Map<String, Object> addWithdraw() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			String dealpwd = jsonObject.getString("dealpwd");
+			String code = jsonObject.getString("code");
+			Double withdrawMoney = Convert.strToDouble(jsonObject.getString("money"), Constants.DOUBLE_0);
+			String bankId = jsonObject.getString("bankId");
+			String randomCode = jsonObject.getString("randomCode");
+			String recivePhone = jsonObject.getString("recivePhone");
+			jsonMap.putAll(financeService.addWithdraw(userId, dealpwd, code, null, withdrawMoney, bankId, Constants.REACTAPP, randomCode, recivePhone, getBasePath()));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("code", "11");
+			jsonMap.put("msg", "提现异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 
+	 * @describe:取消提现
+	 * @author: xiaojin
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteWithdraw")
+	@ResponseBody
+	public Map<String, Object> deleteWithdraw() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(financeService.deleteWithdraw(userId, jsonObject, getBasePath(), getRemortIp(), Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "取消提现异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+}

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+	<meta content="telephone=no" name="format-detection" />
+	<meta http-equiv="Expires" content="-1" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta name="wap-font-scale" content="no">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+	<title></title>
+	<style>
+	.links{display:block;width:100%;}
+	.links img{display:block;width:100%;}
+	</style>
+</head>
+<body>
+	<div class="news cl">
+		<div class="news-contents">
+			<h3 id="news-title"></h3>
+			<div class="news-contents-top">
+				<p class="news-time fr"></p>
+			</div>
+			<div class="news-contents-bottom"></div>
+			<a href="" class="links"><img src="src/images/mobile/banner_002.png"></a>
+		</div>
+	</div>
+	<script type="text/javascript" src="src/libs/zepto.min.js"></script>
+	<script type="text/javascript">
+	$(function(){
+		//页面初始化
+		var proTypeId = getUrlParam('id');
+		var flag = getUrlParam('flag');
+		var useCode = getUrlParam('useCode');
+		var url = '';
+		$('.news-contents').hide();
+		if(useCode){
+			$('.links').attr('href','../wap/app.html#!/regist?useCode='+useCode);
+		}else{
+			$('.links').attr('href','../wap/app.html#!/regist');
+		}
+		//公告
+		if(flag && flag=='1'){
+			url = '../app/frontNewsDetails.do';
+		}else{
+		//新闻
+			url = '../app/frontMediaReportDetails.do';
+		}
+		var param={"info":"{id:'"+proTypeId+"'}"};
+		$.ajax({
+	        url:url,
+	        data:param,
+	        dataType:'json',
+	        success: function(data){
+	        	if(data.error == '0'){
+	        		var title = '';
+	        		if(flag && flag=='1'){
+	        			title = data.paramMap.title;
+	        			$('#news-title').text(title);
+	        			$('title').text(title);
+	        			$('.news-contents-bottom').html(data.paramMap.content);
+	        			$('.news-time').text(data.paramMap.publishTime);
+		        	}else{
+		        		title = data.map.title;
+		        		$('#news-title').text(title);
+		        		$('title').text(title);
+	        			$('.news-contents-bottom').html(data.map.content);
+	        			$('.news-time').text(data.map.publishTime);
+		        	}
+	        		$('.news-contents').show();
+	        	}
+	        }
+	    })
+	});
+	function getUrlParam(key){
+	    var href = window.location.href;
+	    var param = href.substr(href.indexOf('?')+1).split('&'),obj={};
+	    for(var i=0;i<param.length;i++){
+	        var arr = param[i].split('=');
+	        obj[arr[0]] = arr[1];
+	    }
+	    return obj[key];
+	};
+	</script>
+</body>
+</html>

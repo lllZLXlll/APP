@@ -1,0 +1,20 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.Map;
+
+import com.pjzb.entity.RiskDetail;
+
+public interface RiskDetailDao {
+	
+	public Map<String, Object> queryTotalRisk();
+	
+	public Map<String, Object> queryCurrentRisk();
+	
+	public RiskDetail queryRiskDetailMax();
+	
+	public void insertRiskDetail(RiskDetail riskDetail);
+	
+	public Map<String, Object> queryRiskBalance();
+
+}

@@ -1,0 +1,115 @@
+package com.pjzb.service.admin.user;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.MenuDao;
+import com.pjzb.entity.Role;
+import com.pjzb.entity.RoleRights;
+import com.pjzb.entity.vo.Higher;
+import com.pjzb.util.Constants;
+
+/**
+ * 管理组
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminManageGroupService extends BaseController {
+
+	@Autowired
+	private MenuDao menuDao;
+
+	/**
+	 * 
+	 * @describe:分页查询管理组
+	 * @author: xiaojin
+	 * @param pageNum
+	 * @param pageSize
+	 * @param model
+	 * @param tabid
+	 * @return
+	 */
+	public String queryRoleList(Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Role> list = menuDao.queryRoleList((pageNum - 1) * pageSize, pageSize);
+			long count = menuDao.queryRoleCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询管理组异常**************************");
+		}
+		return "/admin/user/managegroup/list.jsp";
+	}
+
+	public String addRoleInit(Long pageNum, Long pageSize, Model model, String tabid) {
+		 model.addAttribute("tabid", tabid);
+		return "/admin/user/managegroup/add.jsp";
+	}
+
+	public Map<String, Object> addRole(Role role, String tabid, String menu) {
+		menuDao.insertRole(role);
+		long result = 0;
+		JSONArray jsonArray = JSONArray.fromObject(menu);
+		for (int i = 0; i < jsonArray.size(); i++) {
+			JSONObject job = jsonArray.getJSONObject(i);
+			System.out.println(job.get("onelevel"));
+			RoleRights roleRights = new RoleRights();
+			roleRights.setRoleId(role.getId());
+			roleRights.setRightsId(Long.parseLong(String.valueOf(job.get("onelevel"))));
+			result = menuDao.insertRoleRights(roleRights);
+		}
+		if (result > 0) {
+			return ajaxDoneInfo("200", "管理组增加成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "管理组增加失败", "", "");
+		}
+
+	}
+
+	public List<Higher> getPermissionsMenu() {
+		List<Higher> list3 = new ArrayList<Higher>();
+		List<Map<String, Object>> list = menuDao.getMenu(-1L);
+		for (Map<String, Object> menuMap : list) {
+			Higher higher = new Higher();
+			higher.setId(Integer.parseInt(String.valueOf(menuMap.get("id"))));
+			higher.setName(String.valueOf(menuMap.get("summary")));
+			higher.setOpen(false);
+			higher.setpId(0);
+			higher.setChecked(false);
+			list3.add(higher);
+			List<Map<String, Object>> list2 = menuDao.getMenuByParentID(-1L, Integer.parseInt(String.valueOf(menuMap.get("id"))));
+			for (Map<String, Object> menu2 : list2) {
+				Higher higher2 = new Higher();
+				higher2.setId(Integer.parseInt(String.valueOf(menu2.get("id"))));
+				higher2.setName(String.valueOf(menu2.get("summary")));
+				higher2.setOpen(false);
+				higher2.setpId(Integer.parseInt(String.valueOf(menuMap.get("id"))));
+				higher2.setChecked(false);
+				list3.add(higher2);
+			}
+		}
+		return list3;
+	}
+
+}

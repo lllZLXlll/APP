@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.EnterpriseDao">
+
+	<resultMap type="enterprise" id="enterpriseResultMap">
+		<id column="id" property="id" />
+		<result column="companyName" property="companyName" />
+		<result column="legalPerson" property="legalPerson" />
+		<result column="registeredTime" property="registeredTime" />
+		<result column="companyName" property="companyName" />
+		<result column="registeredCapital" property="registeredCapital" />
+		<result column="businessCode" property="businessCode" />
+		<result column="companyAddress" property="companyAddress" />
+		<result column="companyPhone" property="companyPhone" />
+		<result column="borrowCause" property="borrowCause" />
+		<result column="userId" property="userId" />
+		<result column="auditStatus" property="auditStatus" />
+	</resultMap>
+
+
+	<select id="queryEnterpriseCountByUserId" resultType="java.util.Map" parameterType="java.lang.Long">
+		select COUNT(1) as userCount from t_enterprise t WHERE t.userId=#{userId}
+	</select>
+
+	<select id="queryEnterpriseByUserId" resultMap="enterpriseResultMap" parameterType="java.lang.Long">
+		SELECT * FROM t_enterprise a WHERE a.userId=#{userId}
+	</select>
+	
+	<update id="updateRecommendUserById">
+		UPDATE t_enterprise 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="companyName != null">companyName=#{companyName},</if>
+			<if test="legalPerson != null">legalPerson=#{legalPerson},</if>
+			<if test="moneyTypeId != null">registeredTime=#{registeredTime},</if>
+			<if test="registeredCapital != null">registeredCapital=#{registeredCapital},</if>
+			<if test="businessCode != null">businessCode=#{businessCode},</if>
+			<if test="companyAddress != null">companyAddress=#{companyAddress},</if>
+			<if test="companyPhone != null">companyPhone=#{companyPhone},</if>
+			<if test="borrowCause != null">borrowCause=#{borrowCause},</if>
+			<if test="userId != null">userId=#{userId},</if>
+			<if test="auditStatus != null">auditStatus=#{auditStatus},</if>
+		</trim>
+		WHERE userId=#{userId}
+	</update>
+	
+	
+	<select id="callEnterpriseUserInfoUpdateProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL p_enterprise_userInfo_update(
+			  	 #{in_userId,jdbcType=BIGINT,mode=IN},
+				 #{in_companyName,jdbcType=VARCHAR,mode=IN},
+				 #{in_legalPerson,jdbcType=VARCHAR,mode=IN},
+				 #{in_registeredTime ,jdbcType=TIMESTAMP,mode=IN},
+				 #{in_registeredCapital,jdbcType=DOUBLE,mode=IN},
+				 #{in_businessCode,jdbcType=VARCHAR,mode=IN},
+				 #{in_companyAddress,jdbcType=VARCHAR,mode=IN},
+				 #{in_companyPhone,jdbcType=VARCHAR,mode=IN},
+				 #{in_borrowCause,jdbcType=VARCHAR,mode=IN},
+				 #{in_applyId ,jdbcType=BIGINT,mode=IN},
+				 #{out_ret,jdbcType=BIGINT,mode=OUT},
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }  
+	</select>  
+
+
+
+</mapper>
+
+
+
+
+
+

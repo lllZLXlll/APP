@@ -1,0 +1,121 @@
+package com.pjzb.service.admin.borrow;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DateUtil;
+import com.shove.Convert;
+/**
+ * 债权转让
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminDebtsTransferService extends BaseController{
+	
+	@Autowired
+	private BorrowDao borrowDao;
+
+	public String queryApplyDebtInit(Model model,Long pageNum,Long pageSize,String borrowerName, String alienatorName,Integer debtStatus, String tabid) {
+		try { 
+			pageNum = pageNum == null ? 1 : pageNum;
+			debtStatus = debtStatus == null ? 1 : debtStatus;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			borrowerName = borrowerName == null ? "" : borrowerName;
+			alienatorName = alienatorName == null ? "" : alienatorName;
+			
+			List<Integer> debtStatusList = new ArrayList<Integer>();
+			 
+			debtStatusList.add(debtStatus);			
+			HashMap<String, Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("debtStatus", debtStatusList);
+			paramMap.put("borrowerName", borrowerName);
+			paramMap.put("alienatorName", alienatorName);
+			paramMap.put("index", (pageNum-1)*pageSize);
+			paramMap.put("pageSize", pageSize);
+			
+			if(debtStatus==1){
+
+				List<Map<String, Object>> payList=borrowDao.queryApplyDebt(paramMap);
+				Map<String, Long> borrowFullScaleMap=borrowDao.queryApplyDebtCount(paramMap);
+				
+				//统计当前页应收款
+				Map<String, Long> applydebtMap = borrowDao.queryApplyDebtDetail();
+				
+				DecimalFormat fmt = new DecimalFormat("0.00");
+				double debtSumm = 0;
+				if (payList != null) {
+					for (Map<String, Object> map : payList) {
+						debtSumm = debtSumm +Convert.strToDouble(map.get("debtSum")+"",0);
+					}
+				}
+				
+				PageBean pageBean=new PageBean();
+				pageBean.setPageNum(pageNum);
+				pageBean.setPage(payList);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(borrowFullScaleMap.get("fullScaleCount") == null ? 0: borrowFullScaleMap.get("fullScaleCount"));
+				model.addAttribute("pageBean", pageBean);
+				model.addAttribute("borrowerName", borrowerName);
+				model.addAttribute("alienatorName", alienatorName);
+				model.addAttribute("debtStatus", debtStatus);
+				model.addAttribute("debtSumm", fmt.format(debtSumm));
+				model.addAttribute("applydebtMap",  applydebtMap);
+				model.addAttribute("tabid", tabid);
+			} else if(debtStatus==2){ 
+				List<Map<String, Object>> payList = borrowDao.queryAssignmentDebt(paramMap);
+				Map<String, Long> assignmentMap=borrowDao.queryAssignmentDebtCount(paramMap);
+				this.changeDateToStr(payList);
+				PageBean pageBean=new PageBean();
+				pageBean.setPageNum(pageNum);
+				pageBean.setPage(payList);
+				pageBean.setPageSize(pageSize);
+				pageBean.setTotalNum(assignmentMap.get("assignmentCount") == null ? 0: assignmentMap.get("assignmentCount"));
+				model.addAttribute("pageBean", pageBean);
+				model.addAttribute("pageBean", pageBean);
+				model.addAttribute("borrowerName", borrowerName);
+				model.addAttribute("alienatorName", alienatorName);
+				model.addAttribute("debtStatus", debtStatus);
+				model.addAttribute("tabid", tabid);
+				 
+			} else if(debtStatus==3){
+				
+			} else if(debtStatus==4){
+				
+			} else {
+				
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("********************查询债权转让异常********************");
+		}
+		return "/admin/borrow/debtstransfer/list.jsp";
+	}
+
+	public void changeDateToStr(List<Map<String,Object>> list){
+		if(list != null){
+			Date nowDate = new Date();
+			for(Map<String,Object> map : list){
+				Date date = (Date)map.get("remainAuctionTime");
+				map.put("remainDays", DateUtil.remainDateToString(nowDate, date));
+			}
+		}
+	}
+
+}

@@ -1,0 +1,945 @@
+package com.pjzb.service.front;
+
+import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.BorrowAmountTypeDao;
+import com.pjzb.dao.ExgoInvestDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.PhoneBindingInfoDao;
+import com.pjzb.dao.QuestionSurveyDao;
+import com.pjzb.dao.RecommendUserDao;
+import com.pjzb.dao.RelationDao;
+import com.pjzb.dao.SMSInterfaceDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.dao.UserVoucherDao;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.PhoneBindingInfo;
+import com.pjzb.entity.RecommendUser;
+import com.pjzb.entity.User;
+import com.pjzb.entity.UserSendcode;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.SMSUtil;
+import com.pjzb.util.WebUtil;
+import com.shove.Convert;
+
+/**
+ * pc、wap、app端 用户（登录、注册、退出登录）相关公共service
+ * 
+ * @author xiaojin
+ * 
+ */
+
+@Service
+public class UserInfoService extends BaseController {
+//	public static Log log = LogFactory.getLog(FrontUserInfoController.class);
+
+	@Autowired
+	private UserDao userDao;
+	@Autowired
+	private FundrecordDao fundrecordDao;
+	
+	@Autowired
+	private RelationDao relationDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private BorrowAmountTypeDao shoveBorrowAmountTypeDao;
+
+	@Autowired
+	private UserVoucherDao userVoucherDao;
+
+	@Autowired
+	private RecommendUserDao recommendUserDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private ExgoInvestDao exgoInvestDao;
+
+	@Autowired
+	private QuestionSurveyDao questionSurveyDao;
+	
+	@Autowired
+	private SMSInterfaceDao smsInterfaceDao;
+
+	@Autowired
+	private PhoneBindingInfoDao phoneBindingInfoDao;
+
+
+	public String findUserByUserName(String userName) {
+		return userDao.findUserByUserName(userName);
+	}
+
+	public Long isExistEmailORUserName(String email, String userName) {
+		if (email == null) {
+			email = "";
+		}
+		if (userName == null)
+			userName = "";
+		email = StringEscapeUtils.escapeSql(email);
+		userName = StringEscapeUtils.escapeSql(userName);
+		List<Map<String, Object>> list = userDao.isExistEmailORUserName(email, userName);
+		return list.size() <= 0 ? -1L : 1L;
+	}
+
+	public User queryUserById(Long id) {
+		return userDao.queryUserById(id);
+	}
+
+	public List<Map<String, Object>> queryUserByIP(String lastIP) {
+		return userDao.queryUserByIP(StringEscapeUtils.escapeSql(lastIP));
+	}
+
+	public Map<String, Object> querymaterialsauthtypeCount() {
+		return userDao.querymaterialsauthtypeCount();
+	}
+
+	/**
+	 * 手机用户注册
+	 */
+	public Long addUserRegister(String email, String userName, String password, String refferee, Map<String, Object> userMap, int typeLen, String mobilePhone,
+			long recommendUserId, String lastIp, String ipArea, String registerSource) {
+		String dealpwd = null; // 交易密码
+		Integer rating = 0;// 网站积分
+		Integer creditrating = 0;// 信用积分
+		String lastDate = null;// 最后登录时间
+		Integer vipStatus = 1;// VIP会员状态 1是非vip 2是vip
+		Date vipCreateTime = null;// VIP创建时间
+		double creditlimit = 0;// 信用额度 如果是vip 那么初始creditlimit = 3000；
+		Integer authStep = 1;// 认证步骤(默认是1 个人详细信息 2 工作认证 3上传
+		String headImg = "";// 用户头型
+		// 系统给予默认头型
+		Integer enable = 1; // 是否禁用 1、启用 2、禁用
+		// 测试--跳过验证
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		// 得到信息额度类型
+		Map<String, Object> map = shoveBorrowAmountTypeDao.queryBorrowAmountByNid("credit");
+		Long creditLimit = Convert.strToLong(map.get("init_credit").toString(), 0);
+		if (IConstants.ISDEMO.equals("1")) {
+			authStep = 1;
+			enable = 1;
+			vipStatus = 2;
+			vipCreateTime = new Timestamp(new Date().getTime());
+			creditlimit = creditLimit;
+		}
+		Long servicePersonId = null;
+		long userId = -1L;
+
+		int isEmployeeReferral = 1;
+		if (StringUtils.isNotBlank(refferee)) {
+			Map<String, String> reffereeMap = userDao.queryIdByUser(refferee);// 根据用户查询用户明细
+			if (reffereeMap != null) {
+				String emails = "";
+				emails = Convert.strToStr(reffereeMap.get("email"), "");
+				// 内部员工邮箱号
+				if (emails.contains("@pujinziben.com")) {
+					// 是内部员工推荐的投资人。
+					isEmployeeReferral = 2;
+				}
+			}
+
+		}
+
+		double d = Constants.DOUBLE_0;
+		int int_0 = Constants.INT_0;
+		int int_1 = Constants.INT_1;
+		User user = new User();
+		user.setEmail(email);
+		user.setUsername(userName.trim());
+		user.setPassword(password.trim());
+		user.setRefferee(refferee);
+		user.setLastIp(lastIp);
+		user.setIpArea(ipArea);
+		user.setDealpwd(dealpwd);
+		user.setMobilePhone(mobilePhone);
+		user.setRating(rating);
+		user.setCreditrating(creditrating);
+		user.setVipStatus(vipStatus);
+		user.setVipCreateTime(vipCreateTime);
+		user.setAuthStep(authStep);
+		user.setHeadImg(headImg);
+		user.setEnable(enable);
+		user.setCreditLimit(creditLimit);
+		user.setIsEmployeeReferral(isEmployeeReferral);
+		user.setRegisterSource(registerSource);
+		user.setLastDate(new Date());
+		user.setCreateTime(new Date());
+		user.setContent("");
+		user.setUsableSum(d);
+		user.setFreezeSum(d);
+		user.setDueinSum(d);
+		user.setDueoutSum(d);
+		user.setVipFee(d);
+		user.setFeeStatus(Constants.INT_1);
+		user.setLoginCount(Constants.LONG_0);
+		user.setCashStatus(int_0);
+		user.setXmax(d);
+		user.setX(d);
+		user.setXmin(d);
+		user.setIsFirstVip(int_1);
+		user.setLoginErrorCount(int_0);
+		user.setIsLoginLimit(int_1);
+		user.setIsApplyPro(int_1);
+		user.setIpayAccount("");
+		user.setRegRedBag(d);
+		user.setNickname("");
+		user.setAccountSum(d);
+		user.setAccountNum(int_0);
+		user.setIsEmployeeReferral(int_1);
+		user.setVocherAmt(d);
+		user.setFiVocherAmt(d);
+		user.setTeVocherAmt(d);
+		user.setTwVocherAmt(d);
+		user.setLegalName("");
+		user.setIsBehalf(int_1);
+		user.setIsLoanManager(int_1);
+		user.setIsAccountSum(int_1);
+		user.setIsInvestAmt(int_1);
+		userDao.addUser(user);
+		if (user.getId() <= 0) {
+			return -1L;
+		}
+		Person person = new Person();
+		person.setCellPhone(mobilePhone);
+		person.setUserId(user.getId());
+		person.setRealName("");
+		person.setNativePlacePro(-1);
+		person.setIdNo("");
+		person.setAuditStatus(int_1);
+		person.setFlag(int_1);
+		personDao.addPerson(person);
+		phoneBindingInfoDao.addBindingMobile(new PhoneBindingInfo(mobilePhone, user.getId(), IConstants.PHONE_BINDING_ON, new Date(), "手机注册绑定手机", null, null, IConstants.INSERT_BASE_TYPE));
+		// 初始化验证资料
+		for (long i = 1; i <= typeLen; i++) {
+			addMaterialsauth1(user.getId(), i);
+		}
+		if (userMap != null) {
+			relationDao.addRelation(user.getId(), (Long) userMap.get("parentId"), (Integer) userMap.get("level"), 1);
+		}
+
+		Date inserttime = new Date();// 添加时间
+		// 处理截止时间
+		// SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+		Date currTime = add(inserttime, Calendar.DATE, 30);
+		Map<String, Object> usermap = userDao.queryUserInfoById(user.getId());
+		double usableSum = Convert.strToDouble(usermap.get("usableSum") + "", 0);
+		double freezeSum = Convert.strToDouble(usermap.get("freezeSum") + "", 0);
+
+		double forPI = Convert.strToDouble(usermap.get("forPI") + "", 0);
+
+		if ("2".equals(ChinapnrConfig.GIVINGEXGO)) {
+			// 新注册的用户是否赠送体验金 1.否 2.是
+
+			double accountSum = 0L;
+			long uLong = 1L;
+			// 添加体验金
+			Map<String, Object> uMap = userDao.selectAccountSum(uLong);
+//			String accountSu = ;
+			accountSum = Convert.strToDouble(String.valueOf(uMap.get("invmAmount")), 0.0);
+			userDao.addAccountSum(user.getId(), accountSum);
+			// 添加资金流动记录
+
+			Fundrecord fundrecord = new Fundrecord();
+			fundrecord.setUserId(user.getId());
+			fundrecord.setFundMode("体验金");
+			fundrecord.setHandleSum(accountSum);
+			fundrecord.setUsableSum(usableSum);
+			fundrecord.setFreezeSum(freezeSum);
+			fundrecord.setDueinSum(forPI);
+			fundrecord.setTrader(-1L);
+			fundrecord.setRemarks("您获得<a href='userMeg.do?id=" + user.getId() + "' target='_blank'>【" + accountSum + "元】体验金!");
+			fundrecord.setIncome(accountSum);
+			fundrecord.setSpending(0.0);
+			fundrecord.setOperateType(251);
+			fundrecord.setRecordTime(new Date());
+			
+			fundrecordDao.addFundRecord(fundrecord);
+			
+		}
+
+		// 新增加的用户，设置获取代金券的资格
+		double minMoney = -1;
+		double maxMoney = -1;
+		int passDate = -1;
+		double realMoney = -1;
+		String rbsName = "";
+		for (int i = 1; i < 5; i++) {
+			if (i == 1) {
+				minMoney = 500;
+				maxMoney = 2000;
+				rbsName = "20元代金券";
+				passDate = 7;
+				realMoney = 20;
+			}
+			if (i == 2) {
+				minMoney = 2000;
+				maxMoney = 5000;
+				rbsName = "50元代金券";
+				passDate = 15;
+				realMoney = 50;
+			}
+			if (i == 3) {
+				minMoney = 5000;
+				maxMoney = 10000;
+				rbsName = "50元代金券";
+				passDate = 15;
+				realMoney = 50;
+			}
+			if (i == 4) {
+				minMoney = 10000;
+				maxMoney = 20000000;
+				rbsName = "108元代金券";
+				passDate = 30;
+				realMoney = 108;
+			}
+			userVoucherDao.addUserVoucher(user.getId(), minMoney, maxMoney, rbsName, passDate, realMoney);
+
+		}
+
+		// 注册成功后判断是否是推广注册的。
+		// 修改之前的推荐
+		if (recommendUserId > 0) {// 判断是否为空
+
+			List<Map<String, Object>> list = recommendUserDao.queryRecommendUser(null, user.getId(), null);// 查询用户是否已经存在关系了。
+			if (list != null && list.size() > 0) {// 判断之前是否已经有关系了。
+				return null;
+			}
+			RecommendUser recommendUser=new RecommendUser();
+			recommendUser.setUserId(user.getId());
+			recommendUser.setRecommendUserId(recommendUserId);
+			recommendUserDao.addRecommendUser(recommendUser);
+		}
+
+		return user.getId();
+	}
+
+	private static Date add(Date date, int type, int value) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(type, value);
+		return calendar.getTime();
+	}
+
+	private synchronized void addMaterialsauth1(long userId, long i) {
+		userDao.addMaterialsauth1(userId, i);
+	}
+
+	public Map<String, Object> checkUserInfo(String name, String pwd, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		// 查找数据库对象中的enable属性
+		if (StringUtils.isBlank(name)) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "用户名不能为空");
+			return jsonMap;
+		}
+		if (StringUtils.isBlank(pwd)) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "密码不能为空");
+			return jsonMap;
+		}
+		User user1 = userDao.queryUserByUserName(name);
+		if (user1 == null) {
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "此用户不存在");
+			return jsonMap;
+		}
+		User userInfo = this.queryUserByUserAndPwd(name, pwd, user1);
+		if (null == userInfo) {
+			User user = userDao.queryUserByUserName(name);
+			if (1 == user.getLoginErrorCount()) {
+				jsonMap.put("error", "3");
+				jsonMap.put("msg", "密码有误，请重新输入，您还有2次机会");
+				return jsonMap;
+			} else if (2 == user.getLoginErrorCount()) {
+				jsonMap.put("error", "3");
+				jsonMap.put("msg", "密码有误，请重新输入，您还有1次机会");
+				return jsonMap;
+			} else if (0 == user.getLoginErrorCount()) {
+				jsonMap.put("error", "3");
+				jsonMap.put("msg", "该用户已被限制登录，请于三小时以后登录！");
+				return jsonMap;
+			}
+		}
+		if (userInfo.getIsLoginLimit() == 2) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "该用户已被限制登录，请于三小时以后登录！");
+			return jsonMap;
+		}
+		if (!userService.checkSign(userInfo.getId())) {
+			jsonMap.put("error", "7");
+			jsonMap.put("msg", "*该用户账号出现异常，请速与管理员联系！");
+			return jsonMap;
+		}
+		jsonMap.putAll(ConvertUtil.transBeanToMap(userInfo));
+		User user = userDao.queryUserByUserName(name);
+		long userId = user.getId();
+		// 刷新登录计数
+		userDao.updateloginCount(userId);
+		jsonMap.put("realName", "");
+		Person person = personDao.queryPersonByUserId(userId);
+		if (person != null) {
+			jsonMap.put("realName", person.getRealName());
+		}
+		String exgoInvest = "0";
+		if (pageType.equals(Constants.REACTAPP)) {
+			jsonMap.put("encryptId", AppUtil.encryptUserId(user.getId().toString()));
+			jsonMap.put("loginCount", user.getLoginCount());
+		} else {
+			double accountSum = user.getAccountSum();// 体验金
+			if (accountSum > 0) {
+				int accountNum = user.getAccountNum();// 体验金弹框次数
+				if (accountNum == 0) {
+					userDao.updateAccountNumByid(user.getId(), 1);
+				}
+			}
+			// 是否投资过体验标
+			Map<String, Long> exgoInvestMap = exgoInvestDao.queryExgoInvestCountByUserId(user.getId());
+			if (exgoInvestMap != null && exgoInvestMap.size() > 0) {
+				exgoInvest = "1";
+			} else {
+				exgoInvest = "0";
+			}
+			Map<String, Long> surveyMap = questionSurveyDao.getSurveyCount(userId);
+			jsonMap.put("surveyCount", surveyMap.get("surveyCount"));
+			jsonMap.put("loginCount", user.getLoginCount());
+			jsonMap.put("exgoInvest", exgoInvest);
+
+		}
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "登录成功");
+		jsonMap.put(Constants.SESSION_USER, user);
+		return jsonMap;
+	}
+
+	/**
+	 * 查询用户信息
+	 * 
+	 * @param userName
+	 *            邮箱号，手机号，用户名
+	 * @param pwd
+	 *            密码
+	 * @return
+	 */
+	public User queryUserByUserAndPwd(String userName, String pwd, User user) {
+		User userResult = null;
+		long id = user.getId();
+		if (null != user.getLastDate()) {
+			if (new Date().getTime() - user.getLastDate().getTime() > 3 * 60 * 60 * 1000) {
+				// 取消用户限制登录将isLoginLimit设置为1和loginErrorCount设置为0
+				userDao.resetUserState(0, 1, id);
+			}
+		}
+		int isLoginLimit = user.getIsLoginLimit();
+		int loginErrorCount = user.getLoginErrorCount();
+		if (isLoginLimit == 2 || loginErrorCount == 3) {
+			// 设置用户限制登录，设置loginErrorCount为0
+			if (loginErrorCount == 3) {
+				userDao.resetUserState(0, 2, id);
+			}
+			userResult = new User();
+			userResult.setIsLoginLimit(2);
+			return userResult;
+		}
+		userResult = userDao.queryUserByUserAndPwd(userName, pwd);
+		if (null == userResult) {
+			int count = loginErrorCount + 1;
+			// 更新用户错误登录次数和最后登陆时间
+			if (count == 3) {
+				// 设置用户限制登录，重置loginErrorCount为0
+				userDao.updateUserState1(0, 2, new Date(), id);
+			} else {
+				userDao.updateUserState1(count, 1, new Date(), id);
+			}
+
+		} else {
+			userDao.updateUserState1(0, 1, new Date(), id);
+		}
+		return userResult;
+	}
+
+	// 判断验证签名 手机端 tangjielong
+	public boolean checkSign(Long userId) {
+		DecimalFormat df = new DecimalFormat("0.00");
+		Fundrecord fundrecord = new Fundrecord();
+		String sign = "";
+		String sign2 = "";
+		User user = userDao.queryUserById(userId);
+		if (user == null) {
+			return false;
+		} else {
+			String id = user.getId().toString();
+			String usableSum = df.format(user.getUsableSum());
+			String freezeSum = df.format(user.getFreezeSum());
+			String dueinSum = df.format(user.getDueinSum());
+			String dueoutSum = df.format(user.getDueoutSum());
+			fundrecord = fundrecordDao.queryMaxIdFundById(userId);
+			if (fundrecord == null) {
+				if ("1".equals(IConstants.ENABLED_PASS)) {
+					sign = com.shove.security.Encrypt.MD5(id + usableSum + freezeSum + dueinSum + dueoutSum);
+					sign2 = com.shove.security.Encrypt.MD5("0" + id + "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0");
+				} else {
+					sign = com.shove.security.Encrypt.MD5(id + usableSum + freezeSum + dueinSum + dueoutSum + IConstants.PASS_KEY);
+					sign2 = com.shove.security.Encrypt.MD5("0" + id + "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0" + IConstants.PASS_KEY);
+				}
+			} else {
+				String f_id = fundrecord.getId().toString();
+				String f_userId = fundrecord.getUserId().toString();
+				String f_handleSum = df.format(fundrecord.getHandleSum());
+				String f_usableSum = df.format(fundrecord.getUsableSum());
+				String f_freezeSum = df.format(fundrecord.getFreezeSum());
+				String f_dueinSum = df.format(fundrecord.getDueinSum());
+				String f_dueoutSum = df.format(fundrecord.getDueoutSum());
+				String f_cost = df.format(fundrecord.getCost());
+				String f_income = df.format(fundrecord.getIncome());
+				String f_spending = df.format(fundrecord.getSpending());
+				if ("1".equals(IConstants.ENABLED_PASS)) {
+					sign = com.shove.security.Encrypt.MD5(f_userId + usableSum + freezeSum + dueinSum + dueoutSum);
+					sign2 = com.shove.security.Encrypt.MD5(f_id + f_userId + f_handleSum + f_usableSum + f_freezeSum + f_dueinSum + f_dueoutSum + f_cost + f_income + f_spending);
+				} else {
+					sign = com.shove.security.Encrypt.MD5(f_userId + usableSum + freezeSum + dueinSum + dueoutSum + IConstants.PASS_KEY);
+					sign2 = com.shove.security.Encrypt.MD5(f_id + f_userId + f_handleSum + f_usableSum + f_freezeSum + f_dueinSum + f_dueoutSum + f_cost + f_income + f_spending
+							+ IConstants.PASS_KEY);
+				}
+			}
+			if (user.getSign().equals(sign) && user.getSign2().equals(sign2)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Map<String, String> getUserById(long userId) {
+		return userDao.getUserById(userId);
+	}
+
+	public Map<String, Object> queryUserAmount(Long userId) {
+		return userDao.queryUserAmount(userId);
+	}
+
+	public Map<String, Object> getUserAddressById(long userId) {
+		return userDao.getUserAddressById(userId);
+	}
+
+	public Map<String, Object> saveUser(JSONObject appInfoMap, String pageType, String lastIP) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String name = appInfoMap.get("name").toString();
+		String pwd = appInfoMap.get("pwd").toString();
+		String cellPhone = appInfoMap.get("cellPhone").toString();
+		if (StringUtils.isBlank(cellPhone)) {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "手机号码不能为空");
+			return jsonMap;
+		}
+		String str = userDao.queryUserIdByPhone(cellPhone);
+		if (str != null) {
+			jsonMap.put("error", "9");
+			jsonMap.put("msg", "该手机号已注册！");
+			return jsonMap;
+		}
+
+		String code = appInfoMap.get("code").toString();
+		if (StringUtils.isBlank(code)) {
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "验证码不能为空");
+			return jsonMap;
+		}
+		String randomCode = (String) sessionGetAttribute(Constants.REGIST);
+		;
+		if (randomCode == null && StringUtils.isBlank(randomCode)) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "你还没有获取手机验证码");
+			return jsonMap;
+		}
+		// randomCode = Encrypt.decryptSES(randomCode,AlipayConfig.ses_key);
+
+		if (Constants.ISDEMO.equals(Constants.ISDEMO_2)) {
+			// randomCode = Encrypt.decryptSES(randomCode,
+			// AlipayConfig.ses_key);
+			if (!code.equals(randomCode.toString())) {
+				jsonMap.put("error", "6");
+				jsonMap.put("msg", "验证码不正确");
+				return jsonMap;
+			}
+			// String recivePhone =
+			// Encrypt.decryptSES(appInfoMap.get("recivePhone"),
+			// AlipayConfig.ses_key);
+			String recivePhone = (String) sessionGetAttribute(Constants.REGIST + Constants._PHONE);
+			if (recivePhone != null && !StringUtils.isBlank(recivePhone)) {
+				if (!cellPhone.equals(recivePhone)) {
+					jsonMap.put("error", "7");
+					jsonMap.put("msg", "手机号跟接收验证码手机号不一致");
+					return jsonMap;
+				}
+			}
+		}
+
+		// 验证用户名木含有特殊字符串处理第一个字符不可以是下划线开始 ^[^@\/\'\\\"#$%&\^\*]+$
+
+		if (name.replaceAll("^[\u4E00-\u9FA5A-Za-z0-9_]+$", "").length() != 0) {
+			jsonMap.put("error", "8");
+			jsonMap.put("msg", "用户名包含特殊字符");
+			return jsonMap;
+		}
+
+		pwd = com.shove.security.Encrypt.MD5(pwd + IConstants.PASS_KEY);
+
+		Long userId = -1L;
+
+		Long result = isExistEmailORUserName(null, name);
+		if (result > 0) { // 用户名重复
+			jsonMap.put("error", "9");
+			jsonMap.put("msg", "用户名已经存在");
+			return jsonMap;
+		}
+		String refferee = appInfoMap.get("refferee").toString();
+		Map<String, Object> map = null;
+		long recommendUserId = -1;
+		String email = "";
+		int isEmployeeReferral = 1;
+		if (StringUtils.isNotBlank(refferee)) {
+			User reffereeMap = queryUserById(Long.valueOf(refferee));// 根据用户查询用户明细
+			if (reffereeMap != null) {
+				recommendUserId = reffereeMap.getId();
+				email = Convert.strToStr(reffereeMap.getEmail(), "");
+				// 内部员工邮箱号
+				if (email.contains("@pujinziben.com")) {
+					// 是内部员工推荐的投资人。
+					isEmployeeReferral = 2;
+				}
+			}
+			if (reffereeMap == null) {
+				jsonMap.put("error", "10");
+				jsonMap.put("msg", "推荐人不存在");
+				return jsonMap;
+			}
+
+		}
+
+		System.out.println("注册用户的IP地址:" + lastIP);
+		if ("2".equals(ChinapnrConfig.LIMITIP)) {
+			// 限制同一个IP地址只能注册两个用户账号
+			List<Map<String, Object>> userIPMap = queryUserByIP(lastIP);// 根据用户查询用户明细
+			if (userIPMap != null && userIPMap.size() > 1) {
+				jsonMap.put("error", "12");
+				jsonMap.put("msg", "同一个IP地址限制只能注册两个账号，请换IP地址进行注册");
+				return jsonMap;
+			}
+		}
+
+		int typelen = -1;
+		Map<String, Object> lenMap = null;
+		lenMap = querymaterialsauthtypeCount(); // 查询证件类型主表有多少种类型
+		if (lenMap != null && lenMap.size() > 0) {
+			typelen = Convert.strToInt(lenMap.get("cccc").toString(), -1);
+			// 调用service
+			if (typelen != -1) {
+
+				// 根据IP查询用户的物理地址
+				String area = WebUtil.getIpArea(lastIP);
+				userId = addUserRegister("", name, pwd, refferee, map, typelen, cellPhone, recommendUserId, lastIP, area, pageType);// 注册用户
+				// 初始化图片资料
+				log.info("新注册的userId:" + userId);
+			}
+		}
+		if (userId < 0) { // 注册失败
+			jsonMap.put("error", "11");
+			jsonMap.put("msg", "注册失败");
+			return jsonMap;
+		} else {
+			userService.updateSign(userId);// 设置校验码
+			// 添加通知默认方法
+			addNotes(userId, false, true, false);
+			addNotesSetting(userId, false, false, false, false, false, true, true, true, true, true, false, false, false, false, false);
+			OperationLog operationLog = new OperationLog();
+			operationLog.setUserId(userId);
+			operationLog.setOperationTable("t_user");
+			operationLog.setOperationUser(name);
+			operationLog.setOperationIp(lastIP);
+			operationLog.setOperationType(0);
+			operationLog.setOperationAround(1);
+			operationLog.setOperationMoney(0d);
+			operationLog.setOperationRemarks("用户注册-" + chosese());
+			operationLogDao.addOperationLog(operationLog);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "注册成功");
+			jsonMap.put("id", userId + "");
+			return jsonMap;
+		}
+	}
+
+	public long addNotes(long userId, boolean message, boolean mail, boolean notes) {
+		int notice_on = IConstants.NOTICE_ON;
+		int notice_off = IConstants.NOTICE_OFF;
+		return userDao.addNotes(userId, message, mail, notes, notice_on, notice_off);
+	}
+
+	/**
+	 * 添加通知设置
+	 */
+	public long addNotesSetting(long userId, boolean messageReceive, boolean messageDeposit, boolean messageBorrow, boolean messageRecharge, boolean messageChange,
+			boolean mailReceive, boolean mailDeposit, boolean mailBorrow, boolean mailRecharge, boolean mailChange, boolean noteReceive, boolean noteDeposit, boolean noteBorrow,
+			boolean noteRecharge, boolean noteChange) {
+
+		long result = -1L;
+		// 通知方式(1 邮件 2 站内信 3 短信) 状态(1 关闭 2 开启)
+		int nt1 = IConstants.MAIL_NOTICE;
+		// 添加站内信信息
+		int notice_on = IConstants.NOTICE_ON;
+		int notice_off = IConstants.NOTICE_OFF;
+		Map<String, Object> map = userDao.queryNoticeSettingInfo(nt1, userId);
+		long result1 = -1L;
+		if (map == null) {// 如果没有数据 则进行插入，否则进行更新
+			result1 = userDao.addToNotice(messageReceive, messageDeposit, messageBorrow, messageRecharge, messageChange, notice_on, notice_off);
+		} else {
+			result1 = userDao.updateToNotice(messageReceive, messageDeposit, messageBorrow, messageRecharge, messageChange, notice_on, notice_off, userId, nt1);
+		}
+		// 邮件
+		int nt2 = IConstants.EMAIL_NOTICE;
+		map = userDao.queryNoticeSettingInfo(nt2, userId);
+		long result2 = -1L;
+		if (map == null) {// 如果没有数据 则进行插入，否则进行更新
+			result2 = userDao.addToNotice(mailReceive, mailDeposit, mailBorrow, mailRecharge, mailChange, notice_on, notice_off);
+		} else {
+			result2 = userDao.updateToNotice(mailReceive, mailDeposit, mailBorrow, mailRecharge, mailChange, notice_on, notice_off, userId, nt2);
+		}
+
+		// 短信
+		int nt3 = IConstants.NOTE_NOTICE;
+		map = userDao.queryNoticeSettingInfo(nt3, userId);
+		long result3 = -1L;
+		if (map == null) {// 如果没有数据 则进行插入，否则进行更新
+			result3 = userDao.addToNotice(noteReceive, noteDeposit, noteBorrow, noteRecharge, noteChange, notice_on, notice_off);
+		} else {
+			result2 = userDao.updateToNotice(noteReceive, noteDeposit, noteBorrow, noteRecharge, noteChange, notice_on, notice_off, userId, nt3);
+		}
+		if (result1 > 0 && result2 > 0 && result3 > 0)// 三条数据都插入成功
+			result = 1L;
+		map = null;
+		return result;
+	}
+	
+	
+	/**
+	 * 
+	 * @describe:发送短信验证码
+	 * @author: xiaojin
+	 * @return
+	 */
+	public Map<String, Object> sendSMS(JSONObject jsonObject, String pageType){
+		Map<String, Object> jsonMap=new HashMap<String, Object>();
+		String flag = "";
+		String phone = ConvertUtil.objToStrConvert(jsonObject.get("cellPhone")).trim();
+		// 请求短信的类型：1.注册：regist 2.忘记密码重置：resetPwd
+		String smsType = ConvertUtil.objToStrConvert(jsonObject.get("smsType")).trim();
+		User user= userDao.findUserByMobilePhone(phone);
+		if (smsType.equals("regist")) {
+			flag = "1";
+			if (user != null) {
+				jsonMap.put("error", "1");
+				jsonMap.put("msg", "该手机号码已经注册");
+				return jsonMap;
+			}
+		}else if(smsType.equals("wapRegist")){
+			flag = "1";
+			String imgCode = ConvertUtil.convertString(jsonObject.get("imgCode"));
+			String reg_checkCode = (String) sessionGetAttribute("reg_checkCode");
+			if (user != null) {
+				jsonMap.put("error", "3");
+				jsonMap.put("msg", "该手机号码已经注册");
+				return jsonMap;
+			}
+			if (!reg_checkCode.equalsIgnoreCase(imgCode.trim())) {
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "图形验证码错误");
+				return jsonMap;
+			}
+		} else if (smsType.equals("resetPwd")) {
+			flag = "2";
+			if (user == null) {
+				jsonMap.put("error", "4");
+				jsonMap.put("msg", "手机号码不存在");
+				return jsonMap;
+			}
+		} else if (smsType.equals("huifuRegist")) {
+			flag = "2";
+			if (user == null) {
+				jsonMap.put("error", "4");
+				jsonMap.put("msg", "手机号码不存在");
+				return jsonMap;
+			}
+		} else if (smsType.equals("dealpwd")) {
+			flag = "2";
+			if(pageType.equals(Constants.REACTAPP)){
+				String userIdStr =ConvertUtil.objToStrConvert(jsonObject.get("uid"));
+				if (userIdStr == null) {
+					jsonMap.put("error", "3");
+					jsonMap.put("msg", "您还未登录，请先登录！");
+					return jsonMap;
+				}
+				String decUserId=AppUtil.checkUserId(userIdStr);
+				if(decUserId.equals("-8")){
+					jsonMap.put("error", "4");
+					jsonMap.put("msg", "您身份验证失败！");
+					return jsonMap;
+				}
+				//Long userId = Long.parseLong(decUserId);
+				//User user = userService.queryUserById(userId);
+				if (!user.getMobilePhone().equals(phone)) {
+					jsonMap.put("error", "5");
+					jsonMap.put("msg", "请输入与目前账号一致的手机号码");
+					return jsonMap;
+				}
+			}else{
+				log.info("smsType is dealpwd");
+				log.info("发送短信，用户是否已经登录？");
+				if(getSessionUserInfo()==null){
+					jsonMap.put("error", "9999");
+					jsonMap.put("msg", "您还未登录，请先登录！");
+					return jsonMap;
+				}
+				if (!user.getMobilePhone().equals(phone)) {
+					jsonMap.put("error", "5");
+					jsonMap.put("msg", "请输入与当前账号一致的手机号码");
+					return jsonMap;
+				}
+			}
+			
+		} else if (smsType.equals("updateMobileCode")) {
+			flag = "2";
+			if (user != null) {
+				jsonMap.put("error", "6");
+				jsonMap.put("msg", "该手机号码已绑定");
+				return jsonMap;
+			}
+			sessionSetAttribute("updateMobile", phone);
+			
+		} else if (smsType.equals("oldMobileCode")) {
+			flag = "2";
+			if(pageType.equals(Constants.REACTAPP)){
+				String userIdStr =ConvertUtil.objToStrConvert(jsonObject.get("uid"));
+				if (userIdStr == null) {
+					jsonMap.put("error", "3");
+					jsonMap.put("msg", "您还未登录，请先登录！");
+					return jsonMap;
+				}
+				String decUserId=AppUtil.checkUserId(userIdStr);
+				if(decUserId.equals("-8")){
+					jsonMap.put("error", "4");
+					jsonMap.put("msg", "您身份验证失败！");
+					return jsonMap;
+				}
+			//	Long userId = Long.parseLong(decUserId);
+			//	User user = userService.queryUserById(userId);
+				phone = user.getMobilePhone();
+			}else{
+				phone =user.getMobilePhone();
+			}
+		} else {
+			flag = "2";
+		}
+		if (StringUtils.isBlank(phone)) {
+			jsonMap.put("error", "8");
+			jsonMap.put("msg", "手机号不能为空");
+			return jsonMap;
+		}
+		// 手机号码验证
+		Pattern p = Pattern.compile("^((13[0-9])|(14[7])|(15[0-9])|(18[0-9])|(17[0,5-9]))\\d{8}$");
+		Matcher m = p.matcher(phone);
+		if (!m.matches()) {
+			jsonMap.put("error", "9");
+			jsonMap.put("msg", "该手机号码不存在！");
+			return jsonMap;
+		}
+	
+		// 随机产生4位数字
+		int intCount = 0;
+		intCount = (new Random()).nextInt(9999);// 最大值位9999
+		if (intCount < 1000)
+			intCount += 1000; // 最小值位1001
+	
+		String randomCode = intCount + "";
+	
+		String content = "";
+	
+		if (flag.equalsIgnoreCase("1")) {
+			content = "【" + Constants.SMS_ACCOUNT + "】" + "尊敬的用户：感谢您注册普金资本，您的注册验证码为:" + randomCode
+					+ "，验证码5分钟内有效，为了保护您的账户安全，验证短信请勿转发给他人。请您及时验证!";
+		} else {
+			content = "尊敬的客户您好,手机验证码为:" + randomCode + "欢迎使用" + "【" + Constants.SMS_ACCOUNT + "】";
+		}
+		
+		if (Constants.ISDEMO.equals("1")) {
+			randomCode=Constants.ISDEMOCODE;
+		}
+		log.info("发送手机号码："+phone+"-smsType(验证码类型):"+smsType+"-isDemo:"+Constants.ISDEMO+"-randomCode:"+randomCode+"-手机号码类型："+smsType+Constants._PHONE);
+		UserSendcode userSendcode =new UserSendcode();
+			Map<String, Long> codeMap = smsInterfaceDao.queryUserSendCodeByPhone(phone);
+			if (codeMap.get("countCode") < 5) {
+				String sendSMSResult = SMSUtil.sendSMS(Constants.SMS_USERID, Constants.SEND_URL, Constants.SMS_ACCOUNT,Constants.SMS_PASSWORD, content, phone, randomCode);
+				if (sendSMSResult.equals(Constants.SUCCESS)) {
+					sessionSetAttribute(smsType, randomCode);
+					sessionSetAttribute(smsType+Constants._PHONE, phone);
+					jsonMap.put("error", "0");
+					jsonMap.put("msg", "发送成功");
+					jsonMap.put("randomCode", AppUtil.encryptUserId(randomCode));
+					jsonMap.put("recivePhone",AppUtil.encryptUserId(phone));
+					userSendcode.setContent(content);
+					userSendcode.setIpArea(getRemortIp());
+					userSendcode.setPhone(phone);
+					userSendcode.setSendTime(new Date());
+					userSendcode.setStatus(0);
+					userSendcode.setType(smsType);
+					smsInterfaceDao.saveUserSendcode(userSendcode);
+				} else {
+					jsonMap.put("error", "10");
+					jsonMap.put("msg", "发送失败");
+					userSendcode.setContent(content);
+					userSendcode.setIpArea(getRemortIp());
+					userSendcode.setPhone(phone);
+					userSendcode.setSendTime(new Date());
+					userSendcode.setStatus(1);
+					userSendcode.setType(smsType);
+					smsInterfaceDao.saveUserSendcode(userSendcode);
+				}
+				return jsonMap;
+			} else {
+				jsonMap.put("error", "11");
+				jsonMap.put("msg", "您的手机号码在当天注册时发送已经达到5条，请联系客服处理！");
+				return jsonMap;
+			}
+	}
+	
+}

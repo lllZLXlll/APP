@@ -1,0 +1,45 @@
+package com.pjzb.service.common;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.LinksDao;
+import com.pjzb.entity.Links;
+
+@Service
+public class LinksService {
+
+	@Autowired
+	private LinksDao linksDao;
+
+	public List<Links> queryLinksPage(Long index, Long number) {
+		return linksDao.queryLinksPage(index, number);
+	}
+
+	public List<Map<String, Object>> queryLinksType2(Long begin, Long end) {
+		return linksDao.queryLinksType2(begin, end);
+	}
+
+	public long queryLinksCount() {
+		return linksDao.queryLinksCount();
+	}
+
+	public Map<String, Object> queryYybgListList(String chosese) {
+		List<Map<String, Object>> yybgList = linksDao.queryYybgListList();
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		jsonMap.put("yybgList", yybgList);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+	}
+
+	public List<Map<String, Object>> queryLinksPages() {
+		return linksDao.queryLinksPages();
+	}
+
+}

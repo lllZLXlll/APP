@@ -1,0 +1,171 @@
+package com.pjzb.service.admin.login;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.dao.AdminDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.IConstants;
+
+@Service
+public class AdminLoginService {
+	public static Log log = LogFactory.getLog(AdminLoginService.class);
+
+	@Autowired
+	private AdminDao adminDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String checkLogin(Model model, String username, String password, String code, HttpSession session, ServletContext application, String ip, String pageType) {
+		if (password == null || StringUtils.isBlank(password)) {
+			model.addAttribute("msg", "密码不能为空");
+			return "/admin/login/login.jsp";
+		}
+		if (username == null || StringUtils.isBlank(username)) {
+			model.addAttribute("msg", "用户名不能为空");
+			return "/admin/login/login.jsp";
+		}
+		if (code == null || StringUtils.isBlank(code)) {
+			model.addAttribute("msg", "验证码不能为空");
+			return "/admin/login/login.jsp";
+		}
+		username = username.trim();
+		password = password.trim();
+		code = code.trim();
+		String adminSessionCode = (String) session.getAttribute("adminLogin" + Constants._CHECKCODE);
+		if (adminSessionCode != null) {
+			if (!adminSessionCode.equals(code)) {
+				model.addAttribute("msg", "验证码错误");
+				model.addAttribute("userName", username);
+				model.addAttribute("pwd", password.trim());
+				return "/admin/login/login.jsp";
+			}
+		}
+
+		Admin admin = checkAdminLogin(username, password, ip);
+
+		if (admin == null) {
+			model.addAttribute("msg", "用户名或密码错误");
+			model.addAttribute("userName", username);
+			model.addAttribute("pwd", password.trim());
+			return "/admin/login/login.jsp";
+		}
+		if (admin.getIsLoginLimit() == 2) {
+			model.addAttribute("msg", "你的帐号被暂时冻结，请于三小时以后登录！");
+			model.addAttribute("userName", username);
+			model.addAttribute("pwd", password.trim());
+			return "/admin/login/login.jsp";
+		}
+		if (admin.getEnable() != 1) {
+			model.addAttribute("msg", "你的帐号被停用请联系站点管理员!");
+			model.addAttribute("userName", username);
+			model.addAttribute("pwd", password.trim());
+			return "/admin/login/login.jsp";
+		}
+		Map<Long, String> applicationAdminMap = (Map<Long, String>) application.getAttribute(Constants.APPLICATION_ADMIN);
+		Long adminId = admin.getId();
+		if (applicationAdminMap == null) {
+			applicationAdminMap = new HashMap<Long, String>();
+			applicationAdminMap.put(adminId, session.getId());
+		} else {
+			applicationAdminMap.put(adminId, session.getId());
+		}
+		application.setAttribute(Constants.APPLICATION_ADMIN, applicationAdminMap);
+		session.setAttribute(Constants.SESSION_ADMIN, admin);
+		OperationLog operationLog = new OperationLog();
+		operationLog.setOperationTable("t_admin");
+		operationLog.setOperationUser(admin.getUserName());
+		operationLog.setOperationIp(ip);
+		operationLog.setOperationType(IConstants.UPDATE);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("后台管理员登陆-" + pageType);
+		operationLog.setUserId(adminId);
+		operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+		operationLog.setOperationTime(new Date());
+		operationLogDao.addOperationLog(operationLog);
+		return "redirect:/admin/adminInit.do";
+	}
+
+	public Admin checkAdminLogin(String userName, String password, String IP) {
+		userName = com.shove.web.Utility.filteSqlInfusion(userName);
+		password = com.shove.web.Utility.filteSqlInfusion(password);
+		Admin admin = null;
+		Admin admin2 = null;
+		Admin adminmap = adminDao.queryAdminByUserName(userName);
+		if (adminmap == null) {
+			return null;
+		}
+		long id = adminmap.getId();
+		Date lastLoginTime = adminmap.getLastTime();
+
+		if (null != lastLoginTime) {
+			if (new Date().getTime() - lastLoginTime.getTime() > 3 * 60 * 60 * 1000) {
+				admin2 = new Admin();
+				admin2.setLoginErrorCount(0);
+				admin2.setIsLoginLimit(1);
+				admin2.setId(id);
+				// 取消用户限制登录将isLoginLimit设置为1和loginErrorCount设置为0
+				adminDao.updateAdminById(admin2);
+			}
+		}
+		adminmap = adminDao.queryAdminByUserName(userName);
+		Integer loginErrorCount = adminmap.getLoginErrorCount();
+		Integer isLoginLimit = adminmap.getIsLoginLimit();
+		if (loginErrorCount == 3 || isLoginLimit == 2) {
+			admin2 = new Admin();
+			admin2.setLoginErrorCount(0);
+			admin2.setIsLoginLimit(2);
+			admin2.setId(id);
+			// 设置用户限制登录，设置loginErrorCount为0
+			adminDao.updateAdminById(admin2);
+			admin = new Admin();
+			admin.setIsLoginLimit(2);
+			return admin;
+		}
+
+		password = StringEscapeUtils.escapeSql(password);
+		if ("1".equals(IConstants.ENABLED_PASS)) {
+			password = com.shove.security.Encrypt.MD5(password);
+		} else {
+			password = com.shove.security.Encrypt.MD5(password + IConstants.PASS_KEY);
+		}
+
+		Admin adminInfo = adminDao.queryAdminByUserNameAndPassword(StringEscapeUtils.escapeSql(userName), password);
+		if (adminInfo == null) {
+			int count = loginErrorCount + 1;
+			admin2 = new Admin();
+			admin2.setLoginErrorCount(count);
+			admin2.setLastTime(new Date());
+			admin2.setId(id);
+			// 更新用户错误登录次数和登陆时间
+			adminDao.updateAdminById(admin2);
+			return null;
+		} else {
+			admin2 = new Admin();
+			admin2.setLoginErrorCount(0);
+			admin2.setIsLoginLimit(1);
+			admin2.setId(id);
+			admin2.setLastIp(IP);
+			adminDao.updateAdminById(admin2);
+			admin = adminInfo;
+		}
+		return admin;
+	}
+
+}

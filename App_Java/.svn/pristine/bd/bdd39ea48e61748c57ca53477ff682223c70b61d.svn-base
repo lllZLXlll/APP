@@ -1,0 +1,107 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Links entity. @author MyEclipse Persistence Tools
+ */
+
+public class Links implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long serialCount;
+	private String companyName;
+	private String companyImg;
+	private String companyURL;
+	private Date publishTime;
+	private Long type;
+	private Long ordershort;
+
+	// Constructors
+
+	/** default constructor */
+	public Links() {
+	}
+
+	/** full constructor */
+	public Links(Long serialCount, String companyName, String companyImg,
+			String companyURL, Date publishTime, Long type, Long ordershort) {
+		this.serialCount = serialCount;
+		this.companyName = companyName;
+		this.companyImg = companyImg;
+		this.companyURL = companyURL;
+		this.publishTime = publishTime;
+		this.type = type;
+		this.ordershort = ordershort;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getSerialCount() {
+		return this.serialCount;
+	}
+
+	public void setSerialCount(Long serialCount) {
+		this.serialCount = serialCount;
+	}
+
+	public String getCompanyName() {
+		return this.companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
+	public String getCompanyImg() {
+		return this.companyImg;
+	}
+
+	public void setCompanyImg(String companyImg) {
+		this.companyImg = companyImg;
+	}
+
+	public String getcompanyURL() {
+		return this.companyURL;
+	}
+
+	public void setcompanyURL(String companyURL) {
+		this.companyURL = companyURL;
+	}
+
+	public Date getPublishTime() {
+		return this.publishTime;
+	}
+
+	public void setPublishTime(Date publishTime) {
+		this.publishTime = publishTime;
+	}
+
+	public Long getType() {
+		return this.type;
+	}
+
+	public void setType(Long type) {
+		this.type = type;
+	}
+
+	public Long getOrdershort() {
+		return this.ordershort;
+	}
+
+	public void setOrdershort(Long ordershort) {
+		this.ordershort = ordershort;
+	}
+
+}

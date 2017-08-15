@@ -1,0 +1,27 @@
+package com.pjzb.dao;
+
+import java.sql.SQLException;
+import java.util.Map;
+
+import com.shove.data.DataException;
+
+public interface SiteInformationDao {
+	
+	/***
+	 * 查询  站点资料
+	 * @param conn
+	 * @return
+	 * @throws SQLException
+	 * @throws DataException
+	 */
+	public  Map<String,String>  querySiteAll();
+	
+	
+	/**
+	 * 修改
+	 * @return
+	 * @throws SQLException 
+	 */
+	public Long updateSiteById(int id,String siteName,String companyName,String postcode ,String address ,String principal,String contact,String telephone
+								,String cellphone,String fax,String emial,String qq,String servicePhone,String certificate,String regionName);
+}

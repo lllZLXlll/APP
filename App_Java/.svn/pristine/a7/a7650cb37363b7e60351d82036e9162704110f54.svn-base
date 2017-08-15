@@ -1,0 +1,19 @@
+define(function (require,exports,module) {
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			this.$parent.$set('activeClass',4);
+		},
+		methods:{
+			toLogin: function(){
+				router.go({name:'login',append:true});
+			}
+		},
+		template:'<div class="text-item-text">'+
+			    	'<p><i class="icon icon-red">&#xe60e;</i>恭喜你，密码重置成功！</p>'+
+			    '</div>'+
+			    '<div class="text-item-submit">'+
+		            '<button type="button" v-on:click="toLogin" class="btn btn-submit">立即登录</button>'+
+		        '</div>'
+	});
+	module.exports = VueComponent;
+})

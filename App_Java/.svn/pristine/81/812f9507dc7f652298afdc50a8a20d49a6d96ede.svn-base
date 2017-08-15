@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.fund;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 风险保障金
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminRiskGuaranteeService extends BaseController {
+
+}

@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.declare;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 团队介绍
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminTeamIntroduceService extends BaseController {
+
+}

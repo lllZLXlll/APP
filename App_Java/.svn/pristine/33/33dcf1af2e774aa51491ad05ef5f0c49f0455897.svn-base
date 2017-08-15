@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>我的账号 - 我要借款 - 申请企业融资</title>
+	<link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/mod-loan.css">
+    <link rel="stylesheet" href="css/mod-loan-company.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#e04c16">
+		<div class="warp-1000 ">
+			<a href="index.html"><img src="img/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">登录</a></li>
+						<li><a href="#"><i class="ico ico-red-package"></i>注册领红包</a></li>
+						<li><a href="#">我要投资</a></li>
+						<li><a href="#">新手指引</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.html" class="logo"><img src="img/logo.png"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li class="">
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	
+	<div class="mod-index">
+		<div class="warp-1000">
+			<div class="mod-transform-list mod-loan mod-loan-company">
+				<h2>申请企业融资</h2>
+                
+				<div class="mod-form table pd30 clearfix">
+                
+                <div class="box fl">
+                    <div class="ibox">
+                        <div class="mod-form mod-modify-password">
+                            <div class="item">
+                                <label>
+                                    <span class="name">企业名称</span>
+                                    <input type="text" value="深圳普金资本投资有限公司">
+                                </label>
+                            </div>
+                            <div class="item">
+                                <label>
+                                    <span class="name">注册号</span>
+                                    <input type="text" value="13013113202">
+                                </label>
+                            </div>
+                            <div class="item">
+                                <label>
+                                    <span class="name">联系人</span>
+                                    <input type="text" value="">
+                                </label>
+                            </div>
+                            <div class="item">
+                                <label>
+                                    <span class="name">联系电话</span>
+                                    <input type="text" value="">
+                                </label>
+                            </div>
+                            <div class="item">
+                                <label>
+                                    <span class="name">所在城市</span>
+                                    <select>
+                                        <option>请选择</option>
+                                        <option>深圳</option>
+                                        <option>北京</option>
+                                        <option>上海</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="item">
+                                <label>
+                                    <span class="name">借款金额</span>
+                                    <input type="text" value="">
+                                </label>
+                            </div>
+                            <div class="item">
+                                <label>
+                                    <span class="name">借款详情</span>
+                                    <select>
+                                        <option>请选择</option>
+                                        <option>A</option>
+                                        <option>B</option>
+                                        <option>C</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="item">
+                                <label>
+                                    <span class="name">借款用途</span>
+                                    <input type="text" value="">
+                                </label>
+                            </div>
+                            <div class="item">
+                                <label>
+                                    <span class="name">验证码</span>
+                                    <input type="text" class="mini" placeholder="">
+                                    <span class="img">
+                                    <a href="#"><img src="img/yzm.jpg"></a>
+                                    <a href="#">换一换</a>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="item">
+                                <span class="name"></span><button class="btn">提交申请</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                  
+                <div class="box fr">
+                    <div class="ibox">
+                        <div class="mod-form mod-modify-password">
+                               <h1>利息计算器</h1>
+                            <ul class="clearfix">	
+                                <div class="item fl">
+                                    <label>
+                                        <span class="name">借款金额</span>
+                                        <input type="text" value="">
+                                    </label>
+                                </div>
+                                <div class="item fr">
+                                    <label>
+                                        <span class="name">年利率</span>
+                                        <input type="text" value="">
+                                    </label>
+                                </div>
+                            </ul>
+                            <ul class="clearfix">	
+                                <div class="item fl">
+                                    <label>
+                                        <span class="name">借款期限</span>
+                                        <input type="text" value="">
+                                    </label>
+                                </div>
+                                <div class="item fr">
+                                    <label>
+                                        <span class="name">还款方式</span>
+                                        <select>
+                                            <option>按周还款</option>
+                                            <option>按月还款</option>
+                                            <option>按季还款</option>
+                                            <option>按年还款</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </ul>
+                            <div class="item item-center">
+                                <button class="btn btn-outline">开始计算</button>
+                            </div>
+                            <div class="info">
+                                <h3>计算结果：</h3>
+                                <p><span>每个月将偿还：<b>0.00</b> 元</span></p>
+                                <p><span>月利率：<b>0</b> %</span></p>
+                                <p><span>还款本息总额：<b>0</b> 元</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                  
+				</div>
+			</div>
+		</div>
+	</div>
+
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="img/cpright_001.png"/></a>
+					<a href="#"><img src="img/cpright_002.png"/></a>
+					<a href="#"><img src="img/cpright_003.png"/></a>
+                  <a href="#"><img src="img/cpright_004.png"/></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->
+<div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-qq"></i></p>
+				<p>客服QQ</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-weichet"></i></p>
+				<p>官方微信</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-feedback"></i></p>
+				<p>意见反馈</p>
+			</a>
+		</li>
+	</ul>
+</div>
+</body>
+</html>

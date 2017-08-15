@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.ExgoInvestDao">
+
+	<resultMap type="exgoInvest" id="exgoInvestResultMap">
+		<id column="id" property="id"/>
+		<result column="investAmount" property="investAmount"/>
+		<result column="monthRate" property="monthRate"/>
+		<result column="investor" property="investor"/>
+		<result column="borrowId" property="borrowId"/>
+		<result column="investTime" property="investTime"/>
+		<result column="oriInvestor" property="oriInvestor"/>
+		<result column="realAmount" property="realAmount"/>
+		<result column="hasPI" property="hasPi"/>
+		<result column="deadline" property="deadline"/>
+		<result column="hasDeadline" property="hasDeadline"/>
+		<result column="recivedPrincipal" property="recivedPrincipal"/>
+		<result column="recievedInterest" property="recievedInterest"/>
+		<result column="hasPrincipal" property="hasPrincipal"/>
+		<result column="hasInterest" property="hasInterest"/>
+		<result column="recivedFI" property="recivedFi"/>
+		<result column="hasFI" property="hasFi"/>
+		<result column="manageFee" property="manageFee"/>
+		<result column="reward" property="reward"/>
+		<result column="repayStatus" property="repayStatus"/>
+		<result column="flag" property="flag"/>
+		<result column="isAutoBid" property="isAutoBid"/>
+		<result column="isDebt" property="isDebt"/>
+		<result column="circulationInterest" property="investAmount"/>
+		<result column="reason" property="reason"/>
+		<result column="repayDate" property="repayDate"/>
+		<result column="check_principal" property="checkPrincipal"/>
+		<result column="check_interest" property="checkInterest"/>
+		<result column="min_invest_id" property="minInvestId"/>
+		<result column="max_invest_id" property="maxInvestId"/>
+		<result column="adjust_principal" property="adjustPrincipal"/>
+		<result column="billcode" property="billcode"/>
+		<result column="trxId" property="trxId"/>
+	</resultMap>
+	
+	
+	
+	<insert id="insertExGoInvest">
+		INSERT INTO t_exGo_invest(investAmount,monthRate,investor,borrowId,investTime,oriInvestor,realAmount,hasPI,deadline,
+		hasDeadline,recivedPrincipal,recievedInterest,hasPrincipal,hasInterest,recivedFI,hasFI,manageFee,reward,repayStatus,
+		flag,isAutoBid,isDebt,circulationInterest,reason,repayDate,check_principal,check_interest,min_invest_id,max_invest_id,
+		adjust_principal,billcode,trxId)
+		VALUES(#{investAmount},#{monthRate},#{investor},#{borrowId},#{investTime},#{oriInvestor},#{realAmount},#{hasPi},#{deadline},
+		#{hasDeadline},#{recivedPrincipal},#{recievedInterest},#{hasPrincipal},#{hasInterest},#{recivedFi},#{hasFi},#{manageFee},#{reward},#{repayStatus},
+		#{flag},#{isAutoBid},#{isDebt},#{circulationInterest},#{reason},#{repayDate},#{checkPrincipal},#{checkInterest},#{minInvestId},#{maxInvestId},
+		#{adjustPrincipal},#{billcode},#{trxId})
+	</insert>
+
+
+	<select id="queryExgoInvestCountByUserId" resultType="java.util.Map" parameterType="java.lang.Long" >
+	SELECT count(id) count from t_exgo_invest where oriInvestor =#{userId}
+	</select>
+
+
+	<select id="queryIsInvestExgo" resultType="java.util.Map" parameterType="java.lang.Long" >
+	   SELECT count(id) count from t_exgo_invest where oriInvestor =#{userId}
+	</select>
+
+	<select id="queryExgoInvestCount" resultType="java.util.Map">
+		SELECT COUNT(1) AS exgoInvestCount from t_exgo_invest
+	</select>
+	
+	
+	<select id="queryUserIsInvestByInvestor" resultType="java.util.Map" parameterType="java.lang.Long" >
+		SELECT round(a.investAmount,2) as investAmount,COUNT(1) as exgoInvestCount	FROM t_exgo_invest a 
+		WHERE a.investor=#{investor} GROUP BY a.investor
+	</select>
+	
+	
+	
+	
+	
+	
+
+	
+</mapper>
+
+
+

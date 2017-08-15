@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.user;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * vip记录表
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminVipRecordService extends BaseController {
+
+}

@@ -1,0 +1,125 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * PhoneBindingInfo entity. @author MyEclipse Persistence Tools
+ */
+
+public class PhoneBindingInfo implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String mobilePhone;
+	private Long userId;
+	private Integer status;
+	private Date requsetTime;
+	private String reason;
+	private String option;
+	private String oldPhone;
+	private Integer type;
+
+	// Constructors
+
+	/** default constructor */
+	public PhoneBindingInfo() {
+	}
+
+	/** minimal constructor */
+	public PhoneBindingInfo(String mobilePhone, Long userId, Integer status) {
+		this.mobilePhone = mobilePhone;
+		this.userId = userId;
+		this.status = status;
+	}
+
+	/** full constructor */
+	public PhoneBindingInfo(String mobilePhone, Long userId, Integer status,
+			Date requsetTime, String reason, String option,
+			String oldPhone, Integer type) {
+		this.mobilePhone = mobilePhone;
+		this.userId = userId;
+		this.status = status;
+		this.requsetTime = requsetTime;
+		this.reason = reason;
+		this.option = option;
+		this.oldPhone = oldPhone;
+		this.type = type;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getMobilePhone() {
+		return this.mobilePhone;
+	}
+
+	public void setMobilePhone(String mobilePhone) {
+		this.mobilePhone = mobilePhone;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Date getRequsetTime() {
+		return this.requsetTime;
+	}
+
+	public void setRequsetTime(Date requsetTime) {
+		this.requsetTime = requsetTime;
+	}
+
+	public String getReason() {
+		return this.reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public String getOption() {
+		return this.option;
+	}
+
+	public void setOption(String option) {
+		this.option = option;
+	}
+
+	public String getOldPhone() {
+		return this.oldPhone;
+	}
+
+	public void setOldPhone(String oldPhone) {
+		this.oldPhone = oldPhone;
+	}
+
+	public Integer getType() {
+		return this.type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+}

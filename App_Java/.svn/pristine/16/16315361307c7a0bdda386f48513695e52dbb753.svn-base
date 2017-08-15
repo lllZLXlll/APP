@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.AppVersionDao">
+
+	<select id="queryAppVersionByType" resultType="java.util.Map"> 
+		SELECT a.version AS version,a.publishTime AS publishTime,a.isUpdate AS isUpdate,a.downloadPath AS downloadPath 
+		FROM t_app_version a WHERE a.type=#{0} ORDER BY a.publishTime DESC LIMIT 0,1	
+	</select> 
+</mapper>
+
+
+
+
+

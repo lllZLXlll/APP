@@ -1,0 +1,36 @@
+package com.pjzb.service.common;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.RiskDetailDao;
+import com.pjzb.entity.RiskDetail;
+
+
+@Service
+public class RiskDetailService {
+
+	
+	@Autowired
+	private RiskDetailDao riskDetailDao;
+	
+	
+	public Map<String, Object> queryTotalRisk(){
+		return riskDetailDao.queryTotalRisk();
+	}
+	
+	
+	public Map<String, Object> queryCurrentRisk(){
+		return riskDetailDao.queryCurrentRisk();
+	}
+	
+	public RiskDetail queryRiskDetailMax(){
+		return riskDetailDao.queryRiskDetailMax();
+	}
+	
+	public void insertRiskDetail(RiskDetail riskDetail){
+		riskDetailDao.insertRiskDetail(riskDetail);
+	}
+}

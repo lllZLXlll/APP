@@ -1,0 +1,11 @@
+package com.pjzb.dao;
+
+import java.util.List;
+
+import com.pjzb.entity.PlatFormCost;
+
+public interface PlatFormCostDao {
+	
+	public List<PlatFormCost> queryPlatFormCostByView(Integer showView);
+
+}

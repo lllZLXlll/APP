@@ -1,0 +1,22 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Yybg;
+
+public interface YybgDao {
+
+	public List<Map<String, Object>> queryYybgListForPage(long l, Long pageSize, boolean b);
+
+	public long querYybgCount();
+
+	public long addYybg(Yybg yybg);
+
+	public long updateYybgById(Yybg yybg);
+
+	public long updateYybgImgById(Yybg yybg);
+
+	public long deleteYybgById(Long id);
+	
+}

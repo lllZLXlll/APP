@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.user;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 锁定用户
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminLockUserService extends BaseController {
+
+}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.SlbaoEarningsDao">
+
+	<insert id="addSlbaoEarnings">
+		INSERT INTO t_slbao_earnings(
+			userId, usableSum, income, recordTime, remarks
+		)VALUES (
+			#{0}, #{1}, #{2}, NOW(), "利息收益"
+		)
+	</insert>
+	
+	<select id="findBorrowInvestByCondition" resultType="map">
+		SELECT usableSum,income,DATE_FORMAT(recordTime,'%Y-%m-%d %T') recordTime,remarks,userId FROM t_slbao_earnings
+		WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND recordTime >= #{0}</if>
+		<if test="param2 != null and param2 != ''"><![CDATA[ AND recordTime <= #{1}" 23:59:59"  ]]></if>
+		<if test="param3 != null and param3 != ''"> AND userId = #{2}</if>
+		ORDER BY recordTime DESC LIMIT #{3}, #{4}
+	</select>
+	
+	<select id="querySlbaEarnRecordByUserId" resultType="map">
+		SELECT DATE_FORMAT(a.recordTime,'%Y-%m-%d %H:%i:%s') AS recordTime,a.usableSum,a.income,a.remarks FROM t_slbao_earnings a WHERE a.userId = #{userId}
+		<if test="startTime != null and startTime != ''">AND a.recordTime >= #{startTime}</if>
+		<if test="endTime != null and endTime != ''"><![CDATA[ AND a.recordTime <= #{endTime} ]]></if>
+		ORDER BY a.id DESC LIMIT #{pageNum}, #{pageSize}
+	</select>
+	
+	<select id="querySlbaEarnRecordCountByUserId" resultType="long">
+		SELECT COUNT(*) count FROM t_slbao_earnings a WHERE a.userId = #{userId}
+		<if test="startTime != null and startTime != ''">AND a.recordTime >= #{startTime}</if>
+		<if test="endTime != null and endTime != ''"><![CDATA[ AND a.recordTime <= #{endTime} ]]></if>
+	</select>
+	
+</mapper>
+
+
+
+
+

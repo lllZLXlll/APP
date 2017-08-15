@@ -1,0 +1,119 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.util.DesSecurityUtil;
+import com.pjzb.util.ExcelUtils;
+import com.shove.Convert;
+
+/**
+ * 用户资金管理
+ * 
+ * @author zlx
+ *
+ */
+@Service
+public class AdminUserFundService extends BaseController {
+
+	@Autowired
+	private RepaymentDao repaymentDao;
+
+	public String queryUserFundList(Model model, Long pageCurrent, Long pageSize, String userName, String realName,
+			Double usableSumMin, Double usableSumMax) throws RuntimeException {
+		try {
+			long count = repaymentDao.queryUserCashListCount((pageCurrent - 1) * pageSize, pageSize, userName, realName,
+					usableSumMin, usableSumMax);
+
+			List<Map<String, Object>> page = repaymentDao.queryUserCashList((pageCurrent - 1) * pageSize, pageSize,
+					userName, realName, usableSumMin, usableSumMax);
+
+			Map<String, Object> map = repaymentDao.queryUserCash((pageCurrent - 1) * pageSize, pageSize, userName,
+					realName, usableSumMin, usableSumMax);
+
+			PageBean pageBean = new PageBean(pageCurrent, pageSize, count, page);
+
+			if (page != null) {
+				Iterator<Map<String, Object>> iter = page.iterator();
+				int i = 0;
+				while (iter.hasNext()) {
+					Map<String, Object> mapItem = iter.next();
+					page.get(i).put("ids", new DesSecurityUtil().encrypt(mapItem.get("userId").toString()));
+					i++;
+				}
+				pageBean.setPage(page);
+			}
+
+			model.addAttribute("map", map);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("pageCurrent", pageCurrent);
+			model.addAttribute("pageSize", pageSize);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("usableSumMin", usableSumMin);
+			model.addAttribute("usableSumMax", usableSumMax);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		return "/admin/fund/userfund/list.jsp";
+	}
+
+	public String queryUserFundRechargeInit(Model model, String tabid, Long pageCurrent, Long pageSize, String startTime,
+			String endTime, String rechargeType, String state, String userIdStr) {
+		try {
+			Long userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1);
+			long count = repaymentDao.queryUserFundRechargeInfoCount(startTime, endTime, rechargeType, state, userId);
+			List<Map<String, Object>> page = repaymentDao.queryUserFundRechargeInfo(startTime, endTime, rechargeType,
+					state, userId, (pageCurrent - 1) * pageSize, pageSize);
+
+			model.addAttribute("pageBean", new PageBean(pageCurrent, pageSize, count, page));
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("startTime", startTime);
+			model.addAttribute("endTime", endTime);
+			model.addAttribute("rechargeType", rechargeType);
+			model.addAttribute("state", state);
+			model.addAttribute("id", userIdStr);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return "/admin/fund/userfund/list-charge.jsp";
+	}
+
+	/**
+	 * @describe:充值记录 导出
+	 * @author: zlx
+	 */
+	public void exportUserFundRecharge(HttpServletResponse response, String userIdStr) {
+		try {
+			long userId = -1l;
+			userIdStr = userIdStr.substring(0, userIdStr.indexOf(","));
+			if (!userIdStr.equals("-1")) {
+				userId = Convert.strToLong(new DesSecurityUtil().decrypt(userIdStr), -1);
+			}
+			List<Map<String, Object>> page = repaymentDao.queryUserFundRechargeInfoExport(userId);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("充值记录列表", page, new String[] { "用户名", "充值类型", "充值金额（¥）", "手续费（¥）", "到账金额（¥）", "充值时间", "状态" }, new String[] {
+					"username", "type", "rechargeMoney", "poundage", "realMoney", "rechargeTime", "result"});
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业融资申请导出异常***************************");
+		}
+	}
+	
+}

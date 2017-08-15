@@ -1,0 +1,16 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface BorrowStyleDao {
+
+	public long queryShoveBorrowAllInitCount();
+
+	public List<Map<String, Object>> queryShoveBorrowAllInit(long l, long pageSize);
+
+	public Map<String, Object> queryShoveBorrowById(Long id);
+
+	public long updateShoveBorrowStyle(Long id, String title, Long status, String contents);
+	
+}

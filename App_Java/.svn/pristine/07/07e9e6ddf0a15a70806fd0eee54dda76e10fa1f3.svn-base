@@ -1,0 +1,94 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.PreRepayment;
+import com.pjzb.entity.Repayment;
+
+public interface RepaymentDao {
+
+	public List<Repayment> queryWillBorrowerRepaymentInfo(Date date);
+
+	public Map<String, Object> queryPaymentInfo(Long id);
+
+	public void callBorrowRepaymentinitProcedure(Map<String, String> map);
+
+	public List<Map<String, Object>> queryAllInvestInfo(Long payId);
+
+	public List<Map<String, Object>> queryRepayInfoByBorrowId(Long borrowId);
+
+	public Long queryRepaymentBorrowIdIdById(Long id);
+
+	public List<Map<String, Object>> queryOverDueRepayment(String date);
+
+	public void updateOverDueRepayment(long id, double lateFee, int overdueDay, String date);
+
+	public Long addPreRepament(PreRepayment preRepayment);
+
+	public Map<String, Object> queryrRepay(Long id);
+
+	public Map<String, Object> queryAllInvestInfoByRepaymentId(long id);
+
+	public long queryUserCashListCount(long l, Long pageSize, String trim, String trim2, Double usableSumMin,
+			Double usableSumMax);
+
+	public List<Map<String, Object>> queryUserCashList(long l, Long pageSize, String trim, String trim2,
+			Double usableSumMin, Double usableSumMax);
+
+	public Map<String, Object> queryUserCash(long l, Long pageSize, String trim, String trim2, Double usableSumMin,
+			Double usableSumMax);
+
+	public long queryUserFundRechargeInfoCount(String startTime, String endTime, String rechargeType, String status,
+			Long userId);
+
+	public List<Map<String, Object>> queryUserFundRechargeInfo(String startTime, String endTime, String rechargeType,
+			String status, Long userId, Long pageCurrent, Long pageSize);
+
+	public List<Map<String, Object>> queryUserFundRechargeInfoExport(@Param("userId") long userId);
+
+	public long queryUserFundWithdrawListCount(String startTime, String endTime, String userName, Double sum, String state,
+			Long userId);
+
+	public List<Map<String, Object>> queryUserFundWithdrawList(String startTime, String endTime, String userName, Double sum,
+			String state, Long userId, long l, long pageSize);
+
+	public List<Map<String, Object>> queryUserFundWithdrawListExport(@Param("userId") long userId);
+
+	public long queryUserFundRecordListCount(@Param("userId") Long userId);
+
+	public List<Map<String, Object>> queryUserFundRecordList(@Param("userId") Long userId, @Param("pageNum") long l, @Param("pageSize") long pageSize);
+
+	public long queryAllUserFundRecordListCount(@Param("userName") String userName);
+
+	public List<Map<String, Object>> queryAllUserFundRecordList(@Param("userName") String userName, @Param("pageNum") long l, @Param("pageSize") long pageSize);
+
+	public List<Map<String, Object>> queryExportUserFundRecord(@Param("userName") String userName);
+
+	public List<Map<String, Object>> queryExportAllUserFundRecord();
+
+	public List<Map<String, Object>> queryLastRepayMentByCondition(Long pageNum, Long pageSize, String userName, Integer borrowWay, String realName, String titles, Integer status,String date);
+
+	public long queryLastRepayMentCount(String userName, Integer borrowWay, String realName, String titles, Integer status, String date);
+
+	public Map<String, Object> queryRepaymentAmount(String userName, Integer borrowWay, String realName, String titles, Integer status, String date);
+
+	public List<Map<String, Object>> queryRepaymentNotice(Long pageNum, Long pageSize, Long id);
+
+	public long queryRepaymentNoticeCount(Long id);
+
+	public long addRepayMentNotice(Long id, String content, Date date);
+
+	public List<Map<String, Object>> queryLastRepayMentByConditions(long l, Long pageSize, String userName, Integer borrowWay, String realName, String titles, Integer status,
+			String date);
+
+	public Map<String, Object> queryRepaymentDetail(Long id);
+	
+	public Map<String, Object> callWebStatisProcedure(Map<String, Object> map);
+	
+	public List<Map<String, Object>> queryRepaymentService(Long id);
+
+}

@@ -1,0 +1,41 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Links;
+
+public interface LinksDao {
+	public List<Links> queryLinksPage(Long index,Long number);
+	/**
+	 * 查询友情链接详情
+	 * @param begin
+	 * @param end
+	 * @return
+	 */
+	public List<Map<String, Object>> queryLinksType2(Long begin,Long end);
+	
+	/**
+	 * 查询友情链接数量
+	 * @return
+	 */
+	public long queryLinksCount();
+	
+	public List<Map<String, Object>> queryYybgListList();
+	
+	public List<Map<String, Object>> queryLinksPages();
+	
+	public List<Map<String, Object>> queryLinksListForPage(long l, Long pageSize, boolean b);
+	
+	public long queryLinksListCount();
+	
+	public long addLinks(Links links);
+	
+	public long deleteLinksById(Long id);
+	
+	public long deleteLinksByIds(List<Long> list);
+	
+	public Links queryLinksById(Long id);
+	
+	public long updateLinksById(Links links);
+}

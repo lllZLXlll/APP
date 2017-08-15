@@ -1,0 +1,310 @@
+package com.pjzb.controller.app;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.front.BorrowService;
+import com.pjzb.service.front.FinanceService;
+import com.pjzb.service.front.IndexService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+
+@Controller
+@RequestMapping(value = "/reactapp")
+public class AppIndexController extends BaseController {
+	private static Log log = LogFactory.getLog(AppIndexController.class);
+
+	@Autowired
+	private IndexService indexService;
+
+	@Autowired
+	private FinanceService financeService;
+
+
+	@Autowired
+	private BorrowService borrowService;
+
+	/**
+	 * 查询banner、推荐标、体验标
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/getBannerAndBorrows")
+	@ResponseBody
+	public Map<String, Object> getBannerAndBorrows() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			// jsonObject=JSONObject.fromObject("{uid:'',pageType:'reactApp'}");
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			String userIdStr = String.valueOf(jsonObject.get("uid"));
+			jsonMap.putAll(indexService.loadAppIndex(userIdStr, Constants.REACTAPP));
+			return jsonMap;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			jsonMap.put("msg", "banner、推荐标、体验标查询异常");
+			jsonMap.put("error", "1");
+			return jsonMap;
+		}
+	}
+
+	/**
+	 * 查询、推荐标
+	 */
+	@RequestMapping(value = "/getRecommendBorrow")
+	@ResponseBody
+	public Map<String, Object> getRecommendBorrow() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.put("recommendBorrowList", borrowService.getRecommendBorrow(Constants.RECOMMEND_1));
+			return jsonMap;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			jsonMap.put("msg", "推荐标查询异常");
+			jsonMap.put("error", "1");
+			return jsonMap;
+		}
+	}
+
+	/**
+	 * 问卷调查
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/addQuestionSurvey")
+	@ResponseBody
+	public Map<String, Object> addQuestionSurvey() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestJSONGetAttribute(Constants.APPPARAMS);
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			// 1223566768L
+			jsonMap.putAll(indexService.addQuestionSurvey(userId, jsonObject, jsonObject.getString("pageType")));
+			return jsonMap;
+		} catch (Exception e) {
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", Constants.PAGETYPE_APP + "调查问卷异常请联系客服！");
+			return jsonMap;
+		}
+	}
+
+	/**
+	 * 公司动态
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/getMediaReport")
+	@ResponseBody
+	public Map<String, Object> getMediaReport() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			long pageNum = Convert.strToLong(jsonObject.getString("curPage"), Constants.LONG_1);
+			jsonMap.putAll(indexService.queryCompanyDynamicsOrMediaReport(pageNum, Constants.PAGE_SIZE_15, getBasePath(), Constants.NEWSTYPE_1, Constants.REACTAPP));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查看公司动态异常，请联系客服!");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 获取媒体报道
+	 * 
+	 * @return
+	 * @throws
+	 */
+	@RequestMapping(value = "/getIndustryNews")
+	@ResponseBody
+	public Map<String, Object> getIndustryNews() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			Long pageNum = Convert.strToLong(jsonObject.getString("curPage"), Constants.LONG_1);
+			jsonMap.putAll(indexService.queryCompanyDynamicsOrMediaReport(pageNum, Constants.PAGE_SIZE_15, getBasePath(), Constants.NEWSTYPE_2, Constants.REACTAPP));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查看媒体报道异常,请联系客服!");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 信息披露实时数据
+	 * 
+	 * @author zlx
+	 */
+	@RequestMapping(value = "/informationRevealed")
+	@ResponseBody
+	public Map<String, Object> informationRevealed() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.putAll(financeService.queryInfoRevealed(Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "信息披露实时数据查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 分页展示运营数据 zlx
+	 */
+	@RequestMapping(value = "/querytOperateReport")
+	@ResponseBody
+	public Map<String, Object> querytOperateReport() throws Exception {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			String pageNum = String.valueOf(jsonObject.get("curPage"));
+			Long pageno = Long.parseLong(pageNum);
+			jsonMap.putAll(indexService.querytOperateReport(pageno, Constants.PAGE_SIZE_10, Constants.REACTAPP));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "运营数据展示异常");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 按月展示运营数据详细页面 zlx
+	 */
+	@RequestMapping(value = "/querytOperateReportPage")
+	@ResponseBody
+	public Map<String, Object> querytOperateReportPage() throws Exception {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			String month = String.valueOf(jsonObject.get("month"));
+			List<Map<String, Object>> operateReportPageMap = indexService.queryOperateReportPageByMonth(month);
+			jsonMap.put("operateReportPage", operateReportPageMap);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "运营数据详细页面查看异常");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 获取活动
+	 * 
+	 * @return
+	 * @author xiaojin
+	 */
+	@RequestMapping(value = "/getActivity")
+	@ResponseBody
+	public Map<String, Object> getActivity() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			Integer pageno = Integer.parseInt(String.valueOf(jsonObject.get("curPage")));
+			String userIdStr = ConvertUtil.convertObjToStr(jsonObject.get("uid"));
+			jsonMap.putAll(indexService.getActivity(userIdStr, pageno, Constants.PAGE_SIZE_5, Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("msg", "活动查询异常");
+			jsonMap.put("error", "1");
+		}
+		return jsonMap;
+	}
+
+	@RequestMapping(value = "/queryNewsList")
+	@ResponseBody
+	public Map<String, Object> queryNewsList() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAppParams();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			Long pageNum = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+			jsonMap.putAll(indexService.findNewsList(pageNum, Constants.PAGE_SIZE_15, Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "公告列表查询异常");
+		}
+		return jsonMap;
+	}
+
+	// app 查询
+	@RequestMapping(value = "/queryLinksPage")
+	@ResponseBody
+	public Map<String, Object> queryLinksPages() throws Exception {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.put("LinksPages", indexService.queryLinksPages());
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			log.error(e);
+			jsonMap.put("error", "-1");
+			jsonMap.put("msg", "查询失败");
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+}

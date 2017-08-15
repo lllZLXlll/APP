@@ -1,0 +1,52 @@
+package com.pjzb.controller.admin;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.admin.identify.AdminBasicInfoAuthenService;
+import com.pjzb.service.admin.identify.AdminPhoneNumberBindService;
+
+/**
+ * 认证管理service
+ * 
+ * 
+ */
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminIdentifyController extends BaseController {
+	public static Log log = LogFactory.getLog(AdminIdentifyController.class);
+
+	@Autowired
+	private AdminBasicInfoAuthenService adminBasicInfoAuthenService;
+
+	@Autowired
+	private AdminPhoneNumberBindService adminPhoneNumberBindService;
+
+	@RequestMapping(value = "/queryPersonInfolistindex")
+	public String queryUserCashListInit(Model model, Long pageCurrent, Long pageSize, String tabid, String userName,
+			String realName, String serviceManName, String auditStatus, String certificateName) {
+		return adminBasicInfoAuthenService.queryPersonInfoListForPage(model, tabid, pageCurrent, pageSize, userName,
+				realName, serviceManName, auditStatus, certificateName);
+	}
+
+	@RequestMapping(value = "/updatephoneIndex")
+	public String updatephoneIndex(Model model, Long pageCurrent, Long pageSize, String tabid, String userName,
+			String starttime, String endtime) {
+		return adminPhoneNumberBindService.updatephoneIndex(model, tabid, pageCurrent, pageSize, userName, starttime,
+				endtime);
+	}
+
+	@RequestMapping(value = "/exportupdatephonex")
+	@ResponseBody
+	public void exportupdatephonex(HttpServletResponse response, String userName, String starttime, String endtime) {
+		adminPhoneNumberBindService.exportupdatephonex(response, userName.substring(0, userName.indexOf(",")), starttime.substring(0, starttime.indexOf(",")), endtime.substring(0, endtime.indexOf(",")));
+	}
+}

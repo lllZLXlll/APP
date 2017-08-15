@@ -1,0 +1,48 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.SaveReconciliationDao;
+import com.pjzb.util.Constants;
+/**
+ * 汇付充值对账
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminChinapnrRechargeService extends BaseController {
+	
+	@Autowired
+	private SaveReconciliationDao reconciliationDao;
+
+	public String querySaveReconciliation(Model model, String tabid, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = reconciliationDao.queryReconciliation((pageNum - 1) * pageSize, pageSize);
+			long count = reconciliationDao.queryReconciliationCount();
+			Map<String, Object> map = reconciliationDao.queryMoneySum();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("map", map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************汇付充值对账查询记录异常**************************");
+		}
+		return "/admin/fund/chinapnrrecharge/list.jsp";
+	}
+
+}

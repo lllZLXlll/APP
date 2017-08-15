@@ -1,0 +1,31 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.News;
+
+public interface NewsDao {
+	
+	public List<Map<String, Object>> queryNews(Long begin,Long end,String pageType);
+	
+	public News queryNewsById(Long userId);
+	
+	public Map<String, Long> queryNewsCount();
+
+	public List<Map<String, Object>> queryNewsListForPage(long l, Long pageSize, boolean b);
+
+	public long queryNewsListCount();
+
+	public long addNews(News news);
+
+	public long deleteWebConsultById(Long id);
+
+	public long deleteWebConsultByIds(List<Long> list);
+
+	public long updateWebConsultById(News news);
+
+	public Map<String, Object> queryAppToAnnouncement(int id);
+
+	
+}

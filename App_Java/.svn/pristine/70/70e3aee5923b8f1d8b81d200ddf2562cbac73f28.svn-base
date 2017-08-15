@@ -1,0 +1,62 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.OperateReport;
+import com.pjzb.entity.OperateReportPage;
+import com.pjzb.entity.Yybg;
+
+public interface OperateReportDao {
+
+	// 后台-运营数据(t_operate_report) -begin
+
+	public Long queryOperateReportCountByMonth(String month);
+
+	public void insertOperateReport(OperateReport operateReport);
+
+	public List<OperateReport> queryOperateReportList(String beginDate, String endDate, long index, long pageSize);
+
+	public Long queryOperateReportCount(String beginDate, String endDate);
+
+	// 后台-运营数据(t_operate_report) -end
+
+	// app端运营报告(t_operate_report_page) -begin
+	public List<Map<String, Object>> queryOperateReportPage(Long index, Long num);
+
+	public List<Map<String, Object>> queryOperateReportPageByMonth(String month);
+
+	public List<Map<String, Object>> queryAppOperateReportListForPage(long l, Long pageSize, boolean b);
+
+	public long queryAppOperateReportCountByImgType(Integer imgType);
+
+	public long addAppOperateReport(OperateReportPage operateReportPage);
+
+	public long deleteAppOperateReportById(Long id);
+
+	public long deleteAppOperateReportByIds(List<Long> list);
+
+	public long updateAppOperateReportById(OperateReportPage operateReportPage);
+
+	public OperateReportPage queryAppOperateReportById(Long id);
+
+	// app端运营报告(t_operate_report_page) -end
+
+	
+	// pc端运营报告 (t_yybg)-begin
+
+	public List<Map<String, Object>> queryYybgListForPage(long l, Long pageSize, boolean b);
+
+	public long querYybgCount();
+
+	public long addYybg(Yybg yybg);
+
+	public long updateYybgById(Yybg yybg);
+
+	public long updateYybgImgById(Yybg yybg);
+
+	public long deleteYybgById(Long id);
+
+	// pc端运营报告(t_yybg) -end
+
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.TrfReconciliationDao">
+
+	<delete id="deleteTrfReconciliation" parameterType="string">
+		DELETE FROM t_trf_reconciliation WHERE PnrDate = #{0}
+	</delete>
+	
+	<insert id="addTrfReconciliation" parameterType="trfReconciliation">
+		INSERT INTO t_trf_reconciliation(
+			OrdId, InDate, MerCustId, UsrCustId, BorrCustId, TransAmt, TransStat, PnrDate, PnrSeqId
+		) VLUEWS (
+			#{ordId}, #{inDate}, #{merCustId}, #{usrCustId}, #{borrCustId}, #{transAmt}, #{transStat}, #{pnrDate}, #{pnrSeqId}
+		)
+	</insert>
+	
+	
+</mapper>
+
+
+
+
+

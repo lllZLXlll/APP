@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+<link rel="stylesheet" href="src/css/public.css">
+<script type="text/javascript" src="src/libs/jquery.js"></script>
+<script type="text/javascript" src="src/libs/public.js"></script>
+<!-- 客服QQ -->
+<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php"></script>
+<script type="text/javascript">
+var timers=5;
+var tipId;
+var index = true;
+$(function(){
+	utils.initPage();
+	$('.pj-result .result').hide();
+	var key = utils.getUrlParam('key');
+	var param = {
+			key:key
+	}
+	utils.ajax({
+		url:'../front/bindingEmail.do',
+		data:JSON.stringify(param),
+		success:function(data){
+			tipId=window.setInterval(timer,1000);
+			if(data.error=='0'){
+				$('.result').addClass('result-success');
+				utils.Storage.setItem('uid',data.user.id);
+        		utils.Storage.setItem('username',data.user.userName);
+        		utils.Storage.setItem('ipayAccount',data.user.ipayAccount);
+				index = false;
+			}else{
+				utils.Storage.clear();
+				$('.result').addClass('result-fail');
+			}
+			$('.pj-result .result').show();
+			$('.pj-result .big').text(data.msg);
+		}
+	})
+	//tipId=window.setInterval(timer,1000);
+	$('.btn').click(function(){
+		if(index){
+	    	   window.location.href="index.html";
+	       }else{
+	    	   window.location.href="account.html#safe";
+	       }
+	});
+});
+//定时
+function timer(){
+    if(timers>=1){
+      $(".small").html("<span>"+timers+"</span>秒钟后自动返回");
+      timers--;
+    }else{
+       window.clearInterval(tipId);
+       if(index){
+    	   window.location.href="index.html";
+       }else{
+    	   window.location.href="account.html#safe";
+       }
+       
+    }
+}
+</script>
+</head>
+<body>
+	<!--[if lt IE 8]>
+    <div class="show-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  	<![endif]-->
+	<!-- top -->
+	<div class="top" id="top">
+	</div>
+	<!-- nav -->
+	<div class="nav">
+		<div class="wrap cl">
+			<div class="logo"><img src="src/images/logo.png" alt="普金资本"></div>
+			<div class="nav-bar">
+				<ul>
+					<li class="icon icon-acc"><a href="account.html">我的账户</a></li>
+					<li><a href="about.html">信息披露</a></li>
+					<!-- <li><a href="javascript:void(0);" onclick="newPointer()">新手指导</a></li> -->
+					<li><a href="safety.html">安全保障</a></li>
+					<li>
+						<a href="invest_list.html">投资理财</a>
+						<div class="sub-nav">
+							<a href="invest_list.html#006">恒金保</a>
+							<a href="invest_list.html#004">普金保</a>
+							<a href="invest_list.html#003">多金宝</a>
+							<a href="creditor_list.html">债权转让</a>
+							<p class="left"></p>
+							<p class="right"></p>
+						</div>
+					</li>
+					<li><a href="index.html">首页</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="pj-result bind-emali">
+		<div class="result result-success">
+			<p class="big"></p>
+			<p class="small"><span>5</span>秒钟后自动返回</p>
+			<button type="button" class="btn">返回</button>
+		</div>
+	</div>
+	<div id="ajaxFooter"></div>
+</body>
+</html>

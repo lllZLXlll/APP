@@ -1,0 +1,14 @@
+package com.pjzb.dao;
+
+import java.util.Map;
+
+import com.pjzb.entity.Invest;
+
+public interface InvestHistoryDao {
+
+	public Map<String, Object> getInvestHistory(long id);
+
+	public long updateInvestHistory(Invest investHistory);
+
+	public long addInvestHistory(Invest investHistory);
+}

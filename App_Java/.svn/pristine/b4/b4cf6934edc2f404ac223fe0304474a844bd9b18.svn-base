@@ -1,0 +1,37 @@
+package com.pjzb.service.admin.system;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.PlatFormCostDao;
+import com.pjzb.entity.RedBagManage;
+import com.pjzb.util.Constants;
+
+/**
+ * 红包管理
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminRedMoneyService extends BaseController {
+
+	@Autowired
+	private PlatFormCostDao platFormCostDao;
+
+	public String queryRedBagManageList(Model model, String tabid, Long pageNum, Long pageSize) {
+		pageNum = pageNum == null ? 1 : pageNum;
+		pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+		List<RedBagManage> list = platFormCostDao.queryRedBagManageList((pageNum - 1) * pageSize, pageSize);
+		long count = platFormCostDao.queryRedBagManageCount();
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		model.addAttribute("tabid", tabid);
+		return "/admin/system/redmoney/list.jsp";
+	}
+
+}

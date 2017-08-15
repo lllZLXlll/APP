@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.PhoneBindingInfoDao">
+
+	<select id="getUserMobile" resultType="java.util.Map">
+		SELECT mobilePhone FROM
+		t_phone_binding_info WHERE userId = #{0} AND status = #{1}
+	</select>
+	
+	<select id="queryBindingInfoByUserId" resultType="java.util.Map">
+		SELECT mobilePhone FROM t_phone_binding_info WHERE userId = #{userId}
+	</select>
+	
+	<update id="updateBindingMobile">
+		UPDATE t_phone_binding_info
+		<trim prefix="set" suffixOverrides=",">
+			<if test="mobilePhone != null">mobilePhone=#{mobilePhone},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="requsetTime != null">requsetTime=#{requsetTime},</if>
+			<if test="reason != null">reason=#{reason},</if>
+			<if test="option != null">option=#{option},</if>
+			<if test="oldPhone != null">oldPhone=#{oldPhone},</if>
+			<if test="type != null">type=#{type},</if>
+		</trim>
+		WHERE userId = #{userId}
+	</update>
+
+	
+	<insert id="addBindingMobile">
+		insert into t_phone_binding_info(
+		mobilePhone, userId,
+		status, reason, requsetTime, oldPhone, type
+		)values(
+		#{mobilePhone},#{userId},#{status},#{reason},
+		now(),#{oldPhone},#{type}
+		)
+	</insert>
+</mapper>
+
+
+
+
+
+
+
+

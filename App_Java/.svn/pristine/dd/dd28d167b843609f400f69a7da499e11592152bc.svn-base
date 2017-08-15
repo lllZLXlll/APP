@@ -1,0 +1,46 @@
+package com.pjzb.controller.front;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.util.GeetestLib;
+
+/**
+ * 极验service 使用Get的方式返回challenge和capthca_id,此方式以实现前后端完全分离的开发模式
+ * 
+ * @author xiaojin
+ * 
+ */
+@Controller
+@RequestMapping(value = "/front")
+public class StartCaptchaController extends BaseController {
+
+	@RequestMapping(value = "/startCaptchaAction")
+	@ResponseBody
+	public String startCaptcha() {
+		String resStr = null;
+		try {
+			System.out.println(ChinapnrConfig.GEE_ID);
+			System.out.println(ChinapnrConfig.GEE_KEY);
+			GeetestLib gtSdk = new GeetestLib(ChinapnrConfig.GEE_ID, ChinapnrConfig.GEE_KEY);
+			resStr = "{}";
+			// 自定义userid
+			String userid = "test";
+			// 进行验证预处理
+			int gtServerStatus = gtSdk.preProcess(userid);
+			// 将服务器状态设置到session中
+			requestSetAttribute(gtSdk.gtServerStatusSessionKey, gtServerStatus);
+			// 将userid设置到session中
+			request().setAttribute("userid", userid);
+			resStr = gtSdk.getResponseStr();
+			System.out.println(resStr);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resStr;
+	}
+
+}

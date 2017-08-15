@@ -1,0 +1,37 @@
+html,body,div,nav,footer,p,span,input,textarea,ul,li,ol,li,i,em,h1,h2,h3,h4,button{padding:0;margin:0;border:0;}
+ul,li,ol,li{list-style:none;}
+a{text-decoration: none;}
+	html {
+		width:100%;
+		  font-size: 20px;
+		  font-family: sans-serif;
+		  -ms-text-size-adjust: 100%;
+		  -webkit-text-size-adjust: 100%;
+		  overflow-x:none; 
+		}
+	@media only screen and (min-width: 400px) {
+	  html {
+	    font-size: 21.33333333px !important;
+	  }
+	}
+	@media only screen and (min-width: 414px) {
+	  html {
+	    font-size: 22.08px !important;
+	  }
+	}
+	@media only screen and (min-width: 480px) {
+	  html {
+	    font-size: 25.6px !important;
+	  }
+    }
+body{ background: #eee none repeat scroll 0 0;
+    bottom: 0;
+    color: #3d4145;
+    font-family: "Helvetica Neue",Helvetica,sans-serif;
+    font-size: 0.85rem;
+    left: 0;
+    line-height: 1.5;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;}

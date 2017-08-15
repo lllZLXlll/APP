@@ -1,0 +1,163 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * SaveReconciliation entity. @author MyEclipse Persistence Tools
+ */
+
+public class SaveReconciliation implements java.io.Serializable {
+
+	// Fields
+
+	private String ordId;
+	private String merCustId;
+	private String usrCustId;
+	private String ordDate;
+	private Double transAmt;
+	private String transStat;
+	private String gateBusiId;
+	private String openBankId;
+	private String openAcctId;
+	private Double feeAmt;
+	private String feeCustId;
+	private String feeAcctId;
+	private Date inDate;
+
+	// Constructors
+
+	/** default constructor */
+	public SaveReconciliation() {
+	}
+
+	/** minimal constructor */
+	public SaveReconciliation(String ordId) {
+		this.ordId = ordId;
+	}
+
+	/** full constructor */
+	public SaveReconciliation(String ordId, String merCustId, String usrCustId, String ordDate, Double transAmt, String transStat, String gateBusiId, String openBankId,
+			String openAcctId, Double feeAmt, String feeCustId, String feeAcctId, Date inDate) {
+		this.ordId = ordId;
+		this.merCustId = merCustId;
+		this.usrCustId = usrCustId;
+		this.ordDate = ordDate;
+		this.transAmt = transAmt;
+		this.transStat = transStat;
+		this.gateBusiId = gateBusiId;
+		this.openBankId = openBankId;
+		this.openAcctId = openAcctId;
+		this.feeAmt = feeAmt;
+		this.feeCustId = feeCustId;
+		this.feeAcctId = feeAcctId;
+		this.inDate = inDate;
+	}
+
+	// Property accessors
+
+	public String getOrdId() {
+		return this.ordId;
+	}
+
+	public void setOrdId(String ordId) {
+		this.ordId = ordId;
+	}
+
+	public String getMerCustId() {
+		return this.merCustId;
+	}
+
+	public void setMerCustId(String merCustId) {
+		this.merCustId = merCustId;
+	}
+
+	public String getUsrCustId() {
+		return this.usrCustId;
+	}
+
+	public void setUsrCustId(String usrCustId) {
+		this.usrCustId = usrCustId;
+	}
+
+	public String getOrdDate() {
+		return this.ordDate;
+	}
+
+	public void setOrdDate(String ordDate) {
+		this.ordDate = ordDate;
+	}
+
+	public Double getTransAmt() {
+		return this.transAmt;
+	}
+
+	public void setTransAmt(Double transAmt) {
+		this.transAmt = transAmt;
+	}
+
+	public String getTransStat() {
+		return this.transStat;
+	}
+
+	public void setTransStat(String transStat) {
+		this.transStat = transStat;
+	}
+
+	public String getGateBusiId() {
+		return this.gateBusiId;
+	}
+
+	public void setGateBusiId(String gateBusiId) {
+		this.gateBusiId = gateBusiId;
+	}
+
+	public String getOpenBankId() {
+		return this.openBankId;
+	}
+
+	public void setOpenBankId(String openBankId) {
+		this.openBankId = openBankId;
+	}
+
+	public String getOpenAcctId() {
+		return this.openAcctId;
+	}
+
+	public void setOpenAcctId(String openAcctId) {
+		this.openAcctId = openAcctId;
+	}
+
+	public Double getFeeAmt() {
+		return this.feeAmt;
+	}
+
+	public void setFeeAmt(Double feeAmt) {
+		this.feeAmt = feeAmt;
+	}
+
+	public String getFeeCustId() {
+		return this.feeCustId;
+	}
+
+	public void setFeeCustId(String feeCustId) {
+		this.feeCustId = feeCustId;
+	}
+
+	public String getFeeAcctId() {
+		return this.feeAcctId;
+	}
+
+	public void setFeeAcctId(String feeAcctId) {
+		this.feeAcctId = feeAcctId;
+	}
+
+	public Date getInDate() {
+		return this.inDate;
+	}
+
+	public void setInDate(Date inDate) {
+		this.inDate = inDate;
+	}
+
+}

@@ -1,0 +1,167 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RedmoneyrecordDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Redmoneyrecord;
+import com.pjzb.entity.User;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 现金券与代金券管理
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminVoucherService extends BaseController {
+
+	@Autowired
+	private RedmoneyrecordDao redmoneyrecordDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+	
+	@Autowired
+	private UserService userService;
+	
+
+	public String queryRedmoneyrecordForPage(String userName, String redmoneytype, Integer usestatus, Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			usestatus = usestatus == null || usestatus == -1 ? null : usestatus;
+			List<Map<String, Object>> list = redmoneyrecordDao.queryRedmoneyrecordForPage(ConvertUtil.convertObjToStr(userName), ConvertUtil.convertObjToStr(redmoneytype),
+					usestatus, (pageNum - 1) * pageSize, pageSize);
+			long count = redmoneyrecordDao.queryRedmoneyrecordCount(ConvertUtil.convertObjToStr(userName), ConvertUtil.convertObjToStr(redmoneytype), usestatus);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("redmoneytype", redmoneytype);
+			model.addAttribute("userName", userName);
+			model.addAttribute("usestatus", usestatus);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************代金券与现金券查询异常**************************");
+		}
+		return "/admin/fund/voucher/list.jsp";
+	}
+
+	public Map<String, Object> addRedmoneyrecord(String userIdStr, String moneyStr, Redmoneyrecord redmoneyrecord, Model model, String tabid, String ip, String flag) {
+		String regex = "^\\+?[1-9][0-9]*$";
+		Long userId = null;
+		Double money = null;
+		if (userIdStr != null && !StringUtils.isBlank(userIdStr)) {
+			if (userIdStr.matches(regex)) {
+				userId = Long.parseLong(userIdStr.trim());
+			} else {
+				return ajaxDoneInfo("300", "请输入正确的用户id", "", "");
+			}
+		}
+
+		if (moneyStr != null && !StringUtils.isBlank(moneyStr)) {
+			if (moneyStr.matches(regex)) {
+				money = Double.parseDouble(moneyStr.trim());
+			} else {
+				return ajaxDoneInfo("300", "请输入正确的金额", "", "");
+			}
+		}
+
+		User user = userDao.queryUserById(userId);
+		if (user == null) {
+			return ajaxDoneInfo("300", "此用户不存在", "", "");
+		}
+		// 3.增加记录现金券记录信息
+		double usableSum = user.getUsableSum();
+		double freezeSum = user.getFreezeSum();
+		// double forPI =Convert.strToDouble(usermap.get("forPI") + "", 0);
+		Date inserttime = new Date();// 添加时间
+		Date currTime = redmoneyrecord.getUseendtime();
+		String rbName = ConvertUtil.doubleConver(money) + "元" + flag;// 现金券名称
+		Redmoneyrecord redmoneyrecord2 = new Redmoneyrecord();
+		redmoneyrecord2.setUid(userId);
+		redmoneyrecord2.setMoney(money);
+		redmoneyrecord2.setRbName(rbName);
+		redmoneyrecord2.setInserttime(inserttime);
+		redmoneyrecord2.setActivesatus(1);
+		redmoneyrecord2.setActivetime(inserttime);
+		redmoneyrecord2.setUsestatus(1);
+		redmoneyrecord2.setIslock(1);
+		redmoneyrecord2.setRedmoneytype(redmoneyrecord.getRedmoneytype());
+		redmoneyrecord2.setLockendtime(inserttime);
+		redmoneyrecord2.setUseendtime(currTime);
+		long result = redmoneyrecordDao.addRedmoneyRecord(redmoneyrecord2);
+		if (result > 0) {
+			Fundrecord fundrecord = new Fundrecord();
+			fundrecord.setUserId(userId);
+			fundrecord.setFundMode(flag);
+			fundrecord.setHandleSum(money);
+			fundrecord.setUsableSum(usableSum);
+			fundrecord.setFreezeSum(freezeSum);
+			fundrecord.setDueinSum(0d);
+			fundrecord.setTrader(1L);
+			fundrecord.setRemarks("您获得一张<a href='userMeg.do?id=" + userId + "' target='_blank'>【" + money + "元】</a>" + flag);
+			fundrecord.setIncome(money);
+			fundrecord.setSpending(0d);
+			fundrecord.setBorrowId(-1L);
+			fundrecord.setRepaymentId(-1L);
+			fundrecord.setOperateType(251);
+			fundrecord.setDueoutSum(0d);
+			fundrecord.setRecordTime(new Date());
+			// 添加资金记录
+			long fundResult = fundrecordDao.insertFundrecord(fundrecord);
+			OperationLog operationLog = new OperationLog();
+			operationLog.setOperationTable("t_redmoneyrecord");
+			operationLog.setOperationUser(user.getUsername());
+			operationLog.setOperationIp(ip);
+			operationLog.setOperationType(0);
+			operationLog.setOperationMoney(0d);
+			operationLog.setOperationRemarks("增加" + flag);
+			operationLog.setUserId(userId);
+			operationLog.setOperationTime(new Date());
+			operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+			long operationLogResult = operationLogDao.addOperationLog(operationLog);
+			if (fundResult > 0 && operationLogResult > 0) {
+				userService.updateSign(userId);
+				return ajaxDoneInfo("200", flag + "增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", flag + "增加失败", "", "");
+			}
+		} else {
+			return ajaxDoneInfo("300", flag + "增加失败", "", "");
+		}
+	}
+
+	public String addRedmoneyrecordInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/fund/voucher/add.jsp";
+	}
+
+}

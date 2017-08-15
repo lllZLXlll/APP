@@ -1,0 +1,225 @@
+package com.pjzb.controller.app;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.service.front.MyManageService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+@Controller
+@RequestMapping(value = "/reactapp")
+public class AppMyManageController extends BaseController {
+	public static Log log = LogFactory.getLog(AppMyManageController.class);
+
+	@Autowired
+	private MyManageService myManageService;
+
+	/**
+	 * 投资管理
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/investManage")
+	@ResponseBody
+	public Map<String, Object> investManage() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(
+					myManageService.queryInvestManage(jsonObject, userId, Constants.REACTAPP, Constants.PAGE_SIZE_15));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "投资管理查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 收款明细
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/receiveDetails")
+	@ResponseBody
+	public Map<String, Object> receiveDetails() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(
+					myManageService.getMoneyDetail(jsonObject, userId, Constants.PAGE_SIZE_15, Constants.REACTAPP));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", " 收款明细查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 借款管理
+	 * 
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/loanManagement")
+	@ResponseBody
+	public Map<String, Object> loanManagement() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(
+					myManageService.queryborrowManage(jsonObject, userId, Constants.PAGE_SIZE_15, Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "借款管理查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 借款管理-》 查看合同
+	 * 
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/queryPactList")
+	@ResponseBody
+	public Map<String, Object> queryPactList() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			jsonMap.putAll(myManageService.queryHetongList(jsonObject, 5L));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "协议查看异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 还款明细列表
+	 * 
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/repaymentDetail")
+	@ResponseBody
+	public Map<String, Object> repaymentDetail() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(myManageService.queryRepaymentDetail(jsonObject, userId, Constants.PAGE_SIZE_15,
+					Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "还款明细查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 还款明细（明细）
+	 * 
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/findPayingDetailsByBorrowId")
+	@ResponseBody
+	public Map<String, Object> findPayingDetailsByBorrowId() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = requestAppJSONGetAttribute();
+			jsonMap.putAll(myManageService.findPayingDetailsByBorrowId(jsonObject, 5L, Constants.REACTAPP));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "还款明细查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 自动还款设置
+	 * 
+	 * @throws Exception
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/autoRepaymentInit")
+	@ResponseBody
+	public Map<String, Object> autoRepaymentInit() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		JSONObject jsonObject = requestAppJSONGetAttribute();
+		try {
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			jsonMap.putAll(myManageService.queryAutoRepayment(userId));
+			return jsonMap;
+		} catch (Exception e) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查询自动投标异常");
+			log.error(e);
+			e.printStackTrace();
+			return jsonMap;
+		}
+	}
+
+	/**
+	 * 自动还款设置
+	 */
+	@RequestMapping(value = "/autoRepayment")
+	@ResponseBody
+	public Map<String, Object> autoRepayment() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		JSONObject jsonObject = requestAppJSONGetAttribute();
+		int state = Integer.parseInt(jsonObject.get("status").toString());
+		long result = -1;
+		try {
+			Long userId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+			result = myManageService.addAutoRepayment(userId, state);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+
+		if (result <= 0) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "设置失败，请稍后再试！");
+			return jsonMap;
+		}
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "设置成功！");
+		return jsonMap;
+	}
+
+}

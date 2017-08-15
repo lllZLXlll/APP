@@ -1,0 +1,64 @@
+package com.pjzb.task;
+
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.dao.ExgoBorrowDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.Constants;
+import com.pjzb.util.IConstants;
+
+@Service
+public class JobAddExGoQuotaService {
+	private static Log log = LogFactory.getLog(JobAddExGoQuotaService.class);
+
+	@Autowired
+	private ExgoBorrowDao exgoBorrowDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	/**
+	 * 
+	 * @describe:添加100个体验金的名额
+	 * @author: xiaojin
+	 */
+	public void updatExGoAccount() {
+		log.info("--------------添加100个体验金的名额开始--------------");
+		long id = 1;
+		String descriptionm = "定时器自动增加体验金金额";
+		double annualRate = -1;// 默认12%
+		double borrowAmount = -1;
+		int deadline = 1;
+		long result = -1L;
+		// 判断是否添加体验金
+		if ("2".equals(ChinapnrConfig.ADDEXGO)) {
+			int num = Integer.parseInt(ChinapnrConfig.ADDEXGONUM);// 增加体验金的名额个数
+			borrowAmount = num * Double.parseDouble(ChinapnrConfig.ADDEXGOAMOUNT);// 每人18888元
+			annualRate = Double.parseDouble(ChinapnrConfig.ANNUALRATE);// 获取年利率
+			result = exgoBorrowDao.updateExGoBorrowAccount(descriptionm, annualRate, borrowAmount, Integer.parseInt(String.valueOf(deadline)), id);
+			if (result > 0) {
+				// 添加操作日志
+				OperationLog operationLog = new OperationLog();
+				operationLog.setOperationTable("t_exGo_borrow");
+				operationLog.setOperationUser("定时添加100个体验金的名额");
+				operationLog.setOperationIp("");
+				operationLog.setOperationType(IConstants.UPDATE);
+				operationLog.setOperationMoney(borrowAmount);
+				operationLog.setOperationRemarks("修改体验标额度类型");
+				operationLog.setUserId(-1L);
+				operationLog.setOperationTime(new Date());
+				operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+				operationLogDao.addOperationLog(operationLog);
+			}
+		}
+		log.info("--------------添加100个体验金的名额结束--------------");
+	}
+
+}

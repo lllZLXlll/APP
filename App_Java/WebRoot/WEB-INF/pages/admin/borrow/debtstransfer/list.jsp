@@ -1,0 +1,205 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<script type="text/javascript">
+</script>
+
+<div class="bjui-pageHeader">
+    <form id="pagerForm" data-toggle="ajaxsearch" action="queryApplyDebtInit.do?tabid=${tabid}" method="post">
+        <input type="hidden" name="pageSize" value="${pageBean.pageSize}">
+        <input type="hidden" name="pageCurrent" value="${pageBean.pageNum}">
+        <div class="bjui-searchBar">
+        <br/>
+            &nbsp;&nbsp;
+            <label>借款人：</label><input type="text" value="${borrowerName}" name="borrowerName" class="form-control" >&nbsp;
+            <label>转让人：</label><input type="text" value="${alienatorName}" name="alienatorName" class="form-control" >&nbsp;
+            <select name="debtStatus" id="borrowWay" data-toggle="selectpicker">
+                <option value="1" selected>申请转让</option>
+                <option value="2" ${debtStatus ==2?'selected':1}>转让中</option>
+                <option value="3" ${debtStatus ==3?'selected':1}>转让成功</option>
+                <option value="4" ${debtStatus ==4?'selected':1}>转让失败</option>
+            </select>&nbsp;
+            <button type="submit" class="btn-default" data-icon="search">查询</button>&nbsp;
+            <a class="btn btn-orange" href="javascript:;" data-toggle="reloadsearch" data-clear-query="true" data-icon="undo">清空查询</a>
+        </div>
+    </form>
+</div>
+<div class="bjui-pageContent tableContent">
+    <table class="table table-bordered table-hover table-striped table-top" data-selected-multi="true">
+        <thead>
+            <tr align="center">
+            	<th align="center">序号</th>
+                <th align="center">借款人</th>
+                <th align="center">标题</th>
+                <th align="center">转让人</th>
+                <th align="center">年利率</th>
+                <th align="center">债权期限</th>
+                <th align="center">转让金额</th>
+                <th align="center">转让价格</th>
+               	<c:choose> 
+					<c:when test="${debtStatus==2}">
+		                <th align="center">承接人</th>
+		                <th align="center">剩余时间</th>
+		                <th align="center">操作</th>
+					</c:when> 
+					<c:when test="${debtStatus==3}">
+						<th align="center">投资金额</th>
+		                <th align="center">承接人</th>
+		                <th align="center">结束时间</th>
+		                <th align="center">状态</th>
+		                <th align="center">操作</th>
+					</c:when> 
+					<c:when test="${debtStatus==4}">
+		                <th align="center">投资金额</th>
+		                <th align="center">承接人</th>
+		                <th align="center">结束时间</th>
+		                <th align="center">状态</th>
+		                <th align="center">操作</th>
+					</c:when> 
+					<c:otherwise>
+		                <th align="center">最近还款日</th>
+		                <th align="center">有无逾期</th>
+		                <th align="center">操作</th>
+					</c:otherwise>
+				</c:choose>
+            </tr>
+        </thead>
+        <tbody>
+        	<c:forEach items="${pageBean.page }" var="borrow" varStatus="status">
+              <tr data-id="65" align="center">
+                <td >${status.index+1+count }</td>
+                <td >${borrow.borrowerName }</td>
+                <td>
+                	<a href="../WEB-PC/invest.html?id=${borrow.id }" target="_blank">${borrow.borrowTitle}</a>
+                </td>
+                <td>${borrow.alienatorName }</td>
+                <td>${borrow.annualRate }%</td>
+                <td>${borrow.debtLimit}个月</td>
+                <td>${borrow.debtSum}元</td>
+                <td>${borrow.auctionBasePrice}元</td>
+               	<c:choose> 
+					<c:when test="${debtStatus==2}">
+						<td align="center">
+							${borrow.auctionerName}
+						</td>
+						<td align="center">
+							${borrow.remainDays }
+						</td>
+						<td>
+							<a href="../WEB-PC/creditor.html?id=${borrow.id}" target="_blank" class="btn btn-green">查看</a>
+							<button type="button" class="btn-red" data-url="cancelManageDebt.do?id=${borrow.id}&tabid=${tabid}" data-toggle="doajax"  data-confirm-msg="确定撤回吗？">撤回</button>&nbsp;
+						</td>
+					</c:when> 
+					<c:when test="${debtStatus==3}">
+						<td align="center">
+							${borrow.realAmount}
+						</td>
+						<td align="center">
+							${borrow.auctionerName}
+						</td>
+						<td align="center">
+							<fmt:formatDate value="${borrow.auctionEndTime}" pattern="yyyy-MM-dd"/>
+						</td>
+						<td align="center">
+							转让成功
+						</td>
+						<td>
+							<a href="queryManageDebtDetail.do?id=${borrow.id}&borrowerName=${borrow.borrowerName}&alienatorName=${borrow.alienatorName}&borrowTitle=${borrowTitle}&tabid=${tabid}" data-toggle="dialog" data-id="borrowFullScaleDetail" data-mask="true" data-width="700" data-height="500" class="btn btn-green">查看</a>
+						</td>
+					</c:when> 
+					<c:when test="${debtStatus==4}">
+						<td align="center">
+							${borrow.realAmount}
+						</td>
+						<td align="center">
+							${borrow.auctionerName}
+						</td>
+						<td align="center">
+							<fmt:formatDate value="${borrow.auctionEndTime}" pattern="yyyy-MM-dd"/>
+						</td>
+						<td align="center">
+							<c:choose>
+								<c:when test="${borrow.debtStatus==4 }">竞拍失败</c:when>
+								<c:when test="${borrow.debtStatus==5 }">撤销</c:when>
+								<c:when test="${borrow.debtStatus==6 }">审核不通过</c:when>
+								<c:when test="${borrow.debtStatus==7 }">提前还款</c:when>
+							</c:choose>
+						</td>
+						<td>
+							<a href="queryManageDebtDetail.do?id=${borrow.id}&borrowerName=${borrow.borrowerName}&alienatorName=${borrow.alienatorName}&borrowTitle=${borrowTitle}&tabid=${tabid}" data-toggle="dialog" data-id="borrowFullScaleDetail" data-mask="true" data-width="700" data-height="500" class="btn btn-green">查看</a>
+						</td>
+					</c:when> 
+					<c:otherwise>
+		                <td>${borrow.repayDate}</td>
+		                <td>
+		                	 <c:choose> 
+								<c:when test="${borrow.isLate==1}">
+									无
+								</c:when> 
+								<c:otherwise>
+		                			有
+								</c:otherwise>
+							</c:choose>  
+						</td>
+		                <td>   
+		                	<a href="queryApplyDebtAuditDetail.do?id=${borrow.id}&borrowerName=${borrow.borrowerName}&alienatorName=${borrow.alienatorName}&isLate=${isLate}&borrowTitle=${borrowTitle}&tabid=${tabid}" data-toggle="dialog" data-id="borrowFullScaleDetail" data-mask="true" data-width="700" data-height="700" class="btn btn-green">审核</a>
+		                </td>
+					</c:otherwise>
+				</c:choose>
+            </tr>
+            </c:forEach>
+        </tbody>
+    </table>
+</div>
+<div class="bjui-pageFooter">
+    <div class="pages">
+        <span>每页&nbsp;</span>
+        <div class="selectPagesize">
+            <select data-toggle="selectpicker" data-toggle-change="changepagesize">
+            	<option value="20">20</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+                <option value="120">120</option>
+                <option value="150">150</option>
+            </select>
+        </div>
+        <span>&nbsp;条，共 ${pageBean.totalNum } 条， 共 ${pageBean.totalPageNum } 页    
+	        <c:choose> 
+	        	<c:when test="${debtStatus==1}">
+        			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当前页的申请债权转让金额合计:	￥${debtSumm} &nbsp;&nbsp;&nbsp;&nbsp;所有申请债权转让金额合计:	￥
+                	 <c:choose> 
+						<c:when test="${applydebtMap.applydebtSum==''}">
+							0.00
+						</c:when> 
+						<c:otherwise>
+        					${applydebtMap.applydebtSum}
+						</c:otherwise>
+					</c:choose>
+				</c:when>
+				<c:when test="${debtStatus==3}">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当前页成功的债权转让金额合计:	￥${debtSumm} &nbsp;&nbsp;&nbsp;&nbsp;所有成功的债权转让金额合计:	￥
+                	 <c:choose> 
+						<c:when test="${applydebtMap.applydebtSum==''}">
+							0.00
+						</c:when> 
+						<c:otherwise>
+        					${applydebtMap.applydebtSum}
+						</c:otherwise>
+					</c:choose>
+				</c:when>
+				<c:when test="${debtStatus==4}">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当前页失败的债权转让金额合计:	￥${debtSumm} &nbsp;&nbsp;&nbsp;&nbsp;所有失败的债权转让金额合计:	￥
+                	 <c:choose> 
+						<c:when test="${applydebtMap.applydebtSum==''}">
+							0.00
+						</c:when> 
+						<c:otherwise>
+        					${applydebtMap.applydebtSum}
+						</c:otherwise>
+					</c:choose>
+				</c:when>
+			</c:choose>  
+		</span>
+    </div>
+    <div class="pagination-box" data-toggle="pagination" data-total="${pageBean.totalNum }" data-page-size="${pageBean.pageSize }" data-page-current="1">
+    </div>
+</div>

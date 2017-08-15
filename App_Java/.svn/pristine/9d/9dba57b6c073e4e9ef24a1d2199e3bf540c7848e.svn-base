@@ -1,0 +1,4733 @@
+
+/*
+ * shulin.wu@pujinziben.com
+ * date 2016/08/05
+ *
+ */
+$(function(){ 
+//	FastClick.attach(document.body);
+	//首次加载等待
+	/*var firstLoadIng = document.createElement('div');
+	firstLoadIng.setAttribute('class','loadingDialog')
+	firstLoadIng.innerHTML = '<div class="spinner">'+
+				  '<div class="double-bounce1"></div>'+
+				  '<div class="double-bounce2"></div>'+
+				'</div>';
+	document.body.appendChild(firstLoadIng);*/
+	if(window.top!=window.self){
+		window.top.location = window.self.location;
+	};
+	var isWuHeng = isLocalStorageSupported();
+	var timeInt,timeInterval,AmtRegExp =/^(([1-9]\d{0,9})|0)(\.\d{1,2})?$/,mobilePhone = /^(13[0-9]|14[7-9]|15[0-9]|18[0-9]|17[0-9])[0-9]{8}$/;
+	var Storage = {
+			setItem:function(key,val){
+				if(isWuHeng){
+					window.localStorage.setItem(key,val);
+				}else{
+					setCookie(key,val,{maxAge:300000});
+				}
+			},
+			getItem:function(key){
+				if(isWuHeng){
+					return window.localStorage.getItem(key);
+				}else{
+					var name = getCookie(key);
+					return name;
+				}
+			},
+			clear:function(){
+				if(isWuHeng){
+					window.localStorage.clear();
+				}else{
+					clearCookie();
+				}
+			}
+	};
+	function isLocalStorageSupported() {
+	    var testKey = 'testWu',
+	        storage = window.sessionStorage;
+	    try {
+	        storage.setItem(testKey, 'testValue');
+	        storage.removeItem(testKey);
+	        return true;
+	    } catch (error) {
+	        return false;
+	    }
+	}
+	function getCookiesObj(){
+       var cookies = {};
+         if(document.cookie){
+             var objs = document.cookie.split('; ');
+             for(var i in objs){
+                 var index = objs[i].indexOf('='),
+                     name = objs[i].substr(0, index),
+                     value = objs[i].substr(index + 1, objs[i].length);    
+                 cookies[name] = value;
+             }
+         }
+         return cookies;
+     }
+	function setCookie(name, value,opts){
+         if(name && value){
+             var cookie = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+             if(opts){
+                 if(opts.maxAge){
+                     cookie += '; max-age=' + opts.maxAge; 
+                 }
+             }
+             document.cookie = cookie;
+         }else{
+             return '';
+         }
+	};
+	//获取cookie
+	function getCookie(name){
+	    return decodeURIComponent(getCookiesObj()[name]) || null;
+	};
+	//清除所有cookie
+    function clearCookie(){
+        var cookies = getCookiesObj();
+        for(var key in cookies){
+            document.cookie = key + '=; max-age=0';
+        }
+    }
+	var app = {};
+	app.ajax = function(options){
+		if(options)
+			options.type = 'post';
+		var DateTime = new Date().getTime();
+		if(Storage.getItem('customerId') && (DateTime - Storage.getItem('time'))>300000 && options.url!='../front/login.do'){
+			$.alert('您的登录已经超时，请重新登录！',function(){
+				Storage.clear();
+				router.go({path:'/login',query:{show:true}});
+			});
+		}else{
+			Storage.setItem('time',DateTime);
+			ajaxLoad();
+			return $.ajax(options);
+		}
+	};
+	$(document).on('ajaxComplete', function(e, xhr, options){
+		ajaxLoad(true);
+		if(JSON.parse(xhr.response).msg == '999'){
+			$.alert('系统维护中',function(){
+    			window.location.href = '../network/appweihu.jsp'
+    		})
+		};
+	})
+// input绑定取值
+Vue.directive('getvalue', {
+  twoWay: true,
+  bind: function () {
+    this.handler = function () {
+      this.set(this.el.value)
+    }.bind(this)
+    this.el.addEventListener('input', this.handler)
+  },
+  unbind: function () {
+    this.el.removeEventListener('input', this.handler)
+  }
+});
+Vue.directive('touch', {
+    isFn : true,
+    acceptStatement: true,
+    bind : function(fn) {
+    },
+    update : function(fn) {
+    	var self = this; //存下this，方便以后用
+        //在directive上绑定的属性和方法
+        self.tapObj = {}; //初始化我们的tap对象
+        if(self.arg == 'tap'){
+        	self.tap = function(e) { 
+    	        e.tapObj = self.tapObj; 
+    	        fn.call(self,e);
+    	    };
+        }
+        if(self.arg == 'start'){
+		    self.start = function(e) {
+		        e.tapObj = self.tapObj; 
+		        fn.call(self,e);
+		    };
+        }
+        if(self.arg == 'end'){
+		    self.end = function(e) {
+		        e.tapObj = self.tapObj; 
+		        fn.call(self,e);
+		    };
+        }
+        if(self.arg == 'move'){
+		    self.move = function(e) {
+		        e.tapObj = self.tapObj; 
+		        fn.call(self,e);
+		    };
+        }
+	    this.el.addEventListener('touchstart',function(e) {
+	    	stopDefault(e);
+	        self.touchstart(e,self);
+	    },false);
+	    this.el.addEventListener('touchend',function(e) {
+	    	stopDefault(e);
+	        self.touchend(e,self,fn);
+	    },false);
+	    this.el.addEventListener('touchmove',function(e) {
+	    	stopDefault(e);
+	        self.touchmove(e,self,fn);
+	    },false);
+    },
+    unbind : function() {},
+    isTap : function() {
+    	var tapObj = this.tapObj;
+        return this.time < 150 && Math.abs(tapObj.distanceX) < 2 && Math.abs(tapObj.distanceY) < 2;
+    },
+    touchstart : function(e,self) {
+    	var touches = e.touches[0];
+        var tapObj = self.tapObj;
+        tapObj.pageX = touches.pageX;
+        tapObj.pageY = touches.pageY;
+        tapObj.clientX = touches.clientX;
+        tapObj.clientY = touches.clientY;
+        self.time = +new Date();
+        if(self.arg == 'start')
+        self.start(e);
+    },
+    touchend : function(e,self) {
+    	var touches = e.changedTouches[0];
+        var tapObj = self.tapObj;
+        self.time = +new Date() - self.time;
+        tapObj.distanceX = tapObj.pageX - touches.pageX;
+        tapObj.distanceY = tapObj.pageY - touches.pageY;
+        if (self.isTap(tapObj)){
+        	self.tap(e);
+        }
+        if(self.arg == 'end')
+    	self.end(e);
+            
+    },
+    touchmove : function(e,self){
+    	var touches = e.touches[0];
+    	var tapObj = self.tapObj;
+    	tapObj.pageX = touches.pageX;
+        tapObj.pageY = touches.pageY;
+        tapObj.clientX = touches.clientX;
+        tapObj.clientY = touches.clientY;
+        if(self.arg == 'move')
+        self.move(e);
+    }
+});
+function stopDefault( e ) { 
+    if ( e && e.preventDefault ) 
+        e.preventDefault(); 
+    else 
+        window.event.returnValue = false; 
+    return false; 
+}
+//Vue.filter('currencyDisplay', {
+//  // model -> view
+//  // 在更新 `<input>` 元素之前格式化值
+//  read: function(val) {
+//    return val.toFixed(2);
+//  },
+//  // view -> model
+//  // 在写回数据之前格式化值
+//  write: function(val, oldVal) {
+//    var number = +val.replace(/[^\d.]/g, '');
+//    return isNaN(number) ? 0 : parseFloat(number.toFixed(2));
+//  }
+//});
+//input绑定取值
+Vue.directive('currencyDisplay', {
+  bind: function () {
+    this.handler = function () {
+      this.el.value = this.el.value.toFixed(2)
+    }.bind(this)
+    this.el.addEventListener('input', this.handler)
+  },
+  unbind: function () {
+    this.el.removeEventListener('input', this.handler)
+  }
+});
+Vue.directive('checkmoney', {
+  twoWay: true,
+  bind: function () {
+    this.handler = function () {
+    	//alert(/^(([1-9]\d{0,9})|0)(\.\d{1,2})?$/.test(this.el.value));
+    }.bind(this);
+    this.el.addEventListener('input', this.handler)
+  },
+  unbind: function () {
+    this.el.removeEventListener('input', this.handler)
+  }
+});
+//filter
+Vue.filter('bankNumber', function (value) {
+	var i = value.length-4;
+	return value.substr(i);
+});
+/*定义APP外部显示，事件等*/
+var App = Vue.extend({
+  data: function(){
+  	return 	{
+		    left:false,
+		    right:false,
+		    fromUrl:'',
+		    title:'投资',
+		    display: true,
+		    rightText:'',
+		    footerList:[
+		    	{aLink:{path:"/index",activeClass:"active"},name:'投资',iconClass:'icon-investment',notice:false},
+		    	{aLink:{path:"/about",activeClass:"active"},name:'关于',iconClass:'icon-center',notice:false},
+		    	{aLink:{path:"/account",activeClass:"active"},name:'账户',iconClass:'icon-about',notice:false}
+		    ]
+		}//v-link='+'{path:"/about",activeClass:"mui-active"}'+'
+	},
+	methods:{
+		back: function(){
+			//this.$set('right',false);
+			history.go(-1);
+		},
+		openPanel:function(){
+			var id = this.openPanelId;
+			$.openPanel($('#'+id));
+		},
+		toFund:function(list){
+			if(!Storage.getItem('uid')){
+				$.alert('您未登录，请登录后再投标！',function(){
+					router.go({name:'login',query:{show:true}});
+				})
+				return;
+			};
+			if(!Storage.getItem('ipayAccount')){
+				$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+					router.go({path:'/registpay'});
+				});
+				return;
+			};
+			if(list.borrowStatus!=2){return};
+			router.go({name:'detail',query:{id:list.id,type:'fund'}});
+		}
+	},
+	replace: false,
+	template: '<div id="pjzb_app"><header class="bar bar-nav">'+
+		'<a v-show="left" @click="back" class="pull-left back"><i class="icon">&#xe604;</i></a>'+
+		'<button v-if="right" v-on:click="openPanel" class="button button-link button-nav pull-right">{{rightText}}</button>'+
+		'<h1 class="title">{{title}}</h1>'+
+	'</header>'+
+		'<router-view transition="fadeIn"></router-view>'+
+	'<nav v-show="display"  class="bar bar-tab">'+
+			'<template v-for="list in footerList">'+
+			'<a  v-link="list.aLink" class="tab-item external">'+
+				'<span class="icon icon-color" :class="[list.iconClass]"></span>'+
+				'<span class="tab-label">{{list.name}}</span>'+
+			'</a>'+
+			'</template>'+
+		'</nav></div>'
+});
+// public components
+var DialogLoading = new Vue({
+  data: { show: false },
+  methods: {
+		showDialog: function(){
+			this.$set('show',true);
+		},
+		hideDialog: function(){
+			this.$set('show',false);
+		}
+	},
+  template:'<div v-if="show" class="dialog-loading"><div class="loader-inner"><div></div></div></div>'
+});
+
+DialogLoading.$mount().$appendTo(document.body);
+/*
+ * index ,banner,produce,pro
+ * buy wu
+ */
+
+var Banner = Vue.extend({
+	data: function(){
+		return {
+			accountData:[],
+			imgList:[
+					{bannerPath:'images/banner/banner_010.jpg',link:""},
+					{bannerPath:'images/banner/banner_009.jpg',link:"/dynamicdetail",query:{flag:1,id:62}},
+			        // {bannerPath:'images/banner/banner_001.jpg',link:"wap/activity/activity_01.html"},
+			        // {bannerPath:'images/banner/banner_002.jpg',link:"wap/activity/activity_02.html"},
+			        // {bannerPath:'images/banner/banner_003.jpg',link:"wap/activity/activity_03.html"},
+					{bannerPath:'images/banner/banner_002.png',link:""}
+					]
+		}
+	},
+	ready: function(){
+		//this.beginSwiper();
+	},
+	methods: {
+		beginSwiper: function(){
+			$(".swiper-container").swiper({
+		        speed: 400,
+		        spaceBetween:0,
+		        autoplay: 2000
+		    })
+		},
+		toDetail:function(href,query){
+			if(href){
+				if(href.indexOf('activity')>-1){
+					window.location.href='../'+href;
+				}else{
+					router.go({path:href,query:query});
+				}
+				
+			}
+		}
+	},
+	filters:{
+		isZero:function(value){
+			if(value){
+				return value;
+			}else{
+				return 0;
+			}
+		},
+	},
+	template:'<div class="swiper-container" data-space-between="10">'+
+		        '<div class="swiper-wrapper">'+
+		          '<template v-for="img in imgList">'+
+		          '<div class="swiper-slide" @click="toDetail(img.link,img.query)"><img :src="img.bannerPath" alt=""></div>'+
+		          '</template>'+
+		        '</div>'+
+		        '<div class="index-top flex">'+
+		          '<p class="flex-1">累计投资：<span>{{accountData[0] | isZero}} 元</span></p><p class="flex-1">累计注册：<span>{{accountData[1]  | isZero}} 人</span></p>'+
+		        '</div>'+
+		      '</div>'
+});
+//首页新闻
+var Indexnews = Vue.extend({
+	props: ['data'],
+	compiled: function(){
+		// console.log(data)
+	},
+	data:function(){
+		return {
+			newsList:[]
+		}
+	},
+	methods:{
+		noticeSlide:function(obj){
+		  if(!this.newsList){
+			  return;
+		  }
+		  if(this.newsList.length <= 1){
+			  return;
+		  }
+		  clearInterval(timeInt);
+		  $('.notice-slider').css({transform: 'translate3d(0,0,0)'});
+		  var size = this.newsList.length;
+		  var index = 0; 
+		  timeInt = setInterval(function () {
+			  index++;
+			  if(index == size){
+				  index=0;
+			  };
+			  //此处不兼容
+              $('.notice-slider').css(
+            		  {'transform': 'translate3d(0,-' + (index * 2) + 'rem,0)'},
+            		  {'-webkit-transform':'translate3d(0,-' + (index * 2) + 'rem,0)'}
+            		  );
+          }, 2000);
+		},
+		toDetail:function(sort,id){
+			router.go({path:'/dynamicdetail',query:{flag:1,id:id}});
+		}
+	},
+	ready:function(){
+		this.noticeSlide($('.notice-slider'));
+	},
+	template:'<div class="index-notice flex">'+
+		        '<i class="icon icon-color">&#xe605;</i>'+
+		        '<div class="notice-box"><ul class="notice-slider"><li v-for="list in newsList"><a @click="toDetail(list.sort,list.id)">{{list.title}}</a></li></ul></div>'+
+		      '</div>'
+});
+//首页顶部数据
+var Indextop = Vue.extend({
+	template:'<div class="index-logo"><div class="row no-gutter"><div class="col-33">'+
+            '<i class="icon">&#xe60a;</i>'+
+            '<p>实力雄厚</p>'+
+            '<span>国资背景</span></div><div class="col-33">'+
+            '<i class="icon">&#xe60c;</i>'+
+            '<p>安全稳健</p>'+
+            '<span>资金保障</span></div><div class="col-33">'+
+            '<i class="icon">&#xe60b;</i>'+
+            '<p>新手福利</p>'+
+            '<span>注册有奖</span></div></div></div>'
+});
+//体验标
+var Productyan = Vue.extend({
+	ready:function(){
+		this.$set('listData',this.$parent.listData);
+	},
+	data: function(){
+		return {
+			listData:[]
+		}
+	},
+	methods:{
+		toBid: function(list){
+			if(!Storage.getItem('uid')){
+				$.alert('您未登录，请登录后再投标！',function(){
+					router.go({name:'login',query:{show:true}});
+				})
+				return;
+			};
+			if(!Storage.getItem('ipayAccount')){
+				$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+					router.go({path:'/registpay'});
+				});
+				return;
+			};
+			if(list.borrowStatus!=2){return};
+			router.go({name:'detail',query:{id:list.id,type:'tiyan'}});
+		},
+		showTiYan:function(){
+			if(this.listData.length>0){
+				return false;
+			}else{
+				return true;
+			}
+		}
+	},
+	template:'<div class="pro-content" v-if="showTiYan()">'+
+          '<ul class="row no-gutter">'+
+            '<li class="col-40"><p>理财体验标</p><span>首次注册用户专享</span></li>'+
+            '<li class="col-25"><p>{{listData.annualRate}}%</p><span>年利率</span></li>'+
+            '<li class="col-33"><p>{{listData.deadline}}<em>天</em></p><span>投资期限</span></li>'+
+          '</ul>'+
+          '<div class="pro-submit">'+
+            '<p class=""><button type="button" @click="toBid(listData)" class="btn btn-buy">立即投标</button></p>'+
+          '</div>'+
+          '<img class="pro-img" src="images/ty.png">'+
+        '</div>'
+});
+//新手标
+var Productnew = Vue.extend({
+	ready:function(){
+		this.$set('tableData',this.$parent.tableData);
+	},
+	data: function(){
+		return {
+			tableData:[]
+		}
+	},
+	methods:{
+		toBid: function(list){
+			this.$root.toFund(list);
+		},
+		toDetail: function(list){
+			router.go({name:'detail',query:{id:list.id,type:'detail'}});
+		},
+		thisHtml: function(borrow){
+			if(borrow == 1){
+				return '初审中';
+			}else if(borrow == 2){
+				return '立即投标';
+			}else if(borrow == 3){
+				return '复审中';
+			}else if(borrow == 4){
+				return '还款中';
+			}else if(borrow == 5){
+				return '已还完';
+			}else{
+				return '流标';
+			}
+		},
+		showXinshou:function(){
+			if(this.tableData.length>0){
+				return false;
+			}else{
+				return true;
+			}
+		}
+	},
+	template:'<div class="pro-content pro-content-new" v-if="showXinshou()">'+
+          '<ul class="row no-gutter">'+
+            '<li class="col-40"><p @click="toDetail(tableData)">新手专享标</p><span>首次注册用户专享</span></li>'+
+            '<li class="col-25"><p>{{tableData.annualRate}}%</p><span>年利率</span></li>'+
+            '<li class="col-33"><p>{{tableData.deadline}}<em>月</em></p><span>投资期限</span></li>'+
+          '</ul>'+
+          '<div class="pro-submit">'+
+            '<p class=""><i class="pro-line"><em class="pro-line-em" :style={width:tableData.schedules+"%"}></em></i><span class="line-num">{{tableData.schedules}}%</span></p>'+
+            '<p class=""><button @click="toBid(tableData)" class="btn btn-buy btn-blue" v-bind:class="{ btnDisabled:tableData.borrowStatus!=2}" v-html="thisHtml(tableData.borrowStatus)"></button></p>'+
+          '</div>'+
+          '<img class="pro-img" src="images/xs.png" alt="">'+
+        '</div>'
+});
+//热门推荐
+var Producthot = Vue.extend({
+	data:function(){
+		return {
+			productList:[],
+			showMore:false
+		}
+	},
+	methods: {
+		thisHtml: function(borrow){
+			if(borrow == 1){
+				return '初审中';
+			}else if(borrow == 2){
+				return '立即投标';
+			}else if(borrow == 3){
+				return '复审中';
+			}else if(borrow == 4){
+				return '还款中';
+			}else if(borrow == 5){
+				return '已还完';
+			}else{
+				return '流标';
+			}
+		},
+		toBid: function(list){
+			this.$root.toFund(list);
+		},
+		toDetail: function(list){
+			router.go({name:'detail',query:{id:list.id,type:'detail'}});
+		}
+	},
+	ready:function(){
+		if(this.productList.length>3){
+			this.$set('showMore',true);
+		}
+	},
+	filters:{
+		titleCake:function(value){
+			if(value.length>6){
+				return value.substring(0,6)+'...';
+			}else{
+				return value.substring(0,6);
+			}
+			
+		}
+	},
+	template:'<div class="pro-hot"><h3 class="pro-hot-title">热门推荐</h3>'+
+				'<template v-for="list in productList">'+
+				'<div class="pro-content" v-bind:class="{pro_orange: list.borrowWay==4}">'+
+		          '<ul class="row no-gutter">'+
+		            '<li class="col-50"><p @click="toDetail(list)"><span class="pro-group">{{list.borrowTitle | titleCake}}</span><span class="pro-text" v-if="list.transferable==1">可转让</span></p><span>融资金额：{{list.borrowAmount}}</span></li>'+
+		            '<li class="col-20"><p>{{list.annualRate}}%</p><span>年利率</span></li>'+
+		            '<li class="col-30"><p>{{list.deadline}}<em>月</em></p><span>投资期限</span></li>'+
+		          '</ul>'+
+		          '<div class="pro-submit">'+
+		            '<p><i class="pro-line"><em class="pro-line-em" :style={width:list.schedules+"%"}></em></i><span class="line-num">{{list.schedules}}%</span></p>'+
+		            '<p><button class="btn btn-buy" @click="toBid(list)" v-bind:class="{ btnDisabled:list.borrowStatus!=2}" v-html="thisHtml(list.borrowStatus)"></button></p>'+
+		          '</div>'+
+		        '</div></template><div v-if="showMore" class="index-list-bottom"><a v-link={path:"/productlist"}>查看更多</a></div></div>'
+});
+var Productlist = Vue.extend({
+	compiled:function(){
+		setAppConfig('投资理财',true,false);
+	},
+	data:function(){
+		return {
+			dataOne:[
+			         {text:'综合排序',value:'1'},
+			         {text:'收益率由高到低',value:'2'},
+			         {text:'收益率由低到高',value:'3'},
+			         {text:'发布时间由新到旧',value:'4'},
+			         {text:'发布时间由旧到新',value:'5'},
+			         {text:'项目期限由长到短',value:'6'},
+			         {text:'项目期限由短到长',value:'7'}
+			         ],
+            dataTwo:[
+			         {text:'项目期限',value:'0',model:'partTwo'},
+			         {text:'1-3个月',value:'1',model:'partTwo'},
+			         {text:'3-6个月',value:'2',model:'partTwo'},
+			         {text:'6-9个月',value:'3',model:'partTwo'},
+			         {text:'大于9个月',value:'4',model:'partTwo'}
+			         ],
+            dataThree:[
+			         {text:'年化收益',value:'0',model:'partThree'},
+			         {text:'≤10%',value:'1',model:'partThree'},
+			         {text:'10%-15%',value:'2',model:'partThree'},
+			         {text:'15%-25%',value:'3',model:'partThree'}
+			         ],
+            dataFour:[
+			         {text:'项目类型',value:'0',model:'dataFour'},
+			         {text:'普金保',value:'4',model:'dataFour'},
+			         {text:'恒金保',value:'6',model:'dataFour'},
+			         {text:'多金宝',value:'3',model:'dataFour'}
+			         ],
+			showData:[false,false,false,false],
+			showText:['综合排序','项目期限','年化收益','项目类型'],
+			showModal:false,
+			partOne:'1',
+			partTwo:'0',
+			partThree:'0',
+			partFour:'0',
+			listNum:1,
+			dataList:[],
+			loading:false,
+			model:false,
+			totalPageNum:'',
+			showLength:false,
+			tt:'0',xx:'0',yy:'0',
+			rates:'',timeers:'',deadlines:'',flages:''
+		}
+	},
+	route:{
+	    data: function(transition){
+	    	var _this = this;
+	    	var param={
+	    			curPage:_this.listNum,
+	    			tt:'',
+	    			yy:'',
+	    			xx:'',
+	    			rates:'',
+	    			timeers:'',
+	    			deadlines:'',
+	    			titles:'',
+	    			flages:''};
+	    	app.ajax({
+	            url:'../front/financeList.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error == '0'){
+	            		_this.$set('dataList',data.pageBean.page);
+	            		_this.$set('totalPageNum',data.pageBean.totalPageNum);
+		        		if(data.pageBean.page.length>0){
+		        			if(data.pageBean.totalNum>10){
+		        				//$.attachInfiniteScroll($('.infinite-scroll'));
+		        			}else{
+		        				//$.detachInfiniteScroll($('.infinite-scroll'));
+		        				_this.$set('model',false);
+		        			}
+		        		}
+	            	}
+	            },
+	            complete:function(){
+	            	transition.next();
+	            }
+	        })
+	    },
+	    waitForData: true
+	},
+	ready: function(){
+		//$.attachInfiniteScroll('.infinite-scroll');
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦');
+				_this.$set('model',false);
+				_this.$set('loading',false);
+				$.detachInfiniteScroll($('.infinite-scroll'));
+				return;
+			}
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={
+					curPage:_this.listNum,
+					tt:_this.tt,
+					yy:_this.yy,
+					xx:_this.xx,
+					rates:_this.rates,
+					timeers:_this.timeers,
+					deadlines:_this.deadlines,
+	    			titles:'',
+					flages:_this.flages
+				};
+			app.ajax({
+		        url:'../front/financeList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			if(data.pageBean.page.length<10){
+		        				_this.$set('model',false);
+		        			}
+		        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+	},
+	filters:{
+		titleCake:function(value){
+			if(value.length>6){
+				return value.substring(0,6)+'...';
+			}else{
+				return value.substring(0,6);
+			}
+		}
+	},
+	methods:{
+		chose:function(index){
+			var _this = this;
+			_this.$set('showModal',true);
+			switch(index)
+			{
+			case 1:
+				_this.$set('showData',[true,false,false,false]);
+			  break;
+			case 2:
+				_this.$set('showData',[false,true,false,false]);
+			  break;
+			case 3:
+				_this.$set('showData',[false,false,true,false]);
+				break;
+			case 4:
+				_this.$set('showData',[false,false,false,true]);
+				break;
+			default:
+			  return;
+			};
+		},
+		hideCard:function(){
+			var _this = this;
+			_this.$set('showModal',false);
+			_this.$set('showData',[false,false,false,false]);
+		},
+		submit: function(){
+			var _this = this;
+			_this.hideCard();
+			//由于model跟新数据会有一定的延迟
+			setTimeout(function(){
+//				if(_this.partOne!='1'){
+					switch(_this.partOne){
+						case '1':
+							_this.$set('rates','');_this.$set('timeers','');_this.$set('deadlines','');_this.$set('flages','');break;
+						case '2':
+							_this.$set('rates','1');_this.$set('timeers','');_this.$set('deadlines','');_this.$set('flages','2');break;
+						case '3':
+							_this.$set('rates','2');_this.$set('timeers','');_this.$set('deadlines','');_this.$set('flages','1');break;
+						case '4':
+							_this.$set('timeers','1');_this.$set('rates','');_this.$set('deadlines','');_this.$set('flages','4');break;
+						case '5':
+							_this.$set('timeers','2');_this.$set('rates','');_this.$set('deadlines','');_this.$set('flages','3');break;
+						case '6':
+							_this.$set('deadlines','1');_this.$set('rates','');_this.$set('timeers','');_this.$set('flages','6');break;
+						case '7':
+							_this.$set('deadlines','2');_this.$set('rates','');_this.$set('timeers','');_this.$set('flages','5');break;
+					};
+//				};
+				_this.$set('tt',_this.partTwo);
+				_this.$set('yy',_this.partThree);
+				_this.$set('xx',_this.partFour);
+				_this.$set('listNum',1);
+				var param={
+						curPage:_this.listNum,
+						tt:_this.tt,
+						yy:_this.yy,
+						xx:_this.xx,
+						rates:_this.rates,
+						timeers:_this.timeers,
+						deadlines:_this.deadlines,
+		    			titles:'',
+						flages:_this.flage
+					};
+				app.ajax({
+			        url:'../front/financeList.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == 0){
+			        		_this.$set('dataList',data.pageBean.page);
+			        		if(data.pageBean.page.length>0){
+			        			_this.$set('showLength',false);
+			        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+			        			$('.pro-hot').scrollTop(0);
+			        			if(data.pageBean.totalNum>10){
+			        				$.attachInfiniteScroll($('.infinite-scroll'));
+			        			}else{
+			        				$.detachInfiniteScroll($('.infinite-scroll'));
+			        				_this.$set('model',false);
+			        			}
+			        		}else{
+			        			_this.$set('model',false);
+			        			_this.$set('showLength',true);
+			        		}
+			        	}else{
+			        		$.alert(data.msg)
+			        	}
+			        }
+			    });
+			},200);
+			
+		},
+		thisHtml: function(borrow){
+			if(borrow == 1){
+				return '初审中';
+			}else if(borrow == 2){
+				return '立即投标';
+			}else if(borrow == 3){
+				return '复审中';
+			}else if(borrow == 4){
+				return '还款中';
+			}else if(borrow == 5){
+				return '已还完';
+			}else{
+				return '流标';
+			}
+		},
+		toBid: function(list){
+			this.$root.toFund(list);
+		},
+		toDetail: function(list){
+			router.go({name:'detail',query:{id:list.id,type:'detail'}});
+		}
+	},
+	template:'<div class="content">'+
+		'<div class="card-tab flex"><a @click="chose(1)" v-bind:class="{active:showData[0]}">综合排序<i class="icon icon-bottom"></i></a><a @click="chose(2)" v-bind:class="{active:showData[1]}">项目期限<i class="icon icon-bottom"></i></a><a @click="chose(3)" v-bind:class="{active:showData[2]}">年化收益<i class="icon icon-bottom"></i></a><a @click="chose(4)" v-bind:class="{active:showData[3]}">项目类型<i class="icon icon-bottom"></i></a></div>'+
+		'<div class="card-radio">'+
+		'<ul class="card-radio-list" v-show="showData[0]" transition="fadeIn"><li v-for="list in dataOne"><label><input type="radio" name="partOne" v-model="partOne" v-bind:value="list.value"><p v-text="list.text" @click="submit"></p></label></li></ul>'+
+		'<ul class="card-radio-list" v-show="showData[1]" transition="fadeIn"><li v-for="list in dataTwo"><label><input type="radio" name="dataTwo" v-model="partTwo" value="{{list.value}}"><p v-text="list.text" @click="submit"></p></label></li></ul>'+
+		'<ul class="card-radio-list" v-show="showData[2]" transition="fadeIn"><li v-for="list in dataThree"><label><input type="radio" name="dataThree" v-model="partThree" value="{{list.value}}"><p v-text="list.text" @click="submit"></p></label></li></ul>'+
+		'<ul class="card-radio-list" v-show="showData[3]" transition="fadeIn"><li v-for="list in dataFour"><label><input type="radio" name="dataFour" v-model="partFour" value="{{list.value}}"><p v-text="list.text" @click="submit"></p></label></li></ul>'+
+		'</div>'+
+		'<div class="overlay" @click="hideCard()" v-show="showModal"></div>'+
+		'<div class="content pro-hot"><div class="infinite-scroll infinite-scroll-bottom" data-distance="100"><template v-for="list in dataList">'+
+		'<div class="pro-content" v-bind:class="{pro_orange: list.borrowWay==4}">'+
+          '<ul class="row no-gutter">'+
+            '<li class="col-50"><p @click="toDetail(list)"><span class="pro-group">{{list.borrowTitle | titleCake}}</span></p><span>融资金额：{{list.borrowAmount}}</span></li>'+
+            '<li class="col-20"><p>{{list.annualRate}}%</p><span>年利率</span></li>'+
+            '<li class="col-30"><p>{{list.deadline}}<em>月</em></p><span>投资期限</span></li>'+
+          '</ul>'+
+          '<div class="pro-submit">'+
+            '<p class=""><i class="pro-line"><em class="pro-line-em" :style={width:list.schedules+"%"}></em></i><span class="line-num">{{list.schedules}}%</span></p>'+
+            '<p class=""><button class="btn btn-buy" @click="toBid(list)" v-bind:class="{ btnDisabled:list.borrowStatus!=2}" v-html="thisHtml(list.borrowStatus)"></button></p>'+
+          '</div>'+
+        '</div></template><div v-if="showLength" class="invest-nobody">暂无相应产品</div></div><div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div></div>'+
+		'</div>'
+});
+//首页
+var Index = Vue.extend({
+	compiled: function(){
+		setAppConfig('投资',false,true);
+	},
+	route:{
+	    data: function(transition){
+	    	var _this = this;
+	    	var uid = Storage.getItem('uid') || '';
+	    	var param={uid:uid,type:'2'}; 
+	    	app.ajax({
+	            url:'../front/index.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error == '0'){
+	            		var total = [data.totalInvestAmountMap.investAmount,data.totalUserMap.userTotal];
+	            		var product = data.mapList3.concat(data.mapList4).concat(data.mapList7);
+	            		//参数排序
+	            		var productList = product.sort(function(a,b){
+	            			if(a.publishTime.time>b.publishTime.time){
+	            				return -1;
+	            			}else if(a.publishTime.time<b.publishTime.time){
+	            				return 1;
+	            			}else{
+	            				return 0;
+	            			}
+	            		});
+	            		var listData = data.mapList6[0],tableData = data.mapList5[0];
+	            		_this.$children[0].$set('accountData',total);
+	            		if(data.bannerList && data.bannerList.length>0){
+	            			_this.$children[0].$set('imgList',data.bannerList);
+	            			setTimeout(function(){
+	            				_this.$children[0].beginSwiper();
+	            			},1000)
+	            		}
+	            		_this.$children[1].$set('newsList',data.newsList);
+	            		_this.$set('listData',listData);
+	            		_this.$set('tableData',tableData);
+	            		_this.$children[5].$set('productList',productList);
+//	            		if(Storage.getItem('loginCount') == '1'){
+//	            			_this.$set('showTiyan',true);
+//	            			Storage.setItem('loginCount','2');
+//	            		}
+	            	}else{
+	            		$.alert(data.msg);
+	            	}
+	            	
+	            },
+	            complete:function(){
+	            	transition.next();
+	            }
+	        })
+	    },
+	    waitForData: true
+	},
+	data:function(){
+		return{
+			showTiyan:false
+		}
+	},
+	components: {
+        Banner: 	Banner,
+        Indexnews: 	Indexnews,
+        Indextop: 	Indextop,
+        Productyan: Productyan,
+        Productnew: Productnew,
+        Producthot: Producthot
+    },
+    methods:{
+    	goToTiyan:function(){
+    		this.$set('showTiyan',false);
+    		router.go({path:'/detail',query:{id:1,type:'tiyan'}});
+    	},
+    	closeBox:function(){
+    		this.$set('showTiyan',false);
+    	},
+		toActivity:function(){
+			window.location.href='../activity/0909m.html';
+		}
+    },
+	template:'<div class="content">'+
+	'<Banner></Banner>'+
+	'<Indexnews></Indexnews>'+
+	'<Indextop></Indextop>'+
+	'<div class="index-pro"><Productyan></Productyan><Productnew></Productnew></div>'+
+	'<Producthot></Producthot></div>'
+});
+//投标详情
+var Detail = Vue.extend({
+	compiled: function(){
+		var id = this.$route.query.id;
+		var type = this.$route.query.type;
+		if(!type){
+			type = Storage.getItem('DetailType');
+		}else{
+			Storage.setItem('DetailType',type);
+		};
+		var link = [{path:{path:'/detail?id='+id+'&type='+type+''},append:true},
+				    {path:{path:'/detail/risk?id='+id+''},append:true},
+				    {path:{path:'/detail/track?id='+id+''},append:true}];
+		this.$set('link',link);
+		this.$set('type',type);
+	},
+	data:function(){
+		return {
+			tagList:[true,false,false],
+			agreement:'',
+			closeAgree:false
+		}
+	},
+	methods:{
+		showFlag:function(){
+			if(this.type == 'tiyan'){
+				return false;
+			}else{
+				return true;
+			}
+		},
+		toDetailList:function(){
+			if(!Storage.getItem('uid')){
+				$.alert('您还未登录，请先登录！',function(){
+					router.go({path:'/login',query:{show:true}});
+				});
+				return;
+			};
+			router.go({path:'/detail/track?id='+this.$route.query.id+''});
+		},
+		AgreeMent:function(val){
+			var id = '31';
+			if(val == 1){
+				id='12'
+			};
+			var _this = this;
+			var param={TypeId:id};
+			app.ajax({
+	            url:'../querytips.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error == '0'){
+	            		_this.$set('agreement',data.content);
+	            		$.popup('.popup');
+	            		_this.$set('closeAgree',true);
+	            	}
+	            }
+	        })
+		},
+		closeAgreement:function(){
+			$.closeModal('.popup');
+			this.$set('closeAgree',false);
+		}
+	},
+	template:'<div class="content content-detial">'+
+				'<div class="buttons-tab shadow" v-if="showFlag()">'+
+				    '<a v-link="link[0].path" class="tab-link button" v-bind:class="{active:activeClass==1}">项目详情</a>'+
+				    '<a v-link="link[1].path" class="tab-link button" v-bind:class="{active:activeClass==2}">风险提示</a>'+
+				    '<a @click="toDetailList" class="tab-link button" v-bind:class="{active:activeClass==3}">投资记录</a>'+
+				'</div><router-view transition="fadeIn"></router-view ></div>'+
+				'<p class="agreement-btn" v-if="closeAgree" @click="closeAgreement">关闭</p><div class="popup popup-services"><div class="content-block" v-html="agreement"></div></div>'
+});
+//借款详情
+var Borrowdetail = Vue.extend({
+	compiled: function(){
+		setAppConfig('借款详情',true,false);
+	},
+	route:{
+		data:function(transition){
+			var param={id:this.$route.query.id};
+			var _this = this;
+			app.ajax({
+		        url:'../app/financeRiskControl.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		_this.$set('resultData',data);
+		        	}
+		        },complete: function(){
+		        	transition.next();
+		        }
+		    });
+			
+		},waitForData:true
+	},
+	template:'<div class="content risk"></div>'
+});
+//风险控制
+var Risk = Vue.extend({
+	compiled: function(){
+		setAppConfig('风险提示',true,false);
+		this.$parent.$set('activeClass',2);
+	},
+	filters:{
+		dbpath: function(value,a){
+			if(value == '' && a==0){
+				return '暂无担保';
+			}else if(value == '' && a==1){
+				return '暂无担保公司简介';
+			}else if(value == '' && a==2){
+				return '暂无二级担保';
+			}else if(value == '' && a==3){
+				return '暂无二级担保公司简介';
+			}else if(value == '' && a==4){
+				return '0';
+			}else{
+				return value;
+			}
+		}
+	},
+	template:'<div class="content risk">'+
+	'<div class="tips">'+
+	 '<p class="important">普金资本郑重提示：用户应自行对交易风险进行全面了解、充分认识、谨慎决策，用户应对其决策承担全部责任并承担全部'+
+	 '风险。如用户通过普金资本平台进行下一步操作，即表示已经认真阅读本提示书并完全了解与接受。</p>'+
+	 '<p class="important">一、政策风险</p>'+
+	 '<p>因国家宏观政策和相关法律法规发生变化，可能引起价格方面的异常波动，用户可能因此遭受损失。</p>'+
+	 '<p class="important">二、信用风险</p>'+
+	 '<p>普金资本不对本金和收益提供任何保证或承诺。若平台项目发生逾期还款，由平台合作机构保理公司或担保公司在 30 个工作日内进行债权回购。合作机构在发生最不利情况下（可能但并不一定发生），项目进入司法程序，可能不利于用户实现项目的预期收益甚至本金遭受损失。</p>'+
+	 '<p class="important">三、信息传递风险</p>'+
+	 '<p>普金资本将按协议约定进行信息披露，用户应充分关注并及时主动查询交易信息，如未及时查询，或由于通讯故障、系统故障以及其他不可抗力等因素的影响使得无法及时了解交易信息，由此产生责任和风险应由用户承担。</p>'+
+	 '<p class="important">四、不可抗力及意外事件风险</p>'+
+	 '<p>包括但不限于自然灾害、金融市场危机、战争、黑客攻击、病毒感染等不能预见、不能避免、不能克服的不可抗力事件，对于由于不可抗力及意外事件风险导致的任何损失，客户须自行承担。</p>'+
+	 '<p class="important">五、流动性风险</p>'+
+	 '<p>用户提以债权转让方式通过普金资本平台进行转让的，普金资本不对债权转让完成的时间以及债权转让能否全部成功实现做出任何承诺，债权未成功转让的，用户面临资金不能变现、丧失其他投资机会的风险。</p>'+
+	 '<p class="important">特别提示:本风险提示书不能穷尽全部风险及市场的全部情形。</p>'+
+	'</div>'+
+	'</div>'
+});
+//投资记录
+var Track = Vue.extend({
+	compiled: function(){
+		setAppConfig('投资记录',true,false);
+		this.$parent.$set('activeClass',3);
+	},
+	route:{
+		data: function(transition){
+			var param={id:this.$route.query.id};
+			var _this = this;
+			app.ajax({ 
+		        url:'../front/findInvestmentRecordByBorrowId.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == 0){
+		        		_this.$set('dataList',data.investList);
+		        		if(data.investList.length>0){
+		        			_this.$set('dataLength',false);
+		        		}else{
+		        			_this.$set('dataLength',true);
+		        		}
+		        	}else{
+		        		$.alert(data.msg)
+		        	}
+		        },complete: function(){
+		        	transition.next();
+		        }
+		    });
+		},waitForData:true
+	},
+	template:'<div class="content track"><ul>'+
+		'<li class="track-title"><p>投资人</p><p>金额(元)</p><p>投资时间</p></li>'+
+		'<li v-if="dataLength"><span>暂无投资记录</span></li>'+
+		'<li v-for="list in dataList"><p>{{list.username}}</p><p>{{list.investAmount}}</p><p>{{list.investTime}}</p></li>'+
+		'</ul></div>'
+});
+//产品详情、投标初始化
+var Prodetail = Vue.extend({
+	compiled: function(){
+		setAppConfig('标的详情',true,false);
+		this.$parent.$set('activeClass',1);
+	},
+	route:{
+		data:function(transition){
+			var _this = this;
+			if(_this.$parent.type=='fund'){
+				var param={uid:Storage.getItem('uid'),id:this.$route.query.id};
+				var url = '../front/financeInvestInit.do';
+				var fund = true;
+			}else if(_this.$parent.type=='detail'){
+				if(Storage.getItem('uid')){
+					var param={uid:Storage.getItem('uid'),borrowId:this.$route.query.id};
+				}else{ 
+					var param={uid:'',borrowId:this.$route.query.id};
+				}
+				var url = '../front/queryBorrowDetail.do'
+				var detail = true;
+			}else{
+				_this.$set('taste',false);//体验标进度条
+				_this.$set('isTiyan',false);
+				var url = '../front/experBorrowInit.do';
+				var param={uid:Storage.getItem('uid')};
+			};
+			app.ajax({
+		        url:url,
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(detail){
+		        			_this.$set('productDetail',data);
+		        			if(Storage.getItem('uid')){
+		        				_this.$set('userMap',data.userMap);
+			        			_this.$set('hasPWD',data.hasPWD);
+			        			_this.$set('mapListCd',data.mapListCd);
+			        			if (data.userMap != null && data.userMap != '')
+			        				_this.$set('canUseSum',data.userMap.usableSum);//可用余额
+		        			}
+		        		}else if(fund){
+		        			_this.$set('productDetail',data.investDetailMap);
+		        			_this.$set('productDetail.bidTime',data.investMap.bidTime);
+		        			_this.$set('productDetail.detail',data.investMap.detail);
+		        			_this.$set('productDetail.safeMeasures',data.investMap.safeMeasures);
+		        			//发标时间
+		        			_this.$set('productDetail.publishTime',data.investMap.publishTime);
+		        			_this.$set('userMap',data.userMap);
+			        		_this.$set('hasPWD',data.hasPWD);
+			        		_this.$set('subscribes',data.subscribes);
+			        		_this.$set('mapListCd',data.mapListCd);
+			        		_this.$set('canUseSum',data.userMap.usableSum);//可用余额
+		        		}else{
+		        			_this.$set('productDetail',data.borrowDetailMap);
+		        			_this.$set('userMap',data.userMap);
+		        			_this.$set('money',data.userMap.accountSum);
+		        			_this.$set('canUseSum',data.userMap.accountSum);//可用余额
+		        			if(data.borrowDetailMap.residue == '0.00'){
+		        				$.alert('当前体验标的金额已投满，请等待下次体验标发放时间进行投资。');
+		        			};
+		        		}
+		        		//是否为新手标
+		        		if(_this.productDetail.borrowTypeSubId == 5){
+		        			_this.$set('isNewsPro',true);
+		        			if(data.investRecord && data.investRecord=='0'){
+			        			_this.$set('productDetail.borrowStatus','99');
+			        		}
+		        		};
+		        		//体验标投资判断
+		        		if(_this.$parent.type == 'tiyan' && _this.canUseSum == 0){
+		        			_this.$set('productDetail.borrowStatus','99');
+		    			};
+		    			//初始化投标状态
+		    			_this.thisHtml(_this.productDetail.borrowStatus);
+		    			//非体验标进入倒计时
+		    			if(_this.$parent.type != 'tiyan'){
+			    			if(_this.productDetail.borrowStatus == '2'){
+			    				_this.initFundTime();
+			    			}
+		    			}
+		        	}else if(data.error == 1){
+		        		$.alert(data.msg,function(){
+		        			router.go({path:'/registpay'});
+		        		});
+		        	}else{
+		        		$.alert(data.msg,function(){
+		        			router.go({path:'/index'});
+		        		});
+		        	}
+		        },complete: function(){
+		        	transition.next();
+		        }
+		    });
+		},waitForData:true
+	},
+	methods:{
+		maxTender:function(a){
+			if(a>0){
+				return false;
+			}else{
+				return true;
+			}
+		},
+		submit: function(status){
+			if(status == '100'){
+				$.toast('还没到投标时间！请耐心等待！');
+				return;
+			}
+			if(status!=2){return};
+			if(!Storage.getItem('uid')){
+				$.alert('您还未登录，请先登录！',function(){
+					router.go({path:'/login',query:{show:true}});
+				});
+				return;
+			};
+			var _this = this;
+			if(parseFloat(this.canUseSum) == 0 || parseFloat(this.canUseSum) == 0){
+				$.confirm('您当前可用余额为0，如需继续投资，请充值!', function () {
+					if(!Storage.getItem('ipayAccount')){
+						$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+							router.go({path:'/registpay'});
+						});
+					}else{
+						router.go({name:'ipay'});
+					}
+			     });
+				return;
+			}
+			if(this.money == ''){
+				$.toast('请输入投资金额');
+				return;
+			}
+			if(!AmtRegExp.test(this.money)){
+				$.toast('金额格式不正确');
+				return;
+			}
+			if(this.isTiyan && parseFloat(this.canUseSum) < parseFloat(this.money)){
+				$.toast('投资金额不能大于可用金额');
+				return;
+			}
+			//当前输入金额
+			var inputMoney = parseFloat(this.money);
+			//剩余可投金额
+			var residue = parseFloat(this.productDetail.residue.toString().replace(/,/g,''));
+			//最小投资金额
+			var minTendSum = parseFloat(this.productDetail.minTenderedSum.toString().replace(/,/g,''));
+			//最大投资金额
+			var maxTenderedSum = this.productDetail.maxTenderedSum>0?parseFloat(this.productDetail.maxTenderedSum.toString().replace(/,/g,'')):9999999999;
+			//剩余可投金额小于
+			if(inputMoney > residue){
+				$.toast('投资金额不能大于剩余可投金额');
+				return;
+			};
+			//剩余可投50>最小投资100
+			if(residue>minTendSum){
+				//当前输入金额60
+				if(inputMoney < minTendSum){
+					$.toast('投资金额不能小于最小投资金额');
+					return;
+				}
+			};
+			if(inputMoney>maxTenderedSum){
+				$.toast('投资金额不能大于最大投资金额');
+				return;
+			};
+			if(this.hasPWD >0 && this.password==''){
+				$.toast('请输入投资密码');
+				return;
+			};
+			var url = '';
+			if(!this.isTiyan){
+				url = '../front/exGoInvest.do';
+				var param = {uid:Storage.getItem('uid'),id:this.$route.query.id,investAmount:this.productDetail.residue,amount:this.userMap.accountSum,borrowSum:this.productDetail.borrowSum,yearRate:this.productDetail.annualRate,borrowTime:this.productDetail.deadline}
+			}else{
+				url = '../front/financeInvest.do';
+				var param = {uid:Storage.getItem('uid'),borrowId:this.$route.query.id,amount:this.money,money:this.voucherAmt,juanId:this.voucherId,subscribes:this.subscribes,hasPwd:this.hasPWD,investPWD:this.password,ipayAccount:this.productDetail.ipayAccount,borrowTitle:encodeURI(this.productDetail.borrowTitle)}
+			};
+			app.ajax({
+				url:url,
+				data:JSON.stringify(param),
+				dataType:'json',
+				success: function(data){
+					if(data.error=='0'){
+						if(!_this.isTiyan){
+							$.alert('投标成功！',function(){
+								router.go({path:'/index'});
+							});
+							return;
+						};
+						var html = data.html.replace('target="_blank"','');
+						$('#productDetail').html(html);
+					}else{
+						$.alert(data.msg);
+					}
+				}
+			})
+		},
+		pwdInput: function(){
+			if(this.hasPWD >0){
+				return true;
+			}else{
+				return false;
+			}
+		},
+		paymentMode: function(val){
+			if(val==4){
+				return '还款方式： 一次性还款';
+			}else if(val==1){
+				return '还款方式：等额本息';
+			}else{
+				return '还款方式：按月付息，到期还本';
+			}
+		},
+		isLoginOrIn: function(){
+			if(!Storage.getItem('uid')){
+				return '<a href="#!/login?show=true">登录后查看</a>'
+			}else{
+				return this.userMap.usableSum;
+			}
+		},
+		thisHtml: function(borrow){
+			var _this = this;
+			if(borrow == 1){
+				_this.$set('btnText','初审中');
+			}else if(borrow == 2){
+				_this.$set('btnText','立即投标');
+			}else if(borrow == 3){
+				_this.$set('btnText','复审中');
+			}else if(borrow == 4){
+				_this.$set('btnText','还款中');
+			}else if(borrow == 5){
+				_this.$set('btnText','已还完');
+			}else if(borrow == 99){
+				_this.$set('btnText','已投资');
+			}else{
+				_this.$set('btnText','流标');
+			}
+		},
+		voucher:function(){
+			var _this = this;
+			if(!Storage.getItem('uid')){
+				$.toast('请先登录！');
+				return;
+			}
+			if(!(_this.mapListCd.length>0)){
+				$.toast('您暂时没有可用的代金券！');
+				return;
+			};
+			if(_this.cantVoucher){
+				$.toast('请先输入投资金额');
+				return;
+			};
+			var cardList = [],cardId = [],cardMoney=[];
+			for(var i=0;i<_this.mapListCd.length;i++){
+				cardList.push(_this.mapListCd[i].rbName);
+				cardId.push(_this.mapListCd[i].id);
+				cardMoney.push({id:_this.mapListCd[i].id,money:_this.mapListCd[i].money});
+			};
+			cardList.push('不使用代金券');
+			cardId.push('0');
+			cardMoney.push({id:0,money:0});
+			$(this).picker({
+			  toolbarTemplate: '<header class="bar bar-nav bar-picker">\
+			  <button class="button button-link pull-right close-picker">确定</button>\
+			  <h1 class="title">请选择优惠券</h1>\
+			  </header>',
+			  cols: [
+			    {
+			      textAlign: 'center',
+			      displayValues:cardList,
+			      values: cardId
+			    }
+			  ],
+			  onClose: function(obj){
+				   _this.$set('voucherChose',true);
+				   _this.$set('voucherValue',obj.displayValue[0]);
+				   _this.$set('voucherId',obj.value[0]);
+				   var voucherAmt = '';
+				   for(var i=0;i<cardMoney.length;i++){
+					   if(cardMoney[i].id==obj.value[0]){
+						   voucherAmt = cardMoney[i].money;
+						   break;
+					   }
+				   }
+				   _this.$set('voucherAmt',voucherAmt);
+			  }
+			});
+			$(this).picker('open');
+		},
+		borrowTitle:function(title,id){
+			if(id=='3'){
+				return '多金宝-'+title
+			}else if(id=='4'){
+				return '普金保-'+title
+			}else if(id=='5'){
+				return '新手标-'+title
+			}else if(id=='6'){
+				return '恒金保-'+title
+			}else{
+				return '体验标';
+			}
+		},
+		initFundTime:function (){
+			var _this = this;
+			clearInterval(timeInterval);
+			var didTime = _this.productDetail.bidTime.replace(/-/g,'/');
+			var everTime = _this.productDetail.nowDate.replace(/-/g,'/');
+			var EndTime= new Date(didTime);
+			var NowTime = new Date(everTime);
+			var t =EndTime.getTime() - NowTime.getTime();
+			timeInterval = setInterval(function(){
+				t = t-1000;
+			    var d=0;
+			    var h=0;
+			    var m=0;
+			    var s=0;
+			    if(t>0){
+			      d=Math.floor(t/1000/60/60/24);
+			      h=Math.floor(t/1000/60/60%24);
+			      m=Math.floor(t/1000/60%60);
+			      s=Math.floor(t/1000%60);
+			      _this.$set('btnText',d+'天'+h+'时'+m+'分'+s+'秒');
+			      _this.$set('productDetail.borrowStatus','100');
+			    }else{
+			      _this.$set('btnText','立即投标');
+			      _this.$set('productDetail.borrowStatus','2');
+			      clearInterval(timeInterval);
+			    }
+			},1000);
+		 },
+		AgreeMent:function(val){
+			this.$parent.AgreeMent(val);
+		},
+		closeAgreement:function(){
+			this.$parent.closeAgreement();
+		}
+	},
+	data:function(){
+		return {
+			money:'',
+			btnText:'立即投标',
+			password:'',
+			taste:true,
+			subscribes:'',
+			hasPwd:'',
+			investPWD:'',
+			ipayAccount:'',
+			isTiyan:true,
+			minvoucherAmt:99,//优惠券最低使用金额
+			voucherChose:false,//是否显示优惠券
+			voucherValue:'',//优惠券显示字段
+			voucherAmt:'',//优惠券金额
+			voucherId:'',
+			canUseSum:0,//客户可用余额
+			cantVoucher:true,//优惠券是否可操作
+			isNewsPro:false//是否是新手标
+		}
+	},
+	filters:{
+		reckon: function(value,voucherAmt){
+			if(value && value>this.minvoucherAmt){
+				this.$set('cantVoucher',false);
+			}else{
+				this.$set('cantVoucher',true);
+			};
+			if(this.productDetail && !isNaN(value)){
+				if(this.$parent.type == 'tiyan'){
+					var moeny = (this.productDetail.annualRate/1200) * (this.productDetail.deadline/30) * this.userMap.accountSum;
+				}else{
+					if(voucherAmt){
+						var moeny = (this.productDetail.annualRate/1200) * this.productDetail.deadline * (parseFloat(value)+parseFloat(voucherAmt));
+					}else{
+						var moeny = (this.productDetail.annualRate/1200) * this.productDetail.deadline * value;
+					}
+				};
+				return moeny.toFixed(2);
+			}else{
+				return 0.00;
+			}
+		}
+	},
+	ready:function(){
+		$(".detial-layou").scroller('refresh');
+	},
+	template:'<div class="content detial-layou"><div class="detial-title" v-html="borrowTitle(productDetail.borrowTitle,productDetail.borrowTypeSubId)"></div>'+
+				'<div class="detial-main flex"><div class="d-m-l"><p><span>{{productDetail.annualRate}}%</span></p>'+
+				'<p>预期年化收益</p></div><div class="d-m-c"><p><span>{{productDetail.borrowAmount}}</span>元</p><p>项目总额</p>'+
+			'</div><div class="d-m-r"><p v-if="isTiyan"><span>{{productDetail.deadline}}</span>个月</p><p v-else><span>{{productDetail.deadline}}</span>天</p>'+
+				'<p>项目期限</p></div>'+
+			'</div><div class="detial-line" v-show="taste">'+
+				'<p class="flex"><i class="pro-line"><em class="pro-line-em" :style={width:productDetail.schedules+"%"} title=""></em></i><span class="line-num">{{productDetail.schedules}}%</span></p>'+
+			'</div><div class="detial-table">'+
+				'<p>发布时间： {{productDetail.publishTime}} </p>'+
+				'<p v-html="paymentMode(productDetail.paymentMode)"> </p>'+
+				'<p>计息方式：满标计息</p>'+
+				'<p>最小投标金额：{{productDetail.minTenderedSum}}元  </p>'+
+				'<div v-if="isNewsPro"><p v-if="maxTender(productDetail.maxTenderedSum)">最大投标金额：无限制  </p>'+
+				'<p v-else>最大投标金额：{{productDetail.maxTenderedSum}}  </p></div>'+
+				'<p>剩余可投：<span>{{productDetail.residue}}</span> 元  </p>'+
+				'<p v-if="isTiyan">可用金额：<span v-html="isLoginOrIn()"></span>元</p>'+
+				'<p v-else>体验金额：<span>{{userMap.accountSum}}</span> 元  </p>'+
+			'</div><div class="detial-submit flex">'+
+				'<input v-if="isTiyan" type="text" maxlength="11" placeholder="请输入购买金额" v-model="annualRate" v-getvalue="money" value=""/>'+
+			'<input v-else type="text" maxlength="11" disabled v-model="annualRate" value="{{userMap.accountSum}}"/><button type="button" @click="submit(productDetail.borrowStatus)" v-bind:class="{ btnDisabled:productDetail.borrowStatus!=2}">{{btnText}}</button>'+
+			'</div><div class="detial-submit flex" v-if="pwdInput()"><input type="password" maxlength="11" placeholder="请输入投标密码" v-getvalue="password" maxlength="6"/></div>'+
+			'<div class="detial-submit flex" :class="{detailDisabled:cantVoucher}" v-if="isTiyan" @click="voucher"><p class="voucher-left">{{voucherValue}}</p><p class="voucher-right">使用代金劵<i class="icon">&#xe611;</i></p></div>'+
+			'<div class="detial-table"><p class="agreement">点击按钮，即表示您已经阅读并认可《<a @click="AgreeMent(0)">普金资本服务协议</a>》和《<a @click="AgreeMent(1)">风险提示书</a>》，投资有风险，理财需谨慎。</p></div>'+
+			'<div class="detial-footer flex"><p>预期收益:<span>{{annualRate | reckon voucherAmt}}</span>元</p><p><a v-link={path:"/calculator"}>《详细收益明细》</a></p></div>'+
+			// '<div class="detial-footer" v-if="isTiyan"><button type="button" @click="voucher" class="detail-quan" :class="{detailDisabled:cantVoucher}"><i class="icon">&#xe62b;</i>使用代金券</button></div>'+
+			'<div class="detial-table detial-borrow"><p class="detial-borrow-title"><i class="icon">&#xe633;</i>借款人介绍</p><p v-html="productDetail.projectIntro"></p>'+
+			'<p class="detial-borrow-title"><i class="icon">&#xe634;</i>项目描述</p><p v-html="productDetail.detail"></p><p class="detial-borrow-title blue"><i class="icon">&#xe632;</i>保障措施</p><p v-html="productDetail.safeMeasures"></p></div><div id="productDetail"></div></div>'
+});
+//Introduced
+var Introduced = Vue.extend({
+	compiled:function(){
+		setAppConfig('产品介绍',true,false);
+		this.$set('viewData',this.listData[0]);
+		this.$set('tableData',this.tableData1);
+		this.$set('isShang',true);
+	},
+	data: function(){
+		return {
+			activeLink:1,
+			reviewed:'企业经营资质；企业及个人征信；企业及个人涉诉信息；新闻媒体正负面报道；借款人婚姻家庭状况；担保公司及保证人保证能力；企业财务状况；企业及个人银行流水；企业盈利及健康程度；抵（质）押物权属状况；还款来源与还款意愿分析；',
+			listData:[
+			          {profit:'8%-12%',product:'基于供应链上下游的采购贸易，为采购方或项目方提供融资，融资方以应收账款质押、保证金担保等形式为借款提供担保。'},
+			          {profit:'9%-15%',product:'企业由于生产经营周转或项目投资需要资金，提供足值的不动产或动产作为抵质押物申请借款。'},
+			          {profit:'6%-10%',product:'以保理公司持有的大型知名企业签发并承兑的商业承兑汇票为还款保障的金融产品，借款到期时，保理公司以承兑企业无条件支付的票面资金用于归还借款本息。该产品充分发挥了大型企业的信用价值，在为借款中小微企业解决融资问题的同时，还为投资人提供了风险可控的金融产品。'}
+			          ],
+			viewData:[],
+			imgSrc:'images/pujin.png',
+			tableData:[],
+			tableText:'注：具体项目的保障措施会有所不同，以具体项目的内容为准。',
+			tableData1:[
+			           {name:'供应链融资',text:'于供应链上下游的采购贸易，以应收账款转让或票据质押等形式为采购方或项目方提供融资；'},
+			           {name:'足额应收账款',text:'融资项目获取立足于供应链，保理公司对融资项目100%具备足值抵押或大型企业连带责任担保进行审核，项目通过率只有5%；融资企业应收账款质押   融资方上下游企业担保    融资方股东提供无限责任连带担保'},
+			           {name:'风险保证金',text:'保理公司缴纳融资金额一定比例的风险保证金，利息或本金逾期时，动用风险保证金先行偿付。'}
+			           ],
+           tableData2:[
+                       {name:'抵质押担保',text:'借款企业提供商铺、住宅、车辆、厂房、土地、设备等公司或个人名下动产及不动产作为抵质押担保；'},
+                       {name:'机构担保',text:'融资性担保公司出具担保函，为借款人的贷款本息全额提供无限连带责任保证担保；'},
+                       {name:'个人担保 ',text:'借款人配偶、子女等亲属出具个人无限连带责任保证担保函，承诺与借款人共同偿还；'},
+                       {name:'风险保证金',text:'担保公司缴纳融资金额一定比例的风险保证金，利息或本金逾期时，动用风险保证金先行偿付。'}
+                       ],
+           tableData3:[
+                       {name:'严格的准入机制',text:'恒金保承兑人选择与准入主要以实力较强的大型国有企业、境内上市公司、拟上市公司为主；'},
+                       {name:'授信的总额控制',text:'恒金保业务中承兑人在平台上的承兑金额实行总额控制；'},
+                       {name:'足额的商票质押 ',text:'每个借款项目均有足额商票提供质押担保；'},
+                       {name:'银行核验与保管',text:'商票的核验、保管、质押背书均在银行系统内部完成，确保票据真实性。'}
+                       ],
+           tableDataShang:[
+                       {name:'一、见票即付',text:'商业承兑汇票经承兑人承兑，由承兑企业在指定日期无条件支付确定的金额给收款人或持票人。'},
+                       {name:'二、期限灵活',text:'商业承兑汇票承兑期限最长不超过6个月，其中电子商业承兑汇票的最长期限可达1年。'},
+                       {name:'三、在一定范围内流通',text:'商业承兑汇票由于是企业信用，收款人一般要求承兑人信用较好、实力较强，且商业承兑汇票一般围绕在付款人的生态圈进行流通。'}
+                       ],
+			
+		}
+	},
+	methods:{
+		investDetail:function(index){
+			if(this.activeLink == index){return;};
+			$('.content-introduced').scrollTop(0);
+			if(index == 1){
+				this.$set('viewData',this.listData[0]);
+				this.$set('tableData',this.tableData1);
+				this.$set('activeLink',1);
+				this.$set('isShang',true);
+				this.$set('imgSrc','images/pujin.png');
+			}else if(index == 2){
+				this.$set('viewData',this.listData[1]);
+				this.$set('tableData',this.tableData2);
+				this.$set('activeLink',2);
+				this.$set('isShang',true);
+				this.$set('imgSrc','images/duojin.png');
+			}else if(index == 3){
+				this.$set('viewData',this.listData[2]);
+				this.$set('tableData',this.tableData3);
+				this.$set('activeLink',3);
+				this.$set('isShang',false);
+				this.$set('imgSrc','images/hengjin.png');
+			}
+		}
+	},
+	template:'<div class="content">'+
+				'<div class="buttons-tab content-invest">'+
+			    '<a @click="investDetail(1)" v-bind:class="{active:activeLink==1}" class="tab-link button">普金保</a>'+
+			    '<a @click="investDetail(2)" v-bind:class="{active:activeLink==2}"class="tab-link button">多金宝</a>'+
+			    '<a @click="investDetail(3)" v-bind:class="{active:activeLink==3}"class="tab-link button">恒金保</a>'+
+			    '</div><div class="content content-introduced">'+
+			'<ul class="row no-gutter">'+
+		    '<li  class="col-33"><p>{{viewData.profit}}</p><span>投资后次日起计息</span></li>'+
+			'<li  class="col-33"><p>投资期限</p><span>1~12个月 </span></li>'+
+			'<li  class="col-33"><p>还款方式</p><span>一次性还本付息 </span><span>按月付息，到期还本  </span></li>'+
+		'</ul><div class="content-block"><img :src="imgSrc" width="100%"/><p class="introduced-title">产品简述</p><p class="introduced-content">{{viewData.product}}</p></div>'+
+		'<div class="content-block" v-if="isShang"><p class="introduced-title">风控审核</p><p class="introduced-content">{{reviewed}}</p></div>'+
+		'<div class="content-block" v-else><p class="introduced-title">商业承兑汇票的特点</p><div v-for="list in tableDataShang"><p class="introduced-title-small">{{list.name}}</p><p class="introduced-content">{{list.text}}</p></div><p class="introduced-content">{{tableText}}</p></div>'+
+		'<div class="content-block"><p class="introduced-title">产品优势与保障</p><div v-for="list in tableData"><p class="introduced-title-small">{{list.name}}</p><p class="introduced-content">{{list.text}}</p></div><p class="introduced-content">{{tableText}}</p></div>'+
+	'</div></div>'
+});
+//关于
+var About = Vue.extend({
+	compiled: function(){
+		setAppConfig('关于',false,true);
+	},
+	data: function(){
+		return {
+			elmList:[
+			{name:'公司简介',iconClass:'icon-accountabout ',aLink:{path:'/aboutus'},notice:false,noticeNum:0},
+			{name:'股东背景',iconClass:'icon-accountbg ',aLink:{path:'/shareholder'},notice:false,noticeNum:2},
+			{name:'普金资讯',iconClass:'icon-accountnew ',aLink:{path:'/dynamic'},notice:false,noticeNum:0},
+			{name:'新标预告',iconClass:'icon-accountyg ',aLink:{path:'/newsport',query:{flag:1}},notice:false,noticeNum:0},
+			{name:'帮助中心',iconClass:'icon-accounthelp ',aLink:{path:'/help'},notice:false,noticeNum:0},
+			{name:'平台公告',iconClass:'icon-notice_ab',aLink:{path:'/newsport',query:{flag:2}},notice:false,noticeNum:0},
+			{name:'问题反馈',iconClass:'icon-accountanswer',aLink:{path:'/feedback'},notice:false,noticeNum:0},
+			{name:'产品介绍',iconClass:'icon-accountfollow',aLink:{path:'/introduced'},notice:false,noticeNum:0},
+			{name:'在线客服',iconClass:'icon-accountcust',aLink:'#',notice:false,noticeNum:0}
+			]
+		}
+	},
+	methods:{
+		clickEvent: function(index){
+			if(index == 8){
+				window.location.href = 'tel://400-606-2079';
+			}else{
+				router.go(this.elmList[index].aLink);
+			}
+		}
+	},
+	template:'<div class="content">'+
+				'<ul class="about-us row no-gutter">'+
+		            '<li v-for="list in elmList" class="col-33">'+
+			            '<a href="javascript:void(0);" @click="clickEvent($index)">'+
+		                    '<i class="icon" v-bind:class="[list.iconClass]"></i>'+
+		                    '<div class="media-body">{{list.name}}</div>'+
+			             '</a>'+
+		             '</li>'+
+		        '</ul>'+
+		      '</div>'
+});
+//普金资讯
+var Dynamic = Vue.extend({
+	compiled: function(){
+		setAppConfig('普金资讯',true,false);
+	},
+	route:{
+		data:function(transition){
+			var _this = this;
+			var param={curPage:_this.listNum};
+			app.ajax({
+		        url:'../front/getMediaReport.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error==0){
+		        		if(data.pageBean.page.length>0){
+		        			_this.$set('dataList',data.pageBean.page);
+		        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+		        		}else{
+		        			_this.$set('dataLength',true);
+		        		}
+		        	}
+		        },complete: function(){
+		        	transition.next();
+		        }
+		    });
+		},waitForData:true
+	},
+	data:function(){
+		return {
+			listNum:1,
+			model:false,
+			loading:false
+		}
+	},
+	ready: function(){
+		//$.attachInfiniteScroll('.infinite-scroll');
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦');
+				_this.$set('model',false);
+				_this.$set('loading',false);
+				return;
+			}
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={curPage:_this.listNum};
+			app.ajax({
+		        url:'../front/getMediaReport.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			if(data.pageBean.page.length<10){
+		        				_this.$set('model',false);
+		        			}
+		        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+	},
+	filters:{
+		newsTitle:function(value){
+			if(value.length>20){
+				return value.substring(0,20)+'...'
+			}else{
+				return value;
+			}
+		},
+		timeSub: function(value){
+			return value.substring(0,10);
+		}
+	},
+	methods:{
+		toDetail:function(id){
+			router.go({name:'dynamicdetail',query:{id:id}});
+		}
+	},
+	template:'<div class="content content-news"><div class="infinite-scroll infinite-scroll-bottom" data-distance="100"><ul class="news">'+
+			'<template v-for="list in dataList">'+
+			'<li class="flex" track-by="list.id" @click="toDetail(list.id)"><p class="news-img"><img :src="list.imgPath"/></p><div>'+
+			'<p class="news-title">{{list.title | newsTitle}}</p><p class="news-time"><i class="icon">&#xe62a;</i><span>{{list.publishTime | timeSub}}</span></p></div></li>'+
+			'</template><li class="noNews" v-if="dataLength"><span>暂无公告</span></li></ul><div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div>'+
+			'</div></div>'
+});
+//股东背景
+var Shareholder = Vue.extend({
+	compiled: function(){
+		setAppConfig('股东背景',true,false);
+	},
+	data:function(){
+		return {
+			data:[true,false],
+			imgList:[
+			       {img:'images/ct_01.png',title:'人民医院新院'},
+			       {img:'images/ct_02.png',title:'红旗大道东延返迁房'},
+			       {img:'images/ct_03.png',title:'沙石大桥'},
+			       {img:'images/ct_04.png',title:'锦江山庄'},
+			       {img:'images/ct_05.png',title:'自然博物馆'},
+			       {img:'images/ct_06.png',title:'赣州高等师范专科学校'}
+			       ],
+			imgListTwo:[
+						       {img:'images/sh_01.png'},
+						       {img:'images/sh_02.png'},
+						       {img:'images/sh_03.png'},
+						       {img:'images/sh_04.png'},
+						       {img:'images/sh_05.png'},
+						       {img:'images/sh_06.png'}
+						       ],       
+			partShen:'盛汇资产管理有限公司（简称：赣州盛汇）是由江西盛汇资产管理有限公司和赣州盛汇高管共同持股于2015年5月18日正式成立，主要从事融资担保、产业投资、资产收购、股权管理等主要业务。赣州盛汇因改革而生、凭创新而兴，依托本土银行良好的资源合作关系，以投资成长期、成熟期项目开局，逐步在服务全市经济社会发展大局中形成了民营资本联合国营资本共同参与投资运营的经营架构。凭借稳健的投资理念与丰富的资产管理经验，公司积极开拓基础设施建设、房地产等领域业务，成为整合社会闲置资金与优质资产投资的桥梁。赣州盛汇正坚定不移走市场化转型发展之路，努力加快打造成为集金融综合服务、资产综合管理为一体，以金融控股为主要特征的资产运营公司。',
+			partone:'赣州城兴投资管理有限公司隶属于赣州城市开发投资集团有限责任公司（简称“赣州城投集团”）旗下全资子公司。赣州城投集团成立于2004年3月，2009年9月股权改制为市政府直属、市国资委监管的国有独资企业，注册资本金10亿元。',
+			parttwo:'2015年，集团主体信用级别达到AA+，成为江西省内非省会城市中首个主体信用等级达到AA+的城投类公司。成功发起设立300亿元赣南苏区振兴发展产业投资基金，这是国家级首支专项支持革命老区的大体量产业投资基金。集团综合实力在全国城投类企业中排名第43位，是我省唯一一家进入全国50强的城投公司。',
+			partthree:'截至2016年9月底，预计集团总资产680亿元，净资产420亿元，负债率38.23%；筹措资金108.25亿元，完成投资24.10亿元；实现营业收入9.13亿元，利润总额1.49亿元。累计实现融资550.58亿元，完成工程项目88个，项目投资500亿元。',
+			partfour:'赣州城投集团紧紧围绕赣南苏区振兴发展战略，立足做大做强做优，秉承“诚信为本、绩效为先、奉献为责、创新为魂”的企业精神，定位为“三大主体”（即城市建设融资主体、城市投资建设主体和城市国有资源运营主体），致力于打造集融资、投资、建设、运营、管理为一体的资产超千亿元的全国知名、省内一流的国有城市建设投资运营集团。'
+		}
+	},
+	methods:{
+		change:function(a){
+			if(a==1){
+				this.$set('data',[true,false]);
+			}else{
+				this.$set('data',[false,true]);
+			}
+		}
+	},
+	template:'<div class="content"><div class="share-top">'+
+			'<div class="flex"><p>股东构成：</p><p class="share-title" v-bind:class="{active:data[0]}" @click="change(1)">城兴投资</p><p class="share-title" v-bind:class="{active:data[1]}" @click="change(2)">盛汇资产</p></div>'+
+		'</div><div class="share-content" v-if="data[0]" transition="scale"><p class="share-c-t">承建项目</p><div class="share-c-img">'+
+		'<p v-for="list in imgList"><img :src="list.img" /><span>{{list.title}}</span></p>'+
+		'</div><div class="share-text"><p>{{partone}}</p><p>{{parttwo}}</p><p>{{partthree}}</p><p>{{partfour}}</p></div></div>'+
+		'<div class="share-content" v-if="data[1]" transition="scale"><p class="share-c-t">办公环境</p><div class="share-c-img">'+
+		'<p v-for="list in imgListTwo"><img :src="list.img" /></p>'+
+		'</div><div class="share-text"><p>{{partShen}}</p></div></div>'+
+		'</div>'
+});
+//公司简介
+var Aboutus = Vue.extend({
+	compiled:function(){
+		setAppConfig('公司简介',true,false);
+	},
+	data:function(){
+		return {
+			aboutus:'普金资本运营（赣州）有限公司（简称：普金资本）由赣州城投集团全资子公司赣州城兴投资管理有限公司联合赣州盛汇资产管理有限公司共同出资设立的互联网金融平台，2016年3月7日注册成立于原中央苏区振兴发展示范区--赣州。普金资本系获赣州市国资委批复备案的互联网金融平台，将专注赣州城投集团上下游供应链投融资服务。',
+			aboutusTwo:'普金资本团队汇聚金融行业、城建行业、供应链管理行业一批专业人才，拥有丰富的从业经验， 具备成熟的产品开发设计能力、严格的风险管理能力、优秀的企业管理能力。依托雄厚的股东实力，致力于打造“专业、稳健、诚信、高效”的互联网金融平台，成为赣南苏区振兴发展投融资服务的示范性平台。'
+		}
+	},
+	template:'<div class="content"><div class="aboutus content-padded"><img src="images/about.png" width="100%"/><p>{{aboutus}}</p><p>{{aboutusTwo}}</p></div></div>'
+});
+//新标预告,平台公告
+var Newsport = Vue.extend({
+	compiled: function(){
+		var flag = this.$route.query.flag;
+		if(flag == 1){
+			setAppConfig('新标预告',true,false);
+			this.$set('announcementType','1');
+		}else{
+			setAppConfig('平台公告',true,false);
+			this.$set('announcementType','2');
+		}
+	},
+	data:function(){
+		return {
+			listNum:1,
+			model:false,
+			loading:false,
+			announcementType:''
+		}
+	},
+	route:{
+		data:function(transition){
+			var _this = this;
+			var param={curPage:_this.listNum}; 
+			app.ajax({
+		        url:'../front/frontQueryNewsList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error==0){
+		        		if(data.pageBean.page.length>0){
+							_this.$set('dataList',data.pageBean.page);
+		        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+		        		}else{
+		        			_this.$set('dataLength',true);
+		        		}
+		        	}
+		        },complete: function(){
+		        	transition.next();
+		        }
+		    });
+		},waitForData:true
+	},
+	ready: function(){
+		//$.attachInfiniteScroll('.infinite-scroll');
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦');
+				_this.$set('model',false);
+				_this.$set('loading',false);
+				return;
+			}
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={curPage:_this.listNum};
+			app.ajax({
+		        url:'../front/frontQueryNewsList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			if(data.pageBean.page.length<10){
+		        				_this.$set('model',false);
+		        			}
+		        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+	},
+	filters: {
+		timeSub: function(value){
+			return value.substring(0,10);
+		}
+	},
+	methods:{
+		toDetail:function(id){
+			router.go({name:'dynamicdetail',append:true,query:{id:id,flag:'1'}});
+		}
+	},
+	template:'<div class="content content-newsport">'+
+		'<div class="list-block"><div class="infinite-scroll infinite-scroll-bottom" data-distance="100"><ul>'+
+		'<template v-for="list in dataList">'+
+		'<li class="item-content" track-by="list.id" @click="toDetail(list.id)">'+
+            '<div class="item-inner">'+
+              '<div class="item-title">{{list.title}}</div>'+
+              '<div class="item-after">{{list.publishTime | timeSub}}</div>'+
+            '</div>'+
+          '</li></template><li class="noNews" v-if="dataLength"><span>暂无公告</span></li></ul><div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div></div></div>'+
+		'</div>'
+});
+//帮助中心
+var Help = Vue.extend({
+	compiled:function(){
+		setAppConfig('帮助中心',true,false);
+	},
+	data:function(){
+		return {
+			listData:[{name:'注册与登录',className:'help_login'},{name:'充值与提现',className:'help_pay'},{name:'投资与转让',className:'help_invest'}],
+			queston:[[{queston:'如何成为普金资本注册用户？',answer:'进入普金资本首页，点击右上角"注册"按钮。根据提示信息完成注册。'},
+						{queston:'如何登录普金资本？',answer:'进入普金资本首页，点击右上角"登录"按钮。在登陆页面可以通过用户名、绑定的手机号码或绑定的邮箱登录。'},
+						{queston:'实名认证后能修改吗？可以申请几个实名认证账号？',answer:'实名认证成功后不能修改。每个人（同一身份证）仅可以实名认证一个账号。'},
+						{queston:'我忘记登录密码怎么办？',answer:'在网站用户登录页面，点击"忘记密码"按钮，选择绑定邮箱或注册手机号找回密码。'},
+						{queston:'我想修改绑定的短信通知号码怎么办？',answer:'如需更改短信通知手机号，请至“个人中心“-“安全中心“更改绑定的手机号。'}],
+						[
+							{queston:'充值提现如何收费？',answer:'充值时：充值无费用。<br>提现时：凡是在普金资本充值未投标的资金，15天内提现收取本金的0.5%提现服务费，15天后提现免费。另汇付天下支付平台会收取用户每次两元的提现手续费。'},
+							{queston:'充值是否可当日提现？',answer:'网银充值：资金当日不可提现，可提现金额=可用余额-当日网银充值金额。<br>快捷充值：可当日提现.'},
+							{queston:'提现需要多久到账？',answer:'实时提现，T+1个工作日到账。'},
+							{queston:'充值/提现是否有限额？是否有次数限制？',answer:'普金资本对于客户的充值没有金额和次数限制，但客户在充值时的单笔限额取决于充值银行。最低的提现金额必须要在100元或以上，最高的提现金额为个人账户内可用余额。'},
+							{queston:'如何绑定银行卡？',answer:'登录后在“个人中心” -“银行卡管理”页面绑定银行卡。'}
+						],
+						[
+							{queston:'投资金额有限制吗？',answer:'普金资本的在售项目投资起点金额为100元。'},
+							{queston:'项目到期还款时，一般在什么时间到达我的账户？',answer:'项目回款时间以借款人与银行交易时间为准，一般会在还款当天24:00前到达您的账户。'},
+							{queston:'还款方式有哪些？',answer:'还款方式根据项目种类不同，现分为如下三种：<br>1、等额本息还款：在还款期内，每月偿还同等数额的本金和利息。<br>2、先息后本：每月还利息，到期后一次性还本金。<br>3、一次还本付息：到期后一次性归还本金和利息。'},
+							{queston:'借款企业未按时还款怎么处理？',answer:'担保公司为本合同项下借款的本金以及利息提供不可撤销的连带保证。如借款期限届满之日借款企业不能偿还投资人本金及利息，担保公司将于债权届满七个工作日内按照本合同约定向投资人偿付借款的本金和利息。'}
+						]]
+		}
+	},
+	template:'<div class="content content-help"><router-view transition="fadeIn"></router-view></div>'
+});
+var Listhelp = Vue.extend({
+	compiled:function(){
+		var dataList = this.$parent.listData;
+		this.$set('dataList',dataList);
+		setAppConfig('帮助中心',true,false);
+	},
+	methods:{
+		toDetail:function(index){
+			router.go({path:'queston',append:true,query:{index:index}});
+		}
+	},
+	data:function(){
+		return {
+			dataList:[]
+		}
+	},
+	template:'<div class="questonType">问题类型</div><div class="list-block"><ul>'+
+      '<li class="item-content item-link" v-for="list in dataList" @click="toDetail($index)">'+
+        '<div class="item-inner">'+
+          '<div class="item-title"><i class="icon" v-bind:class="list.className"></i>{{list.name}}</div>'+
+        '</div></li></ul></div>'
+});
+var Queston = Vue.extend({
+	compiled:function(){
+		var index = this.$route.query.index;
+		this.$set('index',index);
+		var title = this.$parent.listData[index].name;
+		var questonList = this.$parent.queston[index];
+		this.$set('questonList',questonList);
+		setAppConfig(title,true,false);
+	},
+	data:function(){
+		return {
+			questonList:[],
+			index:''
+		}
+	},
+	methods:{
+		toDetail:function(index){
+			router.go({path:'answer',query:{list:index,index:this.index}});
+		}
+	},
+	template:'<div class="list-block"><ul>'+
+    '<li class="item-content item-link" v-for="list in questonList" @click="toDetail($index)">'+
+      '<div class="item-inner">'+
+        '<div class="item-title">{{list.queston}}</div>'+
+      '</div></li></ul></div>'
+});
+var Answer = Vue.extend({
+	compiled:function(){
+		var index = this.$route.query.index;
+		var list = this.$route.query.list;
+		this.$set('queston',this.$parent.queston[index][list].queston);
+		this.$set('answer',this.$parent.queston[index][list].answer);
+	},
+	data:function(){
+		return {
+			queston:'',
+			answer:''
+		}
+	},
+	template:'<div class="content-padded"><div class="answer-queston">{{queston}}</div><div class="answer-content" v-html="answer"></div></div>'
+})
+//新闻详情
+var Dynamicdetail = Vue.extend({
+	compiled:function(){
+		var flag = this.$route.query.flag;
+		if(flag && flag=='1'){
+			this.$set('url','../front/frontNewsDetails.do');
+		}else{
+			this.$set('url','../front/frontMediaReportDetails.do');
+		}
+		setAppConfig('详情',true,false);
+	},
+	route:{
+		data:function(transition){
+			var _this = this;
+			var param={id:_this.$route.query.id}; 
+			app.ajax({
+		        url:_this.url,
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(_this.$route.query.flag){
+		        			_this.$set('content',data.paramMap.content);
+			        		_this.$set('title',data.paramMap.title);
+			        		_this.$set('time',data.paramMap.publishTime);
+			        	}else{
+			        		_this.$set('content',data.map.content);
+			        		_this.$set('title',data.map.title);
+			        		_this.$set('time',data.map.publishTime);
+			        	}
+		        	}
+		        },complete:function(){
+		        	transition.next();
+		        }
+		    })
+		},waitForData:true
+	},
+	data:function(){
+		return {
+			content:''
+		}
+	},
+	template:'<div class="content content-news"><div class="content-padded news-detail"><h3>{{title}}</h3><p class="news-detail-time">发布时间：{{time}}</p><div v-html="content"></div></div></div>'
+});
+//问题反馈
+var Feedback = Vue.extend({
+	compiled: function(){
+		setAppConfig('问题反馈',true,false);
+	},
+	methods: {
+		submit:function(){
+			if(this.content==''){
+				$.toast('请输入反馈问题');return;
+			};
+			var _this = this;
+			var param={uid:Storage.getItem('uid'),content:encodeURI(this.content)};
+			app.ajax({
+		        url:'../front/addFeedback.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error==0){
+		        		$.alert('谢谢您的宝贵意见，我们将不断改善，为您提供优质的产品和服务！',function(){
+		        			$('.textarea-feed').val('');
+		        			_this.$set('content','');
+		        		})
+		        	}
+		        }
+		    });
+		}
+	},
+	data:function(){
+		return {
+			content:''
+		}
+	},
+	template:'<div class="content content-padded"><textarea placeholder="欢迎反馈任何意见和问题，您的反馈也是我们平台产品进步的动力哦！" v-getvalue="content" class="textarea-feed" maxlength="200"></textarea>'+
+		'<div class="text-item-submit"><button @click="submit" class="btn btn-submit">提交</button>'+
+        '</div></div>'
+});
+//关注我们
+var Follow = Vue.extend({
+	compiled:function(){
+		setAppConfig('关注我们',true,false);
+	},
+	template:'<div class="content"><div class="erweima"><p><img src="images/erweima.png"/></p><span>微信扫一扫</span></div></div>'
+});
+//收益计算器
+var Calculator = Vue.extend({
+	compiled:function(){
+		setAppConfig('收益计算器',true,false);
+	},
+	methods:{
+		modelType:function(e,flag){
+			var obj = e.target,_this = this;
+			var dataArr = [];
+			if(flag == '1'){
+				dataArr = ['等额本息还款','先息后本','一次还本付息'];
+			}else if(flag=='2'){
+				dataArr = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+			}else{
+				dataArr = [1,2,3,4,5,6,7,8,9,10,11,12];
+			}
+			$(obj).picker({
+			  toolbarTemplate: '<header class="bar bar-nav bar-picker">\
+			  <button class="button button-link pull-right close-picker">确定</button>\
+			  <h1 class="title">请选择</h1>\
+			  </header>',
+			  cols: [
+			    {
+			      textAlign: 'center',
+			      values: dataArr
+			    }
+			  ],
+			  onClose: function(obj){
+				   if(flag=='1'){
+					   _this.$set('backType',obj.value[0]);
+				   }else if(flag == '2'){
+					   _this.$set('annualRate',obj.value[0]);
+				   }else{
+					   _this.$set('time',obj.value[0]);
+				   }
+			  }
+			});
+			$(obj).picker('open');
+		},
+		submit: function(){
+			var _this = this;
+			if(this.money == ''){
+				$.toast('请输入金额');return;
+			};
+			if(!AmtRegExp.test(this.money)){
+				$.toast('金额格式不正确');return;
+			};
+			var repayWay='';
+			if(this.backType == '一次还本付息'){
+				repayWay = '2';
+			}else if(this.backType == '等额本息还款'){
+				repayWay = '1';
+			}else{
+				repayWay = '3';
+			}
+			var param={repayWay:repayWay,borrowSum:this.money,yearRate:this.annualRate,borrowTime:this.time};
+			app.ajax({
+		        url:'../front/frontfinanceTools.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error==0){
+		        		_this.$set('Amt',data.lists[0].monForRateA);
+		        		_this.$set('AmtRate',data.lists[0].monRate);
+		        		_this.$set('AmtAll',data.lists[0].allPay);
+		        		Storage.setItem('Calculator',JSON.stringify(data.lists));
+		        		_this.$set('detailFlag',true);
+
+		        	}
+		        }
+		    });
+		},
+		gotoDetail:function(){
+			if(this.detailFlag){
+				router.go({path:'calculatordetail'});
+			}else{
+				$.toast('请先计算！');
+			}
+			
+		}
+	},
+	data: function(){
+		return {
+			backType:'一次还本付息',
+			annualRate:'12',
+			time:'3',
+			money:'',
+			Amt:'0.00',
+			AmtRate:'0%',
+			AmtAll:'0.00'
+		}
+	},
+	template:'<div class="content"><div class="calculator">'+
+				'<div class="cal-t"><div class="cal-every"><p class="cal-sm-p">每个月将偿还/收到(元)</p>'+
+				'<p class="cal-big-p">{{Amt}}</p></div>'+
+		         '<div class="cal-aver flex">'+
+		         '<div class="cal-every"><p class="cal-sm-p">月利率(%)</p><p class="cal-big-p">{{AmtRate}}</p></div>'+
+		         '<div class="cal-every"><p class="cal-sm-p">还款/收到本息总额(元)</p><p class="cal-big-p">{{AmtAll}}</p></div>'+
+		         '</div></div>'+
+		         '<div class="calculator-listDetail" @click="gotoDetail"><p>还款详情 <i class="icon">&#xe611;</i></p></div>'+
+		         '<div class="list-block"><ul>'+
+                  '<li class="item-content item-link" @click="modelType($event,1)">'+
+                    '<div class="item-inner">'+
+                      '<div class="item-title">还款方式</div>'+
+                      '<div class="item-after">{{backType}}</div>'+
+                    '</div>'+
+                  '</li>'+
+                  '<li class="item-content">'+
+                    '<div class="item-inner">'+
+                      '<div class="item-title">金额</div>'+
+                      '<div class="item-after"><input type="text" class="item-after-input" placeholder="请输入金额" v-getvalue="money"></div>'+
+                    '</div>'+
+                  '</li>'+
+                  '<li class="item-content" @click="modelType($event,2)">'+
+                    '<div class="item-inner">'+
+                      '<div class="item-title">年利率(%)</div>'+
+                      '<div class="item-after">{{annualRate}}</div>'+
+                    '</div>'+
+                  '</li>'+
+                  '<li class="item-content" @click="modelType($event,3)">'+
+                    '<div class="item-inner">'+
+                      '<div class="item-title">期限(月)</div>'+
+                      '<div class="item-after">{{time}}</div>'+
+                    '</div>'+
+                  '</li>'+
+                '</ul>'+
+            '</div>'+
+            '<div class="text-item-submit">'+
+	            '<button type="button" class="btn btn-submit" @click="submit">计算</button>'+
+	        '</div>'+
+			'</div></div>'
+});
+var Calculatordetail = Vue.extend({
+	compiled: function(){
+		this.$set('dataList',(JSON.parse(Storage.getItem('Calculator'))));
+		setAppConfig('还款详情',true,false);
+	},
+	template:'<div class="content calculator track-fund"><ul>'+
+			'<li class="track-title"><p>期数</p><p>月还本息</p><p>月还本金</p><p>月还利息</p><p>本息余额</p></li>'+
+			'<li v-if="dataLength"><span>暂无明细</span></li>'+
+			'<template v-for="list in dataList">'+
+			'<li><p>{{list.mon}}</p><p>{{list.monForRateA}}</p><p>{{list.monForA}}</p><p>{{list.monForRate}}</p><p>{{list.rateARemain}}</p></li></template>'+
+			'</ul></div>'
+});
+//个人资产
+var Total = Vue.extend({
+	methods:{
+		ipay:function(){
+			if(!Storage.getItem('ipayAccount')){
+				$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+					router.go({path:'/registpay'});
+				});
+				return;
+			}else{
+				router.go({path:"/ipay"});
+			}
+		},
+		cashing:function(){
+			if(this.updatepwd == '1'){
+				$.alert('您还没有设置交易密码，请先设置交易密码!',function(){
+					router.go({path:'/changepwd'});
+				});
+				return;
+			};
+			if(Storage.getItem('ipayAccount')){
+				if(Storage.getItem('bankNum')>0){
+					router.go({path:"/cashing"});
+				}else{
+	        		$.alert('您还未绑定银行卡，请先绑定银行卡！',function(){
+	        			router.go({path:'/bankcard'});
+	        		});
+				}
+			}else{
+				$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+					router.go({path:'/registpay'});
+				});
+			}
+		}
+	},
+	template:'<div class="account-top"><img src="images/accountbg.png"/>'+
+			'<div class="account-content"><div class="account-total">'+
+			'<p>账户资产总额</p><h3>{{accountData[0]}}</h3></div>'+
+			'<div class="account-amt flex"><div class="amt-left">'+
+			'<p>可用金额</p><p>{{accountData[1]}}</p></div>'+
+			'<div class="amt-center"><p>待收总额</p><p>{{accountData[2]}}</p></div>'+
+			'<div class="amt-right"><p>已赚收益</p><p>{{accountData[3]}}</p></div></div></div>'+
+			'</div><div class="account-recharge"><button type="button" @click="ipay">充值</button>'+
+			'<button type="button" @click="cashing">提现</button></div>'
+});
+//我的账户列表
+var Tableview = Vue.extend({
+	data:function(){
+		return {
+			listData:[
+			{name:'资金记录',className:'zijin',href:{path:'funddetail'}},
+			{name:'投资明细',className:'touzi',href:{path:'invest'}},
+			{name:'生利宝',className:'shenglibao',href:{path:'shenglb'}},
+			{name:'我的赠券',className:'zengquan',href:{path:'coupon'}},
+			{name:'我的银行卡',className:'bankcard',href:{path:'bankcard'}},
+			{name:'邀请好友',className:'haoyou',href:{path:'friend'}}
+			],
+			show:false
+		}
+	},
+	methods:{
+		clear:function(){
+			Storage.clear();
+			router.go({path:'/index'});
+		}
+	},
+	template:'<div class="account-item"><ul class="item-link">'+
+				'<li v-for="list in listData"  :class="[list.classLi]" class="item-table">'+
+					'<a :class="[list.className]" v-link="list.href">{{list.name}}</a>'+
+				'</li>'+
+				'</ul><div class="text-item-submit">'+
+	            '<button type="button" @click="clear" class="btn btn-submit">退出</button>'+
+	            '</div></div>'
+});
+//资金明细
+var Funddetail = Vue.extend({
+	compiled: function(){
+		setAppConfig('资金记录',true,false,true,'筛选','panel-track');
+	},
+	route:{
+		data:function(transition){
+			var param={curPage:this.listNum};
+			var _this = this;
+			app.ajax({
+		        url:'../front/findFundrecordList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == 0){
+		        		_this.$set('dataList',data.pageBean.page);
+		        		if(data.pageBean.totalNum>0){
+		        			_this.$set('dataLength',false);
+		        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+		        		}else{
+		        			_this.$set('dataLength',true);
+		        		}
+		        	}else{
+		        		$.alert(data.msg)
+		        	}
+		        },complete: function(){
+		        	transition.next();
+		        }
+		    });
+		},waitForData:true
+	},
+	data:function(){
+		return {
+			listNum:1,
+			loading:false,
+			fundMode:'',
+			beginDate:'',
+			endDate:'',
+			model:false
+		}
+	},
+	methods:{
+		openPanel:function(){
+			$.openPanel($('#panel-track'));
+		},
+		submit: function(){
+			$.closePanel();
+//			this.$set('beginDate',$('#beginDate').val());
+//			this.$set('endDate',$('#endDate').val());
+			var _this = this;
+			_this.$set('listNum',1);
+		//	var param={"auth":"{uid:'"+Storage.getItem('uid')+"'}","info":"{curPage:'"+_this.listNum+"',startTime:'"+$('#beginDate').val()+"',endTime:'"+$('#endDate').val()+"',fundMode:'"+encodeURI(_this.fundMode)+"'}"};
+			var param={curPage:_this.listNum,startTime:$('#beginDate').val(),endTime:$('#endDate').val(),fundMode:_this.fundMode}; 
+			
+			app.ajax({
+		        url:'../front/findFundrecordList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == 0){
+		        		_this.$set('dataList',data.pageBean.page);
+		        		if(data.pageBean.page.length>0){
+		        			_this.$set('dataLength',false);
+		        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+		        			$('.content').scrollTop(0);
+		        			if(data.pageBean.totalNum>20){
+		        				$.attachInfiniteScroll($('.infinite-scroll'));
+		        			}else{
+		        				$.detachInfiniteScroll($('.infinite-scroll'));
+		        				_this.$set('model',false);
+		        			}
+		        		}else{
+		        			_this.$set('dataLength',true);
+		        		}
+		        	}else{
+		        		$.alert(data.msg)
+		        	}
+		        }
+		    });
+		}
+	},
+	ready: function(){
+		//document.getElementById('scoll').addEventListener("scroll", function(){
+			//var objHeight = document.querySelector('.track-title').offsetHeight;
+			//console.log(objHeight);
+			//console.log(this.scrollTop);
+		//},false);
+		$("#beginDate").calendar();
+		$("#endDate").calendar();
+		//$.attachInfiniteScroll('.infinite-scroll');
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦');
+				_this.$set('model',false);
+				_this.$set('loading',false);
+				$.detachInfiniteScroll($('.infinite-scroll'));
+				return;
+			}
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={curPage:_this.listNum,startTime:_this.beginDate,endTime:_this.endDate,fundMode:_this.fundMode};
+			app.ajax({
+		        url:'../front/findFundrecordList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			if(data.pageBean.page.length<20){
+		        				_this.$set('model',false);
+		        			}
+		        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+	},
+	beforeDestroy: function(){
+		this.$parent.$set('right',false);
+	},
+	filters:{
+		timeSub: function(value){
+			return value.substring(0,10);
+		},
+		inOrOut: function(income,spending){
+			if(income>0){
+				return '+'+income;
+			}else if(income == 0 && spending==0){
+				return income;
+			}else{
+				return '-'+spending;
+			}
+		}
+	},
+	template:'<div class="content" id="scoll"><div class="track-fund infinite-scroll infinite-scroll-bottom"  data-distance="100"><ul>'+
+			'<li class="track-title"><p>时间</p><p>操作类型</p><p>收支</p><p>余额</p></li>'+
+			'<li v-if="dataLength"><span>暂无资金明细</span></li>'+
+			'<template v-for="list in dataList">'+
+			'<li track-by="list.id"><p>{{list.recordTime | timeSub}}</p><p>{{list.fundMode}}</p><p>{{list.income | inOrOut list.spending}}</p><p>{{list.usableSum}}</p></li></template>'+
+			'</ul></div>'+
+			'<div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div>'+
+			'</div><div class="panel-overlay"></div><div class="panel panel-right panel-cover" id="panel-track">'+
+			'<div class="content-block">'+
+		    '<p class="track-panel-title">类型</p>'+
+		    '<div class="track-check"><label><input type="radio" name="track" v-model="fundMode" value="提现成功"><p>提现成功</p></label><label><input type="radio" name="track" v-model="fundMode" value="提现冻结金额"><p>提现冻结金额</p></label></div>'+
+		    '<div class="track-check"><label><input type="radio" name="track" v-model="fundMode" value="借款成功"><p>借款成功</p></label><label><input type="radio" name="track" v-model="fundMode" value="冻结投标金额"><p>冻结投标金额</p></label></div>'+
+		    '<div class="track-check"><label><input type="radio" name="track" v-model="fundMode" value="汇付充值"><p>汇付充值</p></label><label><input type="radio" name="track" v-model="fundMode" checked value=""><p>全部</p></label></div>'+
+		    '<p class="track-panel-title mrt">时间</p>'+
+		    '<div class="track-check"><input type="text" readonly id="beginDate" v-getvalue="beginDate" placeholder="起始时间"/><input type="text" id="endDate" readonly placeholder="结束时间" /></div>'+
+		    '<p class="track-btn"><button type="button" @click="submit">查询</button></p>'+
+		  '</div>'+
+		'</div>'
+})
+//生利宝
+var Shenglb =  Vue.extend({
+	compiled: function(){
+		setAppConfig('',false,false,false);
+	},
+	data: function(){
+		var _this = this;
+		app.ajax({
+	        url:'../front/querShengLiBaoInfo.do',
+	        dataType:'json',
+	        success: function(data){
+	        	if(data.error == '0'){
+	        		_this.$set("totalAsset", data.totalAsset);
+	        		_this.$set("totalProfit", data.totalProfit);
+	        		_this.$set("annuRate", data.annuRate);
+	        		_this.$set("prdRate", data.prdRate);
+	        	} else if (data.error == '9999')  {
+        			$.alert('您未登录，请重新登录！',function(){
+        				router.go({path:'/login'});
+        			});
+        			return;
+	        	}else {
+	        		_this.$set("totalAsset", "0");
+	        		_this.$set("totalProfit", "0");
+	        		_this.$set("annuRate", "0");
+	        		_this.$set("prdRate", "0");
+	        		$.alert(data.msg);
+	        	}
+	        },complete:function(){
+	        	_this.$set('loading',false);
+	        }
+	    });
+	  	return 	{
+		    left:true,
+		    right:true,
+		    fromUrl:'',
+		    title:'生利宝',
+		    display: true,
+		    rightText:'详情',
+			listData:[
+				{href:{path:'/control'}},
+			],
+			totalAsset: _this.totalAsset, totalProfit: _this.totalProfit, annuRate: _this.annuRate, prdRate: _this.prdRate
+		}
+	},
+	methods:{
+		back: function(){
+			history.go(-1);
+		},
+		control:function(){
+			if(!Storage.getItem('ipayAccount')){
+				$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+					router.go({path:'/registpay'});
+				});
+				return;
+			}else{
+				router.go({path:"/control"});
+			}
+		},
+		submit: function(){
+			if(!Storage.getItem('ipayAccount')){
+				$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+					router.go({path:'/registpay'});
+				});
+				return;
+			}else{
+				router.go({path:"/shenglb"});
+			}
+			app.ajax({
+		        url:'../front/slbaoTrading.do',
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		$('.bar-nav').html(data.html);
+		        	}else{
+		        		$.alert(data.msg);
+		        	}
+		        }
+		    })
+		},
+	},
+	template:
+		 	'<header class="bar bar-nav">'+
+			'<a v-show="left" @click="back" class="pull-left back"><i class="icon">&#xe604;</i></a>'+
+			'<a  @click="control" v-if="right" class="button button-link button-nav pull-right">{{rightText}}</a>'+
+			'<h1 class="title">{{title}}</h1></header>'+
+			'<div class="content  fadeIn-transition">'+
+			'<div class="account-top"><img src="images/accountbg.png"/>'+
+			'<div class="account-content"><div class="account-total">'+
+			'<p>我的总金额(元)</p><h3>{{totalAsset}}</h3></div>'+
+			'<div class="account-amt flex"><div class="amt-left">'+
+			'<p>累计收益(元)</p><p>{{totalProfit}}</p></div>'+
+			'<div class="amt-center"><p>最新收益(%)</p><p>{{annuRate}}</p></div>'+
+			'<div class="amt-right"><p>七日年化(%)</p><p>{{prdRate}}</p></div></div></div></div>'+
+			'<div class="shenglibao-flow"><div class="flowAll"><p class="flowTitle"><i class="title-icon"></i>转入流程</p>'+
+			'<p>1.在生利宝主界面中，选择“转入”。</P><p>2.输入“转入金额”（最低1元）。</P><p>3.输入“专属账户交易密码”。</P>'+
+			'<p>4.勾选“同意生利宝使用协议”，并点击确认转入。即可实时将闲置资金转入生利宝，进行投资获取收益。</P></div>'+
+			'<div class="flowAll"><p class="flowTitle"><i class="title-icon"></i>转出流程</p>'+
+			'<p>1.在生利宝主界面中，选择“转出”。</P><p>2.输入“转出金额”（最低0.01元）。</P><p>3.输入“专属账户交易密码”。</P>'+
+			'<p>4.点击“确认转出”，即可实时将资金转入到P2P账户中，用户投标或还款。</P></div></div>'+
+			'<div class="flow-item-submit"><button type="button" @click="submit" class="btn btn-submit">转入/转出</button></div></div>'
+});
+//生利宝详情
+var Control = Vue.extend({
+	compiled: function(){
+		setAppConfig('生利宝详情',true,false,true,'筛选','panel-track');
+	},
+	data:function(){
+		var _this = this;
+		var param={curPage:'1',startTime:'',endTime:'',statusFlag:''};
+		app.ajax({
+	        url:'../front/slbaoDetail.do',
+	        data:JSON.stringify(param),
+	        dataType:'json',
+	        success: function(data){
+	        	if(data.error == '0'){
+	        		if(data.pageBean.page.length>0){
+	        			_this.$set('dataLength',false);
+	        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+	        			if(data.pageBean.page.length<20){
+	        				_this.$set('model',false);
+	        			}
+	        			_this.$set('dataList',data.pageBean.page);
+	        		}
+	        	}
+	        },complete:function(){
+	        	_this.$set('loading',false);
+	        }
+	    })
+		return {
+			listNum:1,
+			loading:false,
+			fundMode:'',
+			beginDate:'',
+			endDate:'',
+			model:false
+		}
+	},
+	methods:{
+		openPanel:function(){
+			$.openPanel($('#panel-track'));
+		},
+		submit: function(){
+			var startTime = new Date($('#beginDate').val()).getTime();
+			var endTime = new Date($('#endDate').val()).getTime();
+			if (startTime > endTime) {
+				$.alert("开始时间不能大于结束时间！");
+				return;
+			}
+			$.closePanel();
+			var _this = this;
+			_this.$set('listNum', 1);
+			var param={curPage:_this.listNum,startTime:$('#beginDate').val(),endTime:$('#endDate').val(),statusFlag:encodeURI(_this.fundMode)};
+			app.ajax({
+		        url:'../front/slbaoDetail.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == 0){
+		        		_this.$set('dataList',data.pageBean.page);
+		        		if(data.pageBean.page.length>0){
+		        			_this.$set('dataLength',false);
+		        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+		        			$('.content').scrollTop(0);
+		        			if(data.pageBean.totalNum>20){
+		        				$.attachInfiniteScroll($('.infinite-scroll'));
+		        			}else{
+		        				$.detachInfiniteScroll($('.infinite-scroll'));
+		        				_this.$set('model',false);
+		        			}
+		        		}else{
+		        			_this.$set('dataLength',true);
+		        		}
+		        	}else{
+		        		$.alert(data.msg)
+		        	}
+		        }
+		    });
+		}
+	},
+	ready: function(){
+		$("#beginDate").calendar();
+		$("#endDate").calendar();
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦');
+				_this.$set('model',false);
+				_this.$set('loading',false);
+				$.detachInfiniteScroll($('.infinite-scroll'));
+				return;
+			}
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={curPage:_this.listNum,startTime:$('#beginDate').val(),endTime:$('#endDate').val(),statusFlag:encodeURI(_this.fundMode)};
+			app.ajax({
+		        url:'../front/slbaoDetail.do',
+		        data:param,
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			if(data.pageBean.page.length<20){
+		        				_this.$set('model',false);
+		        			}
+		        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+	},
+	beforeDestroy: function(){
+		this.$parent.$set('right',false);
+	},
+	filters:{
+		timeSub: function(value){
+			return value.substring(0,10);
+		},
+//		inOrOut: function(income){
+//			return income;
+//		}
+	},
+	template:'<div class="content" id="scoll"><div class="track-fund infinite-scroll infinite-scroll-bottom"  data-distance="100"><ul>'+
+			'<li class="track-title"><p>时间</p><p>操作类型</p><p>收支(元)</p><p>生利宝余额(元)</p></li>'+
+			'<li v-if="dataLength"><span>暂无资金明细</span></li>'+
+			'<template v-for="list in dataList">'+
+			'<li track-by="list.id"><p>{{list.recordTime | timeSub}}</p><p>{{list.remarks}}</p><p>{{list.income | inOrOut list.spending}}</p><p>{{list.usableSum}}</p></li></template>'+
+			'</ul></div>'+
+			'<div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div>'+
+			'</div><div class="panel-overlay"></div><div class="panel panel-right panel-cover" id="panel-track">'+
+			'<div class="content-block">'+
+		    '<p class="track-panel-title">类型</p>'+
+		    '<div class="track-check"><label><input type="radio" name="track" v-model="fundMode" value="into"><p>转入</p></label><label><input type="radio" name="track" v-model="fundMode" value="rollout"><p>转出</p></label></div>'+
+		    '<div class="track-check"><label><input type="radio" name="track" v-model="fundMode" value="earnings"><p>收益</p></label><label><input type="radio" name="track" v-model="fundMode" checked value=""><p>全部</p></label></div>'+
+		    '<p class="track-panel-title mrt">时间</p>'+
+		    '<div class="track-check"><input type="text" readonly id="beginDate" v-getvalue="beginDate" placeholder="起始时间"/><input type="text" id="endDate" readonly placeholder="结束时间" /></div>'+
+		    '<p class="track-btn"><button type="button" @click="submit">查询</button></p>'+
+		  '</div>'+
+		'</div>'
+})
+
+//我的赠券
+var Coupon = Vue.extend({
+	compiled: function(){
+		setAppConfig('我的赠券',true,false);
+	},
+	data:function(){
+		return {
+			titleName:''
+		}
+	},
+	template:'<div class="content">'+
+				'<router-view transition="fadeIn"></router-view>'+
+			'</div>'
+});
+var Coupona = Vue.extend({
+	compiled:function(){
+		setAppConfig('我的赠券',true,false);
+	},
+	data: function(){
+		return {
+			listData:[{name:'我的代金券'},{name:'我的现金券'},{name:'我的体验金'}]
+		}
+	},
+	methods:{
+		showDest: function(index){
+			router.go({path:'taste',append:true,query:{flag:index}});
+		}
+	},
+	template:'<div class="table-view">'+
+		'<div class="text-item-shadow" v-for="list in listData">'+
+		'<a class="icon-list" @click="showDest($index)">{{list.name}}</a></div></div>'
+});
+//体验金
+//优惠券
+//现金券
+var Taste = Vue.extend({
+	compiled: function(){
+		if(this.$route.query.flag == 0){
+			var name = '我的代金券';
+		}else if(this.$route.query.flag == 1){
+			var name = '我的现金券';
+		}else{
+			var name = '我的体验金';
+		};
+		setAppConfig(name,true,false);
+	},
+	route:{
+		data:function(){
+			var _this = this;
+			app.ajax({
+		        url:'../front/vocherAmts.do',
+		        data:{},
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == 0){
+		        		if(_this.$route.query.flag == 0){
+		        			var taste = data.mapList1;
+		        		}else if(_this.$route.query.flag == 1){
+		        			var taste = data.mapList2;
+		        		}else{
+		        			var taste = data.accountSum;
+		        		};
+		        		var list1 = [],list2 = [],list3 = [];
+		        		if(typeof(taste) != "string"){
+		        			for(var i = 0;i<taste.length;i++){
+		        				if(taste[i].usestatus=='1'){
+		        					list1.push(taste[i]);
+		        				}else if(taste[i].usestatus=='2'){
+		        					list2.push(taste[i]);
+		        				}else if(taste[i].usestatus=='3'){
+		        					list3.push(taste[i]);
+		        				}
+		        			};
+		        		}else{
+		        			if(taste && taste > 0){
+		        				list1.push({money:taste});
+		        			}else{
+		        				list2.push({money:'28888'});
+		        			}
+		        		};
+		        		_this.$set('list1',list1);
+		        		_this.$set('list2',list2);
+		        		_this.$set('list3',list3);
+		        	}else{
+		        		$.alert(data.msg);
+		        	}
+		        	
+		        }
+		    });
+		},waitForData:true
+	},
+	data: function(){
+		return {
+			isShow:[true,false,false]
+		}
+	},
+	methods:{
+		isEmpty: function(index){
+			if(index==1){
+				if(this.list1.length>0){
+					return false;
+				}else{
+					return true;
+				}
+			}else if(index==2){
+				if(this.list2.length>0){
+					return false;
+				}else{
+					return true;
+				}
+			}else{
+				if(this.list3.length>0){
+					return false;
+				}else{
+					return true;
+				}
+			}
+		},
+		changeIndex: function(index){
+			var _this = this;
+			if(index==1){
+				_this.$set('isShow',[true,false,false])
+			}else if(index==2){
+				_this.$set('isShow',[false,true,false]);
+			}else{
+				_this.$set('isShow',[false,false,true])
+			}
+		},
+		showBtn: function(){
+			if(this.isShow[0] == true && this.list1.length>0 && this.$route.query.flag!=1){
+				return true;
+			}else{
+				return false;
+			}
+		},
+		toInvest:function(){
+			if(this.$route.query.flag == 2){
+				router.go({path:'/detail?id=1&type=tiyan'});
+			}else{
+				router.go({path:'/index'});
+			}
+		},
+		useCard:function(id){
+			if(this.$route.query.flag==1){
+				var param={uid:Storage.getItem('uid'), id:id};
+				app.ajax({
+			        url:'../front/useXianJinQuan.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == 0){
+			        		$.alert('现金券领取成功!',function(){
+			        			router.go({path:'/account'});
+			        		})
+			        	}else{
+			        		$.alert(data.msg);
+			        	}
+			        }
+			    });
+			}
+		}
+	},
+	template:'<div><div class="buttons-tab">'+
+			    '<a class="tab-link button" @click="changeIndex(1)" v-bind:class="{ active: isShow[0]}">未使用</a>'+
+			    '<a class="tab-link button" @click="changeIndex(2)" v-bind:class="{ active: isShow[1]}">已使用</a>'+
+			    '<a class="tab-link button" @click="changeIndex(3)" v-bind:class="{ active: isShow[2]}">已过期</a>'+
+			  '</div>'+
+			  '<div class="content-block" v-show="isShow[0]"><ul class="card-list">'+
+			  '<li v-for="list in list1"><div class="card-list-content flex title20" @click="useCard(list.id)">'+
+				'<i class="icon">&#xe618;</i><p>可用金额</p><p><span>{{list.money}}</span><span>元</span></p></div>'+
+			  '</li><li class="nolist" v-if="isEmpty(1)" >当前无记录</li></ul>'+
+			  '<div class="text-item-submit" v-if="showBtn()"><button class="btn btn-submit" @click="toInvest">立即使用</button></div>'+
+			  '</div>'+
+			  '<div class="content-block" v-show="isShow[1]"><ul class="card-list">'+
+			  '<li v-for="list in list2"><div class="card-list-content flex titleno">'+
+				'<i class="icon">&#xe618;</i><p>可用金额</p><p><span>{{list.money}}</span><span>元</span></p></div>'+
+			  '</li><li class="nolist" v-if="isEmpty(2)">当前无记录</li></ul></div>'+
+			  '<div class="content-block" v-show="isShow[2]"><ul class="card-list">'+
+			  '<li v-for="list in list3"><div class="card-list-content flex titleno">'+
+				'<i class="icon">&#xe618;</i><p>可用金额</p><p><span>{{list.money}}</span><span>元</span></p></div>'+
+			  '</li><li class="nolist" v-if="isEmpty(3)">当前无记录</li></ul></div></div>'
+});
+//我的银行卡
+var Bankcard = Vue.extend({
+	compiled: function(){
+		setAppConfig('我的银行卡',true,false);
+	},
+	route:{
+		data: function(transition){
+			var _this = this;
+			var param={uid:Storage.getItem('uid')};
+			app.ajax({
+		        url:'../front/queryBankList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		_this.$set('bankList',data.bankList);
+		        	}
+		        },
+		        complete:function(){
+		        	transition.next();
+		        }
+		    })
+		},
+		waitForData: true
+	},
+	methods:{
+		bindCard: function(){
+			if(!Storage.getItem('ipayAccount')){
+				$.alert('您还未注册汇付天下，请先注册汇付天下！',function(){
+					router.go({path:'/registpay'});
+				});
+				return;
+			};
+			var param={uid:Storage.getItem('uid')};
+			app.ajax({
+		        url:'../front/addBankInfo.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		$('#addBank').html(data.html);
+		        	}else{
+		        		$.alert(data.msg);
+		        	}
+		        }
+		    })
+		}
+	},
+	template:'<div class="content">'+
+			'<div class="list-block"><ul>'+
+			'<li class="item-content" v-for="list in bankList"><div class="item-inner">'+
+			'<div class="item-title">{{list.bankName}}</div><div class="item-after">尾号{{list.cardNo | bankNumber}}</div></div></li>'+
+			'</div><div class="text-item-submit"><button @click="bindCard" class="btn btn-submit">添加银行卡</button>'+
+            '</div><div id="addBank"></div></div>'
+});
+var Friend = Vue.extend({
+	compiled:function(){
+		setAppConfig('邀请好友',true,false);
+	},
+	route:{
+		data: function(transition){
+			var _this = this;
+			var param={uid:Storage.getItem('uid'),curPage:1};
+			app.ajax({
+		        url:'../front/myFriendList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		_this.$set('totalNum',data.pageBean.totalNum);
+		        	}
+		        },
+		        complete:function(){
+		        	transition.next();
+		        }
+		    })
+		},
+		waitForData: true
+	},
+	data:function(){
+		return {
+			totalNum:0,
+			cozyText:'温馨提示：请不要发送邀请信给不熟悉的人士,避免给别人带来不必要的困扰。 请将以下推荐链接地址或推荐号发给您的好友，这样您就成了他的邀请者。1、2017年3月6日起，推荐人每推荐一位好友注册并投资任意一款理财产品满500元以上，推荐人即可获得5元推荐奖励；2、推荐人推荐好友注册并累计投资达3万元即可额外返100元推荐奖励，达10万元即可额外返300元推荐奖励。',
+			imgUrl: '../front/qrCode.do?url=https://www.pujinziben.com/wap/app.html%23!/regist?useCode='+Storage.getItem('uid')
+		}
+	},
+	methods:{
+		seaList:function(){
+			if(this.totalNum>0){
+				router.go({path:'frienddetail'});
+			}else{
+				$.toast('您还没有邀请好友注册哦！');
+				return;
+			}
+		}
+	},
+	template:'<div class="content"><div class="content-padded">'+
+			'<p class="friend-title">扫一扫</p><p class="friend-img"><img :src="imgUrl"/></p>'+
+			'<div class="text-item-submit">'+
+            '<button type="button" @click="seaList" class="btn btn-submit">查看邀请好友</button>'+
+            '</div><a class="friend-list">已经邀请<span>{{totalNum}}</span>位好友</a><div class="friend-text"><p>{{cozyText}}</p></div></div>'+
+		'</div></div>'
+});
+var Frienddetail = Vue.extend({
+	compiled: function(){
+		setAppConfig('我邀请的好友',true,false);
+	},
+	data:function(){
+		return{
+			listNum:1,
+			loading:false,
+			model:false
+		}
+	},
+	route:{
+		data: function(transition){
+			var _this = this;
+			var param={uid:Storage.getItem('uid'),curPage:_this.listNum};
+			app.ajax({
+		        url:'../front/myFriendList.do?is=1',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	_this.$set('dataList',data.pageBean.page);
+		        	_this.$set('isEmployeeReferral',data.isEmployeeReferral);
+	        		if(data.pageBean.page.length>0){
+	        			_this.$set('dataLength',false);
+	        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+	        		}else{
+	        			_this.$set('dataLength',true);
+	        		}
+		        },
+		        complete:function(){
+		        	transition.next();
+		        }
+		    })
+		},
+		waitForData: true
+	},
+	ready: function(){
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦'); 
+				_this.$set('model',false);
+				_this.$set('loading',false);
+				$.detachInfiniteScroll($('.infinite-scroll'));
+				return;
+			}
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={uid:Storage.getItem('uid'),curPage:_this.listNum};
+			app.ajax({
+		        url:'../front/myFriendList.do?is=1',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			if(data.pageBean.page.length<20){
+		        				_this.$set('model',false);
+		        			}
+		        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+	},
+	filters:{
+		timeSub: function(value){
+			return value
+		}
+	},
+	methods:{
+		showDetail:function(list){
+			if(this.isEmployeeReferral != '2'){
+				return '--';
+			}else{
+				return '<a href="#!/friendfund?id='+list.userId+'&name='+list.username+'">查看</a>'
+			}
+		}
+	},
+	template:'<div class="content calculator friend track-fund"><div class="track-fund infinite-scroll infinite-scroll-bottom"  data-distance="100"><ul>'+
+			'<li class="track-title"><p>邀请的好友</p><p>注册时间</p><p>奖励</p><p>操作</p></li>'+
+			'<li v-if="dataLength"><span>暂无明细</span></li>'+
+			'<template v-for="list in dataList">'+
+			'<li track-by="list.userId"><p>{{list.username}}</p><p>{{list.createTime | timeSub}}</p><p>{{list.rewardMoney}}</p><p v-html="showDetail(list)"></p></li></template>'+
+			'</ul></div><div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div></div>'
+});
+var Friendfund = Vue.extend({
+	compiled: function(){
+		var userId = this.$route.query.id;
+		var userName = this.$route.query.name;
+		this.$set('userId',userId);
+		this.$set('userName',userName);
+		setAppConfig(''+userName+'明细',true,false);
+	},
+	data:function(){
+		return {
+			listNum:1,
+			loading:false,
+			model:false,
+			showLength:false,
+			listData:[],
+			totalPageNum:0
+		}
+	},
+	route:{
+		data: function(transition){
+			var _this = this;
+			//无线滚动
+			var param={curPage:_this.listNum,userId:_this.userId,username:encodeURI(_this.userName)};
+			app.ajax({
+		        url:'../front/investRecordInit.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			if(data.pageBean.page.length<10){
+		        				_this.$set('model',false);
+		        			}
+		        			_this.$set('listData',data.pageBean.page);
+			        		_this.$set('totalPageNum',data.pageBean.totalPageNum);
+			        		$('.content-invest').scrollTop(0);
+		        		}else{
+		        			_this.$set('showLength',true);
+		        		}
+		        		
+		        	}
+		        },complete:function(){
+		        	transition.next();
+		        	_this.$set('loading',false);
+		        }
+		    });
+		},waitForData:true
+	},
+	ready: function(){
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦');
+				_this.$set('model',false);
+				$.detachInfiniteScroll($('.infinite-scroll'));
+				return;
+			}
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={curPage:_this.listNum,userId:_this.userId,username:encodeURI(_this.userName)};
+			app.ajax({
+		        url:'../front/investRecordInit.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			_this.$set('listData',_this.listData.concat(data.pageBean.page));
+		        			$.refreshScroller();
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+	},
+	methods: {
+		status:function(borrowStatus){
+			if(borrowStatus == 2){
+				return '<p class="title-log title-red">招标中</p>';
+			}else if(borrowStatus == 3){
+				return '<p class="title-log title-gray">已满标</p>';
+			}else if(borrowStatus == 4){
+				return '<p class="title-log title-blue">还款中</p>';
+			}else if(borrowStatus == 5){
+				return '<p class="title-log title-gray">已还完</p>';
+			}else if(borrowStatus == 6){
+				return '<p class="title-log title-gray">已流标</p>';
+			}
+		}
+	},
+	template:'<div class="content content-invest"><div class="invest-list invest-list-friend infinite-scroll infinite-scroll-bottom" data-distance="100" >'+
+	'<template v-for="list in listData">'+
+    '<div class="invest-list-content" track-by="list.id">'+
+	'<div class="invest-title"><i class="icon fl">&#xe61e;</i>{{list.borrowTitle}}</div>'+
+	'<div class="invest-main row no-gutter">'+
+		'<div class="col-25"><p>{{list.annualRate}}%</p><p>年利率</p></div>'+
+		'<div class="col-33"><p>{{list.borrowAmount}}<span>元</span></p><p>融资金额</p></div>'+
+		'<div class="col-25"><p>{{list.deadline}}<span>月</span></p><p>投资期限</p></div>'+
+		'<div class="col-17" v-html="status(list.borrowStatus)"></div></div>'+
+	'<div class="invest-footer"><p>投资金额：{{list.investAmount}}元</p><p></p>'+
+	'</div></div></template><div v-if="showLength" class="invest-nobody">暂无投资记录</div><div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div></div></div>'
+});
+//投资记录
+var Invest = Vue.extend({
+	compiled: function(){
+		setAppConfig('投资明细',true,false);
+	},
+	data: function(){
+		return {
+			activeLink:1
+		}
+	},
+	methods:{
+		investDetail:function(index){
+			this.$set('activeLink',index);
+			router.go({path:'/invest',query:{investType:index},replace: true});
+		}
+	},
+	template:'<div class="content"><div class="buttons-tab content-invest">'+
+			    '<a @click="investDetail(1)" v-bind:class="{active:activeLink==1}" class="tab-link button">普金保</a>'+
+			    '<a @click="investDetail(2)" v-bind:class="{active:activeLink==2}"class="tab-link button">多金宝</a>'+
+			    '<a @click="investDetail(3)" v-bind:class="{active:activeLink==3}"class="tab-link button">恒金保</a>'+
+			    '</div><div class="content content-invest">'+
+			'<router-view transition="fadeIn"></router-view></div></div>'
+});
+var Investpj = Vue.extend({
+	compiled: function(){
+	},
+	route:{
+		data: function(transition){
+			var index = this.$route.query.investType;
+			this.$set('showLength',false);
+			this.$set('listData',[]);
+			this.$set('totalPageNum','');
+			this.$set('listNum',1);
+			this.$set('loading',true);
+			this.$set('model',false);
+			if(index == 2){
+				this.$set('borrowTypeSubId','3');
+				this.$parent.$set('activeLink',index);
+			}else if(index == 3){
+				this.$set('borrowTypeSubId','6');
+				this.$parent.$set('activeLink',index);
+			}else{
+				this.$set('borrowTypeSubId','4');
+				this.$parent.$set('activeLink',1);
+			}
+			var _this = this;
+			var param={uid:Storage.getItem('uid'),curPage:_this.listNum,borrowTypeSubId:_this.borrowTypeSubId};
+			app.ajax({
+		        url:'../front/homeBorrowInvestList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.totalNum>0){
+		        			_this.$set('listData',data.pageBean.page);
+			        		_this.$set('totalPageNum',data.pageBean.totalPageNum);
+			        		$('.content-invest').scrollTop(0);
+		        		}else{
+		        			_this.$set('showLength',true);
+		        		}
+		        	}
+		        },complete:function(){
+		        	transition.next();
+		        	_this.$set('loading',false);
+		        }
+		    });
+		},waitForData:true
+	},
+	ready: function(){
+		//$.attachInfiniteScroll('.infinite-scroll');
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦');
+				_this.$set('model',false);
+				//$.detachInfiniteScroll($('.infinite-scroll'));
+				return;
+			};
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={uid:Storage.getItem('uid'),curPage:_this.listNum,borrowTypeSubId:_this.borrowTypeSubId};
+			app.ajax({
+		        url:'../front/homeBorrowInvestList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			_this.$set('listData',_this.listData.concat(data.pageBean.page));
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+		//alert(1);
+	},
+	data:function(){
+		return {
+			listNum:1,
+			loading:false,
+			model:false,
+			showLength:false
+		}
+	},
+	methods: {
+		status:function(borrowStatus){
+			if(borrowStatus == 2){
+				return '<p class="title-log title-red">招标中</p>';
+			}else if(borrowStatus == 3){
+				return '<p class="title-log title-gray">已满标</p>';
+			}else if(borrowStatus == 4){
+				return '<p class="title-log title-blue">还款中</p>';
+			}else if(borrowStatus == 5){
+				return '<p class="title-log title-gray">已还完</p>';
+			}else if(borrowStatus == 6){
+				return '<p class="title-log title-gray">已流标</p>';
+			}
+		},
+		showCont:function(borrowStatus){
+			if(borrowStatus == 4){
+				return true;
+			}else if(borrowStatus == 5){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	},
+	template:'<div class="invest-list infinite-scroll infinite-scroll-bottom" data-distance="100" >'+
+	'<template  v-for="list in listData">'+
+    '<div class="invest-list-content" track-by="list.id">'+
+	'<div class="invest-title"><i class="icon fl">&#xe61e;</i>{{list.borrowTitle}}</div>'+
+	'<div class="invest-main row no-gutter">'+
+		'<div class="col-25"><p>{{list.annualRate}}%</p><p>年利率</p></div>'+
+		'<div class="col-33"><p>{{list.borrowAmount}}<span>元</span></p><p>融资金额</p></div>'+
+		'<div class="col-25"><p>{{list.deadline}}<span>月</span></p><p>投资期限</p></div>'+
+		'<div class="col-17" v-html="status(list.borrowStatus)"></div></div>'+
+	'<div class="invest-footer"><p>投资金额：{{list.investAmount}}元</p><p><a href="{{list.viewpdf_url}}" v-if="showCont(list.borrowStatus)">查看合同</a></p>'+
+	'</div></div></template><div v-if="showLength" class="invest-nobody">暂无投资记录</div><div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div></div>'
+});
+var Investdj = Vue.extend({
+	compiled: function(){
+		this.$parent.$set('activeLink',2);
+	},
+	route:{
+		data: function(transition){
+			var _this = this;
+			var param={uid:Storage.getItem('uid'),curPage:_this.listNum,borrowTypeSubId:'3'};
+			app.ajax({
+		        url:'../front/homeBorrowInvestList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.pageBean.totalNum>0){
+	        			_this.$set('listData',data.pageBean.page);
+		        		_this.$set('totalPageNum',data.pageBean.totalPageNum);
+		        		$('.content-invest').scrollTop(0);
+	        		}else{
+	        			_this.$set('showLength',true);
+	        		}
+		        },complete:function(){
+		        	transition.next();
+		        }
+		    });
+		},waitForData:true
+	},
+	ready: function(){
+		//$.attachInfiniteScroll('.infinite-scroll');
+		var _this = this;
+		$(document).on('infinite',function(){
+			if (_this.loading){return;}
+			_this.$set('model',true);
+			// 设置flag
+			_this.$set('loading',true);
+			var listNum = _this.listNum+1;
+			//如果查询页数大于当前总页数，则返回
+			if(listNum > _this.totalPageNum){
+				$.toast('没有更多记录了哦');
+				_this.$set('model',false);
+				$.detachInfiniteScroll($('.infinite-scroll'));
+				return;
+			}
+			_this.$set('listNum',listNum);
+			//无线滚动
+			var param={uid:Storage.getItem('uid'),curPage:_this.listNum,borrowTypeSubId:'3'};
+			app.ajax({
+		        url:'../front/homeBorrowInvestList.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		if(data.pageBean.page.length>0){
+		        			_this.$set('listData',_this.listData.concat(data.pageBean.page));
+		        			$.refreshScroller();
+		        		}
+		        	}
+		        },complete:function(){
+		        	_this.$set('loading',false);
+		        }
+		    })
+		});
+		$.initPage();
+	},
+	data:function(){
+		return {
+			listNum:1,
+			loading:false,
+			model:false,
+			showLength:false
+		}
+	},
+	methods: {
+		status:function(borrowStatus){
+			if(borrowStatus == 2){
+				return '<p class="title-log title-red">招标中</p>';
+			}else if(borrowStatus == 3){
+				return '<p class="title-log title-gray">已满标</p>';
+			}else if(borrowStatus == 4){
+				return '<p class="title-log title-blue">还款中</p>';
+			}else if(borrowStatus == 5){
+				return '<p class="title-log title-gray">已还完</p>';
+			}else if(borrowStatus == 6){
+				return '<p class="title-log title-gray">已流标</p>';
+			}
+		},
+		showCont:function(borrowStatus){
+			if(borrowStatus == 4){
+				return true;
+			}else if(borrowStatus == 5){
+				return true;
+			}
+		}
+	},
+	template:'<div class="invest-list infinite-scroll infinite-scroll-bottom" data-distance="100" >'+
+	'<template  v-for="list in listData">'+
+    '<div class="invest-list-content"track-by="list.id">'+
+	'<div class="invest-title"><i class="icon fl">&#xe61e;</i>{{list.borrowTitle}}</div>'+
+	'<div class="invest-main row no-gutter">'+
+		'<div class="col-25"><p>{{list.annualRate}}%</p><p>年利率</p></div>'+
+		'<div class="col-33"><p>{{list.borrowAmount}}<span>元</span></p><p>融资金额</p></div>'+
+		'<div class="col-25"><p>{{list.deadline}}<span>月</span></p><p>投资期限</p></div>'+
+		'<div class="col-17" v-html="status(list.borrowStatus)"></div></div>'+
+	'<div class="invest-footer"><p>投资金额：{{list.investAmount}}元</p><p><a href="{{list.viewpdf_url}}" v-if="showCont(list.borrowStatus)">查看合同</a></p>'+
+	'</div></div></template><div v-if="showLength" class="invest-nobody">暂无投资记录</div><div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div></div>'
+});
+//交易密码设置
+var Changepwd = Vue.extend({
+	compiled: function(){
+		setAppConfig('交易密码设置',true,false);
+	},
+	data: function(){
+		return {
+			dataList:[
+				{inputType:'password',iconClass:'icon-icon-lock',placeholder:'请输入交易密码',max:16,dataBind:'passwordone',showMsg:false},
+				{inputType:'password',iconClass:'icon-icon-lock',placeholder:'请确认交易密码',max:16,dataBind:'passwordtwo',showMsg:false},
+				{inputType:'text',iconClass:'icon-icon-msg',placeholder:'请输入短信验证码',max:6,dataBind:'msgCode',showMsg:true}
+			],
+			username:Storage.getItem('customerId'),passwordone:'',passwordtwo:'',useCode:'',msgCode:'',btnclass:'btn btn-msg',btnText:'获取验证码',
+			recivePhone:'',randomCode:'',smsCode:'',clickInit:true
+		}
+	},
+	methods: {
+		getSms: function(){
+			getSmsCode(this,'resetPwd');
+		},
+		change: function(){
+			if(this.passwordone==''){
+				$.toast('请确认交易密码!');return;
+			};
+			if(this.passwordtwo==''){
+				$.toast('请确认交易密码!');return;
+			};
+			if(this.passwordtwo!=this.passwordone){
+				$.toast('两次密码输入不一致!');return;
+			};
+			if(this.msgCode==''){
+				$.toast('请输入短信验证码!');return;
+			};
+			var param={uid:Storage.getItem('uid'),passwd:this.passwordone,mobilePhone:this.username,code:this.msgCode,randomCode:this.randomCode,recivePhone:this.recivePhone};
+			app.ajax({
+	            url:'../front/updateDealPwd.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error =='0'){
+	            		$.alert('交易密码修改成功',function(){
+	            			router.go({path:'/account'})
+	            		})
+	            	}else{
+	            		$.alert(data.msg);
+	            	}
+	            }
+	        })
+		}
+	},
+	template:'<div class="content content-login">'+
+	            '<template v-for="list in dataList"><div class="text-item">'+
+		            '<label><i class="icon icon-color" :class="[list.iconClass]""></i></label>'+
+		            '<input type="{{list.inputType}}" placeholder="{{list.placeholder}}" maxlength="{{list.max}}" v-getvalue="[list.dataBind]">'+
+		            '<button type="button" v-if="list.showMsg" v-on:click="getSms" class="{{btnclass}}">{{btnText}}</button>'+
+		        '</div></template>'+
+		        '<div class="text-item-submit">'+
+		            '<button type="button" @click="change" class="btn btn-submit">提交</button>'+
+		        '</div></div>'
+});
+//账户中心
+var Account = Vue.extend({
+	compiled: function(){
+		setAppConfig('账户',false,true);
+	},
+	components:{
+		Total:Total,
+		Tableview:Tableview
+	},
+	route:{
+		data:function(transition){
+			var _this = this;
+			if(!Storage.getItem('uid')){
+				$.alert('您未登录，请重新登录！',function(){
+					router.go({path:'/login'});
+				});
+				return;
+			};
+		    app.ajax({
+		        url:'../front/queryHome.do',
+		        data:{},
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == 0){
+			        	var allTotal = parseFloat(data.usableSum) + parseFloat(data.freezeAmount) + parseFloat(data.forPaySum);
+			        	allTotal = allTotal.toFixed(2);
+			        	var total = [allTotal,data.usableSum,data.forPaySum,data.earnSum];
+			        	_this.$children[0].$set('accountData',total);
+			        	Storage.setItem('ipayAccount',data.ipayAccount);
+			        	Storage.setItem('bankNum',data.bankNum);
+			        	_this.$children[0].$set('updatepwd',data.updatepwd);
+		        	}else{
+		        		$.alert(data.msg,function(){
+		        			Storage.clear();
+		        			router.go({path:'/login'});
+		        		});
+		        	}
+		        },
+		        complete:function(){
+		        	transition.next();
+		        }
+		    })
+		},
+		waitForData: true
+	},
+	template:'<div class="content my-account"><Total></Total><Tableview></Tableview></div>'
+});
+//充值
+var Ipay = Vue.extend({
+	compiled: function(){
+		setAppConfig('充值',true,false);
+	},
+	route: {
+		data: function(transition){
+			var _this = this;
+			var param={uid:Storage.getItem('uid')};
+			app.ajax({
+		        url:'../front/queryRechargeInit.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		_this.$set('textData[0].value',data.realName);
+		        		_this.$set('textData[2].value',data.usableSum);
+		        		transition.next();
+		        	}else{
+		        		$.alert(data.msg);
+		        	}
+		        }
+		    })
+		},
+		waitForData: true
+	},
+	data:function(){
+		return{
+			text:'凡是在普金资本充值未投标的用户，15天以内提现收取本金0.5%，15天以后提现免费 普金资本禁止信用卡套现、虚假交易等行为,一经发现将予以处罚,包括但不限于：限制收款、冻结账户、永久停止服务,并有可能影响相关信用记录。',
+			realName:'',
+			usableSum:'',
+			textData:[
+			 {text:'真实姓名',value:''},
+			 {text:'登录账号',value:Storage.getItem('customerId')},
+			 {text:'可用余额',value:'00.00'}
+			 ],
+			 money:'',
+			 html:''
+		}
+	},
+	methods: {
+		ipay: function(){
+			var _this = this;
+			var moeny = _this.money;
+			if(moeny == ''){
+				$.toast('请输入金额');
+				return;
+			};
+			if(!AmtRegExp.test(moeny)){
+				$.toast('金额格式不正确');
+				return;
+			};
+			var param={money:moeny}; 
+		    app.ajax({
+		        url:'../front/ipayPayment.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error==0){
+		        		$('#alipay').html(data.html);
+		        	}else{
+		        		$.alert(data.msg);
+		        	}	
+		        }
+		    })
+
+		}
+	},
+	template:'<div class="content content-login">'+
+		'<div class="table-text"><p>{{text}}</p></div>'+
+		'<div class="table-view">'+
+		'<div class="text-item-shadow" v-for="list in textData"><label>{{list.text}}</label><p>{{list.value}}</p></div>'+
+		'</div><div class="table-cell flex"><p>充值金额</p><div class="text-item-shadow">'+
+        '<input type="text" v-getvalue="money" placeholder="请输入充值金额" v-checkmoney="" /></div><p>元</p>'+
+    '</div><div id="alipay"></div><div class="text-item-submit"><button v-on:click="ipay" class="btn btn-submit">充值</button></div>'+
+	'</div>'
+});
+//提现
+var Cashing = Vue.extend({
+	compiled:function(){
+		setAppConfig('提现',true,false);
+	},
+	route:{
+		data: function(transition){
+			var _this = this;
+			app.ajax({
+		        url:'../front/queryWithdraw.do',
+		        data:{},
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0'){
+		        		_this.$set('bankList',data.bankList);
+		        		_this.$set('bankNo',data.bankList[0].cardNo);
+		        		_this.$set('bankName',data.bankList[0].bankName);
+		        		var bankNoList = [],bankNameList=[];
+		        		for(var i=0;i<data.bankList.length;i++){
+		        			bankNoList.push(data.bankList[i].cardNo);
+		        			bankNameList.push(data.bankList[i].bankName)
+		        		};
+		        		_this.$set('bankNoList',bankNoList);
+		        		_this.$set('bankNameList',bankNameList);
+		        		_this.$set('username',data.bindingPhone);
+		        	}else{
+		        		$.alert(data.msg);
+		        	}
+		        },
+		        complete:function(){
+		        	transition.next();
+		        }
+		    })
+		},
+		waitForData: true
+	},
+	data: function(){
+		return {
+			bankNo:'',bankName:'',amt:'',password:'',smsCode:'',btnclass:'btn btn-msg',btnText:'获取验证码',clickInit:true,
+			username:'',recivePhone:'',randomCode:'',
+			listData:[
+			          {inputType:'text',placeholder:'请输入提现金额',max:16,iconClass:'icon-moneyamt',dataBind:'amt'},
+			          {inputType:'password',placeholder:'请输入交易密码',max:16,iconClass:'icon-icon-lock',dataBind:'password'},
+			          {inputType:'text',placeholder:'请输入短信验证码',max:4,iconClass:'icon-icon-msg',dataBind:'smsCode',msg:true},
+			          
+			          ]
+		}
+	},
+	methods:{
+		getSms: function(){
+			getSmsCode(this,'withdraw');
+		},
+		bankList: function(){
+			var _this = this;
+			$(this).picker({
+			  toolbarTemplate: '<header class="bar bar-nav bar-picker">\
+			  <button class="button button-link pull-right close-picker">确定</button>\
+			  <h1 class="title">银行卡修改</h1>\
+			  </header>',
+			  cols: [
+			    {
+			      textAlign: 'center',
+			      values: _this.bankNoList
+			    }
+			  ],
+			  onClose: function(obj){
+				  _this.$set('bankNo',obj.value[0]);
+				  for(var i=0;i<_this.bankNoList.length;i++){
+					  if(_this.bankNoList[i] == obj.value[0]){
+						  _this.$set('bankName',_this.bankNameList[i]);
+					  }
+				  }
+				  //console.log(obj.value);
+			  }
+			});
+			$(this).picker('open');
+		},
+		submit: function(){
+			if(this.amt == ''){
+				$.toast('金额不能为空');return;
+			}
+			if(this.password == ''){
+				$.toast('交易密码不能为空');return;
+			}
+			if(this.smsCode == ''){
+				$.toast('请填写短信验证码');return;
+			}
+			if(!AmtRegExp.test(this.amt)){
+				$.toast('金额格式不正确');return;
+			}
+			if(this.recivePhone == ''){
+				$.toast('请获取短信验证码');return;
+			}
+		//	var param={"auth":"{uid:'"+Storage.getItem('uid')+"'}","info":"{dealpwd:'"+this.password+"',code:'"+this.smsCode+"',randomCode:'"+this.randomCode+"',recivePhone:'"+this.recivePhone+"',money:'"+this.amt+"',bankId:'"+this.bankNo+"'}"}; 
+			var param={dealpwd:this.password,code:this.smsCode,money:this.amt,bankId:this.bankNo,codeType:'withdraw'}; 
+			app.ajax({
+	            url:'../front/addWithdraw.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error =='0'){
+	            		$('#reurnHtml').html(data.html.replace('target="_blank"',''));
+	            		//router.go({path:'four'});
+	            	}else{
+	            		$.alert(data.msg);
+	            	}
+	            }
+	        })
+		}
+	},
+	template:'<div class="content content-login"><div class="table-view"><div class="text-item flex" @click="bankList">'+
+	'<div class="item-title"><i class="icon icon-color">&#xe61d;</i><span>{{bankName}}</span></div>'+
+	'<div class="item-after">尾号<span v-text="bankNo | bankNumber"></span></div></div><div class="table-text">'+
+	'<p>凡是在普金资本充值未投标的用户，15天以内提现收取本金0.5%，15天以后提现免费。禁止信用卡套现。</p></div></div>'+
+	'<div class="table-view"><div class="text-item-shadow" v-for="list in listData"><label><i class="icon icon-color" :class="[list.iconClass]"></i></label>'+
+	'<input type="{{list.inputType}}" v-getvalue="[list.dataBind]" placeholder="{{list.placeholder}}" maxlength="16" >'+
+	'<button type="button" v-on:click="getSms" v-if="list.msg" class="{{btnclass}}">{{btnText}}</button></div>'+
+	'<div class="text-item-submit"><button type="button" class="btn btn-submit" @click="submit">确认提交</button></div><div id="reurnHtml"></div></div>'
+});
+//登录
+var Login = Vue.extend({
+	compiled: function(){
+		setAppConfig('登录',this.$route.query.show,false);
+	},
+	data: function(){
+		return {
+			dataList:[
+				{inputType:'text',iconClass:'icon-username',placeholder:'请输入手机号码',max:11,dataBind:'username',showMsg:false},
+				{inputType:'password',iconClass:'icon-icon-lock',placeholder:'请输入登录密码',max:16,dataBind:"password",showMsg:false},
+			],
+			username:'',password:'',bX:0,btnLeft:0,bgWidth:0,pullTest:false,tipText:'请按住滑块，拖动到最右边'
+		}
+	},
+	methods:{
+		login: function(){
+			if(this.username==''){
+				$.toast('请输入手机号');
+				return;
+			};
+			if(!mobilePhone.test(this.username)){
+				$.toast('请输入正确的手机号码！');
+				return;
+			}
+			if(this.password==''){
+				$.toast('请输入密码');
+				return;
+			}
+			if(!this.pullTest){
+				$.toast('请拖动验证码到正确位置');
+				return;
+			}
+			var customerId = this.username;
+			var param={name:this.username,pwd:this.password,pageId:'userlogin'};
+			app.ajax({
+		        url:'../front/login.do',
+		        data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error==0){
+	            		Storage.setItem('uid',data.id);
+	            		Storage.setItem('customerId',customerId);
+	            		Storage.setItem('ipayAccount',data.ipayAccount);
+	            		Storage.setItem('loginCount',data.loginCount);
+	            		router.go({name:'index',append:true});
+	            	}else{
+	            		$.alert(data.msg);
+	            	}
+	            }
+	        })
+		},
+		start:function(e){
+			if(!this.pullTest)
+			this.$set('touchON',true);
+		},
+		move:function(e){
+			var width = this.bgWidth;
+			if(this.touchON){
+				this.$set('bX',e.tapObj.pageX-this.pointerX);
+				if(this.bX<0){
+					return;
+				}
+				if((this.bX+this.btnWidth)>=this.boxWidth){
+					this.$set('bgWidth',this.boxWidth-this.btnWidth);
+					this.$set('btnLeft',this.boxWidth-this.btnWidth);
+					//验证成功
+					this.$set('pullTest',true);
+					this.$set('tipText','验证成功');
+					return;
+				}
+				this.$set('bgWidth',this.bX);
+				this.$set('btnLeft',this.bX);
+			}
+		},
+		end:function(e){
+			this.$set('touchON',false);
+			if(!this.pullTest){
+				this.$set('bgWidth',0);
+				this.$set('btnLeft',0);
+			}
+			
+		}
+	},
+	ready:function(){
+//		app.ajax({
+//            url:'../isNetworkAction.do',
+//            data:{},
+//            dataType:'json',
+//            success: function(data){
+//            }
+//        });
+		var X = $('.pull-box').offset().left;
+		var Width = $('.pull-box')[0].offsetWidth;
+		var btnWidth = $('.pull-btn')[0].offsetWidth;
+		this.$set('boxWidth',Width);
+		this.$set('pointerX',X);
+		this.$set('btnWidth',btnWidth);
+	},
+	template:'<div class="content content-login">'+
+	            '<template v-for="list in dataList"><div class="text-item">'+
+		            '<label><i class="icon icon-color" :class="[list.iconClass]"></i></label>'+
+		            '<input type="{{list.inputType}}" placeholder="{{list.placeholder}}" v-getvalue="[list.dataBind]" maxlength="{{list.max}}" >'+
+		            '<button type="button" v-if="list.showMsg" href="javascript:void(0);" @click="getCode($event)" class="btn-msg btn-img"><img v-bind:src="codeImg" alt="" /></button>'+
+		        '</div></template>'+
+		        '<div class="pull-box">'+
+					'<div class="pull-bg" :style={width:bgWidth+"px"}></div>'+
+					'<div v-bind:class={"pull-default-true":pullTest,"pull-default":!pullTest} v-text="tipText"></div>'+
+					'<div class="pull-btn" v-bind:class={"pull-btn-true":pullTest} :style={left:btnLeft+"px"} v-touch:move="move" v-touch:start="start" v-touch:end="end"></div>'+
+				'</div>'+
+		        '<div class="text-item-submit">'+
+		            '<button type="button" v-on:click="login" class="btn btn-submit">立即登录</button>'+
+		        '</div>'+
+		        '<div class="text-item-more">'+
+		            '<p class="align-left"><a v-link={path:"/forget/",query:{show:true}} >忘记密码</a></p>'+
+		            '<p class="align-right">没有账户，<a v-link={path:"/regist",query:{show:true}} >立即注册</a></p>'+
+		        '</div>'
+});
+//注册
+var Regist = Vue.extend({
+	compiled: function(){
+		setAppConfig('注册',this.$route.query.show,false);
+		if(this.$route.query.useCode){
+			var useCode = this.$route.query.useCode;
+			this.$set('dataList[2].value',useCode);
+			this.$set('dataList[2].disabled',true);
+			this.$set('useCode',useCode);
+		}
+	},
+	data: function(){
+		return {
+			dataList:[
+				{inputType:'text',iconClass:'icon-username',placeholder:'请输入手机号码',max:11,dataBind:'username',showMsg:false},
+				{inputType:'password',iconClass:'icon-icon-lock',placeholder:'请输入登录密码',max:16,dataBind:'password',showMsg:false},
+				{inputType:'text',iconClass:'icon-icon-invit',placeholder:'请输入邀请码（选填）',max:16,dataBind:'useCode',value:'',disabled:false,showMsg:false},
+				{inputType:'text',iconClass:'icon-icon-msg',placeholder:'请输入图形验证码',max:4,dataBind:"imgCode",showImgCode:true},
+				{inputType:'text',iconClass:'icon-icon-msg',placeholder:'请输入短信验证码',max:6,dataBind:'msgCode',showMsg:true}
+			],
+			username:'',password:'',useCode:'',msgCode:'',btnclass:'btn btn-msg',btnText:'获取验证码',
+			JiYan:false,isTrue:false,
+			codeImg:"../imageCode.do?pageId=reg&d="+new Date(),imgCode:'',
+			recivePhone:'',randomCode:'',smsCode:'',clickInit:true,isPhoneRegist:false,agreement:'',closeAgree:false,useCodeDisabled:false
+		}
+	},
+	methods: {
+		getIndex: function(index){
+			if(index==0){
+				this.chosePhone();
+			}
+		},
+		getCode: function(el){
+			var img = el.target;
+			var timenow = new Date();
+		    var src = "../imageCode.do?pageId=reg&d="+timenow;
+		    img.setAttribute('src',src);
+		},
+		chosePhone: function(){
+			var _this = this;
+			var phone = this.username;
+			if(phone == ''){
+				$.toast("请输入手机号码");return;
+			};
+			var param={cellPhone:phone};
+			app.ajax({
+	            url:'../isExistPhone.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error =='0'){
+	            		$.toast('手机号已经注册!');
+	            		_this.$set('isPhoneRegist',true);
+	            	}else if(data.error =='3'){
+	            		_this.$set('isPhoneRegist',false);
+	            	}else{
+		        		$.alert(data.msg);
+		        	}
+	            }
+	        });
+		},
+		getSms: function(){
+			if(this.isPhoneRegist){
+				$.toast('手机号已经注册!');return;
+			};
+			if(this.imgCode==''){
+				$.toast('请先输入图形验证码!');return;
+			}
+			getSmsCode(this,'wapRegist',this.imgCode);
+		},
+		regist: function(){
+			this.$set('JiYan',false);
+			this.$set('isTrue',true);
+			var param={
+					name:this.username,
+					pwd:this.password,
+					cellPhone:this.username,
+					imgCode:this.imgCode,
+					code:this.msgCode,
+//					randomCode:this.randomCode,
+//					recivePhone:this.recivePhone,
+					refferee:this.useCode,
+					pageId:'register'
+			};
+			app.ajax({
+	            url:'../front/register.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error =='0'){
+	            		$.alert('注册成功！',function(){
+	            			router.go({path:'/login'});
+	            		})
+	            	}else{
+	            		$.alert(data.msg);
+	            	}
+	            }
+	        });
+		},
+		AgreeMent:function(val){
+			var id = '31';
+			if(val == 1){
+				id='12'
+			};
+			var _this = this;
+			var param={TypeId:id};
+			app.ajax({
+	            url:'../querytips.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error == '0'){
+	            		_this.$set('agreement',data.content);
+	            		$.popup('.popup');
+	            		_this.$set('closeAgree',true);
+	            	}
+	            }
+	        })
+		},
+		closeAgreement:function(){
+			$.closeModal('.popup');
+			this.$set('closeAgree',false);
+		},
+		handlerPopup:function(captchaObj) {
+			var _this = this;
+			_this.$set('captchaObj',captchaObj);
+		    // 将验证码加到id为captcha的元素里
+		    captchaObj.appendTo("#popup-captcha-mobile");
+		    // 更多接口参考：http://www.geetest.com/install/sections/idx-client-sdk.html
+		},
+		hadler:function(){
+			var _this = this;
+			if(this.password==''){
+				$.toast('请输入密码!');return;
+			};
+			if(this.msgCode==''){
+				$.toast('请输入短信验证码!');return;
+			};
+			if(this.isTrue){
+				_this.regist();
+			}else{
+				_this.$set('JiYan',true);
+				_this.captchaObj.onSuccess(_this.regist);
+			}
+		},
+		hideMask:function(){
+			this.$set('JiYan',false);
+		},
+	},
+	ready:function(){
+		var _this = this;
+//		app.ajax({
+//            url:'../isNetworkAction.do',
+//            data:{},
+//            dataType:'json',
+//            success: function(data){
+//            }
+//        });
+		// 验证开始需要向网站主后台获取id，challenge，success（是否启用failback）
+		var url = "../front/startCaptchaAction.do?t=" + (new Date()).getTime();
+		$.ajax({
+		    url: url, // 加随机数防止缓存
+		    type: "get",
+		    dataType: "json",
+		    success: function (data) {
+		        // 使用initGeetest接口
+		        // 参数1：配置参数
+		        // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它做appendTo之类的事件
+		        initGeetest({
+		            gt: data.gt,
+		            challenge: data.challenge,
+		            offline: !data.success // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+		            // 更多配置参数请参见：http://www.geetest.com/install/sections/idx-client-sdk.html#config
+		        }, _this.handlerPopup);
+		    }
+		});
+	},
+	template:'<div class="content content-login">'+
+	            '<template v-for="list in dataList"><div class="text-item">'+
+		            '<label><i class="icon icon-color" :class="[list.iconClass]"></i></label>'+
+		            '<input type="{{list.inputType}}" placeholder="{{list.placeholder}}" maxlength="{{list.max}}" v-getvalue="[list.dataBind]" value="{{list.value}}" disabled="{{list.disabled}}" v-on:blur="getIndex($index)">'+
+		            '<button type="button" v-if="list.showMsg" v-on:click="getSms" class="{{btnclass}}">{{btnText}}</button>'+
+		            '<button type="button" v-if="list.showImgCode" href="javascript:void(0);" @click="getCode($event)" class="btn-msg btn-img"><img v-bind:src="codeImg" alt="" /></button>'+
+		        '</div></template>'+
+		        '<div class="text-item-submit">'+
+		            '<button type="button" @click="hadler" class="btn btn-submit">同意协议并注册</button>'+
+		        '</div>'+
+		        '<div class="text-item-more">'+
+		            '<p class="align-left-regist"><a href="javascript:void(0);" @click="AgreeMent(0)">《平台服务协议》</a><a href="javascript:void(0);" @click="AgreeMent(1)">《风险提示书》</a></p>'+
+		            '<p class="align-right-regist"><a v-link={path:"/login",query:{show:true}} >立即登录</a></p>'+
+		        '</div></div><p class="agreement-btn" v-if="closeAgree" @click="closeAgreement">关闭</p><div class="popup popup-services"><div class="content-block" v-html="agreement"></div></div><div class="popup-mobile"><div id="mask" @click="hideMask" v-show="JiYan"></div><div id="popup-captcha-mobile" v-show="JiYan"></div></div>'
+});
+function getSmsCode(obj,name,imgCode){
+	if(!imgCode){var imgCode = '';}
+	if(!obj.clickInit){return;};
+	var phone = obj.username;
+	if(!phone || phone == ''){
+		$.alert('请填写手机号');
+		return;
+	};
+	obj.$set('clickInit',false);
+	obj.$set('btnclass','btn btn-msg btn-disabled');
+	var param={cellPhone:phone,smsType:name,imgCode:imgCode};
+	app.ajax({
+        url:'../front/sendSMS.do',
+        data:JSON.stringify(param),
+        dataType:'json',
+        success: function(data){
+        	if(data.error =='0'){
+        		var i = 60;
+        		var time = setInterval(function(){
+        			i--;
+        			obj.$set('btnText',i+'s');
+        			if(i == 0){
+        				obj.$set('btnclass','btn btn-msg');
+        				obj.$set('btnText','获取验证码');
+        				obj.$set('clickInit',true);
+        				clearInterval(time);
+        			}
+        		},1000);
+        		obj.$set('recivePhone',data.recivePhone);
+        		obj.$set('randomCode',data.randomCode);
+        	}else{
+        		$.alert(data.msg);
+        		obj.$set('btnclass','btn btn-msg');
+        		obj.$set('clickInit',true);
+        	}
+        }
+    });
+};
+//汇付注册
+var Registpay = Vue.extend({
+	compiled:function(){
+		setAppConfig('注册汇付天下',true,false);
+	},
+	methods: {
+		getSms: function(){
+			getSmsCode(this,'resetPwd');
+		},
+		registPay: function(){
+			if(this.msgCode == ''){
+				$.toast('验证码不能为空');return;
+			};
+			if(this.idcard == ''){
+				$.toast('身份号不能为空');return;
+			};
+			if(this.realName == ''){
+				$.toast('真实姓名不能为空');return;
+			};
+			var isIDCard = /^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/; 
+			if(this.randomCode ==''){
+				$.toast('请先获取验证码');return;
+			}
+			var param={uid:Storage.getItem('uid'),randomCode:this.randomCode,recivePhone:this.recivePhone,code:this.msgCode,
+					realName:encodeURI(this.realName),idNo:this.idcard,cellphone:Storage.getItem('customerId'),sex:encodeURI(this.sex)};
+			app.ajax({
+		        url:'../front/createIpsAcctApp.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error =='0'){
+		        		$('#registPay').html(data.html);
+		        	}else{
+		        		$.alert(data.msg);
+		        	}
+		        }
+		    });
+		}
+	},
+	route:{
+		data:function(){
+			var _this = this;
+			var param={uid:Storage.getItem('uid')};
+			app.ajax({
+		        url:'../front/regIpayPersonal.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error == '0' && data.idNo!=''){
+		        		_this.$set('listData[2].value',data.idNo);
+		        		_this.$set('listData[3].value',data.realName);
+		        		_this.$set('listData[2].disabled',true);
+		        		_this.$set('listData[3].disabled',true);
+		        		_this.$set('idcard',data.idNo);
+		        		_this.$set('realName',data.realName);
+		        		_this.$set('sex',data.sex);
+		        		if(data.sex =='女'){
+		        			_this.$set('man',false);
+		        			_this.$set('woman',true);
+		        		}
+		        	}else{
+		        		_this.$set('mobilePhone',Storage.getItem('customerId'));
+		        		_this.$set('idNo','');
+		        		_this.$set('realName','');
+		        	}
+		        }
+		    });
+		},waitForData:true
+	},
+	data: function(){
+		var _this = this;
+		return {
+			listData:[
+			   {name:'phoneNum',Msg:true,placeholder:'请输入手机号码',value:Storage.getItem('customerId'),max:16,iconClass:'icon-phone',disabled:true},
+			   {name:'msgCode',Msg:false,placeholder:'请输入验证码',max:6,iconClass:'icon-icon-msg ',disabled:false},
+			   {name:'idcard',Msg:true,placeholder:'请输入身份证号',max:18,iconClass:'icon-idcard',disabled:false},
+			   {name:'realName',Msg:true,placeholder:'请输入真实姓名',max:10,iconClass:'icon-realname ',disabled:false}
+			],clickInit:true,btnclass:'btn',btnText:'获取验证码',phoneNumber:Storage.getItem('customerId'),realName:'',
+			idcard:'',idcard:'',msgCode:'',randomCode:'',username:Storage.getItem('customerId'),sex:'男',man:true,woman:false
+		}
+	},
+	template:'<div class="content content-login">'+
+			'<template v-for="list in listData">'+
+				'<div class="text-item-shadow" v-if="list.Msg">'+
+				'<label><i class="icon icon-color" :class="[list.iconClass]"></i></label>'+
+				'<input type="text" placeholder="{{list.placeholder}}" v-getvalue="[list.name]" value="{{list.value}}" disabled="{{list.disabled}}" maxlength="{{list.max}}"></div>'+
+				'<div class="text-item-shadow-msg flex" v-else><div class="text-item-shadow flex">'+
+			    '<label><i class="icon icon-color" :class="[list.iconClass]"></i></label>'+
+			    '<input type="text" placeholder="{{list.placeholder}}" v-getvalue="[list.name]" maxlength="{{list.max}}"></div><div class="text-item-shadow-submit">'+
+			    '<button type="button" v-on:click="getSms" class="{{btnclass}}">{{btnText}}</button></div></div>'+
+			'</template>'+
+			'<div class="text-item-shadow">'+
+			'<label class="fl"><i class="icon icon-color">&#xe636;</i></label>'+
+			'<div class="radio"><label><input type="radio" value="男" :checked="man" v-model="sex" name="sex"/><i class="icon">&#xe635;</i><p>男</p></label><label><input v-model="sex" value="女" type="radio" :checked="woman" name="sex"/><i class="icon">&#xe635;</i><p>女</p></label></div>'+
+			'</div>'+
+			'<div class="text-item-submit"><button type="button" v-on:click="registPay" class="btn btn-submit">确认提交</button>'+
+	        '</div><div id="registPay"></div></div>'
+})
+//忘记密码
+var Forget = Vue.extend({
+	data:function(){
+		return {
+			recivePhone:'',
+			randomCode:'',
+			smsCode:'',
+			activeClass:1,
+			phoneNumber:''
+		}
+	},
+	compiled: function(){
+		setAppConfig('找回密码',true,false);
+	},
+	template:'<div class="content content-login">'+
+				'<div class="text-item-step flex">'+
+		            '<div class="step_one" v-bind:class="{active:activeClass==1}"><p>1</p><p>输入手机号</p></div>'+
+		            '<div class="step_two" v-bind:class="{active:activeClass==2}"><p>2</p><p>验证身份</p></div>'+
+		            '<div class="step_three" v-bind:class="{active:activeClass==3}"><p>3</p><p>重置密码</p></div>'+
+		            '<div class="step_four" v-bind:class="{active:activeClass==4}"><p>4</p><p>完成</p></div>'+
+		            '<p class="text-item-line"></p>'+
+		        '</div>'+
+				'<router-view transition="fadeIn"></router-view>'+
+			'</div>'
+})
+var ForgetStepOne = Vue.extend({
+	compiled: function(){
+		this.$parent.$set('activeClass',1);
+		if(this.$parent.phoneNumber){
+			this.$set('phoneNumber',this.$parent.phoneNumber);
+		}
+	},
+	data: function(){
+		return {
+			phoneNumber:''
+		}
+	},
+	methods: {
+		chosePhone: function(){
+			var _this = this;
+			var phone = this.phoneNumber;
+			if(phone == ''){
+				$.toast("请输入手机号码");return;
+			};
+			var param={cellPhone:phone};
+			app.ajax({
+	            url:'../isExistPhone.do',
+	            data:JSON.stringify(param), 
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error =='0'){
+	            		_this.$parent.$set('phoneNumber',phone);
+	            		router.go({path:'two',append:true});
+	            	}else{
+	            		$.alert(data.msg);
+	            	}
+	            }
+	        });
+		}
+	},
+	template:'<div><div class="text-item-shadow">'+
+	            '<label><i class="icon icon-color">&#xe60d;</i></label>'+
+	            '<input type="text" placeholder="请输入手机号码" v-getvalue="phoneNumber" value="{{phoneNumber}}" maxlength="16">'+
+	        '</div>'+
+	        '<div class="text-item-submit">'+
+	            '<button type="button" v-on:click="chosePhone" class="btn btn-submit">下一步</button>'+
+	        '</div></div>'
+});
+var ForgetStepTwo = Vue.extend({
+	compiled: function(){
+		this.$parent.$set('activeClass',2);
+		if(this.$parent.smsCode){
+			this.$set('smsCode',this.$parent.smsCode);
+		}
+	},
+	data: function(){
+		return {
+			smsCode:'',
+			btnclass:'btn',
+			btnText:'获取验证码',
+			clickInit:true
+		}
+	},
+	methods:{
+		getSms: function(){
+			if(!this.clickInit){return;};
+			var _this = this;
+			var phone = _this.$parent.phoneNumber;
+			if(!phone || phone == ''){
+				$.alert('请填写手机号');
+				return;
+			};
+			_this.$set('btnclass','btn btn-disabled');
+			_this.$set('clickInit',false);
+			var i = 60;
+			var time = setInterval(function(){
+				i--;
+				_this.$set('btnText',i+'s');
+				if(i == 0){
+					_this.$set('btnclass','btn');
+					_this.$set('btnText','获取验证码');
+					_this.$set('clickInit',true);
+					clearInterval(time);
+				}
+			},1000);
+			var param={cellPhone:phone,smsType:'resetPwd'};
+			app.ajax({
+	            url:'../front/sendSMS.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error =='0'){
+	            		_this.$parent.$set('recivePhone',data.recivePhone);
+	            		_this.$parent.$set('randomCode',data.randomCode);
+	            	}else{
+	            		$.alert(data.msg);
+	            	}
+	            }
+	        })
+		},
+		nextStep: function(){
+			if(this.smsCode==''){
+				$.toast("请输入短信验证码");return;
+			};
+			var param = {
+					code:this.smsCode,
+					type:'resetPwd'
+			};
+			app.ajax({
+		        url:'../checkMobilePhoneCode.do',
+		        data:JSON.stringify(param),
+		        dataType:'json',
+		        success: function(data){
+		        	if(data.error =='0'){
+		    			router.go({path:'three'});
+		        	}else{
+		        		$.toast(data.msg);return;
+		        	}
+		        }
+			});
+			
+		}
+	},
+	template:'<div class="text-item-shadow-msg flex">'+
+	            '<div class="text-item-shadow flex">'+
+	                '<label><i class="icon icon-color">&#xe60d;</i></label>'+
+	                '<input type="text" placeholder="请输入短信验证码" v-getvalue="smsCode" value="{{smsCode}}" maxlength="6">'+
+	            '</div>'+
+	            '<div class="text-item-shadow-submit">'+
+	                '<button type="button" v-on:click="getSms" class="{{btnclass}}">{{btnText}}</button>'+
+	            '</div>'+
+	        '</div>'+
+	        '<div class="text-item-submit">'+
+	            '<button type="button" v-on:click="nextStep" class="btn btn-submit">下一步</button>'+
+	        '</div>'
+});
+var ForgetStepThree = Vue.extend({
+	data:function(){
+		return {
+			pwdOne:'',
+			pwdTwo:''
+		}
+	},
+	compiled: function(){
+		this.$parent.$set('activeClass',3);
+	},
+	methods:{
+		modify: function(){
+			if(this.pwdOne!=''&&this.pwdOne!=this.pwdTwo){
+				$.toast('两次密码输入不一致');
+				return;
+			};
+			
+//			var param={
+//					mobilePhone:this.$parent.phoneNumber,
+//					passwd:this.pwdOne,
+//					confirmpassword:this.pwdTwo,
+//					type:'resetPwd'
+//						};
+
+			var param={cellPhone:this.$parent.phoneNumber,code:this.$parent.smsCode,randomCode:this.$parent.randomCode,
+					recivePhone:this.$parent.recivePhone,newPwd:this.pwdOne,smsType:'resetPwd'};
+			
+			app.ajax({
+	            url:'../front/resetLoginPwd.do',
+	            data:JSON.stringify(param),
+	            dataType:'json',
+	            success: function(data){
+	            	if(data.error =='0'){
+	            		router.go({path:'four'});
+	            	}else{
+	            		$.alert(data.msg);
+	            	}
+	            }
+	        })
+			
+		}
+	},
+	template:'<div class="text-item-shadow">'+
+	            '<label><i class="icon icon-color">&#xe601;</i></label>'+
+	            '<input type="password" placeholder="请输入新密码" v-getvalue="pwdOne" maxlength="16">'+
+	        '</div>'+
+		    '<div class="text-item-shadow">'+
+	            '<label><i class="icon icon-color">&#xe601;</i></label>'+
+	            '<input type="password" placeholder="请确认新密码" v-getvalue="pwdTwo" maxlength="16">'+
+	        '</div>'+
+	        '<div class="text-item-submit">'+
+	            '<button type="button" v-on:click="modify" class="btn btn-submit">提交修改</button>'+
+	        '</div>'
+});
+var ForgetStepFour = Vue.extend({
+	compiled: function(){
+		this.$parent.$set('activeClass',4);
+	},
+	methods:{
+		toLogin: function(){
+			router.go({name:'login',append:true});
+		}
+	},
+	template:'<div class="text-item-text">'+
+		    	'<p><i class="icon icon-red">&#xe60e;</i>恭喜你，密码重置成功！</p>'+
+		    '</div>'+
+		    '<div class="text-item-submit">'+
+	            '<button type="button" v-on:click="toLogin" class="btn btn-submit">立即登录</button>'+
+	        '</div>'
+});
+
+function setAppConfig(title,left,display,right,rightText,openPanelId){
+	var PJZB = router.app;
+	PJZB.$set('title',title);
+	PJZB.$set('left',left);
+	PJZB.$set('display',display);
+	if(right){
+		PJZB.$set('right',right);
+		PJZB.$set('rightText',rightText);
+		PJZB.$set('openPanelId',openPanelId);
+	}
+};
+function ajaxLoad(bool){
+	if(bool){
+		DialogLoading.hideDialog(); return;}
+	DialogLoading.showDialog();
+};
+
+var router = new VueRouter();
+router.map({
+    '/index': {
+    	name:'index',
+        component: Index
+    },
+    '/detail': {
+    	name:'detail',
+        component: Detail,
+        subRoutes: {
+        	'/': {
+        		component: Prodetail
+        	},
+        	'risk': {
+        		component:Risk
+        	},
+        	'track':{
+        		component: Track
+        	}
+        }
+    },
+    '/productlist': {
+    	name:'productlist',
+    	component: Productlist
+    },
+    '/introduced':{
+    	name:'introduced',
+    	component:Introduced
+    },
+    '/about': {
+    	name:'about',
+        component: About
+    },
+    '/aboutus':{
+    	name:'aboutus',
+    	component:Aboutus
+    },
+    '/shareholder': {
+    	name:'shareholder',
+    	component:Shareholder
+    },
+    '/calculator':{//收益计算器
+    	name:'calculator',
+    	component:Calculator
+    },
+    '/calculatordetail':{
+    	name:'calculatordetail',
+    	component:Calculatordetail
+    },
+    '/newsport':{
+    	name:'newsport',
+    	component:Newsport
+    },
+    '/help':{
+    	name:'help',
+    	component:Help,
+    	subRoutes:{
+    		'/':{
+    			component:Listhelp
+    		},
+    		'/queston':{
+    			component:Queston
+    		},
+    		'/answer':{
+    			component:Answer
+    		}
+    	}
+    },
+    '/follow':{
+    	name:'follow',
+    	component:Follow
+    },
+    '/dynamic':{
+    	name:'dynamic',
+    	component:Dynamic
+    },
+    '/dynamicdetail':{
+    	name:'dynamicdetail',
+    	component:Dynamicdetail
+    },
+    '/feedback':{
+    	name:'feedback',
+    	component:Feedback
+    },
+    '/account': {
+    	name:'account',
+        component: Account
+    },
+    '/changepwd':{
+    	name:'changepwd',
+    	component: Changepwd
+    },
+    '/ipay': {
+    	name:'ipay',
+        component: Ipay
+    },
+    'cashing': {
+    	name:'cashing',
+    	component: Cashing
+    },
+    'funddetail':{
+    	name:'funddetail',
+    	component: Funddetail
+    },
+    'invest': {
+    	name:'invest',
+    	component: Invest,
+    	subRoutes: {
+    		'/':{
+    			component:Investpj
+    		},
+    		'investdj':{
+    			component:Investdj
+    		}
+    	}
+    },
+    'shenglb':{
+    	name:'shenglb',
+    	component: Shenglb,
+    },
+    'control':{
+    	name:'control',
+    	component: Control,
+    },
+    '/coupon':{
+    	name:'coupon',
+    	component: Coupon,
+    	subRoutes: {
+    		'/':{
+    			component:Coupona
+    		},
+    		'taste':{
+    			component:Taste
+    		}
+    	}
+    },
+    '/bankcard':{
+    	name:'bankcard',
+    	component: Bankcard
+    },
+    '/friend':{
+    	name:'friend',
+    	component:Friend
+    },
+    '/frienddetail':{
+    	name:'frienddetail',
+    	component:Frienddetail
+    },
+    '/friendfund':{
+    	name:'friendfund',
+    	component:Friendfund
+    },
+    '/login': {
+    	name:'login',
+        component: Login
+    },
+    '/regist': {
+    	name:'regist',
+        component: Regist
+    },
+    '/registpay': {
+    	name:'registpay',
+    	component:Registpay
+    },
+    '/forget': {
+    	name:'forget',
+        component: Forget,
+        subRoutes: {
+	      '/': {
+	        component: ForgetStepOne
+	      },
+	      '/two': {
+	        component: ForgetStepTwo
+	      },
+	      '/three': {
+	        component: ForgetStepThree
+	      },
+	      '/four': {
+	        component: ForgetStepFour
+	      }
+	    }
+    }
+});
+router.redirect({ '*': '/index' });
+router.start(App, '#App');
+router.beforeEach(function (transition) {
+  if (transition.to.path === '/account') {
+	  var uid = Storage.getItem('uid');
+	  var uidli = uid+'';
+	  if(uidli == "undefined" || !uid){
+		  transition.redirect({path:'/login',query:{show:true}});
+	  }else{
+		  transition.next();
+	  }
+  } else {
+    transition.next()
+  }
+})
+/*document.onreadystatechange = function () {
+  if (document.readyState == "complete") {
+    document.body.removeChild(firstLoadIng)
+  }
+};*/
+})
+

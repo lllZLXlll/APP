@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 站点资料
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminSiteDataService extends BaseController {
+
+}

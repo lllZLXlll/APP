@@ -1,0 +1,16 @@
+<div class="content">
+    <div class="list-block">
+        <ul>
+            <li class="item-content" v-for="list in bankList">
+                <div class="item-inner">
+                    <div class="item-title">{{list.bankName}}</div>
+                    <div class="item-after">尾号{{list.cardNo | bankNumber}}</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="text-item-submit">
+        <button @click="bindCard" class="btn btn-submit">添加银行卡</button>
+    </div>
+    <div id="addBank"></div>
+</div>

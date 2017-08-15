@@ -1,0 +1,15 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageContent tableContent">
+   	<div style="width: 300;margin-left: 20;">
+	    <form id="pagerForm" action="${basePath }admin/updateHandloanslist.do" method="post" data-toggle="validate">
+	    	<br />
+			<label style="font-size: 16px;">放款订单号：(即t_invest表billcode)</label>
+			<br />
+			<br />
+			<input type="text" name="billcode" class="form-control" size="19" data-rule="required">
+			<button type="submit" class="btn-default" data-icon="save">开始放款</button>
+	    </form>
+    </div>
+</div>

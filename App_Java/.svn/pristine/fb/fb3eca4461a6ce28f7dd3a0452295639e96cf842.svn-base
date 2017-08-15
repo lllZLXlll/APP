@@ -1,0 +1,68 @@
+package com.pjzb.service.admin.fund;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BankcardListsDao;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DesSecurityUtil;
+import com.shove.web.Utility;
+
+/**
+ * 银行卡管理
+ * 
+ * @author zlx
+ * 
+ */
+@Service
+public class AdminBankcardService extends BaseController {
+
+	@Autowired
+	private BankcardListsDao bankcardListsDao;
+
+	public String queryUserBankInit(Model model, String tabid, long pageNum, long pageSize, String userName, String realName, String startTime, String endTime) throws Exception {
+		userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+		realName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(realName));
+		startTime = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(startTime));
+		endTime = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(endTime));
+		long count = bankcardListsDao.queryBankCardInfosCount(userName, realName, startTime, endTime);
+		List<Map<String, Object>> list = bankcardListsDao.queryBankCardInfos(userName, realName, startTime, endTime, (pageNum - 1) * pageSize, pageSize);
+
+		if (list != null) {
+			Iterator<Map<String, Object>> iter = list.iterator();
+			int i = 0;
+			while (iter.hasNext()) {
+				Map<String, Object> map = iter.next();
+				list.get(i).put("ids", new DesSecurityUtil().encrypt(map.get("id").toString()));
+				i++;
+			}
+		}
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("realName", realName);
+		model.addAttribute("startTime", startTime);
+		model.addAttribute("endTime", endTime);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		return "/admin/fund/bankcard/list.jsp";
+	}
+
+	public String queryBankCardInfo(Model model, String tabid, String bankId) throws Exception {
+		Map<String, Object> paramMap = bankcardListsDao.queryBankCardInfo(new DesSecurityUtil().decrypt(bankId));
+		if (paramMap != null && paramMap.size() > 0) {
+			String mobilePhone=ConvertUtil.objToStrConvert(paramMap.get("mobilePhone"));
+			if ( mobilePhone== null) {
+				paramMap.put("mobilePhone", paramMap.get("cellPhone"));
+			}
+		}
+		model.addAttribute("item", paramMap);
+		return "/admin/fund/bankcard/show.jsp";
+	}
+
+}

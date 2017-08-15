@@ -1,0 +1,33 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.CloseNetWorkDao;
+
+/**
+ * 关闭网站
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminCloseWebService extends BaseController{
+	
+	@Autowired
+	private CloseNetWorkDao closeNetWorkDao;
+	
+	public String queryNetWorkById(Model model, String tabid) {
+		try {
+			model.addAttribute("netWork", closeNetWorkDao.queryNetWorkById());
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************关闭网站异常**************************");
+		}
+		return "/admin/system/closeweb/closeNetWork.jsp";
+	}
+
+}

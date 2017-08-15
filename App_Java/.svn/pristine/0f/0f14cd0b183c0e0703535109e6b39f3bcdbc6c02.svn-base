@@ -1,0 +1,182 @@
+<div class="account-right-nav">
+	<div class="sub-a-nav claimm">
+		<a href="javascript:void(0);" class="active claimm-can">可转让</a>
+		<a href="javascript:void(0);" class="claimm-in">转让中</a>
+		<a href="javascript:void(0);" class="claimm-is">已转让</a>
+		<a href="javascript:void(0);" class="claimm-fail">转让失败</a>
+	</div>
+	<em class="em-line"></em>
+</div>
+<div class="account-content">
+	<!-- 可转让 -->
+	<div  id="claimm-can">
+		<div class="account-form cl">
+			<p class="text middle">借款人</p>
+			<input type="text" class="text" id="claimm-can-person"/>
+			<p class="text middle">标题</p>
+			<input type="text" class="text" id="claimm-can-title"/>
+			<button type="button" class="search" id="claimm-can-Search">搜索</button>
+			
+			<a href="javascript:;" class="zhaiQuanBtn">《债权转让协议》</a>
+			<a href="javascript:;" class="zhaiQuanBtn_shiLi" id="shiLi">《转让举例》</a>
+		</div>
+		<div class="claimm-can-list">
+			<ul class="list-box">
+				<li class="title">
+					<div class="children0">标题</div>
+					<div class="children1">剩余期限</div>
+					<div class="children2">年利率</div>
+					<div class="children3">投资金额</div>
+					<div class="children4">已收金额</div>
+					<div class="children5">待收金额</div>
+					<div class="children6">操作</div>
+				</li>
+			</ul>
+			<ul class="list-box listData">
+			</ul>
+			<ul class="paging">
+			</ul>
+		</div>
+	</div>
+	<!-- 转让中 -->
+	<div id="claimm-in">
+		<div class="account-form cl">
+			<p class="text middle">借款人</p>
+			<input type="text" class="text" id="claimm-in-person"/>
+			<p class="text middle">标题</p>
+			<input type="text" class="text" id="claimm-in-title"/>
+			<button type="button" class="search" id="claimm-in-Search">搜索</button>
+			
+			<a href="javascript:;" class="zhaiQuanBtn">《债权转让协议》</a>
+		</div>
+		<div class="claimm-in-list">
+			<ul class="list-box">
+				<li class="title">
+					<div class="children0">标题</div>
+					<div class="children1">剩余期限</div>
+					<div class="children2">年利率</div>
+					<div class="children3">投资金额</div>
+					<div class="children4">转让价格</div>
+					<div class="children5">剩余时间</div>
+				</li>
+			</ul>
+			<ul class="list-box listData">
+			
+			</ul>
+			<ul class="paging">
+			
+			</ul>
+		</div>
+	</div>
+	<!-- 已转让 -->
+	<div id="claimm-is">
+		<div class="account-form cl">
+			<p class="text middle">借款人</p>
+			<input type="text" class="text" id="claimm-is-person"/>
+			<p class="text middle">标题</p>
+			<input type="text" class="text" id="claimm-is-title"/>
+			<button type="button" class="search" id="claimm-is-Search">搜索</button>
+			
+			<a href="javascript:;" class="zhaiQuanBtn">《债权转让协议》</a>
+		</div>
+		<div class="claimm-is-list">
+			<ul class="list-box">
+				<li class="title">
+					<div class="children0">标题</div>
+					<div class="children1">剩余期限</div>
+					<div class="children2">年利率</div>
+					<div class="children3">投资金额</div>
+					<div class="children4">转让金额</div>
+					<div class="children5">转让价格</div>
+					<div class="children6">结束时间</div>
+					<div class="children7">协议</div>
+				</li>
+			</ul>
+			<ul class="list-box listData">
+			
+			</ul>
+			<ul class="paging">
+			
+			</ul>
+		</div>
+	</div>
+	<!-- 转让失败 -->
+	<div id="claimm-fail">
+		<div class="account-form cl">
+			<p class="text middle">借款人</p>
+			<input type="text" class="text" id="claimm-fail-person"/>
+			<p class="text middle">标题</p>
+			<input type="text" class="text" id="claimm-fail-title"/>
+			<button type="button" class="search" id="claimm-fail-Search">搜索</button>
+			
+			<a href="javascript:;" class="zhaiQuanBtn">《债权转让协议》</a>
+		</div>
+		<div class="claimm-fail-list">
+			<ul class="list-box">
+				<li class="title">
+					<div class="children0">标题</div>
+					<div class="children1">剩余期限</div>
+					<div class="children2">年利率</div>
+					<div class="children3">投资金额</div>
+					<div class="children4">转让金额</div>
+					<div class="children5">转让价格</div>
+					<div class="children6">状态</div>
+				</li>
+			</ul>
+			<ul class="list-box listData">
+			</ul>
+			<ul class="paging">
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="popup claimm-from" style="height: 550px;">
+	<p class="title left">债权转让</p>
+	<a href="javascript:void(0);" class="close icon icon-close"></a>
+	<div class="popup-from">
+			<div class="label cl">
+				<label class="long">转让期限：</label>
+				<select name="auctionDays" id="auctionDays" >
+				    <option value="">请选择</option>
+				    <option value="1">1天</option>
+				    <option value="2">2天</option>
+				    <option value="3">3天</option>
+				    <option value="5">5天</option>
+				    <option value="7">7天</option>
+				    <option value="8">8天</option>
+				</select>
+			</div>
+			<div class="label cl">
+				<label class="long">债权金额：</label><p class="text" id="canDebtsAmt">--</p>
+			</div>
+			<div class="label cl">
+				<label class="long">转让价格：</label><input type="text" autocomplete="off" maxlength="16"  id="claimm-price" placeholder="请输入转让价格"/>
+			</div>
+			<div class="label cl">
+				<label class="long">交易密码：</label><input type="password" autocomplete="off" maxlength="16" id="claimm-password" placeholder="请输入交易密码"/>
+			</div>
+			<div class="label cl">
+				<label class="long">转让描述：</label><input type="text" autocomplete="off" maxlength="100" id="claimm-tips" placeholder="请输入转让描述"/>
+			</div>
+			<button type="button" class="btn" id="claimm-submit">转让</button>
+			
+			<p class="tips-title" style="margin-top: 10px;">
+				<b>备注：</b>转让价格不能低于原债权金额的50%，不能高于债权原金额的110%
+			</p>
+	</div>		
+</div>
+
+<div class="popup AgreeMent">
+	<p class="title left">债权转让协议</p>
+	<a href="javascript:void(0);" class="close icon icon-close"></a>
+	<div class="popup-area">
+		
+	</div>
+</div>
+<div class="popup AgreeMent_shiLi">
+	<p class="title left">转让举例</p>
+	<a href="javascript:void(0);" class="close icon icon-close"></a>
+	<div class="popup-area">
+		
+	</div>
+</div>

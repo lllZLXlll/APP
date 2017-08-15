@@ -1,0 +1,36 @@
+<div class="pro-hot">
+    <h3 class="pro-hot-title">热门推荐</h3>
+    <template v-for="list in productList">
+        <div class="pro-content" v-bind:class="{pro_orange: list.borrowWay==4}">
+            <ul class="row no-gutter">
+                <li class="col-50">
+                    <p @click="toDetail(list)">
+                        <span class="pro-group">{{list.borrowTitle | titleCake}}</span>
+                    </p>
+                    <span>融资金额：{{list.borrowAmount}}</span>
+                </li>
+                <li class="col-20">
+                    <p>{{list.annualRate}}%</p>
+                    <span>年利率</span>
+                </li>
+                <li class="col-30">
+                    <p>
+                        {{list.deadline}} <em>月</em>
+                    </p>
+                    <span>投资期限</span>
+                </li>
+            </ul>
+            <div class="pro-submit">
+                <p> <i class="pro-line"><em class="pro-line-em" :style={width:list.schedules+"%"}></em></i> 
+                    <span class="line-num">{{list.schedules}}%</span>
+                </p>
+                <p class="">
+                    <button class="btn btn-buy" @click="toBid(list)" v-bind:class="{ btnDisabled:list.borrowStatus!=2}" v-html="thisHtml(list.borrowStatus)"></button>
+                </p>
+            </div>
+        </div>
+    </template>
+    <div v-if="showMore" class="index-list-bottom">
+        <a v-link={path:"/productlist"}>查看更多</a>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+package com.pjzb.service.common;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.ExgoInvestDao;
+
+@Service
+public class ExgoInvestService {
+	
+	@Autowired
+	private ExgoInvestDao exgoInvestDao;
+	
+	public Map<String, Long> queryExgoInvestCountByUserId(Long userId){
+		return exgoInvestDao.queryExgoInvestCountByUserId(userId);
+	}
+	
+	public Map<String, Long> queryExgoInvestCount(){
+		return exgoInvestDao.queryExgoInvestCount();
+	}
+
+	public Map<String, Object> queryUserIsInvestByInvestor(Long investor){
+		return exgoInvestDao.queryUserIsInvestByInvestor(investor);
+	}
+}

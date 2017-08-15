@@ -1,0 +1,45 @@
+package com.pjzb.entity;
+
+/**
+ * 关闭网站
+ * @author Li zeyang
+ *
+ */
+public class CloseNetWork  implements java.io.Serializable {
+	
+	private Integer id; 
+	
+	private Integer status; 
+	
+	private String content;
+
+	public CloseNetWork(){
+		
+	}
+	
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+	
+	
+}

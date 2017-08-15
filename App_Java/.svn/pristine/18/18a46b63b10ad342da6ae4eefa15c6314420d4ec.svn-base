@@ -1,0 +1,80 @@
+define(function (require,exports,module) {
+	//首页
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('充值',true,false);
+		},
+		route: {
+			data: function(transition){
+				var _this = this;
+				var param={uid:Storage.getItem('uid')};
+				utils.ajax({
+			        url:'../front/queryRechargeInit.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		_this.$set('textData[0].value',data.realName);
+			        		_this.$set('textData[2].value',data.usableSum);
+			        		transition.next();
+			        	}else{
+			        		$.alert(data.msg);
+			        	}
+			        }
+			    })
+			},
+			waitForData: true
+		},
+		data:function(){
+			return{
+				text:'凡是在普金资本充值未投标的用户，15天以内提现收取本金0.5%，15天以后提现免费 普金资本禁止信用卡套现、虚假交易等行为,一经发现将予以处罚,包括但不限于：限制收款、冻结账户、永久停止服务,并有可能影响相关信用记录。',
+				realName:'',
+				usableSum:'',
+				textData:[
+				 {text:'真实姓名',value:''},
+				 {text:'登录账号',value:Storage.getItem('customerId')},
+				 {text:'可用余额',value:'00.00'}
+				 ],
+				 money:'',
+				 html:''
+			}
+		},
+		methods: {
+			ipay: function(){
+				var _this = this;
+				var moeny = _this.money;
+				if(moeny == ''){
+					$.toast('请输入金额');
+					return;
+				};
+				if(!AmtRegExp.test(moeny)){
+					$.toast('金额格式不正确');
+					return;
+				};
+				var param={uid:Storage.getItem('uid'),money:moeny};
+				utils.ajax({
+			        url:'../front/ipayPayment.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error==0){
+			        		$('#alipay').html(data.html);
+			        	}else{
+			        		$.alert(data.msg);
+			        	}	
+			        }
+			    })
+
+			}
+		},
+		template:'<div class="content content-login">'+
+			'<div class="table-text"><p>{{text}}</p></div>'+
+			'<div class="table-view">'+
+			'<div class="text-item-shadow" v-for="list in textData"><label>{{list.text}}</label><p>{{list.value}}</p></div>'+
+			'</div><div class="table-cell flex"><p>充值金额</p><div class="text-item-shadow">'+
+	        '<input type="text" v-getvalue="money" placeholder="请输入充值金额" v-checkmoney="" /></div><p>元</p>'+
+	    '</div><div id="alipay"></div><div class="text-item-submit"><button v-on:click="ipay" class="btn btn-submit">充值</button></div>'+
+		'</div>'
+	});
+	module.exports = VueComponent;
+})

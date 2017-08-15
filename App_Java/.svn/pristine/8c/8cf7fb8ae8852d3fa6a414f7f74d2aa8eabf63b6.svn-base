@@ -1,0 +1,142 @@
+package com.pjzb.service.admin.user;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.GroupDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.Group;
+import com.pjzb.entity.GroupUser;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * 用户组
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminUserGroupService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private GroupDao groupDao;
+
+	/**
+	 * 
+	 * @describe:分页查询用户组
+	 * @author: xiaojin
+	 * @param model
+	 * @param tabid
+	 * @param groupName
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 */
+	public String queryUserGroupInfoList(Model model, String tabid, String groupName, Long pageNum, Long pageSize) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			groupName = ConvertUtil.convertObjToStr(groupName);
+			List<Map<String, Object>> list = userDao.queryUserGroupForPage(groupName, (pageNum - 1) * pageSize, pageSize);
+			Long count = userDao.queryUserGroupForCount(groupName);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("groupName", groupName);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询用户组异常**************************");
+		}
+		return "/admin/user/usergroup/list.jsp";
+	}
+
+	public String querySaveOrUpdateUserGroupInit(Model model, String tabid, String groupName,Long id, Long pageNum, Long pageSize) {
+		try {
+			Group group=null;
+			if(id!=null){
+				group=groupDao.queryGroupById(id);
+				List<String> userNameList=userDao.queryUserByUserIds(groupDao.queryGroupUserByGroupId(id));
+				String userNames=String.valueOf(userNameList);
+				userNames=userNames.substring(1, userNames.length()-1);
+				model.addAttribute("userNames",userNames);
+				model.addAttribute("group", group);
+			}
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询用户组异常**************************");
+		}
+		return "/admin/user/usergroup/saveorupdate.jsp";
+	}
+
+	public Map<String, Object> saveOrUpdateUserGroup(String tabid, Group group, String[] userNames,Admin admin) {
+		Long groupId = group.getId();
+		Integer cashStatus=group.getCashStatus()==null?2:group.getCashStatus();
+		group.setCashStatus(cashStatus);
+		group.setAdminId(admin.getId());
+		if (groupId == null) {
+			Group group2 = groupDao.queryGroupByGroupName(group.getGroupName().trim());
+			if (group2 != null) {
+				return ajaxDoneInfo("300", "改用户组已经存在", "", "");
+			}
+
+			long result1 = groupDao.addGroup(group);
+			long result2 = addGroupUser(group.getId(), userNames);
+			if (result1 > 0 && result2 > 0) {
+				return ajaxDoneInfo("200", "用户组新增成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("200", "用户组新增失败", "", "");
+			}
+
+		} else {
+			long result1 = groupDao.updateGroupById(group);
+			long result2 = groupDao.deleteGroupUserByGroupId(groupId);
+			long result3 = addGroupUser(groupId, userNames);
+			if (result1 > 0 && result2 > 0 && result3 > 0) {
+				return ajaxDoneInfo("200", "用户组修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("200", "用户组修改失败", "", "");
+			}
+		}
+	}
+	
+	public Map<String, Object> deleteGroup(Long id) {
+		long result1 = groupDao.deleteGroupById(id);
+		long result2 = groupDao.deleteGroupUserByGroupId(id);
+		if (result1 > 0 && result2 > 0) {
+			return ajaxDoneInfo("200", "用户组删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "用户组删除失败", "", "");
+		}
+	}
+
+
+	public long addGroupUser(Long groupId, String[] userNames) {
+		List<Long> list = userDao.queryUserByUserNames(userNames);
+		long result = 0;
+		for (Long userId : list) {
+			GroupUser groupUser = new GroupUser();
+			groupUser.setGroupId(groupId);
+			groupUser.setUserId(userId);
+			result = groupDao.addGroupUser(groupUser);
+		}
+		return result;
+	}
+}

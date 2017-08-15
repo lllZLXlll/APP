@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.count;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * app版本管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminAppversionService extends BaseController{
+
+}

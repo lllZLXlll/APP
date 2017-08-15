@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.user;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 员工列表
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminEmpListService extends BaseController {
+
+}

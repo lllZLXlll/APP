@@ -1,0 +1,33 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.pjzb.entity.Fundrecord;
+
+public interface FundrecordDao {
+
+	public long insertFundrecord(Fundrecord fundrecord);
+
+	public Fundrecord queryMaxIdFundById(Long userId);
+	
+	public Map<String, Object> queryMaxIdFundByIdReturnMap(Long userId);
+	
+	public List<Map<String, Object>> queryFundrecordListForPage(Long userId,String startTime,String endTime,List<String> fundMode,
+			String fundDesc,Long index,Long num);
+	
+	public Map<String, Long> queryFundrecordCount(Long userId,String startTime,String endTime,List<String> fundMode,String fundDesc);
+
+	public long addFundRecord(Fundrecord fundrecord);
+	
+	public long queryFundrecordByUserIdAndFundMode(long userId);
+	
+	public List<Map<String, Object>> queryUserCashListForPage(long l, Long pageSize, @Param(value = "userName")String userName, boolean b);
+
+	public long queryUserCashListCount(@Param(value = "userName")String userName);
+
+	public Map<String, Object> queryUserCashListCounts(@Param(value = "userName")String userName);
+
+}

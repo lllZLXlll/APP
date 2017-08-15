@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.count;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 投资统计
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminInvestCountService extends BaseController {
+
+}

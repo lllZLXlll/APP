@@ -1,0 +1,88 @@
+package com.pjzb.service.admin.declare;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.MessageDao;
+import com.pjzb.entity.Message;
+import com.pjzb.util.Constants;
+import com.shove.Convert;
+/**
+ * 信息管理
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdmIninfoManageService extends BaseController {
+	
+	@Autowired
+	private MessageDao messageDao;
+
+	public String queryMessageListInit(Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = messageDao.queryMessageForPage((pageNum - 1) * pageSize, pageSize,
+					true);
+			long count = messageDao.queryMessageCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询信息管理异常**************************");
+		}
+		return "/admin/declare/infomanage/list.jsp";
+	}
+
+	public String updateInfoManageByIdInit(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("message", messageDao.queryMessageByTypeId(Convert.strToInt(id+"", 1)));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询信息管理异常**************************");
+		}
+		return "/admin/declare/infomanage/edit.jsp";
+	}
+
+	public Map<String, Object> updateInfoManageById(Message message, String tabid) throws RuntimeException{
+		try {
+			long result = messageDao.updateInfoManageById(message);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "信息管理修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "信息管理修改失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("*********************根据id修改信息管理异常************************");
+		}
+	}
+
+	public String preViewInfoManageInit(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("message", messageDao.queryMessageByTypeId(Convert.strToInt(id+"", 1)));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id预览信息管理异常**************************");
+		}
+		return "/admin/declare/infomanage/preView.jsp";
+	}
+
+}

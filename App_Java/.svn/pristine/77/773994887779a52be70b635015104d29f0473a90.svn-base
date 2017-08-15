@@ -1,0 +1,20 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+public interface BorrowManageDao {
+
+	public List<Map<String, Object>> queryInvestByBorrowId(String billcode);
+
+	public List<Map<String, Object>> queryBorrowByCondition(String userName, Long borrowWay, long pageNum, long pageSize);
+
+	public long queryBorrowByConditionCount(String userName, Long borrowWay);
+
+	public Map<String, Object> queryBorrowTotalAllList();
+	
+	public List<String> queryInvestorPhoneByDeadline(Integer deadline);
+	
+	
+	
+}

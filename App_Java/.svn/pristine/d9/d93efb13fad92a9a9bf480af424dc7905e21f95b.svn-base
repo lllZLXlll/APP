@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="renderer" content="webkit">
+	<title>债权转让-普金资本-安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<meta name="keywords" content="债权转让，有、无抵押贷款，信用贷款，P2P贷款，网络贷款公司" />
+	<meta name="description" content="普金资本是目前中国网上理财行业中最快速、最安全的债权投资服务平台，为民间借贷用户提供安全有保障、高效收益好的债权转让，抵押贷款，无抵押贷款服务。" />
+	<link rel="stylesheet" href="src/css/public.css">
+	<link rel="stylesheet" href="src/css/index.css">
+</head>
+<body>
+	<!--[if lt IE 8]>
+    <div class="show-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  	<![endif]-->
+	<!-- top -->
+	<div class="top" id="top">
+	</div>
+	<!-- nav -->
+	<div class="nav">
+		<div class="wrap cl">
+			<div class="logo"><a href="index.html"><img src="src/images/logo.png" alt="普金资本"></a></div>
+			<div class="nav-bar">
+				<ul>
+					<li class="icon icon-acc"><a href="account.html">我的账户</a></li>
+					<!-- <li><a href="javascript:void(0);">信息披露</a></li> -->
+					<li><a href="about.html">信息披露</a></li>
+					<!-- <li><a href="javascript:void(0);" onclick="newPointer()">新手指导</a></li> -->
+					<li><a href="safety.html">安全保障</a></li>
+					<li class="active">
+						<a href="invest_list.html">投资理财</a>
+						<div class="sub-nav">
+							<a href="invest_list.html#006">恒金保</a>
+							<a href="invest_list.html#004">普金保</a>
+							<a href="invest_list.html#003">多金宝</a>
+							<a href="creditor_list.html">债权转让</a>
+							<p class="left"></p>
+							<p class="right"></p>
+						</div>
+					</li>
+					<li><a href="index.html">首页</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="subject">
+		<div class="subject-submit">
+			<div class="subject-submit-l">
+				<div class="subject-submit-title">
+					<p id="borrowWayName"></p>
+					<h3 id="borrowTitle">债权转让（A1055005263）</h3>
+				</div>
+				<div class="subject-submit-detail">
+					<div class="subject-submit-rate">
+						<p>转让总额</p>
+						<p class="text color"><span class="color"  id="debtSum">5000</span>元</p>
+					</div>
+					<div class="subject-submit-date">
+						<p>预期年化利率</p>
+						<p class="text"><span  class="rate">15</span>%</p>
+					</div>
+					<div class="subject-submit-amt">
+						<p>剩余期限</p>
+						<p class="text"><span id="date">1</span>月</p>
+					</div>
+				</div>
+				<div class="subject-submit-bottom">
+					<div class="subject-submit-b-t">
+						<p>转让价格：<span id="creditor-amt"></span></p>
+						<p>还款方式：<span id="paymentMode"></span></p>
+						<p>剩余认购时间：<span id="publishTime">0天0小时0分</span></p>
+					</div>
+					<div class="subject-submit-b-b">
+						<p class='first'>年化利率：<span class="rate">10</span>% </p>
+						<p>期限：<span id="y-date"></span>个月</p>
+						<p>借款总额：<span id="borrowSum"></span></p>
+						<a href="javascript:;" id="y-old">查看原始项目详情</a>
+					</div>
+				</div>
+			</div>
+			<div class="subject-submit-r">
+				<p class="subject-submit-creditor-u">可用余额：<span id="canUseSum"></span></p>
+				<a href="login.html" class="subject-submit-creditor-pay login">登录</a>
+				<a class="subject-submit-creditor-pay pay" href="account.html#ipay" >充值</a>
+				<button class="btn disabled" type="button">立即投资</button>
+				<div id="productJump" style="display:none;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="sub-about">
+		<div class="sub-creditor">
+			<p class="title">基本信息</p>
+			<div class="creditor-basic">
+				<p class="">用户名：<span id="username">萧**</span></p>
+				<p class="">手机号：<span id="mobilePhone">138****2234 </span></p>
+				<p class="">注册时间：<span id="createTime">2016-07-21</span></p>
+				<p class="">原标满标时间：<span id="auditTime"></span></p>
+			</div>
+			<p class="title">审核信息</p>
+			<div class="creditor-basic">
+				<p class="icon icon-personp">手机认证</p>
+				<p class="icon icon-carded">身份认证</p>
+				<p class="icon icon-shiming">实名认证</p>
+			</div>
+			<div class="sub-creditor-list">
+				<div class="sub-creditor-list-top">
+					<div class="top">
+						<p>序号</p>
+						<p>认购人</p>
+						<p>认购总额</p>
+						<p>认购时年化利率</p>
+						<p>认购时间</p>
+					</div>
+					<div class="bottom">
+						<p>1</p>
+						<p id="auctionerId"></p>
+						<p id="auctionHighPrice"></p>
+						<p class="rate"></p>
+						<p id="auctionEndTime"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="ajaxFooter"></div>
+	<!--[if lt IE 9]>
+	    <script src="src/libs/json2.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="src/libs/jquery.js"></script>
+	<script type="text/javascript" src="src/libs/public.js"></script>
+		<!-- 客服QQ -->
+	<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php"></script>
+	
+	<script type="text/javascript" src="scripts/creditor.js"></script>
+</body>
+</html>

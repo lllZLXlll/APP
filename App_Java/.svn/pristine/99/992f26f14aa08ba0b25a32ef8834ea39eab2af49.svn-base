@@ -1,0 +1,302 @@
+package com.pjzb.service.common;
+
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.dao.SlbaoDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+@Service
+public class SlbaoService extends BaseController {
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private RepaymentDao repaymentDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private UserDao userDao;
+	
+	@Autowired
+	private SlbaoDao slbaoDao; 
+
+	@SuppressWarnings("unchecked")
+	public synchronized String updateSynchronousSLBaoTrading() throws RuntimeException {
+		try {
+			log.info("生利宝交易汇付返回参数：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], "UTF-8");
+				log.info(key + "====>" + value);
+			}
+	
+			log.info("开始执行本地");
+	
+			// 签名和结果验证
+			String MerPriv = requestGetParameter("MerPriv");
+			String userIdStr = MerPriv.substring(0, MerPriv.lastIndexOf("-"));
+			String pageType = MerPriv.substring(MerPriv.lastIndexOf("-") + 1, MerPriv.length()); // pageType
+			String resultPage = getPageType(pageType);
+	
+			int slbType = 0;
+			if (pageType.equals("reactAPP")) {
+				slbType = 2;
+			} else if (pageType.equals("phonepage")) {
+				slbType = 1;
+			}
+	
+			BigDecimal transAmt = new BigDecimal(requestGetParameter("TransAmt"));
+			String type = requestGetParameter("TransType").trim();
+			String transType = type.trim().equals("I") ? "转入" : "转出";
+			Integer fundMode = type.trim().equals("I") ? 1 : 2;
+			String pErrCode = requestGetParameter("RespCode");// 汇付返回处理代码
+	
+			if ("".equals(MerPriv)) {
+				requestSetAttribute("result", "生利宝交易：流水号有误");
+				requestSetAttribute("msg", "生利宝交易：流水号有误");
+				requestSetAttribute("error", "2");
+				return resultPage;
+			}
+	
+			if (!"000".equals(pErrCode)) {
+				slbaoDao.addSLBaoRecord(Long.valueOf(userIdStr), fundMode, transAmt.doubleValue(), 0d, 0d, 0d,
+						new Date(), requestGetParameter("OrdId").trim(), transType, 2, slbType);
+	
+				requestSetAttribute("result", transType + "失败");
+				requestSetAttribute("msg", transType + "失败");
+				requestSetAttribute("error", "1");
+				return resultPage;
+			}
+			Map<String, Object> map = slbaoDao.querySLBaoRecord(requestGetParameter("OrdId").trim());
+			if (map == null) {
+				long result = -1;
+				double totalAmt = 0;
+				double usableSum = 0;
+				long userId = Long.parseLong(userIdStr);
+				// 查询用户账号生利宝余额
+				User userMap = userDao.queryUserById(userId);
+				// 生利宝余额
+				BigDecimal slbaoTotalAmt = new BigDecimal(userMap.getSlbaoTotalAmt());
+				// 用户账户可用金额
+				BigDecimal usableSumDecimal = new BigDecimal(userMap.getUsableSum());
+				double totalProfit = -1;
+				// 转入生利宝
+				if (type.equals("I")) {
+					usableSum = usableSumDecimal.subtract(transAmt).doubleValue();
+					totalAmt = slbaoTotalAmt.add(transAmt).doubleValue();
+				} else { // 转出生利宝
+					// 如果转出金额比t_user表生利宝余额大，说明生利宝收益还未同步到平台
+					if (slbaoTotalAmt.subtract(transAmt).doubleValue() < 0) {
+						JSONObject slbAccountJsonObject = JSONObject
+								.fromObject(ChinapnrInterface.queryShengLiBaoAccount(userMap.getIpayAccount()));
+						totalAmt = Convert.strToDouble(slbAccountJsonObject.getString("TotalAsset"), 0);// 生利宝余额
+						totalProfit = Convert.strToDouble(slbAccountJsonObject.getString("TotalProfit"), 0);// 历史累计收益
+//						totalAmt = new BigDecimal(totalAsset).subtract(transAmt).doubleValue();
+					} else {
+						totalAmt = slbaoTotalAmt.subtract(transAmt).doubleValue();
+					}
+					usableSum = usableSumDecimal.add(transAmt).doubleValue();
+				}
+				result = userDao.updateUserSLBaoTotalAmt(userId, totalAmt, usableSum, totalProfit);
+
+				// 新增该用户生利宝交易明细表记录
+				slbaoDao.addSLBaoRecord(userId, fundMode, transAmt.doubleValue(), totalAmt,
+						type.trim().equals("I") ? transAmt.doubleValue() : 0d,
+						type.trim().equals("O") ? transAmt.doubleValue() : 0d, new Date(),
+						requestGetParameter("OrdId").trim(), transType, 0, slbType);
+
+				Map<String, Object> userAmountMap = userService.queryUserAmountAfterHander(userId);
+				double forPI = ConvertUtil.convertDouble(ConvertUtil.convertString(userAmountMap.get("forPI")));
+				double freezeSum = ConvertUtil.convertDouble(userAmountMap == null ? "0" : ConvertUtil.convertString(userAmountMap.get("freezeSum")));
+				Map<String, Object> userMountMap = repaymentDao.queryUserRepayMount(userId);
+				double forpaySum = ConvertUtil.convertDouble(userMountMap == null ? "0" : ConvertUtil.convertString(userMountMap.get("forpaySum")));
+
+				// 新增资金记录
+				Fundrecord fundrecord = new Fundrecord();
+				fundrecord.setUserId(userId);
+				fundrecord.setFundMode(transType + "生利宝");
+				fundrecord.setHandleSum(transAmt.doubleValue());
+				fundrecord.setUsableSum(usableSum);
+				fundrecord.setFreezeSum(freezeSum);
+				fundrecord.setDueinSum(forPI);
+				fundrecord.setTrader(-1l);
+				fundrecord.setRecordTime(new Date());
+				fundrecord.setRemarks("用户" + transType + "生利宝");
+				fundrecord.setIncome(type.trim().equals("O") ? transAmt.doubleValue() : 0);
+				fundrecord.setSpending(type.trim().equals("I") ? transAmt.doubleValue() : 0);
+				fundrecord.setBorrowId(-1l);
+				fundrecord.setRepaymentId(-1l);
+				fundrecord.setOperateType(702);
+				fundrecord.setDueoutSum(forpaySum);
+				fundrecordDao.addFundRecord(fundrecord);
+				userService.updateSign(userId);
+				
+				if (result < 0) {
+					requestSetAttribute("result", transType + "平台执行失败");
+					requestSetAttribute("msg", transType + "平台执行失败");
+					requestSetAttribute("error", "2");
+					return resultPage;
+				}
+			}
+			requestSetAttribute("result", transType + "成功");
+			requestSetAttribute("msg", transType + "成功");
+			requestSetAttribute("error", "0");
+			return resultPage;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String getPageType(String pageType) {
+		if (pageType.equalsIgnoreCase(Constants.PC)) {
+			return Constants.RESULT_PAGE_PC;
+		} else if (pageType.equalsIgnoreCase(Constants.REACTAPP)) {
+			return Constants.RESULT_PAGE_APP;
+		} else {
+			return Constants.RESULT_PAGE_WAP;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public synchronized String updateAsynchronousSLBaoTrading() throws UnsupportedEncodingException {
+		try {
+			log.info("生利宝交易汇付返回参数：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], "UTF-8");
+				log.info(key + "====>" + value);
+			}
+	
+			log.info("开始执行本地");
+			String resultStr = "订单:RECV_ORD_ID_" + requestGetParameter("OrdId");// 处理完请求后，往页面打字符串
+			// 签名和结果验证
+			String MerPriv = requestGetParameter("MerPriv");
+			String userIdStr = MerPriv.substring(0, MerPriv.indexOf("-"));
+			String pageType = MerPriv.substring(MerPriv.lastIndexOf("-") + 1, MerPriv.length()); // pageType
+	
+			long userId = Long.parseLong(userIdStr);
+			int slbType = 0;
+			if (pageType.equals("reactAPP")) {
+				slbType = 2;
+			} else if (pageType.equals("phonepage")) {
+				slbType = 1;
+			}
+	
+			BigDecimal transAmt = new BigDecimal(requestGetParameter("TransAmt"));
+			String type = requestGetParameter("TransType").trim();
+			String transType = type.trim().equals("I") ? "转入" : "转出";
+			Integer fundMode = type.trim().equals("I") ? 1 : 2;
+			String pErrCode = requestGetParameter("RespCode");// 汇付返回处理代码
+			String pErrMsg = java.net.URLDecoder.decode(requestGetParameter("RespDesc"), "UTF-8"); // 汇付返回处理消息
+	
+			if (Convert.strToInt(pErrCode, -1) != 0) {
+				slbaoDao.addSLBaoRecord(userId, fundMode, transAmt.doubleValue(), 0d, 0d, 0d, new Date(),
+						requestGetParameter("OrdId").trim(), transType, 2, slbType);
+	
+				log.info("生利宝汇付返回失败：" + pErrMsg);
+				log.info("往页面打印：" + resultStr);
+				return resultStr;
+			}
+	
+			Map<String, Object> map = slbaoDao.querySLBaoRecord(requestGetParameter("OrdId").trim());
+			if (map == null) {
+				long result = -1;
+				double totalAmt = 0;
+				double usableSum = 0;
+				// 查询用户账号生利宝余额
+				User userMap = userDao.queryUserById(userId);
+				// 生利宝余额
+				BigDecimal slbaoTotalAmt = new BigDecimal(userMap.getSlbaoTotalAmt());
+				// 用户账户可用金额
+				BigDecimal usableSumDecimal = new BigDecimal(userMap.getUsableSum());
+				double totalProfit = -1;
+				// 转入生利宝
+				if (type.equals("I")) {
+					usableSum = usableSumDecimal.subtract(transAmt).doubleValue();
+					totalAmt = slbaoTotalAmt.add(transAmt).doubleValue();
+				} else { // 转出生利宝
+					// 如果转出金额比t_user表生利宝余额大，说明生利宝收益还未同步到平台
+					if (slbaoTotalAmt.subtract(transAmt).doubleValue() < 0) {
+						JSONObject slbAccountJsonObject = JSONObject
+								.fromObject(ChinapnrInterface.queryShengLiBaoAccount(userMap.getIpayAccount()));
+						totalAmt = Convert.strToDouble(slbAccountJsonObject.getString("TotalAsset"), 0);// 生利宝余额
+						totalProfit = Convert.strToDouble(slbAccountJsonObject.getString("TotalProfit"), 0);// 历史累计收益
+//						totalAmt = new BigDecimal(totalAsset).subtract(transAmt).doubleValue();
+					} else {
+						totalAmt = slbaoTotalAmt.subtract(transAmt).doubleValue();
+					}
+					usableSum = usableSumDecimal.add(transAmt).doubleValue();
+				}
+				result = userDao.updateUserSLBaoTotalAmt(userId, totalAmt, usableSum, totalProfit);
+
+				// 新增该用户生利宝交易明细表记录
+				slbaoDao.addSLBaoRecord(userId, fundMode, transAmt.doubleValue(), totalAmt,
+						type.trim().equals("I") ? transAmt.doubleValue() : 0d,
+						type.trim().equals("O") ? transAmt.doubleValue() : 0d, new Date(),
+						requestGetParameter("OrdId").trim(), transType, 0, slbType);
+
+				Map<String, Object> userAmountMap = userService.queryUserAmountAfterHander(userId);
+				double forPI = ConvertUtil.convertDouble(ConvertUtil.convertString(userAmountMap.get("forPI")));
+				double freezeSum = ConvertUtil.convertDouble(userAmountMap == null ? "0" : ConvertUtil.convertString(userAmountMap.get("freezeSum")));
+				Map<String, Object> userMountMap = repaymentDao.queryUserRepayMount(userId);
+				double forpaySum = ConvertUtil.convertDouble(userMountMap == null ? "0" : ConvertUtil.convertString(userMountMap.get("forpaySum")));
+
+				// 新增资金记录
+				Fundrecord fundrecord = new Fundrecord();
+				fundrecord.setUserId(userId);
+				fundrecord.setFundMode(transType + "生利宝");
+				fundrecord.setHandleSum(transAmt.doubleValue());
+				fundrecord.setUsableSum(usableSum);
+				fundrecord.setFreezeSum(freezeSum);
+				fundrecord.setDueinSum(forPI);
+				fundrecord.setTrader(-1l);
+				fundrecord.setRecordTime(new Date());
+				fundrecord.setRemarks("用户" + transType + "生利宝");
+				fundrecord.setIncome(type.trim().equals("O") ? transAmt.doubleValue() : 0);
+				fundrecord.setSpending(type.trim().equals("I") ? transAmt.doubleValue() : 0);
+				fundrecord.setBorrowId(-1l);
+				fundrecord.setRepaymentId(-1l);
+				fundrecord.setOperateType(702);
+				fundrecord.setDueoutSum(forpaySum);
+				fundrecordDao.addFundRecord(fundrecord);
+				userService.updateSign(userId);
+
+				if (result < 0) {
+					log.info(transType + "平台执行失败");
+					log.info("往页面打印：" + resultStr);
+					return resultStr;
+				}
+			}
+			log.info(transType + "成功");
+			log.info("往页面打印：" + resultStr);
+			return resultStr;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+}

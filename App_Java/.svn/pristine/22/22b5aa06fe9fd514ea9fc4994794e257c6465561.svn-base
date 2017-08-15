@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>详情-平台公告</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#e04c16">
+		<div class="warp-1000 ">
+			<a href="index.html"><img src="shImages/tips.png"/></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">登录</a></li>
+						<li><a href="#"><i class="ico ico-red-package"></i>注册领红包</a></li>
+						<li><a href="#">我要投资</a></li>
+						<li><a href="#">新手指引</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.html" class="logo"><img src="shImages/logo.png"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li class="">
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	
+	<div class="announcement_detail">
+    	<div class="main warp-1000">
+        	<div class="white-box-60">
+            <h1>邀请好友投资，赚积分享好礼</h1>
+            <p class="info"><span>发布时间：2015-05-25 17:17:20</span> <span>浏览次数：5</span> <span>发布者：admin</span></p>
+           <p>你想让好友帮你赚钱吗？你想让好友帮你实现你的愿望吗？现在通过邀请好友，
+           得积分大奖，即可在积分商城进行兑换。一切统统为你实现，一般人我不告诉他呢！
+            邀请好友积分奖励如下： 具体活动规则如下： 1、活动时间：5月18日-6月14日 
+            2、好礼一：活动期间，邀请好友投资，邀请人即可获得50元投资返现红包，被邀
+            请人在银客网投资（转让项目除外）也可享双倍积分。 3、好礼二：活动期间，成
+            功邀请好友数达到20人以上且邀请好友数最多的前10名银客网用户，将额外获赠巨
+            额积分奖励（如上图）。 成功邀请好友的定义：活动期间，您可以分享给好友您的
+            银客网邀请码，他们在注册银客网的过程中输入您的邀请码并且成功单笔投资满2000元
+            （转让项目除外)，即视您成功邀请了好友。 点击查看邀请排行榜 4、为了方便获奖用
+            户在6月18日前兑换心仪礼品，好友需要在518活动期间内,通过输入您的邀请码进行注
+            册，并且在6月14日(含）前进行投资。 5、邀请好友所获得的奖励积分将在6月16日前
+            统一发放。 6、邀请排行榜将在5月19日开始每日更新（节假日除外），让好友为你赚
+            取大奖吧！ 7、活动期间若存在用户刷奖行为，银客网有权取消其获奖资格，本次活动
+            最终解释权归银客网所有。 
+            </p>
+            <div class="news-views-brief clearfix">
+            	<div class="left">上一篇：<a href="frontNewsDetails.do?id=3">518理财狂欢节</a></div>
+                <div class="right">下一篇：<a href="frontNewsDetails.do?id=3">518理财狂欢节</a></div>
+            </div>
+            </div>
+       </div>
+    </div>
+
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="img/cpright_001.png"/></a>
+					<a href="#"><img src="img/cpright_002.png"/></a>
+					<a href="#"><img src="img/cpright_003.png"/></a>
+                  <a href="#"><img src="img/cpright_004.png"/></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->
+
+<div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-qq"></i></p>
+				<p>客服QQ</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-weichet"></i></p>
+				<p>官方微信</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-feedback"></i></p>
+				<p>意见反馈</p>
+			</a>
+		</li>
+	</ul>
+</div>
+</body>
+</html>

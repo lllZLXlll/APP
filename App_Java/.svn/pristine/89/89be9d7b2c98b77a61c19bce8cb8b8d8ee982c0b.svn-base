@@ -1,0 +1,75 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * Notice entity. @author MyEclipse Persistence Tools
+ */
+
+public class Notice implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Integer mailNoticeEnable;
+	private Integer emailNoticeEnable;
+	private Integer noteNoticeEnable;
+	private Long userId;
+
+	// Constructors
+
+	/** default constructor */
+	public Notice() {
+	}
+
+	/** full constructor */
+	public Notice(Integer mailNoticeEnable, Integer emailNoticeEnable,
+			Integer noteNoticeEnable, Long userId) {
+		this.mailNoticeEnable = mailNoticeEnable;
+		this.emailNoticeEnable = emailNoticeEnable;
+		this.noteNoticeEnable = noteNoticeEnable;
+		this.userId = userId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Integer getMailNoticeEnable() {
+		return this.mailNoticeEnable;
+	}
+
+	public void setMailNoticeEnable(Integer mailNoticeEnable) {
+		this.mailNoticeEnable = mailNoticeEnable;
+	}
+
+	public Integer getEmailNoticeEnable() {
+		return this.emailNoticeEnable;
+	}
+
+	public void setEmailNoticeEnable(Integer emailNoticeEnable) {
+		this.emailNoticeEnable = emailNoticeEnable;
+	}
+
+	public Integer getNoteNoticeEnable() {
+		return this.noteNoticeEnable;
+	}
+
+	public void setNoteNoticeEnable(Integer noteNoticeEnable) {
+		this.noteNoticeEnable = noteNoticeEnable;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+}

@@ -1,0 +1,25 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Fundrecord;
+
+public interface FundrecordDao {
+
+	public void insertFundrecord(Fundrecord fundrecord);
+
+	public Fundrecord queryMaxIdFundById(Long userId);
+	
+	public Map<String, Object> queryMaxIdFundByIdReturnMap(Long userId);
+	
+	public List<Map<String, Object>> queryFundrecordListForPage(Long userId,String startTime,String endTime,List<String> fundMode,
+			String fundDesc,Long index,Long num);
+	
+	public Map<String, Long> queryFundrecordCount(Long userId,String startTime,String endTime,List<String> fundMode,String fundDesc);
+
+	public long addFundRecord(Fundrecord fundrecord);
+	
+	public long queryFundrecordByUserIdAndFundMode(long userId);
+
+}

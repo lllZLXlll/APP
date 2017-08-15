@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.PersonDao">
+
+	<insert id="addPerson">
+		insert into t_person (
+		realName, cellPhone, sex, birthday, highestEdu, eduStartDay, school, maritalStatus,
+		hasChild, hasHourse, hasHousrseLoan, hasCar, hasCarLoan, nativePlacePro, nativePlaceCity,
+		registedPlacePro, registedPlaceCity, address, telephone, userId, personalHead, idNo, auditStatus, flag
+		) values (
+		#{realName}, #{cellPhone}, #{sex}, #{birthday}, #{highestEdu}, #{eduStartDay}, #{school}, #{maritalStatus},
+		#{hasChild}, #{hasHourse}, #{hasHousrseLoan}, #{hasCar}, #{hasCarLoan}, #{nativePlacePro}, #{nativePlaceCity},
+		#{registedPlacePro}, #{registedPlaceCity}, #{address}, #{telephone}, #{userId}, #{personalHead}, #{idNo}, #{auditStatus}, #{flag}
+		)
+	</insert>
+
+	<update id="updatePersonByUserId">
+		UPDATE t_person
+		<trim prefix="set" suffixOverrides=",">
+			<if test="realName != null and realName != '' ">realName=#{realName},</if>
+			<if test="cellPhone != null and cellPhone != '' ">cellPhone=#{cellPhone},</if>
+			<if test="sex != null and sex != '' ">sex=#{sex},</if>
+			<if test="birthday != null">birthday=#{birthday},</if>
+			<if test="highestEdu != null">highestEdu=#{highestEdu},</if>
+			<if test="eduStartDay != null">eduStartDay=#{eduStartDay},</if>
+			<if test="school != null">school=#{school},</if>
+			<if test="maritalStatus != null">maritalStatus=#{maritalStatus},</if>
+			<if test="hasChild != null">hasChild=#{hasChild},</if>
+			<if test="hasHourse != null">hasHourse=#{hasHourse},</if>
+			<if test="hasHousrseLoan != null">hasHousrseLoan=#{hasHousrseLoan},</if>
+			<if test="hasCar != null">hasCar=#{hasCar},</if>
+			<if test="hasCarLoan != null">hasCarLoan=#{hasCarLoan},</if>
+			<if test="nativePlacePro != null">nativePlacePro=#{nativePlacePro},</if>
+			<if test="nativePlaceCity != null">nativePlaceCity=#{nativePlaceCity},</if>
+			<if test="registedPlacePro != null">registedPlacePro=#{registedPlacePro},</if>
+			<if test="registedPlaceCity != null">registedPlaceCity=#{registedPlaceCity},</if>
+			<if test="address != null and address != '' ">address=#{address},</if>
+			<if test="telephone != null">telephone=#{telephone},</if>
+			<if test="personalHead != null">personalHead=#{personalHead},</if>
+			<if test="idNo != null and idNo != '' ">idNo=#{idNo},</if>
+			<if test="auditStatus != null">auditStatus=#{auditStatus},</if>
+			<if test="flag != null">flag=#{flag},</if>
+			<if test="qq != null">qq=#{qq},</if>
+			<if test="idNoPositiveImg != null">idNoPositiveImg=#{idNoPositiveImg},</if>
+			<if test="idNoReverseImg != null">idNoReverseImg=#{idNoReverseImg},</if>
+			<if test="authTime != null">authTime=#{authTime},</if>
+			<if test="viewpdfUrl != null">viewpdfUrl=#{viewpdfUrl},</if>
+			<if test="downloadUrl != null">downloadUrl=#{downloadUrl},</if>
+			<if test="transactionId != null">transactionId=#{transactionId},</if>
+		</trim>
+		WHERE userId = #{userId}
+	</update>
+
+	<resultMap type="person" id="personResultMap">
+		<id column="id" property="id" />
+		<result column="realName" property="realName" />
+		<result column="cellPhone" property="cellPhone" />
+		<result column="sex" property="sex" />
+		<result column="birthday" property="birthday" />
+		<result column="highestEdu" property="highestEdu" />
+		<result column="eduStartDay" property="eduStartDay" />
+		<result column="school" property="school" />
+		<result column="maritalStatus" property="maritalStatus" />
+		<result column="hasChild" property="hasChild" />
+		<result column="hasHourse" property="hasHourse" />
+		<result column="hasHousrseLoan" property="hasHousrseLoan" />
+		<result column="hasCar" property="hasCar" />
+		<result column="hasCarLoan" property="hasCarLoan" />
+		<result column="nativePlacePro" property="nativePlacePro" />
+		<result column="nativePlaceCity" property="nativePlaceCity" />
+		<result column="registedPlacePro" property="registedPlacePro" />
+		<result column="registedPlaceCity" property="registedPlaceCity" />
+		<result column="address" property="address" />
+		<result column="telephone" property="telephone" />
+		<result column="userId" property="userId" />
+		<result column="personalHead" property="personalHead" />
+		<result column="idNo" property="idNo" />
+		<result column="auditStatus" property="auditStatus" />
+		<result column="flag" property="flag" />
+		<result column="qq" property="qq" />
+		<result column="idNoPositiveImg" property="idNoPositiveImg" />
+		<result column="idNoReverseImg" property="idNoReverseImg" />
+		<result column="authTime" property="authTime" />
+		<result column="viewpdfUrl" property="viewpdfUrl" />
+		<result column="downloadUrl" property="downloadUrl" />
+		<result column="transactionId" property="transactionId" />
+	</resultMap>
+
+	<select id="queryPersonByUserId" resultMap="personResultMap">
+		SELECT * FROM t_person WHERE userId = #{userId}
+	</select>
+
+	<select id="queryPersonCellPhone" resultType="java.util.Map">
+		SELECT cellPhone FROM t_person WHERE userId = #{userId}
+	</select>
+
+	<select id="findUserSexCount" resultType="java.lang.Long">
+		SELECT COUNT(1) userCount FROM (SELECT b.sex,e.investTime FROM t_user a LEFT JOIN t_person b ON a.id=b.userId
+		LEFT JOIN t_invest e ON a.id=e.investor GROUP BY e.investor) t WHERE t.sex LIKE CONCAT('%',#{0},'%')
+		AND t.investTime between #{1} and #{2}
+	</select>
+
+	<select id="findPersonByIdNo" resultType="java.util.Map">
+		SELECT idNo FROM t_person WHERE idNo= #{idNo}
+	</select>
+
+	<select id="isExistidcard" resultType="java.util.Map">
+		SELECT idNo FROM t_person_other_idno WHERE idNo= #{idNo}
+	</select>
+
+
+	<select id="queryLoanAfterMgr" resultType="java.util.Map">
+		select b.userId as loanUserId,b.realName as loanRealName from t_user a left join t_person b
+		on b.userId = a.id where a.isLoanManager = 2
+	</select>
+
+	<select id="queryInvestorRepresent" resultType="java.util.Map">
+		select tp.userId as behalfUserId,tp.realName as behalfRealName from t_user tu
+		left join t_person tp on tp.userId = tu.id where tu.isBehalf = 2
+	</select>
+
+
+
+</mapper>
+
+
+

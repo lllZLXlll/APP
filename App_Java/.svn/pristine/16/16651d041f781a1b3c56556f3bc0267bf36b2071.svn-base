@@ -1,0 +1,16 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.ExGoRepayment;
+
+public interface ExGoRepaymentDao {
+	
+	public void insertExGoReyment(ExGoRepayment exGoRepayment);
+	
+	public List<Map<String, Object>> queryExgoRepaymentInfo(Date date);
+	
+	public void updateExGoOrIdByBorrowId(long orId,long borrowId);
+}

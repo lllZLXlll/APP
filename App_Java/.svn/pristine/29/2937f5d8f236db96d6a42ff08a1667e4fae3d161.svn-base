@@ -1,0 +1,65 @@
+package com.pjzb.service.admin.borrow;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.UserDao;
+import com.pjzb.util.HttpClientHelp;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 手工获取IP
+ * @author zlx
+ *
+ */
+@Service
+public class AdminManGetIpAreaService extends BaseController{
+
+	@Autowired
+	private UserDao userDao;
+	
+	@SuppressWarnings("resource")
+	public Map<String, Object> updateHandGetIplist() throws RuntimeException, IOException {
+		JSONObject json = new JSONObject();   
+		List<Map<String, Object>> UserIpList = userDao.queryUserIp();
+		for (Map<String, Object> UserIpMap : UserIpList) {
+			String ip = Convert.strToStr(UserIpMap.get("lastIP") + "","-1"); 
+			long userId = Convert.strToLong(UserIpMap.get("id") + "",-1); 
+			
+			String url = "http://apis.juhe.cn/ip/ip2addr?ip="+ip+"&dtype=&key=0c329e6d0719a08110788ec9f54dd1db";
+			HttpClientHelp hch = new HttpClientHelp();
+			InputStream is = hch.byGetMethodToInputStream(url);
+
+			// 读取返回内容
+			StringBuffer buffer = new StringBuffer();
+			BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+			String temp;
+			while ((temp = br.readLine()) != null) {
+				buffer.append(temp);
+			}
+			log.info("查询IP结果:-------> "+buffer.toString());
+
+			json = JSONObject.fromObject(buffer.toString());
+			if (json.get("resultcode").equals("200")) { 
+				String area = json.getJSONObject("result").get("area").toString();
+				log.info(ip+":-------> "+area);
+				userDao.updateUseripArea(userId, area);
+			} else {
+				return ajaxDoneInfo("300", "手工获取IP失败", "", "");
+			}
+		}
+		return ajaxDoneInfo("200", "手工获取IP成功", "", "");
+	}
+
+}

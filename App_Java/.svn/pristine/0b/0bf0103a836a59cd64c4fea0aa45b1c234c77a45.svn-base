@@ -1,0 +1,39 @@
+package com.pjzb.service.front;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.BillCodeDao;
+import com.pjzb.entity.BillCode;
+
+@Service
+public class BillCodeService extends BaseController{
+	
+	@Autowired
+	private BillCodeDao billCodeDao;
+	
+	public void addBillCode(BillCode billCode){
+		billCodeDao.addBillCode(billCode);
+	}
+	
+	public boolean queryBillCodeByPmerBillNo(String pmerBillNo){
+		BillCode billCode = billCodeDao.queryBillCodeByPmerBillNo(pmerBillNo);
+		if (billCode != null && StringUtils.isBlank(billCode.getPipsBillNo())) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	/**
+	 * 订单号查询
+	 */
+	public boolean queryBillCode(String pMerBillNo) {
+		String obj = billCodeDao.queryBillCode(pMerBillNo);
+		if (obj != null && !"".equals(obj.toString()))
+			return true;
+		return false;
+	}
+}

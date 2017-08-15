@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.user;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 用户名别名配置
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminUserAliasService extends BaseController {
+
+}

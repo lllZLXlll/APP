@@ -1,0 +1,94 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * MailSet entity. @author MyEclipse Persistence Tools
+ */
+
+public class MailSet implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String mailaddress;
+	private String mailpassword;
+	private String sendmail;
+	private String sendname;
+	private String port;
+	private String host;
+
+	// Constructors
+
+	/** default constructor */
+	public MailSet() {
+	}
+
+	/** full constructor */
+	public MailSet(String mailaddress, String mailpassword, String sendmail, String sendname, String port, String host) {
+		this.mailaddress = mailaddress;
+		this.mailpassword = mailpassword;
+		this.sendmail = sendmail;
+		this.sendname = sendname;
+		this.port = port;
+		this.host = host;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getMailaddress() {
+		return this.mailaddress;
+	}
+
+	public void setMailaddress(String mailaddress) {
+		this.mailaddress = mailaddress;
+	}
+
+	public String getMailpassword() {
+		return this.mailpassword;
+	}
+
+	public void setMailpassword(String mailpassword) {
+		this.mailpassword = mailpassword;
+	}
+
+	public String getSendmail() {
+		return this.sendmail;
+	}
+
+	public void setSendmail(String sendmail) {
+		this.sendmail = sendmail;
+	}
+
+	public String getSendname() {
+		return this.sendname;
+	}
+
+	public void setSendname(String sendname) {
+		this.sendname = sendname;
+	}
+
+	public String getPort() {
+		return this.port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+	public String getHost() {
+		return this.host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+}

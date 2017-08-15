@@ -1,0 +1,113 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.UserDao;
+
+/**
+ * 手工还款
+ * 
+ * @author zlx
+ */
+
+@Service
+public class AdminManualRepayService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+
+//	/**
+//	 * 提交还款记录(遗漏)
+//	 */
+	public Map<String, Object> handrepaymentlist(Model model, Long repaymentId) throws RuntimeException {
+//		long borrowId = -1;
+//		long investorId = -1;
+//		try {
+//			/******************** 调用存储过程纠偏还款资金误差开始 ***************************/
+//			// 查询出当前还款记录对应的借款记录
+//			Map<String, Object> pre = userDao.findRepaymentId(repaymentId);
+//			if (pre == null || pre.size() == 0) {
+//				return ajaxDoneInfo("300", "订单号不存在", "", "");
+//			}
+//
+//			BigDecimal b = new BigDecimal(Convert.strToDouble(pre.get("recivedPrincipal") + "", 0)
+//					+ Convert.strToDouble(pre.get("recivedInterest") + "", 0));
+//			double needSum = b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();// 需还总额
+//
+//			Map<String, Object> cmap = new HashMap<String, Object>();
+//			/******************** 调用存储过程纠偏还款资金误差结束 ***************************/
+//
+//			JSONObject json = JSONObject.fromObject(ChinapnrService.queryBalanceBg(pre.get("ipayAccount") + ""));
+//			String AvlBalString = json.getString("AvlBal");// 用户在汇付可用余额
+//			AvlBalString = AvlBalString.replaceAll(",", "");
+//			double AvlBal = Convert.strToDouble(AvlBalString + "", 0);
+//			if (AvlBal < needSum) {
+//				return ajaxDoneInfo("300", "余额不足,请充值", "", "");
+//			}
+//			try {
+//				cmap = frontpayService.doRepayment(Long.parseLong(pre.get("repaymentId")), pre.get("ipayAccount"),
+//						pre.get("password"), needSum, getBasePath());
+//
+//				if (cmap != null) {
+//					int RespCode = Convert.strToInt(cmap.get("result"), -1);
+//					String respDesc = cmap.get("respDesc");
+//					if (RespCode != 0) {// 当汇付处理不成功时返回汇付提示消息
+//						obj.put("msg", respDesc);
+//						JSONUtils.printObject(obj);
+//						return null;
+//					}
+//				}
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				obj.put("result", "还款异常");
+//				JSONUtils.printObject(obj);
+//				return null;
+//			}
+//
+//			borrowId = Convert.strToLong(pre.get("id"), -1);
+//			// 更改借款人可用的资金
+//			userService.updateUserUsableSum(conn, borrowId, -needSum);
+//
+//			// 查询投资后的账户金额
+//			Map<String, String> userSumMap1 = financeDao.queryUserAmountAfterHander(conn, borrowId);
+//			if (userSumMap1 == null) {
+//				userSumMap1 = new HashMap<String, String>();
+//			}
+//			double usableSum1 = Convert.strToDouble(userSumMap1.get("usableSum") + "", 0);
+//			double freezeSum1 = Convert.strToDouble(userSumMap1.get("freezeSum") + "", 0);
+//			double forPI1 = Convert.strToDouble(userSumMap1.get("forPI") + "", 0);
+//			fundRecordDao.addFundRecord(conn, borrowId, "扣除还款金额(手工还款)", needSum, usableSum1, freezeSum1, forPI1, -1,
+//					"对借款[" + pre.get("borrowTitle") + "]还款扣除还款金额[" + needSum + "]元  ", 0.0, needSum, -1, -1, 101, 0.0);
+//
+//			investorId = Convert.strToLong(pre.get("investorId"), -1);
+//
+//			// 更改投资人可用的资金
+//			userService.updateUserUsableSum(conn, investorId, needSum);
+//			// 查询投资后的账户金额
+//			Map<String, String> userSumMap2 = financeDao.queryUserAmountAfterHander(conn, investorId);
+//			if (userSumMap2 == null) {
+//				userSumMap2 = new HashMap<String, String>();
+//			}
+//			double usableSum2 = Convert.strToDouble(userSumMap2.get("usableSum") + "", 0);
+//			double freezeSum2 = Convert.strToDouble(userSumMap2.get("freezeSum") + "", 0);
+//			double forPI2 = Convert.strToDouble(userSumMap2.get("forPI") + "", 0);
+//			fundRecordDao.addFundRecord(conn, investorId, "投资收到还款(手工还款)", needSum, usableSum2, freezeSum2, forPI2, -1,
+//					"借款[" + pre.get("borrowTitle") + "]已还款,投资收到还款[" + needSum + "]元", needSum, 0.0, -1, -1, 101, 0.0);
+//			borrowManageService.updateRepament(conn, Long.parseLong(repaymentId));
+//			assignmentDebtService.updateInvest(conn, Long.parseLong(pre.get("invest_id")));
+//			conn.commit();
+//			obj.put("result", "还款成功");
+//			JSONUtils.printObject(obj);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			log.error(e);
+//			throw new RuntimeException("**********************手工还款异常***************************");
+//		}
+		return null;
+	}
+}

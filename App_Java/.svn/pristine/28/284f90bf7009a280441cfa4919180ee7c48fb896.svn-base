@@ -1,0 +1,386 @@
+package com.pjzb.controller.front;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.entity.Mediareport;
+import com.pjzb.entity.News;
+import com.pjzb.entity.User;
+import com.pjzb.service.common.FinanceService;
+import com.pjzb.service.common.IndexService;
+import com.pjzb.service.common.InvestService;
+import com.pjzb.service.common.LinksService;
+import com.pjzb.service.common.MediareportService;
+import com.pjzb.service.common.NewsService;
+import com.pjzb.service.common.RecommendUserService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.shove.Convert;
+
+/**
+ * PC、wap端投资推荐排行榜、媒体报道、公告、公司动态、 收益计算器、 调查问卷、合作伙伴
+ * 
+ * @author xiaojin
+ * 
+ */
+
+@Controller
+@RequestMapping(value = "/front")
+public class FrontIndexController extends BaseController {
+	private static Log log = LogFactory.getLog(FrontIndexController.class);
+
+	@Autowired
+	private InvestService investService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private NewsService newsService;
+
+	@Autowired
+	private LinksService linksService;
+
+	@Autowired
+	private MediareportService mediareportService;
+
+	@Autowired
+	private IndexService indexService;
+
+	@Autowired
+	private RecommendUserService recommendUserService;
+
+	@Autowired
+	private FinanceService financeService;
+	
+	/**
+	 * wap、pc端首页
+	 * 
+	 * @return
+	 */
+
+	@RequestMapping(value = "/index")
+	@ResponseBody
+	public Map<String, Object> index(HttpServletResponse response) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.putAll(indexService.queryIndex(chosese()));
+			String surveyCount = "0";
+			if (getSessionUserInfo() != null) {
+				Long userId = getSessionUserId();
+				User user = userService.queryUserById(userId);
+				String ipayAccount = user.getIpayAccount();
+				if (!StringUtils.isBlank(ipayAccount)) {
+					jsonMap.putAll(indexService.updateChinapnr(userId, surveyCount, ipayAccount, chosese()));
+					userService.updateSign(user.getId());// 更换校验码
+				}
+			}
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		} catch (Exception e) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查询异常");
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * pc端查询推荐投资排行榜
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/recommendInvestRank")
+	@ResponseBody
+	public Map<String, Object> recommendInvestRank() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.putAll(indexService.queryRecommendInvestRank(chosese()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查询排行榜异常");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * wap端获取公告列表
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/frontQueryNewsList")
+	@ResponseBody
+	public Map<String, Object> frontQueryNewsList() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			Long pageNum = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+			jsonMap.putAll(indexService.findNewsList(pageNum, Constants.PAGE_SIZE_10, chosese()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "公告列表查询异常");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 根据Id获取网站公告详情
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/frontNewsDetails")
+	@ResponseBody
+	public Map<String, Object> frontNewsDetails() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			Long id = ConvertUtil.convertLong(jsonObject.getString("id"));
+			News news = newsService.queryNewsById(id);
+			jsonMap.put("paramMap", news);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		} catch (Exception e) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查询网站公告异常");
+			log.error(e);
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 根据Id获取媒体报道详情
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/frontMediaReportDetails")
+	@ResponseBody
+	public Map<String, Object> frontMediaReportDetails() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			Long id = ConvertUtil.convertLong(jsonObject.getString("id"));
+			Mediareport mediareport = mediareportService.queryMediaReportById(id);
+			jsonMap.put("map", mediareport);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("msg", "1");
+			jsonMap.put("msg", "查看媒体报道异常");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 问卷调查
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/addQuestionSurvey")
+	@ResponseBody
+	public Map<String, Object> addQuestionSurvey() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			User user = getSessionUserInfo();
+			Long userId = user.getId();// 1223566768L
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "请求参数为空");
+				return jsonMap;
+			}
+			jsonMap.putAll(indexService.addQuestionSurvey(userId, jsonObject, chosese()));
+			return jsonMap;
+		} catch (Exception e) {
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "调查问卷异常请联系客服！");
+			return jsonMap;
+		}
+	}
+
+	@RequestMapping(value = "/indexInit")
+	public String homeInit() {
+		String pageType = chosese();
+		if (pageType.equals(Constants.PC)) {
+			return "/front/index.jsp";
+		} else {
+
+			return "redirect:/wap/app.html";
+		}
+	}
+
+	@RequestMapping(value = "/footInit")
+	public String footInit() {
+		return "/front/index.jsp";
+	}
+
+	@RequestMapping(value = "/queryLinksType2")
+	@ResponseBody
+	public Map<String, Object> queryLinksType2() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.putAll(indexService.queryLinksByType(Constants.PAGE_SIZE_10, chosese()));
+		} catch (Exception e) {
+			log.error(e);
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查询异常");
+			e.printStackTrace();
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 信息披露实时数据
+	 * 
+	 * @author zlx
+	 */
+	@RequestMapping(value = "/informationRevealed")
+	@ResponseBody
+	public Map<String, Object> informationRevealed() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.putAll(financeService.queryInfoRevealed(chosese()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 信息披露实时数据
+	 * 
+	 * @author zlx
+	 */
+	@RequestMapping(value = "/yybgInit2")
+	@ResponseBody
+	public Map<String, Object> yybgInit2() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			jsonMap.putAll(linksService.queryYybgListList(chosese()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查询异常，" + Constants.CUSTOMER_MSG);
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * webapp意见反馈
+	 * @return
+	 * @author Li zeyang
+	 */
+	@RequestMapping(value = "/addFeedback")
+	@ResponseBody
+	public Map<String, Object> frontAddFeedback(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			jsonMap = indexService.addFeedback(jsonObject);
+		} catch (Exception e) {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "反馈异常");
+			log.error(e);
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 公司动态 更多
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getMediaReport")
+	@ResponseBody
+	public Map<String, Object> getMediaReport() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			long pageNum =Convert.strToLong(jsonObject.getString("curPage"),Constants.LONG_1);
+			jsonMap.putAll(indexService.queryCompanyDynamicsOrMediaReport(pageNum, Constants.PAGE_SIZE_10, getBasePath(), Constants.NEWSTYPE_1,chosese()));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查看公司动态异常，请联系客服!");
+		}
+		return jsonMap;
+	}
+	
+	/**
+	 * 获取媒体报道 更多
+	 * @return
+	 * @throws 
+	 */
+	@RequestMapping(value = "/getIndustryNews")
+	@ResponseBody
+	public Map<String, Object> getIndustryNews(){
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			JSONObject jsonObject = getAjaxParam();
+			if (jsonObject == null) {
+				jsonMap.put("error", "-1");
+				jsonMap.put("msg", "非法请求");
+				return jsonMap;
+			}
+			Long pageNum =Convert.strToLong(jsonObject.getString("curPage"),Constants.LONG_1);
+			jsonMap.putAll(indexService.queryCompanyDynamicsOrMediaReport(pageNum, Constants.PAGE_SIZE_10, getBasePath(),Constants.NEWSTYPE_2,chosese()));
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "查看媒体报道异常,请联系客服!");
+		}
+		return jsonMap;
+	}
+	
+	
+}

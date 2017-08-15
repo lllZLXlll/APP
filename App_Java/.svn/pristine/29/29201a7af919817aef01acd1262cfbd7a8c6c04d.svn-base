@@ -1,0 +1,286 @@
+define(function (require,exports,module) {
+	var AmtRegExp = window.AmtRegExp =/^(([1-9]\d{0,9})|0)(\.\d{1,2})?$/,AmtRegExp = window.mobilePhone = /^(13[0-9]|14[7-9]|15[0-9]|18[0-9]|17[0-9])[0-9]{8}$/;
+	var App = require('components/App.js');
+	require('src/utils.js');
+	require('src/Storage.js');
+	require('src/directive.js');
+    var router = window.router = new VueRouter();
+    router.map({
+        '/index': {
+        	name:'index',//首页
+            component: function (resolve) {
+                require.async(['components/index/Index.js'],resolve);
+            }
+        },
+        '/about': {
+        	name:'about',//关于
+            component: function (resolve) {
+                require.async(['components/about/About.js'],resolve);
+            }
+        },
+        '/account': {
+        	name:'account',//账户
+            component:function (resolve) {
+                require.async(['components/account/Account.js'],resolve);
+            },
+            auth:true
+        },
+        '/detail': {
+        	name:'detail',//首页标的详情、投资
+            component: function(resolve){
+            	require.async(['components/index/Detail.js'],resolve);
+            },
+            subRoutes: {
+            	'/': {
+            		component:function(resolve){
+        				require.async(['components/index/Prodetail.js'],resolve);
+            		}
+            	},
+            	'risk': {
+            		component:function(resolve){
+            			require.async(['components/index/Risk.js'],resolve);
+            		}
+            	},
+            	'track':{
+            		component: function(resolve){
+            			require.async(['components/index/Track.js'],resolve);
+            		}
+            	}
+            }
+        },
+        '/productlist':{
+        	name:'productlist',
+        	component:function(resolve){
+        		require.async(['components/index/Productlist.js'],resolve);
+        	}
+        },
+        '/login': {
+        	name:'login',//登录
+            component:function (resolve) {
+                require.async(['components/login/Login.js'],resolve);
+            }
+        },
+        '/regist': {
+        	name:'regist',//注册
+            component: function(resolve){
+            	require.async(['components/login/Regist.js'],resolve);
+            }
+        },
+        '/forget': {
+        	name:'forget',//忘记密码
+            component: function(resolve){
+            	require.async(['components/login/Forget.js'],resolve);
+            },
+            subRoutes: {
+    	      '/': {
+    	        component: function(resolve){
+                	require.async(['components/login/ForgetStepOne.js'],resolve);
+                }
+    	      },
+    	      '/two': {
+    	        component: function(resolve){
+                	require.async(['components/login/ForgetStepTwo.js'],resolve);
+                }
+    	      },
+    	      '/three': {
+    	        component: function(resolve){
+                	require.async(['components/login/ForgetStepThree.js'],resolve);
+                }
+    	      },
+    	      '/four': {
+    	        component: function(resolve){
+                	require.async(['components/login/ForgetStepFour.js'],resolve);
+                }
+    	      }
+    	    }
+        },
+        '/changepwd':{
+        	name:'changepwd',//修改密码
+        	component:function(resolve){
+        		require.async(['components/login/Changepwd.js'],resolve);
+        	},
+        	auth:true
+        },
+        '/ipay':{
+        	name:'ipay',//充值
+        	component: function(resolve){
+        		require.async(['components/account/Ipay.js'],resolve);
+        	},
+        	auth:true
+        },
+        '/cashing': {
+        	name:'cashing',//提现
+        	component: function(resolve){
+        		require.async(['components/account/Cashing.js'],resolve);
+        	},
+        	auth:true
+        },
+        '/registpay':{
+        	name:'registpay',//注册汇付
+        	component:function(resolve){
+        		require.async(['components/account/Registpay.js'],resolve);
+        	}
+        },
+        '/funddetail':{
+        	name:'funddetail',//资金记录
+        	component: function(resolve){
+        		require.async(['components/account/Funddetail.js'],resolve);
+        	}
+        },
+        '/invest': {
+        	name:'invest',//投资明细
+        	component: function(resolve){
+        		require.async(['components/account/Invest.js'],resolve);
+        	},
+        	auth:true,
+        	subRoutes: {
+        		'/':{
+        			component:function(resolve){
+                		require.async(['components/account/InvestDetail.js'],resolve);
+                	}
+        		}
+        	}
+        },
+        '/coupon':{
+        	name:'coupon',//我的赠券
+        	component: function(resolve){
+        		require.async(['components/account/Coupon.js'],resolve);
+        	},
+        	subRoutes: {
+        		'/':{
+        			component:function(resolve){
+                		require.async(['components/account/Coupona.js'],resolve);
+                	},
+        		},
+        		'taste':{
+        			component:function(resolve){
+                		require.async(['components/account/Taste.js'],resolve);
+                	}
+        		}
+        	},
+        	auth:true
+        },
+        '/bankcard':{
+        	name:'bankcard',//我的银行卡
+        	component:function(resolve){
+        		require.async(['components/account/Bankcard.js'],resolve);
+        	}
+        },
+        '/friend':{
+        	name:'friend',//邀请好友
+        	component:function(resolve){
+        		require.async(['components/account/Friend.js'],resolve);
+        	}
+        },
+        '/frienddetail':{
+        	name:'frienddetail',
+        	component:function(resolve){
+        		require.async(['components/account/Frienddetail'],resolve);
+        	}
+        },
+        '/friendfund':{
+        	name:'friendfund',
+        	component:function(resolve){
+        		require.async(['components/account/Friendfund'],resolve);
+        	}
+        },
+        '/aboutus':{
+        	name:'aboutus',//公司简介
+        	component:function(resolve){
+        		require.async(['components/about/Aboutus.js'],resolve);
+        	}
+        },
+        '/shareholder': {
+        	name:'shareholder',
+        	component:function(resolve){
+        		require.async(['components/about/Shareholder.js'],resolve);
+        	}
+        },
+        '/calculator':{//收益计算器
+        	name:'calculator',
+        	component:function(resolve){
+        		require.async(['components/about/Calculator.js'],resolve);
+        	}
+        },
+        '/calculatordetail':{
+        	name:'calculatordetail',
+        	component:function(resolve){
+        		require.async(['components/about/Calculatordetail.js'],resolve);
+        	}
+        },
+        '/newsport':{
+        	name:'newsport',
+        	component:function(resolve){
+        		require.async(['components/about/Newsport.js'],resolve);
+        	}
+        },
+        '/help':{
+        	name:'help',
+        	component:function(resolve){
+        		require.async(['components/about/Help.js'],resolve);
+        	},
+        	subRoutes:{
+        		'/':{
+        			component:function(resolve){
+                		require.async(['components/about/Listhelp.js'],resolve);
+                	}
+        		},
+        		'/queston':{
+        			component:function(resolve){
+                		require.async(['components/about/Queston.js'],resolve);
+                	}
+        		},
+        		'/answer':{
+        			component:function(resolve){
+                		require.async(['components/about/Answer.js'],resolve);
+                	}
+        		}
+        	}
+        },
+        '/follow':{
+        	name:'follow',
+        	component:function(resolve){
+        		require.async(['components/about/Follow.js'],resolve);
+        	}
+        },
+        '/dynamic':{
+        	name:'dynamic',
+        	component:function(resolve){
+        		require.async(['components/about/Dynamic.js'],resolve);
+        	}
+        },
+        '/dynamicdetail':{
+        	name:'dynamicdetail',
+        	component:function(resolve){
+        		require.async(['components/about/Dynamicdetail.js'],resolve);
+        	}
+        },
+        '/feedback':{
+        	name:'feedback',
+        	component:function(resolve){
+        		require.async(['components/about/Feedback.js'],resolve);
+        	}
+        },
+        '/introduced':{
+        	name:'introduced',
+        	component:function(resolve){
+        		require.async(['components/about/Introduced.js'],resolve);
+        	}
+        }
+    });
+    router.redirect({ '*': '/index' });
+    router.start(App,'#App');
+    router.beforeEach(function (transition) {
+	  if (transition.to.path === '/account') {
+		  var uid = Storage.getItem('uid');
+		  var uidli = uid+'';
+		  if(uidli == "undefined" || !uid){
+			  transition.redirect({path:'/login',query:{show:true}});
+		  }else{
+			  transition.next();
+		  }
+	  } else {
+	    transition.next();
+	  }
+	})
+})

@@ -1,0 +1,75 @@
+package com.pjzb.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.SlbaoEarningsDao;
+import com.pjzb.dao.SlbaoRecordDao;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.IConstants;
+import com.shove.web.Utility;
+
+import net.sf.json.JSONObject;
+
+@Service
+public class SlbaoManageService {
+
+	@Autowired
+	private SlbaoEarningsDao slbaoEarningsDao;
+
+	@Autowired
+	private SlbaoRecordDao slbaoRecordDao;
+
+	public Map<String, Object> findBorrowInvestByCondition(JSONObject jsonObject, Long pageNum, Long pageSize,
+			Long userId, String pageType) {
+
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String statusFlag = "";
+		String recordTimeStart = "";
+		String recordTimeEnd = "";
+		statusFlag = String.valueOf(jsonObject.get("statusFlag"));
+		if (pageType.equals("reactAPP")) {
+			recordTimeStart = String.valueOf(jsonObject.get("recordTimeStart"));
+			recordTimeEnd = String.valueOf(jsonObject.get("recordTimeEnd"));
+		} else {
+			recordTimeStart = jsonObject.get("startTime") + "";
+			recordTimeEnd = jsonObject.get("endTime") + "";
+		}
+
+		recordTimeStart = Utility.filteSqlInfusion(recordTimeStart);
+		recordTimeEnd = Utility.filteSqlInfusion(recordTimeEnd);
+		statusFlag = Utility.filteSqlInfusion(statusFlag);
+
+		List<Map<String, Object>> page;
+		if ("earnings".equals(statusFlag)) {// 利息收益
+			page = slbaoEarningsDao.findBorrowInvestByCondition(recordTimeStart, recordTimeEnd, userId,
+					(pageNum - 1) * pageSize, pageSize);
+		} else if ("into".equals(statusFlag)) {// 转入
+			page = slbaoRecordDao.findBorrowInvestByConditionI(recordTimeStart, recordTimeEnd, userId,
+					(pageNum - 1) * pageSize, pageSize);
+		} else if ("rollout".equals(statusFlag)) {// 转出
+			page = slbaoRecordDao.findBorrowInvestByConditionO(recordTimeStart, recordTimeEnd, userId,
+					(pageNum - 1) * pageSize, pageSize);
+		} else {// 所有记录
+			page = slbaoRecordDao.findBorrowInvestByConditionAll(recordTimeStart, recordTimeEnd, userId,
+					(pageNum - 1) * pageSize, pageSize);
+		}
+
+		PageBean pageBean = new PageBean();
+		pageBean.setPage(page);
+		pageBean.setPageSize(pageSize);
+		pageBean.setPageNum(pageNum);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+
+	}
+
+}

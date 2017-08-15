@@ -1,0 +1,1158 @@
+package com.pjzb.service.front;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import sun.misc.BASE64Encoder;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.config.nuozhengtong.IDcard;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AppVersionDao;
+import com.pjzb.dao.ApproveNoticeTemplateDao;
+import com.pjzb.dao.BankCardDao;
+import com.pjzb.dao.ExgoInvestDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.RecommendUserDao;
+import com.pjzb.dao.RedmoneyrecordDao;
+import com.pjzb.dao.RiskDetailDao;
+import com.pjzb.dao.SlbaoDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.BankCard;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.Redmoneyrecord;
+import com.pjzb.entity.RiskDetail;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.SendMessageService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.IInformTemplateConstants;
+import com.pjzb.util.WebUtil;
+import com.shove.Convert;
+import com.shove.web.Utility;
+
+/**
+ * pc、wap、app端 我的账户（账户总览、我的赠券、资金记录、汇付用户接口）相关公共service
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class MyAccountService {
+	public static Log log = LogFactory.getLog(MyAccountService.class);
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private UserInfoService userInfoService;
+
+	@Autowired
+	private BankCardDao bankCardDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private RedmoneyrecordDao redmoneyrecordDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private ExgoInvestDao exgoInvestDao;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	@Autowired
+	private RiskDetailDao riskDetailDao;
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private RecommendUserDao recommendUserDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private SendMessageService sendMessageService;
+
+	@Autowired
+	private AppVersionDao appVersionDao;
+
+	@Autowired
+	private SlbaoDao slbaoDao;
+
+	@Autowired
+	private ApproveNoticeTemplateDao approveNoticeTemplateDao;
+
+	public long addNotes(long userId, boolean message, boolean mail, boolean notes) {
+		int notice_on = IConstants.NOTICE_ON;
+		int notice_off = IConstants.NOTICE_OFF;
+		return userDao.addNotes(userId, message, mail, notes, notice_on, notice_off);
+	}
+
+	/**
+	 * 添加通知设置
+	 */
+	public long addNotesSetting(long userId, boolean messageReceive, boolean messageDeposit, boolean messageBorrow, boolean messageRecharge, boolean messageChange,
+			boolean mailReceive, boolean mailDeposit, boolean mailBorrow, boolean mailRecharge, boolean mailChange, boolean noteReceive, boolean noteDeposit, boolean noteBorrow,
+			boolean noteRecharge, boolean noteChange) {
+
+		long result = -1L;
+		// 通知方式(1 邮件 2 站内信 3 短信) 状态(1 关闭 2 开启)
+		int nt1 = IConstants.MAIL_NOTICE;
+		// 添加站内信信息
+		int notice_on = IConstants.NOTICE_ON;
+		int notice_off = IConstants.NOTICE_OFF;
+		Map<String, Object> map = userDao.queryNoticeSettingInfo(nt1, userId);
+		long result1 = -1L;
+		if (map == null) {// 如果没有数据 则进行插入，否则进行更新
+			result1 = userDao.addToNotice(messageReceive, messageDeposit, messageBorrow, messageRecharge, messageChange, notice_on, notice_off);
+		} else {
+			result1 = userDao.updateToNotice(messageReceive, messageDeposit, messageBorrow, messageRecharge, messageChange, notice_on, notice_off, userId, nt1);
+		}
+		// 邮件
+		int nt2 = IConstants.EMAIL_NOTICE;
+		map = userDao.queryNoticeSettingInfo(nt2, userId);
+		long result2 = -1L;
+		if (map == null) {// 如果没有数据 则进行插入，否则进行更新
+			result2 = userDao.addToNotice(mailReceive, mailDeposit, mailBorrow, mailRecharge, mailChange, notice_on, notice_off);
+		} else {
+			result2 = userDao.updateToNotice(mailReceive, mailDeposit, mailBorrow, mailRecharge, mailChange, notice_on, notice_off, userId, nt2);
+		}
+
+		// 短信
+		int nt3 = IConstants.NOTE_NOTICE;
+		map = userDao.queryNoticeSettingInfo(nt3, userId);
+		long result3 = -1L;
+		if (map == null) {// 如果没有数据 则进行插入，否则进行更新
+			result3 = userDao.addToNotice(noteReceive, noteDeposit, noteBorrow, noteRecharge, noteChange, notice_on, notice_off);
+		} else {
+			result2 = userDao.updateToNotice(noteReceive, noteDeposit, noteBorrow, noteRecharge, noteChange, notice_on, notice_off, userId, nt3);
+		}
+
+		if (result1 > 0 && result2 > 0 && result3 > 0)// 三条数据都插入成功
+			result = 1L;
+		map = null;
+		return result;
+	}
+
+	public Map<String, Object> queryCouponCount(User user, String pageType) {
+		// 查询用户有多少张代金券，现金券
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		long count = redmoneyrecordDao.queryRedmoneyrecordCountById(user.getId());
+		jsonMap.put("count", count);
+		return jsonMap;
+	}
+
+	public Map<String, Object> checkHome(User user, String pageType) {
+		Long userId = user.getId();
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, String> accmountStatisMap = userDao.queryAccountStatisInfo(userId);
+		jsonMap.putAll(accmountStatisMap);
+		Map<String, Object> debtsMap = investDao.queryDebtCount(userId);
+		if (debtsMap != null) {
+			double forPaySum = ConvertUtil.objToDoubleConvert(accmountStatisMap.get("forPaySum"));
+			double hasPayPrincipal = ConvertUtil.objToDoubleConvert(accmountStatisMap.get("hasPayPrincipal"));
+			double count = ConvertUtil.objToDoubleConvert(debtsMap.get("count"));
+			jsonMap.put("forPaySum", ConvertUtil.doubleToString(forPaySum + count));
+			jsonMap.put("hasPayPrincipal", ConvertUtil.doubleToString(hasPayPrincipal + count));
+		}
+		String password = user.getPassword();
+		String dealpwd = user.getDealpwd();
+		password = Utility.filteSqlInfusion(password);
+		dealpwd = Utility.filteSqlInfusion(dealpwd);
+		if (password.equals(dealpwd)) {
+			// 需要修改交易密码
+			jsonMap.put("updatepwd", "1");
+		} else {
+			// 不需要修改交易密码
+			jsonMap.put("updatepwd", "0");
+		}
+
+		// // 同步汇付银行卡信息
+		// if (!user.getIpayAccount().isEmpty()) {
+		// try {
+		//
+		// // 同步汇付银行卡信息
+		// chinapnrService.checkCardInfo(userId,
+		// user.getIpayAccount(),user.getUsername(), chosese());
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// jsonMap.put("error", "3");
+		// jsonMap.put("msg", "同步汇付银行卡异常");
+		// return jsonMap;
+		// }
+		// }
+		List<BankCard> bankList = bankCardDao.queryBankCardByUserId(userId);
+		int bankNum = 0;
+		if (!bankList.isEmpty() && bankList.size() > 0) {
+			bankNum++;
+		}
+		if (pageType.equals(Constants.PC)) {
+			Person map = personDao.queryPersonByUserId(userId);
+			// 判断用户是否已经填写了基本信息
+			String flag = "";
+			if (map != null) {// 用户基本资料有数据但是不一定是已经填写了基本资料信息 还有可能是上传了个人头像
+				if (!StringUtils.isBlank(map.getRealName())) {// 不为空
+					flag = "2";
+				} else {
+					flag = "1";
+				}
+			} else {
+				flag = "1";
+			}
+			if (!StringUtils.isBlank(user.getEmail())) {// 邮箱不为空
+				flag = "3";
+			}
+
+			Map<String, Long> voucherMap = redmoneyrecordDao.queryRedmoneyrecordByUserIdAndType(userId, Constants.REDMONEYTYPE_1);
+			Map<String, Long> cashMap = redmoneyrecordDao.queryRedmoneyrecordByUserIdAndType(userId, Constants.REDMONEYTYPE_2);
+
+			// 资料完善度
+			jsonMap.put("flag", flag);
+			// 未使用代金券
+			jsonMap.put("voucher", voucherMap.get("redmoneyrecordCount"));
+			jsonMap.put("cashMap", cashMap.get("redmoneyrecordCount"));
+
+		}
+		// 查询用户有多少张代金券，现金券
+		long count = redmoneyrecordDao.queryRedmoneyrecordCountById(userId);
+		jsonMap.put("count", count);
+
+		jsonMap.putAll(ConvertUtil.transBeanToMap(user));
+		jsonMap.put("helloStr", sayHello());
+		jsonMap.put("bankNum", bankNum + "");
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	public String sayHello() {
+		// 按当前时间显示问候语
+		String helloStr = "";
+		// 获取系统当前时间
+		int dateTime = Integer.parseInt(ConvertUtil.dateConvert(new Date(), Constants.DATELONG).substring(8, 10));
+		if (dateTime < 5) {
+			helloStr = "夜深了";
+		} else if (dateTime < 12) {
+			helloStr = "早上好";
+		} else if (dateTime < 18) {
+			helloStr = "下午好";
+		} else if (dateTime >= 18) {
+			helloStr = "晚上好";
+		}
+		return helloStr;
+	}
+
+	/**
+	 * 查询体验金、现金券、代金券
+	 * 
+	 * @param userId
+	 * @param pageType
+	 * @return
+	 * @xiaojin
+	 */
+	public Map<String, Object> queryRedmoneyrecord(Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Redmoneyrecord> mapList1 = redmoneyrecordDao.queryRedmoneyrecordByRedmoneytypeAndUid(Constants.REDMONEYTYPE_1, userId);
+		List<Redmoneyrecord> mapList2 = redmoneyrecordDao.queryRedmoneyrecordByRedmoneytypeAndUid(Constants.REDMONEYTYPE_2, userId);
+		User user = userDao.queryUserById(userId);
+		String accountSum = ConvertUtil.doubleToString(user.getAccountSum());
+		String isAccountSum = String.valueOf(user.getIsAccountSum());
+		// 体验金
+		Map<String, Object> exgoInvestCountMap = exgoInvestDao.queryUserIsInvestByInvestor(userId);
+		jsonMap.put("experienceCash", accountSum);
+		// 截止时间
+		Date endTime = DateUtil.strToYYMMDDDate("2017-07-31"); // 这个时间之前领取的体验金还未使用的，都算过期体验金.
+
+		if (exgoInvestCountMap != null) {
+			jsonMap.put("isUse", exgoInvestCountMap.get("exgoInvestCount"));
+			jsonMap.put("investAmount", exgoInvestCountMap.get("investAmount"));
+		} else if (DateUtil.diffTimes(user.getCreateTime(), endTime) > 0) {
+			jsonMap.put("isUse", "2");// 过期体验金
+		} else {
+			jsonMap.put("isUse", "0");
+		}
+		int dCount = 0, xCount = 0;
+		for (Redmoneyrecord r : mapList1) {
+			if (r.getUsestatus() == 1) {
+				dCount++;
+			}
+		}
+		for (Redmoneyrecord r : mapList2) {
+			if (r.getUsestatus() == 1) {
+				xCount++;
+			}
+		}
+
+		jsonMap.put("dCount", dCount);
+		jsonMap.put("xCount", xCount);
+		jsonMap.put("mapList1", mapList1);
+		jsonMap.put("mapList2", mapList2);
+		jsonMap.put("accountSum", accountSum);
+		jsonMap.put("isAccountSum", isAccountSum);// 1 未领取，2 已领取
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	/**
+	 * 根据条件查询资金记录
+	 * 
+	 * @return
+	 */
+	public PageBean findFundrecordList(String startTime, String endTime, String momeyType, Long userId, Long curPage, Long pageSize, String pageType, String fundDesc) {
+		List<String> fundMode = new ArrayList<String>();
+		if (!StringUtils.isBlank(momeyType) && !momeyType.equals(Constants.STR_0)) {
+			if ("1".equals(momeyType)) {
+				fundMode.add("待收金额增加");
+				fundMode.add("扣除投标金额");
+			} else if ("2".equals(momeyType)) {
+				// 充值
+				fundMode.add("汇付充值");
+			} else if ("3".equals(momeyType)) {
+				// 提现
+				fundMode.add("减少提现和提现手续费金额");
+				fundMode.add("提现成功");
+				fundMode.add("提现失败");
+				fundMode.add("取消提现");
+			} else if ("4".equals(momeyType)) {
+				// 还款
+				fundMode.add("投资收到还款(手工还款)");
+				fundMode.add("解冻投资金额");
+				fundMode.add("提现冻结金额");
+				fundMode.add("冻结投标金额");
+				fundMode.add("冻结提现金额");
+			} else if ("5".equals(momeyType)) {
+				// 奖励
+				fundMode.add("代金券");
+				fundMode.add("体验金");
+				fundMode.add("体验金奖励");
+				fundMode.add("体验金收益");
+				fundMode.add("好友邀请奖励");
+			} else {
+				// 冻结
+				fundMode.add("冻结借款保证金");
+				fundMode.add("解冻投资金额");
+				fundMode.add("提现冻结金额");
+				fundMode.add("冻结投标金额");
+				fundMode.add("冻结提现金额");
+			}
+		}
+		fundMode = fundMode.size() == 0 ? null : fundMode;
+		List<Map<String, Object>> list = fundrecordDao.queryFundrecordListForPage(userId, startTime, endTime, fundMode, fundDesc, (curPage - 1) * pageSize, pageSize);
+		Map<String, Long> fundrecordMap = fundrecordDao.queryFundrecordCount(userId, startTime, endTime, fundMode, fundDesc);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(fundrecordMap.get("fundrecordCount"));
+		pageBean.setPage(list);
+		return pageBean;
+	}
+
+	/**
+	 * 查询个人用户注册汇付 用户信息初始化
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> queryUserRegChinapnrInit(Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, Object> userMap = userDao.queryUserAndPersonByUserId(userId);
+		jsonMap.put("idNo", String.valueOf(userMap.get("idNo") == null ? "" : userMap.get("idNo")));
+		jsonMap.put("realName", String.valueOf(userMap.get("realName") == null ? "" : userMap.get("realName")));
+		jsonMap.put("sex", String.valueOf(userMap.get("sex")));
+		jsonMap.put("mobilePhone", String.valueOf(userMap.get("mobilePhone") == null ? "" : userMap.get("mobilePhone")));
+		jsonMap.put("userId", String.valueOf(userMap.get("id") == null ? "" : userMap.get("id")));
+		jsonMap.put("email", String.valueOf(userMap.get("email") == null ? "" : userMap.get("email")));
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	/**
+	 * 查询企业用户注册汇付 用户信息初始化
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> queryIpayEnterpriseInit(Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		// 检查该用户是否已经绑定企业，申请注册企业汇付号之前，需要绑定企业账户信息
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		list = userDao.queryBorrowRoleInfo(userId);
+		if (list != null && list.size() == 1) {
+			// 检查企业信息是否填写完整
+			Map<String, Object> enMap = userDao.queryEnterpriseInfo(userId);
+			if (enMap != null) {
+				jsonMap.put("error", "0");
+				jsonMap.put("msg", "ok");
+			} else {
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "请在平台的后台管理页面填写完整企业信息");
+			}
+
+		} else {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "要申请汇付企业号，需要联系客服先在普金平台后台填写企业相关资料进行备案,谢谢,客服QQ：690472016");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 查询企业用户注册汇付 用户信息初始化
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> queryRegIpayEnterprises(Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+		String idNo = "";
+		String realName = "";
+		String legalIdNo = "";
+		String legalName = "";
+		String address = "";
+		String mobilePhone = "";
+		String businessCode = "";
+		String companyName = "";
+		String registeredCapital = "";
+		String companyPhone = "";
+		int authStep = 1;
+		User user = userDao.queryUserById(userId);
+
+		// 判断用户是否完善基本信息 add by cheney
+		if (user != null) {
+			authStep = user.getAuthStep();
+
+			legalIdNo = user.getLegalIdNo();// 法人身份证
+			legalName = user.getLegalName();// 法人名称
+		}
+
+		Person person = personDao.queryPersonByUserId(userId);
+		if (person != null) {
+			idNo = person.getIdNo();
+			realName = person.getRealName();
+			address = person.getAddress();
+			mobilePhone = person.getCellPhone();
+		}
+
+		Map<String, Object> enMap = userDao.queryEnterpriseInfo(userId);
+		if (enMap != null) {
+			businessCode = String.valueOf(enMap.get("businessCode"));// 营业执照注册号
+			companyName = String.valueOf(enMap.get("companyName"));// 公司名称
+			registeredCapital = String.valueOf(enMap.get("registeredCapital"));// 注册资金
+			companyPhone = String.valueOf(enMap.get("companyPhone"));// 公司电话
+		}
+
+		jsonMap.put("error", "0");
+		jsonMap.put("idNo", idNo);
+		jsonMap.put("realName", realName);
+		jsonMap.put("legalIdNo", legalIdNo);
+		jsonMap.put("legalName", legalName);
+		jsonMap.put("mobilePhone", mobilePhone);
+		jsonMap.put("busiCode", businessCode);
+		jsonMap.put("companyName", companyName);
+		jsonMap.put("registeredCap", registeredCapital);
+		jsonMap.put("companyPhone", companyPhone);
+		jsonMap.put("userId", user.getId());
+		jsonMap.put("email", user.getEmail());
+		jsonMap.put("address", address);
+		return jsonMap;
+	}
+
+	/**
+	 * 前台--汇付开户--企业开户
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> checkCorpRegister(JSONObject jsonObject, String basePath, HttpSession session, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+		Object obje = session.getAttribute("resetPwd");
+		String sessionCode = "";
+		String msgCode = String.valueOf(jsonObject.get("msgCode"));// 验证码
+
+		if (obje != null) {
+			sessionCode = obje.toString();
+		} else {
+			// 验证码输入错误
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "请获取短信验证码");
+			return jsonMap;
+		}
+		if (!sessionCode.equals(msgCode)) {
+			// 验证码输入错误
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "验证码输入错误");
+			return jsonMap;
+		}
+
+		User user = (User) session.getAttribute(IConstants.SESSION_USER);
+		String userId = String.valueOf(user.getId());// 用户ID
+		String usrName = String.valueOf(jsonObject.get("name"));// 真实姓名
+		String legalIdNo = String.valueOf(jsonObject.get("idCard_fr"));// 企业法人身份证
+		String legalName = String.valueOf(jsonObject.get("name_fr"));// 企业法人姓名
+		String usrEmail = String.valueOf(jsonObject.get("email"));// 邮箱
+		String idNo = String.valueOf(jsonObject.get("idCard"));// 身份证号
+		String companyName = String.valueOf(jsonObject.get("name_qy"));// 公司名称
+		String busiCode = String.valueOf(jsonObject.get("license_Num"));// 营业执照编号
+		String companyPhone = String.valueOf(jsonObject.get("companyTel"));// 公司电话
+		String cellPhone = String.valueOf(jsonObject.get("phone"));// 手机号码
+		String registMoney = String.valueOf(jsonObject.get("registMoney"));// 注册资金
+		usrName = Utility.filteSqlInfusion(usrName);
+		legalName = Utility.filteSqlInfusion(legalName);
+		companyName = Utility.filteSqlInfusion(companyName);
+		usrEmail = Utility.filteSqlInfusion(usrEmail);
+
+		String guarType = "N";
+		String bgRetUrl = basePath + "corpRegisterreturn.do"; // 后台返回
+
+		// 判断邮箱是否唯一
+		Long results = -1L;
+		if (StringUtils.isNotBlank(usrEmail)) {
+			results = userInfoService.isExistEmailORUserName(usrEmail, null);
+			if (results > 0) {
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "邮箱已存在，请输入其他邮箱！");
+				return jsonMap;
+			}
+		}
+		// 如果是国外的身份证，不需要验证身份证信息,可直接注册
+		Map<String, String> rest = new HashMap<String, String>();
+		try {
+			rest = personDao.isExistidcard(idNo);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		int card = -1;
+		if (rest != null && rest.size() > 0) {
+			card = 1000;
+		} else {
+			// 对接实名认证
+			IDcard idDcard = new IDcard();
+			card = idDcard.idcard_verify(usrName, idNo);
+		}
+
+		if (card == 1000) {
+			// 一致
+			// userService.updateIdCard(Convert.strToLong(userId, 1), usrName,
+			// idNo);
+		} else if (card == 1001) {
+			// 不一致
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "亲，身份证和姓名不一致，请重新输入！");
+			return jsonMap;
+		} else if (card == 1002) {
+			// 库中无此号
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "亲，库中无此号，请重新输入！");
+			return jsonMap;
+
+		} else {
+			// 实名认证其他异常
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "亲，实名认证不通过，请重新输入！");
+			return jsonMap;
+		}
+
+		// 调用汇付进行企业开户
+		String html = null;
+		try {
+			html = ChinapnrInterface.corpRegisterFn(userId, idNo, companyName, busiCode, registMoney, companyPhone, guarType, bgRetUrl);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		String address = "";
+
+		Long result = addPersonRealName(Convert.strToLong(userId, -1L), cellPhone, usrName, idNo, address, usrEmail, busiCode, legalIdNo, legalName);
+		if (result > 0) {
+			log.info("执行本地用户实名认证成功");
+		} else {
+			log.info("执行本地用户实名认证失败");
+		}
+
+		session.removeAttribute("randomCode");
+		user.setBusiCode(busiCode);
+		session.setAttribute("user", user);
+		jsonMap.put("html", html);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "企业开户申请已提交，请耐心等待审核!");
+		return jsonMap;
+	}
+
+	public Long addPersonRealName(long userId, String phone, String realName, String idNo, String address, String usrEmail, String busiCode, String legalIdNo, String legalName) {
+		realName = Utility.filteSqlInfusion(realName);
+		legalName = Utility.filteSqlInfusion(legalName);
+		address = Utility.filteSqlInfusion(address);
+		usrEmail = Utility.filteSqlInfusion(usrEmail);
+		Long retut = -1L;
+		Person person = personDao.queryPersonByUserId(userId);
+		if (person == null) {
+			person = new Person();
+			person.setUserId(userId);
+			person.setRealName(realName.trim());
+			person.setIdNo(idNo.trim());
+			person.setCellPhone(phone.trim());
+			person.setAddress(address.trim());
+			personDao.addPerson(person);
+			User user = new User();
+			user.setId(userId);
+			user.setEmail(usrEmail.trim());
+			user.setBusiCode(busiCode.trim());
+			user.setLegalIdNo(legalIdNo.trim());
+			user.setLegalName(legalName.trim());
+			retut = userDao.updateUser(user);
+		} else {
+			person.setRealName(realName.trim());
+			person.setIdNo(idNo.trim());
+			person.setCellPhone(phone.trim());
+			person.setAddress(address.trim());
+			personDao.updatePersonByUserId(person);
+
+			User user = new User();
+			user.setId(userId);
+			user.setEmail(usrEmail.trim());
+			user.setBusiCode(busiCode.trim());
+			user.setLegalIdNo(legalIdNo.trim());
+			user.setLegalName(legalName.trim());
+			retut = userDao.updateUser(user);
+		}
+		return retut;
+
+	}
+
+	/**
+	 * 前台--汇付企业账户查询
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> checkCorpRegisterQuery(User user, JSONObject jsonObject, HttpSession session, String pageType) throws Exception {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String busiCode = Convert.strToStr(user.getBusiCode(), ""); // 营业执照编号
+		String resultStr = "";
+		JSONObject jsonObj = JSONObject.fromObject(ChinapnrInterface.CorpRegisterQuery(busiCode));
+		log.info("企业账户查询结果：" + jsonObj.toString());
+		String AuditStat = jsonObj.getString("AuditStat");
+		AuditStat = Utility.filteSqlInfusion(AuditStat);
+		if (jsonObj.getInt("RespCode") != 0) {
+			log.info("企业开户结果：" + java.net.URLDecoder.decode(jsonObj.getString("RespDesc"), "UTF-8"));
+			// 企业用户注册信息不存在
+			if (jsonObj.getInt("RespCode") == 216) {
+				// 删除实名认证信息，重新注册汇付账号
+				Long result = userDao.updateBusiCode(user.getId());
+				if (result > 0) {
+					log.info("用户实名信息删除成功");
+					user.setBusiCode("");
+					session.setAttribute("user", user);
+					jsonMap.put("error", "1");
+					jsonMap.put("msg", "企业用户注册信息不存在,请重新注册汇付号!");
+				} else {
+					log.info("用户实名信息删除失败");
+					jsonMap.put("error", "2");
+					jsonMap.put("msg", "企业用户注册信息不存在!");
+				}
+
+			} else {
+				resultStr = java.net.URLDecoder.decode(jsonObj.getString("RespDesc"), "UTF-8");
+				jsonMap.put("error", "3");
+				jsonMap.put("msg", resultStr);
+			}
+			return jsonMap;
+		} else {
+			log.info("企业开户结果：" + java.net.URLDecoder.decode(jsonObj.getString("RespDesc"), "UTF-8"));
+			if (AuditStat.equalsIgnoreCase("Y")) {
+				String UsrCustId = jsonObj.getString("UsrCustId");
+				// 添加汇付客户号用户
+				Long result = userDao.addipayAccount(user.getId(), UsrCustId);
+				if (result > 0) {
+					if (user.getAuthStep() == 4) {
+						user.setAuthStep(5);
+					}
+					log.info("异步执行本地用户开户成功");
+				} else {
+					log.info("异步执行本地用户开户失败");
+				}
+				user.setIpayAccount(UsrCustId);
+
+			}
+			user.setBusiCode(busiCode);
+			session.setAttribute("user", user);
+			resultStr = changeAuditStat(AuditStat);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", resultStr);
+		}
+
+		return jsonMap;
+
+	}
+
+	/**
+	 * 翻译汇付返回的状态中文意思
+	 * 
+	 * @param AuditStat
+	 * @return
+	 */
+	private static String changeAuditStat(String AuditStat) {
+		AuditStat = Utility.filteSqlInfusion(AuditStat);
+		String resultStr = "";
+		if (AuditStat.equalsIgnoreCase("I")) {
+			resultStr = "初始化状态";
+		} else if (AuditStat.equalsIgnoreCase("T")) {
+			resultStr = "提交中状态";
+		} else if (AuditStat.equalsIgnoreCase("P")) {
+			resultStr = "审核中状态";
+		} else if (AuditStat.equalsIgnoreCase("R")) {
+			resultStr = "审核拒绝";
+		} else if (AuditStat.equalsIgnoreCase("F")) {
+			resultStr = "开户失败";
+		} else if (AuditStat.equalsIgnoreCase("K")) {
+			resultStr = "开户中";
+		} else if (AuditStat.equalsIgnoreCase("Y")) {
+			resultStr = "开户成功！";
+		} else {
+			resultStr = "未知结果";
+		}
+		return resultStr;
+	}
+
+	/**
+	 * 查询个人用户注册汇付 用户信息初始化
+	 * 
+	 * @return
+	 */
+	public Map<String, Object> checkCreateIpsAcctApp(JSONObject jsonObject, String basePath, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		long usrId = 0L;
+		if (pageType.equals(Constants.REACTAPP)) {
+			usrId = ConvertUtil.convertLong(AppUtil.checkUserId(String.valueOf(jsonObject.get("uid"))));
+		} else {
+			usrId = Convert.strToLong(String.valueOf(jsonObject.get("uid")), -1);
+		}
+		if (usrId == -1) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "用户不存在");
+			return jsonMap;
+		}
+		String usrName = Convert.strToStr(String.valueOf(jsonObject.get("realName")), "");// 真实姓名
+		usrName = Utility.filteSqlInfusion(usrName);
+		String idNo = Convert.strToStr(String.valueOf(jsonObject.get("idNo")), "");// 证件号码
+		// String sex = jsonObject.get("sex").toString();//性别
+		String usrEmail = Convert.strToStr(String.valueOf(jsonObject.get("email")), "");// 邮箱
+		usrEmail = Utility.filteSqlInfusion(usrEmail);
+		String cellPhone = Convert.strToStr(String.valueOf(jsonObject.get("cellphone")), "");// 电话号码
+
+		User user = userDao.queryUserById(usrId);
+		if (user != null) {
+			Map<String, String> idNoMap = personDao.findPersonByIdNo(idNo.trim());
+			if (idNoMap != null && null != user.getIpayAccount() && !"".equals(user.getIpayAccount())) {// 既有身份证，又有汇付号，说明这个身份证的实名认证成功了
+				jsonMap.put("error", "10");
+				jsonMap.put("msg", "该身份证已经注册！");
+				return jsonMap;
+			}
+		}
+
+		// 判断邮箱是否唯一
+		Long result = -1L;
+		if (StringUtils.isNotBlank(usrEmail)) {
+			result = userInfoService.isExistEmailORUserName(usrEmail, null);
+			if (result > 0) {
+				jsonMap.put("error", "2");
+				jsonMap.put("msg", "邮箱已存在，请输入其他邮箱！");
+				return jsonMap;
+			}
+		}
+
+		// 获取已发送的手机验证码
+		String code = Convert.strToStr(String.valueOf(jsonObject.get("code")), "");
+		if (StringUtils.isBlank(code)) {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "验证码不能为空");
+			return jsonMap;
+		}
+		String randomCode = Convert.strToStr(String.valueOf(jsonObject.get("randomCode")), "");
+		String recivePhone = Convert.strToStr(String.valueOf(jsonObject.get("recivePhone")), "");
+		if (StringUtils.isBlank(randomCode)) {
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "你还没有获取手机验证码");
+			return jsonMap;
+		}
+
+		String randomCodes = AppUtil.checkUserId(randomCode);
+		if (!code.equals(randomCodes)) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "验证码不正确");
+			return jsonMap;
+		}
+		String recivePhoneSES = AppUtil.checkUserId(recivePhone);
+		if (!cellPhone.equals(recivePhoneSES)) {
+			jsonMap.put("error", "6");
+			jsonMap.put("msg", "手机号跟接收验证码手机号不一致");
+			return jsonMap;
+		}
+
+		int card = -1;
+		if (IConstants.ISDEMO.equals("2")) {
+			// 如果是国外的身份证，不需要验证身份证信息,可直接注册
+			Map<String, String> rest = null;
+			try {
+				rest = personDao.isExistidcard(idNo);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			if (rest != null) {
+				card = 1000;
+			} else {
+				// 对接实名认证
+				IDcard idDcard = new IDcard();
+				card = idDcard.idcard_verify(usrName, idNo);
+			}
+		} else {
+			card = 1000;
+		}
+		if (card == 1000) {
+			// 一致
+			String cmdId = "UserRegister";
+			String retUrl = basePath + "WEB-PC/reCreateIpsAcct.do"; // 前台返回
+			String bgRetUrl = basePath + "reAsyncCreateIpsAcct.do"; // 后台返回
+			System.out.println("回调地址==========");
+			String str = cellPhone.trim() + "-" + "".trim() + "-" + pageType + "-" + usrId + "-" + usrName + "-" + idNo + "-" + usrEmail;
+			String merPriv = null;
+			try {
+				merPriv = encryptBASE64(str.getBytes());
+			} catch (Exception e) {
+				e.printStackTrace();
+			} // 因为存在中文，所有要进行base64加密
+			log.info("电话号码：" + cellPhone);
+			String page = "";
+			if (pageType.equals("phonepage")) {
+				page = "2";
+			}
+			String html = ChinapnrInterface.userRegister(cmdId, usrId + "", usrName, idNo, cellPhone, usrEmail, retUrl, bgRetUrl, merPriv.replaceAll("\r|\n", "").trim(), page);
+			jsonMap.put("html", html);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "成功");
+
+		} else if (card == 1001) {
+			// 不一致
+			jsonMap.put("error", "7");
+			jsonMap.put("msg", "亲，身份证和姓名不一致，请重新输入！");
+			return jsonMap;
+
+		} else if (card == 1002) {
+			// 库中无此号
+
+			jsonMap.put("error", "8");
+			jsonMap.put("msg", "亲，库中无此号，请重新输入！");
+			return jsonMap;
+
+		} else {
+			// 实名认证其他异常
+			jsonMap.put("error", "9");
+			jsonMap.put("msg", "亲，实名认证不通过，请重新输入！");
+			return jsonMap;
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * BASE64加密
+	 * 
+	 * @param key
+	 * @return
+	 * @throws Exception
+	 */
+	private String encryptBASE64(byte[] key) throws Exception {
+		return (new BASE64Encoder()).encodeBuffer(key);
+	}
+
+	/**
+	 * 领取现金券
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, String> updateVouchers(JSONObject jsonObject, Long userId, String pageType) {
+		Map<String, String> jsonMap = new HashMap<String, String>();
+		User user = null;
+		Map<String, Object> userMap = userDao.queryVUserLoginSessionById(userId);
+
+		if (userMap != null && userMap.size() > 0) {
+			user = new User();
+			user.setAuthStep(Convert.strToInt(String.valueOf(userMap.get("authStep")), -1));
+			user.setEmail(Convert.strToStr(String.valueOf(userMap.get("email")), null));
+			user.setPassword(Convert.strToStr(String.valueOf(userMap.get("password")), null));
+			user.setId(Convert.strToLong(String.valueOf(userMap.get("id")), -1L));
+			// user.setRealName(Convert.strToStr(String.valueOf(userMap.get("realName")),
+			// null));
+			// user.setKefuname(Convert.strToStr(String.valueOf(userMap.get("kefuname")),
+			// null));
+			// user.setUserName(Convert.strToStr(String.valueOf(userMap.get("username")),
+			// null));
+			// user.setVipStatus(Convert.strToInt(String.valueOf(userMap.get("vipStatus")),
+			// -1));
+			// user.setKefuid(Convert.strToInt(String.valueOf(userMap.get("tukid")),
+			// -1));
+		}
+
+		// String ipayAccount = user.getIpayAccount();
+		User m = userDao.queryUserById(user.getId());
+		String ipayAccount = "";
+		if (null != m) {
+			ipayAccount = m.getIpayAccount();
+			if (ipayAccount.equals("") || ipayAccount == null) {
+				jsonMap.put("error", "1");
+				jsonMap.put("msg", "*亲，您还不是汇付的会员，请先注册汇付会员哦！");
+				return jsonMap;
+			}
+		}
+		String idStr = String.valueOf(jsonObject.get("id"));
+		if (!StringUtils.isNumericSpace(idStr)) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "现金券的ID值不能为空！");
+			return jsonMap;
+		}
+		long id = Convert.strToLong(idStr, -1);
+		if (id == -1) {
+			// 非法操作直接返回
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "非法操作");
+			return jsonMap;
+		}
+		String ret = updateVouchers(id, user.getId(), m.getUsername(), ipayAccount);
+		if (ret.equalsIgnoreCase("success")) {
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "亲，现金券已领取成功，现金已转至您的账户中，请查收！");
+		} else if (ret.equalsIgnoreCase("fail")) {
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "现金券领取失败！");
+		} else {
+			jsonMap.put("error", "6");
+			jsonMap.put("msg", ret);
+		}
+		return jsonMap;
+	}
+
+	public String updateVouchers(long id, long userId, String username, String ipayAccount) {
+		String retString = "fail";
+		JSONObject json = new JSONObject();
+		Map<String, Object> userSumMap = null;
+		Map<String, Object> riskMap = null;
+		Map<String, String> noticeMap = new HashMap<String, String>();
+		Map<String, Object> fmap = null;
+		// 处理好友奖励
+		Redmoneyrecord xianjinMap = redmoneyrecordDao.queryRedmoneyrecordByRedmoneytypeAndId("2", id);
+		String inCustId = ipayAccount;
+		String bgRetUrl = WebUtil.getWebPath() + "/pubCallBack.do";
+		String outAcctId = ChinapnrConfig.CHINAPNR_SYQCJR;
+		String outCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+		String inAcctId = "";
+		String ordId = id + "";
+		Double money = 0d;
+		Double transAmts = 0d;
+		money = xianjinMap.getMoney() == null ? 0d : xianjinMap.getMoney();
+		transAmts = xianjinMap.getHandleMoney() == null ? 0d : xianjinMap.getHandleMoney();
+		Long uid = xianjinMap.getRechargeUid() == null ? 0l : xianjinMap.getRechargeUid();
+		String transAmt = money + "";
+
+		json = JSONObject.fromObject(chinapnrService.queryTransfer(ordId, outCustId, outAcctId, transAmt, inCustId, inAcctId, bgRetUrl));
+		log.info("汇付处理好友推荐奖励返回结果：" + json.toString());
+
+		if (json.getInt("RespCode") != 0) {
+			// 转账失败
+			retString = json.getString("RespDesc");
+			return retString;
+		}
+
+		if (json.getInt("RespCode") == -102) {
+			log.info("该用户当天转账超过3笔");
+			retString = "该用户当天转账超过3笔";
+			return retString;
+		} else if (json.getInt("RespCode") == -103) {
+			log.info("该用户单笔超过200.00元");
+			retString = "该用户单笔超过200.00元";
+			return retString;
+		} else if (json.getInt("RespCode") == 0) {
+			Date activetime = new Date();// 激活时间
+			Date usetime = activetime;// 使用时间
+			// 更新现金券领取状态
+			redmoneyrecordDao.updateRedmoneyrecordById(activetime, 2, usetime, id);
+			// 查询风险保障金余额
+			RiskDetail reRiskDetail = riskDetailDao.queryRiskDetailMax();
+			RiskDetail riskDetail = new RiskDetail();
+			riskDetail.setRiskSpending(money);
+			riskDetail.setOperator(-1L);
+			riskDetail.setTrader(userId);
+			riskDetail.setRemark("领取使用现金券");
+			riskDetail.setRiskBalance(reRiskDetail.getRiskBalance() - money);
+			riskDetail.setRiskDate(new Date());
+			riskDetail.setRiskType("支出");
+			riskDetail.setResource("领取使用现金券");
+			// 扣除风险保障金
+			riskDetailDao.insertRiskDetail(riskDetail);
+			// 更新已奖励状态为已奖励
+			// jobTaskDao.updateRewardStatus(conn,id,userId);
+			// 邀请奖励发给邀请人
+			userDao.updateUserAmount(money, userId);
+			// 查询投资后的账户金额
+			userSumMap = investDao.queryUserAmountAfterHander(userId);
+			if (userSumMap == null) {
+				userSumMap = new HashMap<String, Object>();
+			}
+			double usableSum = Convert.strToDouble(userSumMap.get("usableSum") + "", 0);
+			double freezeSum = Convert.strToDouble(userSumMap.get("freezeSum") + "", 0);
+			double forPI = Convert.strToDouble(userSumMap.get("forPI") + "", 0);
+			// 发送通知
+			// --------------add by houli
+			fmap = recommendUserDao.queryRecommendFriendByUserId(userId, uid);
+			String friendName = "";
+			if (fmap != null) {
+				friendName = String.valueOf(fmap.get("username"));
+			}
+
+			// 添加资金流动记录
+			Fundrecord fundrecord = new Fundrecord();
+			fundrecord.setUserId(userId);
+			fundrecord.setFundMode("领取使用现金券");
+			fundrecord.setHandleSum(money);
+			fundrecord.setUsableSum(usableSum);
+			fundrecord.setFreezeSum(freezeSum);
+			fundrecord.setDueinSum(forPI);
+			fundrecord.setTrader(-1L);
+			fundrecord.setRemarks("您邀请的用户<a href='userMeg.do?id=" + userId + "' target='_blank'>【" + friendName + "】</a>投资了￥" + transAmts + "元,奖励的￥" + money + "元现金已转至您的账户,再接再厉!");
+			fundrecord.setIncome(money);
+			fundrecord.setSpending(0d);
+			fundrecord.setBorrowId(-1L);
+			fundrecord.setRepaymentId(-1L);
+			fundrecord.setOperateType(251);
+			fundrecord.setDueoutSum(0d);
+			fundrecord.setRecordTime(new Date());
+			// 添加资金记录
+			fundrecordDao.insertFundrecord(fundrecord);
+
+			// ------------------/
+			// 模板通知
+			// 站内信
+			String informTemplate = approveNoticeTemplateDao.queryApproveNoticeTemplateByNid(IInformTemplateConstants.INVEST_INVITATION);
+			informTemplate = informTemplate.replace("friendName", friendName);
+			informTemplate = informTemplate.replace("transAmt", transAmts + "");
+			informTemplate = informTemplate.replace("money", money + "");
+			// 短信
+			String s_informTemplate = approveNoticeTemplateDao.queryApproveNoticeTemplateByNid(IInformTemplateConstants.S_INVEST_INVITATION);
+			s_informTemplate = s_informTemplate.replace("friendName", friendName);
+			s_informTemplate = s_informTemplate.replace("transAmt", transAmts + "");
+			s_informTemplate = s_informTemplate.replace("username", username);
+			s_informTemplate = s_informTemplate.replace("money", money + "");
+			// 邮件
+			String e_informTemplate = approveNoticeTemplateDao.queryApproveNoticeTemplateByNid(IInformTemplateConstants.E_INVEST_INVITATION);
+			e_informTemplate = e_informTemplate.replace("friendName", friendName);
+			e_informTemplate = e_informTemplate.replace("transAmt", transAmts + "");
+			e_informTemplate = e_informTemplate.replace("money", money + "");
+			noticeMap.put("mail", informTemplate); // 站内信
+			noticeMap.put("email", e_informTemplate);// 邮件
+			noticeMap.put("note", s_informTemplate);// 短信
+			sendMessageService.sendNoticeMSG(userId, "领取使用现金券", noticeMap, IConstants.NOTICE_MODE_5);
+			userService.updateSign(userId);// 更换校验码
+			retString = "success";
+		} else {
+			// 转账失败
+			retString = "fail";
+			return retString;
+		}
+		return retString;
+	}
+
+	public Map<String, Object> queryBorrowInvestByCondition(int borrowTypeSubId, String title, String publishTimeStart, String publishTimeEnd, Integer[] array, long userId,
+			PageBean pageBean, long begin, long end) {
+		title = Utility.filteSqlInfusion(title);
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		title = Utility.filteSqlInfusion(title);
+		publishTimeStart = Utility.filteSqlInfusion(publishTimeStart);
+		publishTimeEnd = Utility.filteSqlInfusion(publishTimeEnd);
+		if (StringUtils.isNotBlank(publishTimeEnd))
+			publishTimeEnd += " 23:59:59";
+		List<Map<String, Object>> page = investDao.queryBorrowInvestCondition(borrowTypeSubId, title, publishTimeStart, publishTimeEnd, array, userId, begin, end);
+		pageBean.setPage(page);
+		pageBean.setPageSize(Constants.PAGE_SIZE_10);
+		pageBean.setTotalNum(Long.parseLong(investDao.queryBorrowInvestByConditionCount(borrowTypeSubId, title, publishTimeStart, publishTimeEnd, array, userId).get("total") + ""));
+		jsonMap.put("pageBean", pageBean);
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryAppVersionByType(Integer type) {
+		Map<String, Object> map = appVersionDao.queryAppVersionByType(type);
+		return map;
+	}
+
+	public Map<String, Object> findBorrowInvestByCondition(JSONObject jsonObject, Long pageNum, Long pageSize, Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String statusFlag = "";
+		String recordTimeStart = "";
+		String recordTimeEnd = "";
+		statusFlag = String.valueOf(jsonObject.get("statusFlag"));
+		if (pageType.equals("reactAPP")) {
+			recordTimeStart = String.valueOf(jsonObject.get("recordTimeStart"));
+			recordTimeEnd = String.valueOf(jsonObject.get("recordTimeEnd"));
+		} else {
+			recordTimeStart = jsonObject.get("startTime") + "";
+			recordTimeEnd = jsonObject.get("endTime") + "";
+		}
+
+		recordTimeStart = Utility.filteSqlInfusion(recordTimeStart);
+		recordTimeEnd = Utility.filteSqlInfusion(recordTimeEnd);
+		statusFlag = Utility.filteSqlInfusion(statusFlag);
+
+		List<Map<String, Object>> page;
+		if ("earnings".equals(statusFlag)) {// 利息收益
+			page = slbaoDao.findBorrowInvestByCondition(recordTimeStart, recordTimeEnd, userId, (pageNum - 1) * pageSize, pageSize);
+		} else if ("into".equals(statusFlag)) {// 转入
+			page = slbaoDao.findBorrowInvestByConditionI(recordTimeStart, recordTimeEnd, userId, (pageNum - 1) * pageSize, pageSize);
+		} else if ("rollout".equals(statusFlag)) {// 转出
+			page = slbaoDao.findBorrowInvestByConditionO(recordTimeStart, recordTimeEnd, userId, (pageNum - 1) * pageSize, pageSize);
+		} else {// 所有记录
+			page = slbaoDao.findBorrowInvestByConditionAll(recordTimeStart, recordTimeEnd, userId, (pageNum - 1) * pageSize, pageSize);
+		}
+
+		PageBean pageBean = new PageBean();
+		pageBean.setPage(page);
+		pageBean.setPageSize(pageSize);
+		pageBean.setPageNum(pageNum);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+
+	}
+
+	public Map<String, Object> queryDebtCount(Long sessionUserId) {
+		return investDao.queryDebtCount(sessionUserId);
+	}
+
+}

@@ -1,0 +1,22 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.RechargeDetail;
+
+public interface RechargeDetailDao {
+	
+	public List<RechargeDetail> queryRechargeList(Long userId,String startTime, String endTime,Long index,Long num);
+	
+	public Map<String, Long> queryRechargeCountByRechargeTime(Long userId,String startTime, String endTime);
+	
+	public void addRechargeDetail(RechargeDetail rechargeDetail);
+	
+	public void callUseraddmoneyProcedure(Map<String, Object> map);
+	
+	public Map<String, BigDecimal> queryRechargeAmountWithin15Days(Long userId);
+
+
+}

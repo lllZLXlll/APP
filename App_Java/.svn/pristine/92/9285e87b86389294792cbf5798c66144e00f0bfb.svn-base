@@ -1,0 +1,15 @@
+package com.pjzb.service.admin.fund;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+
+/**
+ * 汇付交易状态查询
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminChinapnrTranStatusQueryService extends BaseController {
+
+}

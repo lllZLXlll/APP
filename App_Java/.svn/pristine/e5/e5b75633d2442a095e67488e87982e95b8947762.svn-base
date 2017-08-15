@@ -1,0 +1,169 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Award entity. @author MyEclipse Persistence Tools
+ */
+
+public class Award implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Long level2userId;
+	private Double level2money;
+	private Long level1userId;
+	private Double level1money;
+	private Long iorId;
+	private Integer status;
+	private Date addDate;
+	private Double mx;
+	private Integer mxType;
+	private Integer month;
+	private Integer level;
+	private Integer iorType;
+
+	// Constructors
+
+	/** default constructor */
+	public Award() {
+	}
+
+	/** full constructor */
+	public Award(Long userId, Long level2userId, Double level2money,
+			Long level1userId, Double level1money, Long iorId, Integer status,
+			Date addDate, Double mx, Integer mxType, Integer month,
+			Integer level, Integer iorType) {
+		this.userId = userId;
+		this.level2userId = level2userId;
+		this.level2money = level2money;
+		this.level1userId = level1userId;
+		this.level1money = level1money;
+		this.iorId = iorId;
+		this.status = status;
+		this.addDate = addDate;
+		this.mx = mx;
+		this.mxType = mxType;
+		this.month = month;
+		this.level = level;
+		this.iorType = iorType;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getLevel2userId() {
+		return this.level2userId;
+	}
+
+	public void setLevel2userId(Long level2userId) {
+		this.level2userId = level2userId;
+	}
+
+	public Double getLevel2money() {
+		return this.level2money;
+	}
+
+	public void setLevel2money(Double level2money) {
+		this.level2money = level2money;
+	}
+
+	public Long getLevel1userId() {
+		return this.level1userId;
+	}
+
+	public void setLevel1userId(Long level1userId) {
+		this.level1userId = level1userId;
+	}
+
+	public Double getLevel1money() {
+		return this.level1money;
+	}
+
+	public void setLevel1money(Double level1money) {
+		this.level1money = level1money;
+	}
+
+	public Long getIorId() {
+		return this.iorId;
+	}
+
+	public void setIorId(Long iorId) {
+		this.iorId = iorId;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public Date getAddDate() {
+		return this.addDate;
+	}
+
+	public void setAddDate(Date addDate) {
+		this.addDate = addDate;
+	}
+
+	public Double getMx() {
+		return this.mx;
+	}
+
+	public void setMx(Double mx) {
+		this.mx = mx;
+	}
+
+	public Integer getMxType() {
+		return this.mxType;
+	}
+
+	public void setMxType(Integer mxType) {
+		this.mxType = mxType;
+	}
+
+	public Integer getMonth() {
+		return this.month;
+	}
+
+	public void setMonth(Integer month) {
+		this.month = month;
+	}
+
+	public Integer getLevel() {
+		return this.level;
+	}
+
+	public void setLevel(Integer level) {
+		this.level = level;
+	}
+
+	public Integer getIorType() {
+		return this.iorType;
+	}
+
+	public void setIorType(Integer iorType) {
+		this.iorType = iorType;
+	}
+
+}

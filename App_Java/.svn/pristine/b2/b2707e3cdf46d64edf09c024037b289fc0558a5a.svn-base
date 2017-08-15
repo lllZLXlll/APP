@@ -1,0 +1,64 @@
+define(function (require,exports,module) {
+
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('交易密码设置',true,false);
+		},
+		data: function(){
+			return {
+				dataList:[
+					{inputType:'password',iconClass:'icon-icon-lock',placeholder:'请输入交易密码',max:16,dataBind:'passwordone',showMsg:false},
+					{inputType:'password',iconClass:'icon-icon-lock',placeholder:'请确认交易密码',max:16,dataBind:'passwordtwo',showMsg:false},
+					{inputType:'text',iconClass:'icon-icon-msg',placeholder:'请输入短信验证码',max:6,dataBind:'msgCode',showMsg:true}
+				],
+				username:Storage.getItem('customerId'),passwordone:'',passwordtwo:'',useCode:'',msgCode:'',btnclass:'btn btn-msg',btnText:'获取验证码',
+				recivePhone:'',randomCode:'',smsCode:'',clickInit:true
+			}
+		},
+		methods: {
+			getSms: function(){
+				utils.getSmsCode(this,'resetPwd');
+			},
+			change: function(){
+				if(this.passwordone==''){
+					$.toast('请确认交易密码!');return;
+				};
+				if(this.passwordtwo==''){
+					$.toast('请确认交易密码!');return;
+				};
+				if(this.passwordtwo!=this.passwordone){
+					$.toast('两次密码输入不一致!');return;
+				};
+				if(this.msgCode==''){
+					$.toast('请输入短信验证码!');return;
+				};
+				var param={uid:Storage.getItem('uid'),newPwd:this.passwordone,cellPhone:this.username,code:this.msgCode,randomCode:this.randomCode,recivePhone:this.recivePhone};
+				utils.ajax({
+		            url:'../front/updateDealPwd.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	console.log(data);
+		            	if(data.error =='0'){
+		            		$.alert('交易密码修改成功',function(){
+		            			router.go({path:'/account'})
+		            		})
+		            	}else{
+		            		$.alert(data.msg);
+		            	}
+		            }
+		        })
+			}
+		},
+		template:'<div class="content content-login">'+
+		            '<template v-for="list in dataList"><div class="text-item">'+
+			            '<label><i class="icon icon-color" :class="[list.iconClass]""></i></label>'+
+			            '<input type="{{list.inputType}}" placeholder="{{list.placeholder}}" maxlength="{{list.max}}" v-getvalue="[list.dataBind]">'+
+			            '<button type="button" v-if="list.showMsg" v-on:click="getSms" class="{{btnclass}}">{{btnText}}</button>'+
+			        '</div></template>'+
+			        '<div class="text-item-submit">'+
+			            '<button type="button" @click="change" class="btn btn-submit">提交</button>'+
+			        '</div></div>'
+	});
+	module.exports = VueComponent;
+})

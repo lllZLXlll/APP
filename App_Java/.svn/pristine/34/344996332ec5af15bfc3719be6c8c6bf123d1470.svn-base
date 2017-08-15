@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.RepaymentDao">
+
+	<resultMap type="repayment" id="repaymentResultMap">
+		<id column="id" property="id" />
+		<result column="repayDate" property="repayDate" />
+		<result column="realRepayDate" property="realRepayDate" />
+		<result column="repayPeriod" property="repayPeriod" />
+		<result column="hasPI" property="hasPi" />
+		<result column="stillPrincipal" property="stillPrincipal" />
+		<result column="stillInterest" property="stillInterest" />
+		<result column="hasFI" property="hasFi" />
+		<result column="lateFI" property="lateFi" />
+		<result column="lateDay" property="lateDay" />
+		<result column="repayStatus" property="repayStatus" />
+		<result column="borrowId" property="borrowId" />
+		<result column="isLate" property="isLate" />
+		<result column="isWebRepay" property="isWebRepay" />
+		<result column="investorForpayFI" property="investorForpayFi" />
+		<result column="investorHaspayFI" property="investorHaspayFi" />
+		<result column="principalBalance" property="principalBalance" />
+		<result column="interestBalance" property="interestBalance" />
+		<result column="version" property="version" />
+		<result column="executeTime" property="executeTime" />
+		<result column="identify" property="identify" />
+	</resultMap>
+
+
+	<select id="queryWillBorrowerRepaymentInfo" resultMap="repaymentResultMap">
+		select *
+		from t_repayment where datediff(#{date},repayDate) =0 and repayStatus
+		= 1
+	</select>
+
+
+	<select id="queryPaymentInfo" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select c.ipayAccount as ipayAccount, c.id as userId,
+		c.username as username, c.dealpwd as pwd,
+		b.borrowWay,isDayThe,b.nid_log
+		from t_repayment a left join t_borrow b
+		on a.borrowId=b.id left join
+		t_user c on c.id=b.publisher where a.id
+		=#{id}
+	</select>
+
+
+	<select id="callBorrowRepaymentinitProcedure" statementType="CALLABLE"
+		resultType="java.util.Map" parameterType="java.util.Map">
+		{CALL p_borrow_repaymentinit(
+		#{in_bid,jdbcType=BIGINT,mode=IN},
+		#{out_ret,jdbcType=INTEGER,mode=OUT},
+		#{out
+		out_desc,jdbcType=VARCHAR,mode=OUT}
+		)
+		}
+	</select>
+
+
+
+	<select id="queryAllInvestInfo" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT * FROM v_t_chianpnr_repay a WHERE
+		a.payId=#{payId}
+	</select>
+
+
+	<select id="queryRepayInfoByBorrowId" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		select a.id,a.investor
+		userId,((a.realAmount/c.borrowAmount)*b.stillPrincipal) principal from
+		t_invest a left join
+		t_repayment b on a.borrowId = b.borrowId left join
+		t_borrow c on a.borrowId =
+		c.id where b.id =#{borrowId}
+	</select>
+
+	<select id="queryRepaymentBorrowIdIdById" resultType="java.lang.Long"
+		parameterType="java.lang.Long">
+		SELECT a.borrowId AS borrowId FROM t_repayment a WHERE
+		a.id=#{id}
+	</select>
+
+	<select id="queryOverDueRepayment" resultType="map"
+		parameterType="string">
+		<![CDATA[
+			SELECT id, repayDate, stillPrincipal, stillInterest
+			, executeTime, borrowId, DATEDIFF(#{0}, executeTime) executeDay
+			, DATEDIFF(#{0},repayDate) overdueDay FROM t_repayment WHERE
+			DATE_FORMAT(repayDate,'%Y-%m-%d') < #{0} AND repayStatus = 1
+		]]>
+	</select>
+
+	<update id="updateOverDueRepayment">
+		UPDATE t_repayment SET isLate = 2, lateDay = #{2},
+		lateFI = #{1}, executeTime = #{3} WHERE id = #{0}
+	</update>
+
+	<insert id="addPreRepament">
+		insert into t_pre_repayment (
+			borrowId, identify, repayPeriod, stillPrincipal,
+			stillInterest, principalBalance, interestBalance, totalSum,
+			totalAmount, mRate, repayDate, sort
+		)
+		values(
+			#{borrowId}, #{identify}, #{repayPeriod}, #{stillPrincipal}, 
+			#{stillInterest},#{principalBalance},#{interestBalance}, #{totalSum},
+			#{totalAmount}, #{mrate},#{repayDate}, #{sort}
+		)		
+	</insert>
+	
+	<select id="queryrRepay" resultType="java.util.Map" parameterType="java.lang.Long">
+		select * from t_repayment t where id = (select max(t.id) from t_repayment t where t.borrowId=#{id})
+	</select>
+	
+	<select id="queryAllInvestInfoByRepaymentId" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT * FROM v_t_chianpnr_repay WHERE ordId = #{0}
+	</select>
+	
+	<select id="queryUserCashListCount" resultType="long">
+		SELECT COUNT(*) count FROM 
+		(SELECT a.id AS userId,a.username,IFNULL(f.forRePaySum,0) AS
+		dueoutSum,a.usableSum,a.freezeSum,
+		ROUND(SUM(IFNULL(b.recivedPrincipal+b.recievedInterest-b.hasPrincipal-b.hasInterest,0)),2)
+		AS dueinSum,d.realName realName FROM t_user a LEFT JOIN t_invest b ON
+		a.id = b.investor
+		LEFT JOIN t_person d ON d.userId=a.id LEFT JOIN
+		(SELECT forRePaySum,publisher FROM (SELECT
+		SUM(IFNULL((c.stillPrincipal+c.stillInterest-c.hasPI+c.lateFI-c.hasFI),0))
+		AS forRePaySum,d.publisher FROM t_repayment c LEFT JOIN t_borrow d ON
+		c.borrowId = d.id where c.repayStatus = 1 GROUP BY d.publisher) t) f
+		ON f.publisher = a.id GROUP BY
+		a.ID,a.usableSum,a.freezeSum,f.forRePaySum,d.realName,a.username) u
+		WHERE 1=1
+		<if test="param3 != null and param3 != ''">AND username LIKE "%"#{2}"%"</if>
+		<if test="param4 != null and param4 != ''">AND realName LIKE "%"#{3}"%"</if>
+		<if test="param5 != null and param5 > -1">AND usableSum >= #{4}</if>
+		<if test="param6 != null and param6 > -1"><![CDATA[ AND usableSum <= #{5} ]]></if>
+	</select>
+	
+	<select id="queryUserCashList" resultType="map">
+		SELECT * FROM 
+		(SELECT a.id AS userId,a.username, a.slbaoTotalAmt slbaoTotalAmt,IFNULL(f.forRePaySum,0) AS
+		dueoutSum,a.usableSum,a.freezeSum,
+		ROUND(SUM(IFNULL(b.recivedPrincipal+b.recievedInterest-b.hasPrincipal-b.hasInterest,0)),2)
+		AS dueinSum,d.realName realName FROM t_user a LEFT JOIN t_invest b ON
+		a.id = b.investor
+		LEFT JOIN t_person d ON d.userId=a.id LEFT JOIN
+		(SELECT forRePaySum,publisher FROM (SELECT
+		SUM(IFNULL((c.stillPrincipal+c.stillInterest-c.hasPI+c.lateFI-c.hasFI),0))
+		AS forRePaySum,d.publisher FROM t_repayment c LEFT JOIN t_borrow d ON
+		c.borrowId = d.id where c.repayStatus = 1 GROUP BY d.publisher) t) f
+		ON f.publisher = a.id GROUP BY
+		a.ID,a.usableSum,a.freezeSum,f.forRePaySum,d.realName,a.username) u
+		WHERE 1=1
+		<if test="param3 != null and param3 != ''">AND username LIKE "%"#{2}"%"</if>
+		<if test="param4 != null and param4 != ''">AND realName LIKE "%"#{3}"%"</if>
+		<if test="param5 != null and param5 > -1">AND usableSum >= #{4}</if>
+		<if test="param6 != null and param6 > -1"><![CDATA[ AND usableSum <= #{5} ]]></if>
+		LIMIT #{0}, #{1}
+	</select>
+	
+	<select id="queryUserCash" resultType="map">
+		SELECT sum(u.dueoutSum) AS dueoutSums, SUM(u.usableSum) AS usableSums,
+		sum(u.freezeSum) AS freezeSums, SUM(u.dueinSum) AS dueinSums FROM
+		(SELECT a.id AS userId,a.username,IFNULL(f.forRePaySum,0) AS
+		dueoutSum,a.usableSum,a.freezeSum,
+		ROUND(SUM(IFNULL(b.recivedPrincipal+b.recievedInterest-b.hasPrincipal-b.hasInterest,0)),2)
+		AS dueinSum,d.realName realName FROM t_user a LEFT JOIN t_invest b ON
+		a.id = b.investor
+		LEFT JOIN t_person d ON d.userId=a.id LEFT JOIN
+		(SELECT forRePaySum,publisher FROM (SELECT
+		SUM(IFNULL((c.stillPrincipal+c.stillInterest-c.hasPI+c.lateFI-c.hasFI),0))
+		AS forRePaySum,d.publisher FROM t_repayment c LEFT JOIN t_borrow d ON
+		c.borrowId = d.id where c.repayStatus = 1 GROUP BY d.publisher) t) f
+		ON f.publisher = a.id GROUP BY
+		a.ID,a.usableSum,a.freezeSum,f.forRePaySum,d.realName,a.username) u
+		WHERE 1=1
+		<if test="param3 != null and param3 != ''">AND username LIKE "%"#{2}"%"</if>
+		<if test="param4 != null and param4 != ''">AND realName LIKE "%"#{3}"%"</if>
+		<if test="param5 != null and param5 > -1">AND usableSum >= #{4}</if>
+		<if test="param6 != null and param6 > -1"><![CDATA[ AND usableSum <= #{5} ]]></if>
+	</select>
+
+	<select id="queryUserFundRechargeInfoCount" resultType="long">
+		SELECT COUNT(*) FROM v_t_user_rechargeall_lists WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND rechargeTime >= #{0}</if>
+		<if test="param2 != null and param2 != ''"><![CDATA[ AND rechargeTime <= #{1} ]]></if>
+		<if test="param3 != null and param3 != '' and param3 > 0">AND type = #{2}</if>
+		<if test="param4 != null and param4 != '' and param4 >= 0">AND result = #{3}</if>
+		<if test="param5 > 0">AND userId = #{4}</if>
+	</select>
+	
+	<select id="queryUserFundRechargeInfo" resultType="map">
+		SELECT * FROM v_t_user_rechargeall_lists WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND rechargeTime >= #{0}</if>
+		<if test="param2 != null and param2 != ''"><![CDATA[ AND rechargeTime <= #{1} ]]></if>
+		<if test="param3 != null and param3 != '' and param3 > 0">AND type = #{2}</if>
+		<if test="param4 != null and param4 != '' and param4 >= 0">AND result = #{3}</if>
+		<if test="param5 > 0">AND userId = #{4}</if>
+		LIMIT #{5}, #{6}
+	</select>
+	
+	<select id="queryUserFundRechargeInfoExport" resultType="map" parameterType="long">
+		select username, rechargeMoney, poundage, realMoney, DATE_FORMAT(rechargeTime,'%y-%m-%d %H:%I:%S') rechargeTime, (
+			CASE 
+				when result=0 then '失败'
+				when result=1 then '成功'
+				when result=2 then '审核中'
+			END 
+		) result , (
+			CASE 
+				when type=1 then '支付宝支付'
+				when type=2 then '环迅支付'
+				when type=3 then '国付宝'
+				when type=4 then '线下充值'
+				when type=5 then '手工充值'
+				when type=6 then '虚拟充值'
+				when type=7 then '奖励充值'
+			END 
+		) type from v_t_user_rechargeall_lists t where 1 = 1
+		<if test="userId > 0">AND userId = #{userId}</if>
+	</select>
+
+	<select id="queryUserFundWithdrawListCount" resultType="long">
+		SELECT COUNT(*) FROM v_t_user_fundwithdraw_lists WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND applyTime >= #{0}</if>
+		<if test="param2 != null and param2 != ''"><![CDATA[ AND applyTime <= #{1} ]]></if>
+		<if test="param3 != null and param3 != ''">AND username LIKE "%" #{2} "%"</if>
+		<if test="param4 != null and param4 != '' and param4 > 0">AND sum = #{3}</if>
+		<if test="param5 != null and param5 != '' and param5 > 0">AND status = #{4}</if>
+		<if test="param6 > 0">AND userId = #{5}</if>
+	</select>
+
+	<select id="queryUserFundWithdrawList" resultType="map">
+		SELECT * FROM v_t_user_fundwithdraw_lists WHERE 1 = 1
+		<if test="param1 != null and param1 != ''">AND applyTime >= #{0}</if>
+		<if test="param2 != null and param2 != ''"><![CDATA[ AND applyTime <= #{1} ]]></if>
+		<if test="param3 != null and param3 != ''">AND username LIKE "%" #{2} "%"</if>
+		<if test="param4 != null and param4 != '' and param4 > 0">AND sum = #{3}</if>
+		<if test="param5 != null and param5 != '' and param5 > 0">AND status = #{4}</if>
+		<if test="param6 > 0">AND userId = #{5}</if>
+		LIMIT #{6}, #{7}
+	</select>
+
+	<select id="queryUserFundWithdrawListExport" resultType="map" parameterType="long">
+		SELECT username, realName, acount, bankName, sum, realAccount, poundage, DATE_FORMAT(applyTime,'%y-%m-%d %H:%I:%S') applyTime
+		FROM v_t_user_fundwithdraw_lists t WHERE 1 = 1
+		<if test="userId > 0">AND userId = #{userId}</if>
+	</select>
+	
+	<select id="queryUserFundRecordListCount" resultType="long">
+		SELECT COUNT(*) FROM v_t_user_fundrecord_lists WHERE 1 = 1
+		<if test="userId != null and userId != ''">AND userId = #{userId}</if>
+	</select>
+
+	<select id="queryUserFundRecordList" resultType="map">
+		SELECT * FROM v_t_user_fundrecord_lists WHERE 1 = 1
+		<if test="userId != null and userId != ''">AND userId = #{userId}</if>
+		ORDER BY id DESC LIMIT #{pageNum}, #{pageSize}
+	</select>
+
+	<select id="queryAllUserFundRecordListCount" resultType="long">
+		SELECT COUNT(*) FROM v_t_user_fundrecord_lists a LEFT JOIN t_user b on a.userId = b.id WHERE 1 = 1
+		<if test="userName != null and userName != ''">AND b.username LIKE "%" #{userName} "%"</if>
+	</select>
+	
+	<select id="queryAllUserFundRecordList" resultType="map">
+		SELECT a.id as
+		id,a.userId,a.fundMode,a.handleSum,a.usableSum,a.freezeSum,a.dueinSum,a.trader,a.recordTime
+		as recordTime,a.dueoutSum,a.totalSum,a.traderName,b.username as
+		username,a.spending as spending ,a.income as income FROM
+		v_t_user_fundrecord_lists a LEFT JOIN t_user b on a.userId = b.id WHERE
+		1 = 1
+		<if test="userName != null and userName != ''">AND b.username LIKE "%" #{userName} "%"</if>
+	 	ORDER BY a.id DESC LIMIT #{pageNum}, #{pageSize}
+	</select>
+	
+	<select id="queryExportAllUserFundRecord" resultType="map">
+		SELECT a.id as
+		id,a.userId,a.fundMode,a.handleSum,a.usableSum,a.freezeSum,a.dueinSum,a.trader,a.recordTime
+		as recordTime,a.dueoutSum,a.totalSum,a.traderName,b.username as
+		username,a.spending as spending ,a.income as income FROM
+		v_t_user_fundrecord_lists a LEFT JOIN t_user b on a.userId = b.id
+	 	ORDER BY a.id DESC
+	</select>
+	
+	<select id="queryLastRepayMentByCondition" resultType="java.util.Map">
+		SELECT * FROM v_t_repayment_h WHERE 1=1 
+		<if test="param3 != null and param3 != ''">
+			AND username  LIKE '%' #{2} '%'
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND realName  LIKE '%' #{4} '%'
+		</if>
+		<if test="param6 != null and param6 != ''">
+			AND borrowTitle  LIKE '%' #{5} '%'
+		</if>
+		<if test="param4 != -1">
+			AND  borrowTypeSubId  = #{3}
+		</if>
+		<if test="param7 != -1">
+			AND  repayStatus  = #{6}
+		</if>
+		AND repayDate = #{7} ORDER BY  id  DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryLastRepayMentByConditions" resultType="java.util.Map">
+		SELECT (
+			CASE 
+				WHEN t.servier = null THEN '未分配'
+				ELSE t.servier
+			END
+		) as servier,(
+			CASE 
+				WHEN t.repayStatus = 1 THEN '未偿还'
+				WHEN t.repayStatus = 2 THEN '已偿还'
+				WHEN t.repayStatus = 3 THEN '偿还中'
+			END
+		)as repayStatu,t.* FROM v_t_repayment_h t WHERE 1=1 
+		<if test="param3 != null and param3 != ''">
+			AND t.username  LIKE '%' #{2} '%'
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND t.realName  LIKE '%' #{4} '%'
+		</if>
+		<if test="param6 != null and param6 != ''">
+			AND t.borrowTitle  LIKE '%' #{5} '%'
+		</if>
+		<if test="param4 != -1">
+			AND  t.borrowTypeSubId  = #{3}
+		</if>
+		<if test="param7 != -1">
+			AND  t.repayStatus  = #{6}
+		</if>
+		AND t.repayDate = #{7} ORDER BY  t.id  DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryLastRepayMentCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_repayment_h WHERE 1=1 
+		<if test="param1 != null and param1 != ''">
+			AND username  LIKE '%' #{0} '%'
+		</if>
+		<if test="param3 != null and param3 != ''">
+			AND realName  LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND borrowTitle  LIKE '%' #{3} '%'
+		</if>
+		<if test="param2 != -1">
+			AND  borrowTypeSubId  = #{1}
+		</if>
+		<if test="param5 != -1">
+			AND  repayStatus  = #{4}
+		</if>
+		AND repayDate = #{5}
+	</select>
+	
+	<select id="queryRepaymentAmount" resultType="java.util.Map">
+		SELECT SUM(totalSum) amount FROM v_t_repayment_h where 1=1
+		<if test="param1 != null and param1 != ''">
+			AND username  LIKE '%' #{0} '%'
+		</if>
+		<if test="param3 != null and param3 != ''">
+			AND realName  LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND borrowTitle  LIKE '%' #{3} '%'
+		</if>
+		<if test="param2 != -1">
+			AND  borrowTypeSubId  = #{1}
+		</if>
+		<if test="param5 != -1">
+			AND  repayStatus  = #{4}
+		</if>
+		AND repayDate = #{5}
+	</select>
+	
+	<select id="queryRepaymentNotice" resultType="java.util.Map">
+		SELECT id,serviceContent,date_format(serviceTime,'%Y-%c-%d %T') as serviceTime FROM t_repayment_service
+		WHERE repayId  = #{2} ORDER BY  id DESC LIMIT #{0},#{1}
+	</select>
+	<select id="queryRepaymentNoticeCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM t_repayment_service
+		WHERE repayId  = #{0} 
+	</select>
+	
+	<insert id="addRepayMentNotice">
+		INSERT INTO t_repayment_service(repayId,serviceContent,serviceTime) VALUES(#{0},#{1},#{2})
+	</insert>
+
+	<select id="queryRepaymentDetail" resultType="map">
+		SELECT * FROM (SELECT a.lateDay,(a.stillPrincipal+a.stillInterest)
+		stillPI,a.lateFI,(a.stillPrincipal+a.stillInterest+a.lateFI) totalSum
+		,b.borrowTitle,b.id,b.publisher,c.username borrower,a.id repayId FROM
+		t_repayment a LEFT JOIN t_borrow b ON a.borrowId=b.id LEFT JOIN t_user
+		c ON b.publisher=c.id) t
+		LEFT JOIN (SELECT
+		SUM(a.stillPrincipal+a.stillInterest-a.hasPI+a.investorForpayFI-a.investorHaspayFI)
+		forSum,a.borrowId FROM t_repayment a GROUP BY a.borrowId) t2
+		ON t.id=t2.borrowId WHERE t.repayId = #{0}
+	</select>
+	
+	
+	<select id="callWebStatisProcedure" statementType="CALLABLE"
+		resultType="java.util.Map" parameterType="java.util.Map">
+		{CALL pr_getWebStatis
+			(
+				#{id,jdbcType=BIGINT,mode=IN}
+			)
+		}
+	</select>
+	
+	
+	<select id="queryRepaymentService" resultType="map">
+		SELECT id,serviceContent,DATE_FORMAT(serviceTime,'%Y-%m-%d %T') serviceTime
+		FROM t_repayment_service WHERE repayId = #{0} ORDER BY id DESC
+	</select>
+
+</mapper>
+
+
+
+
+
+
+

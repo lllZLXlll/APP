@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>债权转让-普金资本-安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<meta name="keywords" content="债权转让，有、无抵押贷款，信用贷款，P2P贷款，网络贷款公司" />
+	<meta name="description" content="普金资本是目前中国网上理财行业中最快速、最安全的债权投资服务平台，为民间借贷用户提供安全有保障、高效收益好的债权转让，抵押贷款，无抵押贷款服务。" />
+	<link rel="stylesheet" href="src/css/public.css">
+	<link rel="stylesheet" href="src/css/index.css">
+</head>
+<body onhashchange="hashChange()">
+	<!--[if lt IE 8]>
+    <div class="show-danger">您正在使用 <strong>过时的</strong> 浏览器. 是时候 <a href="http://browsehappy.com/">更换一个更好的浏览器</a> 来提升用户体验.</div>
+  	<![endif]-->
+	<!-- top -->
+	<div class="top" id="top">
+	</div>
+	<!-- nav -->
+	<div class="nav">
+		<div class="wrap cl">
+			<div class="logo"><a href="index.html"><img src="src/images/logo.png" alt="普金资本"></a></div>
+			<div class="nav-bar">
+				<ul>
+					<li class="icon icon-acc"><a href="account.html">我的账户</a></li>
+					<li><a href="about.html">信息披露</a></li>
+					<!-- <li><a href="javascript:void(0);" onclick="newPointer()">新手指导</a></li> -->
+					<li><a href="safety.html">安全保障</a></li>
+					<li class="active">
+						<a href="invest_list.html">投资理财</a>
+						<div class="sub-nav">
+							<a href="invest_list.html#006">恒金保</a>
+							<a href="invest_list.html#004">普金保</a>
+							<a href="invest_list.html#003">多金宝</a>
+							<a href="creditor_list.html">债权转让</a>
+							<p class="left"></p>
+							<p class="right"></p>
+						</div>
+					</li>
+					<li><a href="index.html">首页</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- invest list -->
+	<div class="invest-list creditor-list">
+		<div class="wrap">
+			<div class="invest-top">
+				<div class="invest-top-left">
+					<div class="invest-top-list">
+						<p>项目期限：</p>
+						<ul class="cl">
+							<li class="active"><a href="#0">全部</a></li>
+							<li><a href="#1">1-3个月</a></li>
+							<li><a href="#2">3-6个月</a></li>
+							<li><a href="#3">6-9个月</a></li>
+							<li><a href="#4">大于9个月</a></li>
+						</ul>
+					</div>
+					<div class="invest-top-list">
+						<p>年化收益：</p>
+						<ul>
+							<li class="active"><a href="#00">全部</a></li>
+							<li><a href="#01"><=10%</a></li>
+							<li><a href="#02">10%-15%</a></li>
+							<li><a href="#03">15%-25%</a></li>
+						</ul>
+					</div>
+					<div class="invest-top-list">
+						<p>项目类型：</p>
+						<ul>
+							<li class="active"><a href="#000">全部</a></li>
+							<li><a href="#003">多金宝</a></li>
+							<li><a href="#004">普金保</a></li>
+							<li><a href="#006">恒金保</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="invest-top-right">
+					<div class="invest-top-list">
+						<div class="textmiddle">借款标题</div>
+						<input type="text" class="text" id="claimm-can-title"/>
+						<button type="button" class="search" id="claimm-can-Search">搜索</button>
+					</div>
+				</div>
+			</div>
+			<div class="invest-list-bottom">
+				<ul class="invest-row listData creditor-row" >
+				</ul>
+				<ul class="paging cl"></ul>
+			</div>
+		</div>
+	</div>
+	<div id="ajaxFooter"></div>
+	<!--[if lt IE 9]>
+	    <script src="src/libs/json2.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="src/libs/jquery.js"></script>
+	<script type="text/javascript" src="src/libs/public.js"></script>
+	<!-- 客服QQ -->
+	<script charset="utf-8" type="text/javascript" src="http://wpa.b.qq.com/cgi/wpa.php"></script>
+	<script type="text/javascript" src="scripts/creditor_list.js"></script>
+</body>
+</html>

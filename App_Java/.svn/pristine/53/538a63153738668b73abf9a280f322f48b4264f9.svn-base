@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.ActivityDao">
+
+	<resultMap type="activity" id="activityResultMap">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="publishTime" property="publishTime" />
+		<result column="startTime" property="startTime" />
+		<result column="endTime" property="endTime" />
+		<result column="linkAddress" property="linkAddress" />
+		<result column="imgPath" property="imgPath" />
+	</resultMap>
+	
+	<select id="queryActivityByEndTimeForPage" resultType="java.util.Map">
+		SELECT * FROM (SELECT a.id,a.title,DATE_FORMAT(a.publishTime,'%Y-%m-%d %H:%i:%s') AS publishTime,DATE_FORMAT(a.startTime,'%Y-%m-%d')  
+		AS startTime,DATE_FORMAT(a.endTime,'%Y-%m-%d') AS endTime,a.linkAddress,a.imgPath,CASE WHEN datediff(a.endTime, NOW()) IS NULL THEN 0 
+		WHEN datediff(a.endTime, NOW()) = 0 THEN 0.1 ELSE datediff(a.endTime, NOW()) END AS days FROM t_activity a ) t ORDER BY t.days DESC 
+		LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryActivityCount" resultType="java.lang.Long">
+		SELECT COUNT(1) AS activityCount  FROM t_activity
+	</select>
+	
+	<select id="queryActivityListForPage" resultType="java.util.Map">
+		SELECT * FROM t_activity ORDER BY id DESC
+	</select>
+	
+	<insert id="addActivity">
+		INSERT INTO t_activity (title,publishTime,startTime,endTime,linkAddress,imgPath) 
+		VALUE(#{title},#{publishTime},#{startTime},#{endTime},#{linkAddress},#{imgPath})
+	</insert>
+	
+	<delete id="deleteActivityById">
+		DELETE FROM t_activity WHERE id = #{0}
+	</delete>
+	
+	<delete id="deleteActivityByIds">
+		DELETE FROM t_activity WHERE id in
+		<foreach item="list" index="index" collection="list"
+				open="(" separator="," close=")">
+				#{list}
+		</foreach>
+	</delete>
+	
+	<update id="updateActivityById">
+		UPDATE t_activity SET title=#{title},startTime=#{startTime},
+		endTime=#{endTime},linkAddress=#{linkAddress},imgPath=#{imgPath} WHERE id = #{id}
+	</update>
+	
+	<select id="queryActivityById" resultType="activity">
+		SELECT * FROM t_activity WHERE id = #{0}
+	</select>
+</mapper>
+
+
+
+
+

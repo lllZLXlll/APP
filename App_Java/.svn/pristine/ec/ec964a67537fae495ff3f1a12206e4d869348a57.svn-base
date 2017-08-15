@@ -1,0 +1,376 @@
+package com.pjzb.service.front;
+
+import java.io.UnsupportedEncodingException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.MailDao;
+import com.pjzb.dao.NoticeDao;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.PhoneBindingInfoDao;
+import com.pjzb.dao.SMSInterfaceDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Mail;
+import com.pjzb.entity.User;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.SMSUtil;
+import com.shove.Convert;
+import com.shove.data.DataException;
+
+@Service
+public class SendMessageService {
+
+	public static Log log = LogFactory.getLog(SendMessageService.class);
+
+	private JavaMailSenderImpl senderImpl;
+
+	private ThreadPoolTaskExecutor taskExecutor;
+
+	@Autowired
+	private NoticeDao noticeDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private MailDao mailDao;
+
+	@Autowired
+	private PhoneBindingInfoDao phoneBindingInfoDao;
+
+	@Autowired
+	private PersonDao personDao;
+
+	@Autowired
+	private SMSInterfaceDao sMSInterfaceDao;
+
+	private String from;
+
+	private void init() {
+		String host = IConstants.MAIL_HOST;
+		String username = IConstants.MAIL_USERNAME;
+		String password = IConstants.MAIL_PASSWORD;
+		this.from = IConstants.MAIL_FROM;
+		int port = IConstants.MAIL_PORT;
+
+		senderImpl = new JavaMailSenderImpl();
+		senderImpl.setHost(host);
+		senderImpl.setUsername(username);
+		senderImpl.setPassword(password);
+		senderImpl.setPort(port);
+
+		Properties prop = new Properties();
+		prop.put("mail.smtp.auth", "true"); // 将这个参数设为true，让服务器进行认证,认证用户名和密码是否正确
+		prop.put("mail.smtp.timeout", "25000");
+		senderImpl.setJavaMailProperties(prop);
+	}
+
+	public SendMessageService() {
+		init();
+	}
+
+	/**
+	 * @throws Exception
+	 * @Descb: 发送通知消息
+	 */
+	public void sendNoticeMSG(long userId, String msgTitle, Map<String, String> msgContent, String noticeMode){
+		try {
+			// 收到还款提醒
+			List<Map<String, Object>> listMap = noticeDao.queryNoticeType(userId, noticeMode);
+			String status = "1";
+			int count = 1;
+			// 通知方式：1 邮件 2 站内信 3 短信
+			for (Map<String, Object> noticeMap : listMap) {
+				// 获取提醒状态
+				status = String.valueOf(noticeMap.get("flag") == null ? "1" : noticeMap.get("flag"));
+				if ("2".equals(status)) {
+					if (count == 1) {
+						// 调用发邮件接口
+						emailSend(msgTitle, msgContent.get("email") + "", userId);
+					} else if (count == 2) {
+						// 调用发站内信接口
+						mailSend(msgTitle, msgContent.get("mail") + "", userId,
+								Convert.strToLong(msgContent.get("operate_id"), -1L));
+					} else if (count == 3) {
+						if (!IConstants.ISDEMO.equals("1")) { // 不是演示版本时 发送短信
+							// 调用发短信接口
+							noteSend((msgContent.get("note") + "").replaceAll("<br/>", "\n"), userId);
+						}
+
+					}
+				}
+				count++;
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.error(e);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+	}
+
+	/**
+	 * 邮件发送
+	 */
+	public Long emailSend(String title, String content, Long receiver) {
+		User map = userDao.queryUserById(receiver);
+		if (map != null) {
+			String userName = map.getUsername() == null ? "" : map.getUsername();
+			String email = map.getEmail() == null ? "" : map.getEmail();
+			if(!email.endsWith("")){//邮件地址为空，不发送邮件
+				// 发送通知邮件
+				sendRegisterVerificationEmail(userName, email, content);
+			}
+		}
+		return -1L;
+	}
+
+	private void sendRegisterVerificationEmailMsg(String userName, String userEmail, String content)
+			throws MessagingException {
+		MimeMessage msg = senderImpl.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true, "utf-8");
+
+		helper.setFrom(from);
+		helper.setTo(userEmail);
+		helper.setSubject(IConstants.PRO_GLOBLE_NAME + "通知!");
+
+		StringBuffer sb = new StringBuffer();
+		sb.append("<HTML><BODY style='border-width:0px'>");
+		sb.append("<H4 style='font-weight:normal;font-size:14px'>尊敬的<span>");
+		sb.append(userName);
+		sb.append("</span>:</H4>");
+		sb.append("<BR/>");
+		sb.append("<DIV>" + content + "</DIV>");
+		sb.append("<BR/>");
+		sb.append("</BODY></HTML>");
+		helper.setText(sb.toString(), true);
+		senderImpl.send(msg);
+	}
+
+	private void sendRegisterVerificationEmail(final String userName, final String userEmail, final String content) {
+		taskExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					getMailSet();
+					sendRegisterVerificationEmailMsg(userName, userEmail, content);
+				} catch (MessagingException e) {
+					log.error(e);
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	private void sendEmail(final String userName, final String userEmail, final String content, final String title) {
+		taskExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					getMailSet();
+					sendEmailMsg(userName, userEmail, content, title);
+				} catch (MessagingException e) {
+					log.error(e);
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	private void sendEmailMsg(String userName, String userEmail, String content, String title)
+			throws MessagingException {
+		MimeMessage msg = senderImpl.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true, "utf-8");
+
+		helper.setFrom(from);
+		helper.setTo(userEmail);
+		helper.setSubject(IConstants.PRO_GLOBLE_NAME + "通知!");
+
+		StringBuffer sb = new StringBuffer();
+		sb.append("<HTML><BODY style='border-width:0px'>");
+		sb.append("<H4 style='font-weight:normal;font-size:14px'>尊敬的" + userName + "<span>");
+		sb.append(userName);
+		sb.append("客户，以下是您的相关业务报告：</span>:</H4>");
+		sb.append("<BR/>");
+		sb.append("<DIV> " + "<table width='50%' border='1' cellspacing='0' cellpadding='0'>"
+				+ "<tr><td align='center'>标题</td><td align='center'>" + title + "</td></tr>"
+				+ "<tr><td align='center'>日期</td><td align='center'>" + DateUtil.dateToString(new Date()) + "</td></tr>"
+				+ "<tr><td align='center'>内容</td><td align='center'>" + content + "</td></tr>" + "</table></DIV>");
+		sb.append("<BR/>");
+		sb.append("</BODY></HTML>");
+		helper.setText(sb.toString(), true);
+		senderImpl.send(msg);
+	}
+
+	public Long emailSendTemplate(String title, String content, Long receiver) throws Exception {
+		User map = userDao.queryUserById(receiver);
+		if (map != null) {
+			String userName = map.getUsername() == null ? "" : map.getUsername();
+			String email = map.getEmail() == null ? "" : map.getEmail();
+			// 发送通知邮件
+			sendEmail(userName, email, content, title);
+		}
+		return -1L;
+	}
+
+	public Long emailSendTemplate(Connection conn, String title, String content, Long receiver) throws Exception {
+		User map = userDao.queryUserById(receiver);
+		if (map != null) {
+			String userName = map.getUsername() == null ? "" : map.getUsername();
+			String email = map.getEmail() == null ? "" : map.getEmail();
+			// 发送通知邮件
+			sendEmail(userName, email, content, title);
+		}
+		return -1L;
+	}
+
+	/**
+	 * 站内信发送
+	 * 
+	 * @throws SQLException
+	 * @throws DataException
+	 */
+	public Long mailSend(String title, String content, long receiver) throws Exception {
+		Long result = -1L;
+		/**
+		 * 添加t_mail表
+		 */
+		Mail mail = new Mail();
+		mail.setMailTitle(title);
+		mail.setMailContent(content);
+		mail.setSendTime(new Date());
+		mail.setSender(-1l);
+		mail.setReciver(receiver);
+		mail.setMailType(IConstants.MALL_TYPE_SYS);
+		mail.setMailStatus(IConstants.MAIL_UN_READ);
+		mail.setMailMode(IConstants.MAIL_SYS_);
+
+		result = mailDao.addMail(mail);
+		if (result <= 0) {
+			return -1L;
+		}
+		return result;
+	}
+
+	public Long mailSend(String title, String content, Long receiver, Long borrowId) throws Exception {
+		Long result = -1L;
+		Map<String, String> map = new HashMap<String, String>();
+		/**
+		 * 添加t_mail表
+		 */
+		Mail mail = new Mail();
+		mail.setMailTitle(title);
+		mail.setMailContent(content);
+		mail.setSendTime(new Date());
+		mail.setSender(-1l);
+		mail.setReciver(receiver);
+		mail.setMailType(IConstants.MALL_TYPE_SYS);
+		mail.setMailStatus(IConstants.MAIL_UN_READ);
+		mail.setMailMode(IConstants.MAIL_SYS_);
+		mail.setBorrowId(borrowId);
+
+		result = mailDao.addMail(mail);
+		return result;
+	}
+
+	/**
+	 * 短信通知 如果用户帐户没有余额，则不发送。如果有，则扣除0.1元/条。同时向资金记录表中添加记录。
+	 */
+	public long noteSend(String content, Long userId) throws Exception, UnsupportedEncodingException {
+		int id = IConstants.PHONE_IMP;
+		// 判断用户的帐号上是否有可用余额,没有就不发送短信
+		Map<String, Object> userUsableSum = userDao.queryUserUsableSum(userId);
+		Map<String, Object> cellPhoneMap = null;
+		if (userUsableSum != null) {
+			Map<String, Object> map = phoneBindingInfoDao.getUserMobile(userId, IConstants.PHONE_BINDING_ON);
+			if (map == null || map.size() <= 0) {
+				cellPhoneMap = personDao.queryPersonCellPhone(userId);
+			}
+			Map<String, String> sms = sMSInterfaceDao.getSMSById(id);
+			String phone = "";
+			if (cellPhoneMap != null && cellPhoneMap.size() > 0) {
+				phone = cellPhoneMap.get("mobilePhone").toString();
+				if (phone.length() != 11)
+					return -1L;
+				SMSUtil.sendSMS(sms.get("UserID"), sms.get("url"), sms.get("Account"), sms.get("Password"), content,
+						phone, null);
+			}
+		}
+		return -1L;
+	}
+
+//	public Long noteSend(Connection conn, String content, Long userId) throws Exception {
+//		long returnId = -1;
+//		int id = IConstants.PHONE_IMP;
+//		// 判断用户的帐号上是否有可用余额,没有就不发送短信
+//		Map<String, String> userUsableSum = searchBasicDao.queryUserUsableSum(conn, userId);
+//		if (userUsableSum != null) {
+//			Map<String, String> map = searchBasicDao.getUserMobile(conn, userId);
+//			Map<String, String> smsMap = searchBasicDao.getSMSById(conn, id);
+//			String phone = "";
+//			if (map != null && map.size() > 0) {
+//				phone = map.get("mobilePhone");
+//				if (phone.length() != 11)
+//					return -1L;
+//				// 发送短信
+//				// String retCode = SMSUtil.sendSMS(smsMap.get("Account"),
+//				// smsMap
+//				// .get("Password"), content, phone, null);
+//				// String contentMesg = content+"【"+smsMap.get("Account")+"】";
+//				String retCode = SMSUtil.sendSMS(smsMap.get("UserID"), smsMap.get("url"), smsMap.get("Account"),
+//						smsMap.get("Password"), content, phone, null);
+//				long ret = retCode.equals("Sucess") ? 1L : -1L;
+//				// 发送成功扣除短信服务费
+//				if (ret == 1) {
+//					// 扣除短信服务费 by cheney 2015-04-15 短信服务费扣除,汇付不支持直接扣除
+//					// returnId = searchBasicDao.deductedNoteFee(conn, userId);
+//					// 查询用户金额信息
+//					Map<String, String> userAmount = searchBasicDao.queryUserAmount(conn, userId);
+//					double usableSum = Convert.strToDouble(userAmount.get("usableSum") + "", 0);
+//					double freezeSum = Convert.strToDouble(userAmount.get("freezeSum") + "", 0);
+//					double dueinSum = Convert.strToDouble(userAmount.get("dueinSum") + "", 0);
+//					// 添加资金流动记录
+//					/*
+//					 * by cheney 2015-04-15 returnId =
+//					 * fundRecordDao.addFundRecord(conn, userId, "扣除短信服务费", 0.1,
+//					 * usableSum, freezeSum, dueinSum, -1, "短信提醒服务费", 0.0, 0.1,
+//					 * -1, -1, 801, 0.0);
+//					 */
+//					userService.updateSign(conn, userId);// 更换校验码
+//				}
+//			}
+//		}
+//		return returnId;
+//	}
+
+	private void getMailSet() {
+		this.from = IConstants.MAIL_FROM;
+		senderImpl = new JavaMailSenderImpl();
+		senderImpl.setHost(IConstants.MAIL_HOST.trim());
+		senderImpl.setUsername(IConstants.MAIL_USERNAME.trim());
+		senderImpl.setPassword(IConstants.MAIL_PASSWORD.trim());
+		senderImpl.setPort(IConstants.MAIL_PORT);
+		Properties javaMailProperties = new Properties();
+		javaMailProperties.put("mail.smtp.auth", "true");
+		javaMailProperties.put("mail.smtp.timeout", "25000");
+
+		senderImpl.setJavaMailProperties(javaMailProperties);
+	}
+
+}

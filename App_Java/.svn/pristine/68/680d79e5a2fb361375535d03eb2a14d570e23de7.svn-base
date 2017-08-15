@@ -1,0 +1,366 @@
+package com.pjzb.service.front;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AssignmentDebtDao;
+import com.pjzb.dao.BankCardDao;
+import com.pjzb.dao.MailDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.AppUtil;
+import com.pjzb.util.Constants;
+import com.pjzb.util.FileUtils;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.ServletUtils;
+import com.shove.Convert;
+import com.shove.web.Utility;
+
+/**
+ * pc、wap、app端账户设置（我的银行卡、消息中心）相关 公共service
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AccountSettingsService extends BaseController {
+	public static Log log = LogFactory.getLog(AccountSettingsService.class);
+
+	@Autowired
+	private BankCardDao bankCardDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private MailDao mailDao;
+
+	@Autowired
+	private AssignmentDebtDao assignmentDebtDao;
+
+	public List<Map<String, Object>> querySuccessBankInfoList(long userId) {
+		return bankCardDao.querySuccessBankInfoLists(userId);
+	}
+
+	/**
+	 * 查询银行卡
+	 * 
+	 * @param userId
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> queryBankLists(long userId) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		if (userId == -1) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "用户不存在");
+			return jsonMap;
+		}
+
+		Map<String, String> pmap = userDao.queryPersonById(userId);
+		if (pmap == null) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "用户的个人信息未填写,无法申请提现");
+			return jsonMap;
+		}
+
+		// 绑定的银行卡信息单独查询
+		List<Map<String, Object>> bankList = querySuccessBankInfoList(userId);
+		jsonMap.put("bankList", bankList);
+		if (bankList == null || bankList.size() == 0) {
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "未添加银行卡信息");
+			return jsonMap;
+		}
+		boolean re = userService.checkSign(userId);
+		if (!re) {
+			jsonMap.put("error", "11");
+			jsonMap.put("msg", "*你的账号出现异常，请速与管理员联系！");
+			return jsonMap;
+		}
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "成功");
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryReceiveMails(JSONObject jsonObject, Long id, int mallTypeSys, String string, int pageSize, int mailMode, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		User user = userDao.queryUserById(id);
+		String app = (String) jsonObject.get("app");
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+		if (!string.equalsIgnoreCase("sys")) {
+			mailMode = IConstants.MAIL_MODE;
+		}
+		string=Utility.filteSqlInfusion(string);
+		List<Map<String, Object>> lists = mailDao.queryReceiveMails(user.getId(), mallTypeSys, string, mailMode, (curPage - 1) * pageSize, pageSize);
+		long mailCount = mailDao.queryReceiveMailsCount(user.getId(), mallTypeSys, string, mailMode);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageSize(pageSize);
+		pageBean.setPageNum(curPage);
+		pageBean.setTotalNum(mailCount);
+		pageBean.setPage(lists);
+		if (lists != null) {
+			updateLists2Lists(lists, "sys");
+		}
+		if (app != null && app.equals("app")) {
+			if (pageType.equals(Constants.REACTAPP))
+				jsonMap.put("lists", lists);
+			jsonMap.put("pageBean", pageBean);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "查询成功");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 更改lists里面的一些信息。这样前台直接显示。 将用户id改成用户名，信息状态更改中文显示
+	 * 
+	 * @throws Exception
+	 */
+	private void updateLists2Lists(List<Map<String, Object>> lists, String type) {
+		String username = "";
+		Map<String, Object> mp = null;
+		int status = -1;
+		for (Map<String, Object> map : lists) {
+			if (type.equalsIgnoreCase("sys")) {
+				mp = assignmentDebtDao.queryAdminById(Convert.strToLong(map.get("sender") + "", -1));
+				if (mp != null && mp.size() > 0) {
+					username = Convert.strToStr(mp.get("userName") + "", "");
+					map.put("sender", username);
+				}
+			} else {
+				mp = userDao.queryUserInfoById(Convert.strToLong(map.get("sender") + "", -1));
+				if (mp != null && mp.size() > 0) {
+					username = Convert.strToStr(mp.get("username") + "", "");
+					map.put("sender", username);
+				}
+			}
+			status = Convert.strToInt(map.get("mailStatus").toString(), -1);
+			if (status == IConstants.MAIL_READED) {
+				map.put("mailStatus", "已读");
+			} else if (status == IConstants.MAIL_UN_READ) {
+				map.put("mailStatus", "未读");
+			}
+		}
+	}
+
+	public Map<String, Object> checkAppUploadHead(JSONObject jsonObject, Long userId, String url, String pageType) {
+
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+		String realPath = ServletUtils.serverRootDirectory() + "upload/app/head/" + sdf.format(new Date());
+		FileUtils.mkdirs(realPath);
+		log.info(realPath);
+		Map<String, String> headMap = userDao.queryUserHeadImg(userId);
+		String headImg = headMap.get("headImg");
+		String fileName = String.valueOf(jsonObject.get("fileName")).trim();
+		String ext = fileName.substring(fileName.indexOf("."), fileName.length());
+		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmmss");
+		System.out.println(realPath + "\\" + userId + sdf2.format(new Date()) + ext);
+		String reFileName = userId + sdf2.format(new Date()) + ext;
+		AppUtil.GenerateImage(String.valueOf(jsonObject.get("uri")), realPath + "/" + reFileName);
+		String imgPath = url.substring(0, url.indexOf("/re")) + "/upload/app/head/" + sdf.format(new Date()) + "/" + reFileName;
+		log.info(imgPath);
+		Long result = userDao.updateUserHeadImg(userId, imgPath);
+		if (result != -1) {
+			if (headImg != null && headMap.get("headImg").trim().length() > 0) {
+				String oldHeadPath = ServletUtils.serverRootDirectory() + headImg.substring(headImg.indexOf("upload"), headImg.length());
+				log.info("oldHeadPath:" + oldHeadPath);
+				File f = new File(oldHeadPath);
+				f.delete();
+			}
+			User user = userDao.queryUserById(userId);
+
+			OperationLog operationLog = new OperationLog();
+			operationLog.setUserId(userId);
+			operationLog.setOperationTable("t_user");
+			operationLog.setOperationUser(user.getUsername());
+			operationLog.setOperationIp(ServletUtils.getRemortIp());
+			operationLog.setOperationType(0);
+			operationLog.setOperationAround(1);
+			operationLog.setOperationMoney(0D);
+			operationLog.setOperationRemarks("用户上传头像");
+			operationLog.setOperationTime(new Date());
+			operationLogDao.addOperationLog(operationLog);
+
+			jsonMap.put("imgPath", imgPath);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "上传成功");
+
+		} else {
+			jsonMap.put("imgPath", null);
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "上传失败");
+		}
+		return jsonMap;
+	}
+
+	@SuppressWarnings("unused")
+	public Map<String, Object> updateEmailById(User user, Long mailId, int type) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Integer> idList = new ArrayList<Integer>();
+		map = mailDao.queryEmailById(mailId);
+		if (map == null) {
+			return null;
+		}
+		Long userId = user.getId();
+		long result = -1;
+		if (type == 1) {// 如果是未读信息，则更新数据库，将状态改为已读
+			idList.add(Convert.strToInt(mailId + "", 1));
+			result = mailDao.updateMails(idList, IConstants.MAIL_READED);
+		}
+		String sender = "", receiver = "", title = "", date = "", content = "";
+
+		int mt = 0;// 发件箱
+		if (map.get("sender").equals(userId + "")) {
+			sender = user.getUsername();
+			mt = 100;// 标记发件箱
+		} else {
+			if (map.get("mailType").equals(IConstants.MAIL_SYS_ + "")) {
+				sender = userDao.getAdminNameById(Convert.strToLong(map.get("sender") + "", -1));
+			} else {
+				sender = userDao.getUserNameById(Convert.strToLong(map.get("sender") + "", -1));
+			}
+		}
+
+		if (map.get("reciver").equals(userId + "")) {
+			receiver = user.getUsername();
+		} else {
+			if (map.get("mailType").equals(IConstants.MAIL_SYS_ + "")) {
+				receiver = userDao.getAdminNameById(Convert.strToLong(map.get("reciver") + "", -1));
+			} else {
+				receiver = userDao.getUserNameById(Convert.strToLong(map.get("reciver") + "", -1));
+			}
+		}
+		// 操作日志
+		OperationLog operationLog = new OperationLog("t_mail", user.getUsername(), IConstants.UPDATE, user.getLastIp(), new Date(), 0.0, "查看站内信", 1, user.getId());
+		operationLogDao.addOperationLog(operationLog);
+		title = map.get("mailTitle") + "";
+		date = map.get("sendTime") + "";
+		content = map.get("mailContent") + "".replace("-1.00", "0");
+
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		jsonMap.put("msgTitle", title);
+		jsonMap.put("msgTime", date);
+		jsonMap.put("msgContent", content);
+		return jsonMap;
+	}
+
+	public void deleteMails(String ids, Long userId) {
+		Map<String, Object> userMap = new HashMap<String, Object>();
+		List<Integer> idList = new ArrayList<Integer>();
+		long result = -1L;
+		String[] allIds = ids.split(",");// 进行全选删除的时候获得多个id值
+		if (allIds.length > 0) {
+			long tempId = 0;
+			for (String str : allIds) {
+				tempId = Convert.strToLong(str, -1);
+				idList.add(Convert.strToInt(str, 1));
+				if (tempId == -1) {
+					userMap.put("error", "1");
+					userMap.put("msg", "未知错误,请重试!");
+				}
+			}
+		} else {
+			userMap.put("error", "2");
+			userMap.put("msg", "请选择要删除的邮件!");
+		}
+		result = mailDao.deleteMails(idList, userId);
+		if (result > 0) {
+			userMap = userDao.queryUserInfoById(userId);
+			OperationLog operationLog = new OperationLog("t_mail", Convert.strToStr(userMap.get("username") + "", ""), IConstants.DELETE, Convert.strToStr(userMap.get("lastIP")
+					+ "", ""), new Date(), 0.0, "删除站内信", 1, Long.parseLong(userMap.get("id") + ""));
+			operationLogDao.addOperationLog(operationLog);
+		}
+	}
+
+	public Map<String, Object> updateMail2() {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Integer> idList = new ArrayList<Integer>();
+		String ids = Convert.strToStr(requestGetParameter("paramMap.ids") + "", "");
+		String type = Convert.strToStr(requestGetParameter("paramMap.type") + "", "");
+		String[] allIds = ids.split(",");// 进行全选删除的时候获得多个id值
+		if (allIds.length > 0) {
+			long tempId = 0;
+			for (String str : allIds) {
+				tempId = Convert.strToLong(str, -1);
+				idList.add(Convert.strToInt(str, 1));
+				if (tempId == -1) {
+					jsonMap.put("error", "1");
+					jsonMap.put("msg", "未知错误,请重试!");
+				}
+			}
+		} else {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "请选择要修改的邮件!");
+		}
+
+		long result = -1;
+		// 站内信状态(1 默认未读 2 删除 3 已读)
+		if (type.equals("readed")) {// 标记为已读
+			result = mailDao.updateMails(idList, IConstants.MAIL_READED);
+		} else if (type.equals("unread")) {// 标记为未读
+			result = mailDao.updateMails(idList, IConstants.MAIL_UN_READ);
+		}
+		if (result < 0)
+			return null;
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "修改成功");
+		return jsonMap;
+	}
+
+	public Map<String, Object> addBankInfo(JSONObject jsonObject, Long userId, String basePath, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		if (StringUtils.isBlank(userId + "")) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "请先登陆");
+			return jsonMap;
+		}
+
+		User map = userDao.queryUserById(userId);
+		long usrCustId = Convert.strToLong(map.getIpayAccount(), -1);
+		if (usrCustId <= 0) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "请先注册汇付");
+			return jsonMap;
+		}
+		String page = "";
+		if (pageType.equals(Constants.REACTAPP) || pageType.equals(Constants.PHONEPAGE)) {
+			page = "2";
+		}
+		String bgRetUrl = basePath + "WEB-PC/reAddBankInfo.do"; // 后台返回
+		String html = ChinapnrInterface.userBindCard(usrCustId + "", userId + "", bgRetUrl, page);
+		jsonMap.put("html", html);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "添加成功");
+		return jsonMap;
+	}
+}

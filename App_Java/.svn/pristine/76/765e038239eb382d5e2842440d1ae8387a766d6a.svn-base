@@ -1,0 +1,846 @@
+package com.pjzb.entity;
+// default package
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+/**
+ * InvestHistoryId entity. @author MyEclipse Persistence Tools
+ */
+
+public class InvestHistory implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Double investAmount;
+	private Double monthRate;
+	private Long investor;
+	private Long borrowId;
+	private Timestamp investTime;
+	private Long oriInvestor;
+	private Double realAmount;
+	private Double hasPi;
+	private Integer deadline;
+	private Integer hasDeadline;
+	private Double recivedPrincipal;
+	private Double recievedInterest;
+	private Double hasPrincipal;
+	private Double hasInterest;
+	private Double recivedFi;
+	private Double hasFi;
+	private Double manageFee;
+	private Double reward;
+	private Integer repayStatus;
+	private String flag;
+	private Integer isAutoBid;
+	private Integer isDebt;
+	private Double checkPrincipal;
+	private Double checkInterest;
+	private Long minInvestId;
+	private Long maxInvestId;
+	private Double adjustPrincipal;
+	private String downloadUrl;
+	private String viewpdfUrl;
+	private Integer firstInvest;
+	private Integer lastInvest;
+	private Integer maxInvest;
+	private Timestamp pushdate;
+	private String pushstate;
+	private Double moneyRecord;
+	private Long voucherId;
+	private Double circulationInterest;
+	private Integer circulationForpayStatus;
+	private String reason;
+	private Date repayDate;
+	private String billcode;
+	private String trxId;
+	private String investId;
+	private String contractId;
+	private String pageType;
+
+	// Constructors
+
+	/** default constructor */
+	public InvestHistory() {
+	}
+
+	/** minimal constructor */
+	public InvestHistory(Long id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public InvestHistory(Long id, Double investAmount, Double monthRate,
+			Long investor, Long borrowId, Timestamp investTime,
+			Long oriInvestor, Double realAmount, Double hasPi,
+			Integer deadline, Integer hasDeadline, Double recivedPrincipal,
+			Double recievedInterest, Double hasPrincipal, Double hasInterest,
+			Double recivedFi, Double hasFi, Double manageFee, Double reward,
+			Integer repayStatus, String flag, Integer isAutoBid,
+			Integer isDebt, Double checkPrincipal, Double checkInterest,
+			Long minInvestId, Long maxInvestId, Double adjustPrincipal,
+			String downloadUrl, String viewpdfUrl, Integer firstInvest,
+			Integer lastInvest, Integer maxInvest, Timestamp pushdate,
+			String pushstate, Double moneyRecord, Long voucherId,
+			Double circulationInterest, Integer circulationForpayStatus,
+			String reason, Date repayDate, String billcode, String trxId,
+			String investId, String contractId, String pageType) {
+		this.id = id;
+		this.investAmount = investAmount;
+		this.monthRate = monthRate;
+		this.investor = investor;
+		this.borrowId = borrowId;
+		this.investTime = investTime;
+		this.oriInvestor = oriInvestor;
+		this.realAmount = realAmount;
+		this.hasPi = hasPi;
+		this.deadline = deadline;
+		this.hasDeadline = hasDeadline;
+		this.recivedPrincipal = recivedPrincipal;
+		this.recievedInterest = recievedInterest;
+		this.hasPrincipal = hasPrincipal;
+		this.hasInterest = hasInterest;
+		this.recivedFi = recivedFi;
+		this.hasFi = hasFi;
+		this.manageFee = manageFee;
+		this.reward = reward;
+		this.repayStatus = repayStatus;
+		this.flag = flag;
+		this.isAutoBid = isAutoBid;
+		this.isDebt = isDebt;
+		this.checkPrincipal = checkPrincipal;
+		this.checkInterest = checkInterest;
+		this.minInvestId = minInvestId;
+		this.maxInvestId = maxInvestId;
+		this.adjustPrincipal = adjustPrincipal;
+		this.downloadUrl = downloadUrl;
+		this.viewpdfUrl = viewpdfUrl;
+		this.firstInvest = firstInvest;
+		this.lastInvest = lastInvest;
+		this.maxInvest = maxInvest;
+		this.pushdate = pushdate;
+		this.pushstate = pushstate;
+		this.moneyRecord = moneyRecord;
+		this.voucherId = voucherId;
+		this.circulationInterest = circulationInterest;
+		this.circulationForpayStatus = circulationForpayStatus;
+		this.reason = reason;
+		this.repayDate = repayDate;
+		this.billcode = billcode;
+		this.trxId = trxId;
+		this.investId = investId;
+		this.contractId = contractId;
+		this.pageType = pageType;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Double getInvestAmount() {
+		return this.investAmount;
+	}
+
+	public void setInvestAmount(Double investAmount) {
+		this.investAmount = investAmount;
+	}
+
+	public Double getMonthRate() {
+		return this.monthRate;
+	}
+
+	public void setMonthRate(Double monthRate) {
+		this.monthRate = monthRate;
+	}
+
+	public Long getInvestor() {
+		return this.investor;
+	}
+
+	public void setInvestor(Long investor) {
+		this.investor = investor;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public Timestamp getInvestTime() {
+		return this.investTime;
+	}
+
+	public void setInvestTime(Timestamp investTime) {
+		this.investTime = investTime;
+	}
+
+	public Long getOriInvestor() {
+		return this.oriInvestor;
+	}
+
+	public void setOriInvestor(Long oriInvestor) {
+		this.oriInvestor = oriInvestor;
+	}
+
+	public Double getRealAmount() {
+		return this.realAmount;
+	}
+
+	public void setRealAmount(Double realAmount) {
+		this.realAmount = realAmount;
+	}
+
+	public Double getHasPi() {
+		return this.hasPi;
+	}
+
+	public void setHasPi(Double hasPi) {
+		this.hasPi = hasPi;
+	}
+
+	public Integer getDeadline() {
+		return this.deadline;
+	}
+
+	public void setDeadline(Integer deadline) {
+		this.deadline = deadline;
+	}
+
+	public Integer getHasDeadline() {
+		return this.hasDeadline;
+	}
+
+	public void setHasDeadline(Integer hasDeadline) {
+		this.hasDeadline = hasDeadline;
+	}
+
+	public Double getRecivedPrincipal() {
+		return this.recivedPrincipal;
+	}
+
+	public void setRecivedPrincipal(Double recivedPrincipal) {
+		this.recivedPrincipal = recivedPrincipal;
+	}
+
+	public Double getRecievedInterest() {
+		return this.recievedInterest;
+	}
+
+	public void setRecievedInterest(Double recievedInterest) {
+		this.recievedInterest = recievedInterest;
+	}
+
+	public Double getHasPrincipal() {
+		return this.hasPrincipal;
+	}
+
+	public void setHasPrincipal(Double hasPrincipal) {
+		this.hasPrincipal = hasPrincipal;
+	}
+
+	public Double getHasInterest() {
+		return this.hasInterest;
+	}
+
+	public void setHasInterest(Double hasInterest) {
+		this.hasInterest = hasInterest;
+	}
+
+	public Double getRecivedFi() {
+		return this.recivedFi;
+	}
+
+	public void setRecivedFi(Double recivedFi) {
+		this.recivedFi = recivedFi;
+	}
+
+	public Double getHasFi() {
+		return this.hasFi;
+	}
+
+	public void setHasFi(Double hasFi) {
+		this.hasFi = hasFi;
+	}
+
+	public Double getManageFee() {
+		return this.manageFee;
+	}
+
+	public void setManageFee(Double manageFee) {
+		this.manageFee = manageFee;
+	}
+
+	public Double getReward() {
+		return this.reward;
+	}
+
+	public void setReward(Double reward) {
+		this.reward = reward;
+	}
+
+	public Integer getRepayStatus() {
+		return this.repayStatus;
+	}
+
+	public void setRepayStatus(Integer repayStatus) {
+		this.repayStatus = repayStatus;
+	}
+
+	public String getFlag() {
+		return this.flag;
+	}
+
+	public void setFlag(String flag) {
+		this.flag = flag;
+	}
+
+	public Integer getIsAutoBid() {
+		return this.isAutoBid;
+	}
+
+	public void setIsAutoBid(Integer isAutoBid) {
+		this.isAutoBid = isAutoBid;
+	}
+
+	public Integer getIsDebt() {
+		return this.isDebt;
+	}
+
+	public void setIsDebt(Integer isDebt) {
+		this.isDebt = isDebt;
+	}
+
+	public Double getCheckPrincipal() {
+		return this.checkPrincipal;
+	}
+
+	public void setCheckPrincipal(Double checkPrincipal) {
+		this.checkPrincipal = checkPrincipal;
+	}
+
+	public Double getCheckInterest() {
+		return this.checkInterest;
+	}
+
+	public void setCheckInterest(Double checkInterest) {
+		this.checkInterest = checkInterest;
+	}
+
+	public Long getMinInvestId() {
+		return this.minInvestId;
+	}
+
+	public void setMinInvestId(Long minInvestId) {
+		this.minInvestId = minInvestId;
+	}
+
+	public Long getMaxInvestId() {
+		return this.maxInvestId;
+	}
+
+	public void setMaxInvestId(Long maxInvestId) {
+		this.maxInvestId = maxInvestId;
+	}
+
+	public Double getAdjustPrincipal() {
+		return this.adjustPrincipal;
+	}
+
+	public void setAdjustPrincipal(Double adjustPrincipal) {
+		this.adjustPrincipal = adjustPrincipal;
+	}
+
+	public String getDownloadUrl() {
+		return this.downloadUrl;
+	}
+
+	public void setDownloadUrl(String downloadUrl) {
+		this.downloadUrl = downloadUrl;
+	}
+
+	public String getViewpdfUrl() {
+		return this.viewpdfUrl;
+	}
+
+	public void setViewpdfUrl(String viewpdfUrl) {
+		this.viewpdfUrl = viewpdfUrl;
+	}
+
+	public Integer getFirstInvest() {
+		return this.firstInvest;
+	}
+
+	public void setFirstInvest(Integer firstInvest) {
+		this.firstInvest = firstInvest;
+	}
+
+	public Integer getLastInvest() {
+		return this.lastInvest;
+	}
+
+	public void setLastInvest(Integer lastInvest) {
+		this.lastInvest = lastInvest;
+	}
+
+	public Integer getMaxInvest() {
+		return this.maxInvest;
+	}
+
+	public void setMaxInvest(Integer maxInvest) {
+		this.maxInvest = maxInvest;
+	}
+
+	public Timestamp getPushdate() {
+		return this.pushdate;
+	}
+
+	public void setPushdate(Timestamp pushdate) {
+		this.pushdate = pushdate;
+	}
+
+	public String getPushstate() {
+		return this.pushstate;
+	}
+
+	public void setPushstate(String pushstate) {
+		this.pushstate = pushstate;
+	}
+
+	public Double getMoneyRecord() {
+		return this.moneyRecord;
+	}
+
+	public void setMoneyRecord(Double moneyRecord) {
+		this.moneyRecord = moneyRecord;
+	}
+
+	public Long getVoucherId() {
+		return this.voucherId;
+	}
+
+	public void setVoucherId(Long voucherId) {
+		this.voucherId = voucherId;
+	}
+
+	public Double getCirculationInterest() {
+		return this.circulationInterest;
+	}
+
+	public void setCirculationInterest(Double circulationInterest) {
+		this.circulationInterest = circulationInterest;
+	}
+
+	public Integer getCirculationForpayStatus() {
+		return this.circulationForpayStatus;
+	}
+
+	public void setCirculationForpayStatus(Integer circulationForpayStatus) {
+		this.circulationForpayStatus = circulationForpayStatus;
+	}
+
+	public String getReason() {
+		return this.reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public Date getRepayDate() {
+		return this.repayDate;
+	}
+
+	public void setRepayDate(Date repayDate) {
+		this.repayDate = repayDate;
+	}
+
+	public String getBillcode() {
+		return this.billcode;
+	}
+
+	public void setBillcode(String billcode) {
+		this.billcode = billcode;
+	}
+
+	public String getTrxId() {
+		return this.trxId;
+	}
+
+	public void setTrxId(String trxId) {
+		this.trxId = trxId;
+	}
+
+	public String getInvestId() {
+		return this.investId;
+	}
+
+	public void setInvestId(String investId) {
+		this.investId = investId;
+	}
+
+	public String getContractId() {
+		return this.contractId;
+	}
+
+	public void setContractId(String contractId) {
+		this.contractId = contractId;
+	}
+
+	public String getPageType() {
+		return this.pageType;
+	}
+
+	public void setPageType(String pageType) {
+		this.pageType = pageType;
+	}
+
+	public boolean equals(Object other) {
+		if ((this == other))
+			return true;
+		if ((other == null))
+			return false;
+		if (!(other instanceof InvestHistory))
+			return false;
+		InvestHistory castOther = (InvestHistory) other;
+
+		return ((this.getId() == castOther.getId()) || (this.getId() != null
+				&& castOther.getId() != null && this.getId().equals(
+				castOther.getId())))
+				&& ((this.getInvestAmount() == castOther.getInvestAmount()) || (this
+						.getInvestAmount() != null
+						&& castOther.getInvestAmount() != null && this
+						.getInvestAmount().equals(castOther.getInvestAmount())))
+				&& ((this.getMonthRate() == castOther.getMonthRate()) || (this
+						.getMonthRate() != null
+						&& castOther.getMonthRate() != null && this
+						.getMonthRate().equals(castOther.getMonthRate())))
+				&& ((this.getInvestor() == castOther.getInvestor()) || (this
+						.getInvestor() != null
+						&& castOther.getInvestor() != null && this
+						.getInvestor().equals(castOther.getInvestor())))
+				&& ((this.getBorrowId() == castOther.getBorrowId()) || (this
+						.getBorrowId() != null
+						&& castOther.getBorrowId() != null && this
+						.getBorrowId().equals(castOther.getBorrowId())))
+				&& ((this.getInvestTime() == castOther.getInvestTime()) || (this
+						.getInvestTime() != null
+						&& castOther.getInvestTime() != null && this
+						.getInvestTime().equals(castOther.getInvestTime())))
+				&& ((this.getOriInvestor() == castOther.getOriInvestor()) || (this
+						.getOriInvestor() != null
+						&& castOther.getOriInvestor() != null && this
+						.getOriInvestor().equals(castOther.getOriInvestor())))
+				&& ((this.getRealAmount() == castOther.getRealAmount()) || (this
+						.getRealAmount() != null
+						&& castOther.getRealAmount() != null && this
+						.getRealAmount().equals(castOther.getRealAmount())))
+				&& ((this.getHasPi() == castOther.getHasPi()) || (this
+						.getHasPi() != null && castOther.getHasPi() != null && this
+						.getHasPi().equals(castOther.getHasPi())))
+				&& ((this.getDeadline() == castOther.getDeadline()) || (this
+						.getDeadline() != null
+						&& castOther.getDeadline() != null && this
+						.getDeadline().equals(castOther.getDeadline())))
+				&& ((this.getHasDeadline() == castOther.getHasDeadline()) || (this
+						.getHasDeadline() != null
+						&& castOther.getHasDeadline() != null && this
+						.getHasDeadline().equals(castOther.getHasDeadline())))
+				&& ((this.getRecivedPrincipal() == castOther
+						.getRecivedPrincipal()) || (this.getRecivedPrincipal() != null
+						&& castOther.getRecivedPrincipal() != null && this
+						.getRecivedPrincipal().equals(
+								castOther.getRecivedPrincipal())))
+				&& ((this.getRecievedInterest() == castOther
+						.getRecievedInterest()) || (this.getRecievedInterest() != null
+						&& castOther.getRecievedInterest() != null && this
+						.getRecievedInterest().equals(
+								castOther.getRecievedInterest())))
+				&& ((this.getHasPrincipal() == castOther.getHasPrincipal()) || (this
+						.getHasPrincipal() != null
+						&& castOther.getHasPrincipal() != null && this
+						.getHasPrincipal().equals(castOther.getHasPrincipal())))
+				&& ((this.getHasInterest() == castOther.getHasInterest()) || (this
+						.getHasInterest() != null
+						&& castOther.getHasInterest() != null && this
+						.getHasInterest().equals(castOther.getHasInterest())))
+				&& ((this.getRecivedFi() == castOther.getRecivedFi()) || (this
+						.getRecivedFi() != null
+						&& castOther.getRecivedFi() != null && this
+						.getRecivedFi().equals(castOther.getRecivedFi())))
+				&& ((this.getHasFi() == castOther.getHasFi()) || (this
+						.getHasFi() != null && castOther.getHasFi() != null && this
+						.getHasFi().equals(castOther.getHasFi())))
+				&& ((this.getManageFee() == castOther.getManageFee()) || (this
+						.getManageFee() != null
+						&& castOther.getManageFee() != null && this
+						.getManageFee().equals(castOther.getManageFee())))
+				&& ((this.getReward() == castOther.getReward()) || (this
+						.getReward() != null && castOther.getReward() != null && this
+						.getReward().equals(castOther.getReward())))
+				&& ((this.getRepayStatus() == castOther.getRepayStatus()) || (this
+						.getRepayStatus() != null
+						&& castOther.getRepayStatus() != null && this
+						.getRepayStatus().equals(castOther.getRepayStatus())))
+				&& ((this.getFlag() == castOther.getFlag()) || (this.getFlag() != null
+						&& castOther.getFlag() != null && this.getFlag()
+						.equals(castOther.getFlag())))
+				&& ((this.getIsAutoBid() == castOther.getIsAutoBid()) || (this
+						.getIsAutoBid() != null
+						&& castOther.getIsAutoBid() != null && this
+						.getIsAutoBid().equals(castOther.getIsAutoBid())))
+				&& ((this.getIsDebt() == castOther.getIsDebt()) || (this
+						.getIsDebt() != null && castOther.getIsDebt() != null && this
+						.getIsDebt().equals(castOther.getIsDebt())))
+				&& ((this.getCheckPrincipal() == castOther.getCheckPrincipal()) || (this
+						.getCheckPrincipal() != null
+						&& castOther.getCheckPrincipal() != null && this
+						.getCheckPrincipal().equals(
+								castOther.getCheckPrincipal())))
+				&& ((this.getCheckInterest() == castOther.getCheckInterest()) || (this
+						.getCheckInterest() != null
+						&& castOther.getCheckInterest() != null && this
+						.getCheckInterest()
+						.equals(castOther.getCheckInterest())))
+				&& ((this.getMinInvestId() == castOther.getMinInvestId()) || (this
+						.getMinInvestId() != null
+						&& castOther.getMinInvestId() != null && this
+						.getMinInvestId().equals(castOther.getMinInvestId())))
+				&& ((this.getMaxInvestId() == castOther.getMaxInvestId()) || (this
+						.getMaxInvestId() != null
+						&& castOther.getMaxInvestId() != null && this
+						.getMaxInvestId().equals(castOther.getMaxInvestId())))
+				&& ((this.getAdjustPrincipal() == castOther
+						.getAdjustPrincipal()) || (this.getAdjustPrincipal() != null
+						&& castOther.getAdjustPrincipal() != null && this
+						.getAdjustPrincipal().equals(
+								castOther.getAdjustPrincipal())))
+				&& ((this.getDownloadUrl() == castOther.getDownloadUrl()) || (this
+						.getDownloadUrl() != null
+						&& castOther.getDownloadUrl() != null && this
+						.getDownloadUrl().equals(castOther.getDownloadUrl())))
+				&& ((this.getViewpdfUrl() == castOther.getViewpdfUrl()) || (this
+						.getViewpdfUrl() != null
+						&& castOther.getViewpdfUrl() != null && this
+						.getViewpdfUrl().equals(castOther.getViewpdfUrl())))
+				&& ((this.getFirstInvest() == castOther.getFirstInvest()) || (this
+						.getFirstInvest() != null
+						&& castOther.getFirstInvest() != null && this
+						.getFirstInvest().equals(castOther.getFirstInvest())))
+				&& ((this.getLastInvest() == castOther.getLastInvest()) || (this
+						.getLastInvest() != null
+						&& castOther.getLastInvest() != null && this
+						.getLastInvest().equals(castOther.getLastInvest())))
+				&& ((this.getMaxInvest() == castOther.getMaxInvest()) || (this
+						.getMaxInvest() != null
+						&& castOther.getMaxInvest() != null && this
+						.getMaxInvest().equals(castOther.getMaxInvest())))
+				&& ((this.getPushdate() == castOther.getPushdate()) || (this
+						.getPushdate() != null
+						&& castOther.getPushdate() != null && this
+						.getPushdate().equals(castOther.getPushdate())))
+				&& ((this.getPushstate() == castOther.getPushstate()) || (this
+						.getPushstate() != null
+						&& castOther.getPushstate() != null && this
+						.getPushstate().equals(castOther.getPushstate())))
+				&& ((this.getMoneyRecord() == castOther.getMoneyRecord()) || (this
+						.getMoneyRecord() != null
+						&& castOther.getMoneyRecord() != null && this
+						.getMoneyRecord().equals(castOther.getMoneyRecord())))
+				&& ((this.getVoucherId() == castOther.getVoucherId()) || (this
+						.getVoucherId() != null
+						&& castOther.getVoucherId() != null && this
+						.getVoucherId().equals(castOther.getVoucherId())))
+				&& ((this.getCirculationInterest() == castOther
+						.getCirculationInterest()) || (this
+						.getCirculationInterest() != null
+						&& castOther.getCirculationInterest() != null && this
+						.getCirculationInterest().equals(
+								castOther.getCirculationInterest())))
+				&& ((this.getCirculationForpayStatus() == castOther
+						.getCirculationForpayStatus()) || (this
+						.getCirculationForpayStatus() != null
+						&& castOther.getCirculationForpayStatus() != null && this
+						.getCirculationForpayStatus().equals(
+								castOther.getCirculationForpayStatus())))
+				&& ((this.getReason() == castOther.getReason()) || (this
+						.getReason() != null && castOther.getReason() != null && this
+						.getReason().equals(castOther.getReason())))
+				&& ((this.getRepayDate() == castOther.getRepayDate()) || (this
+						.getRepayDate() != null
+						&& castOther.getRepayDate() != null && this
+						.getRepayDate().equals(castOther.getRepayDate())))
+				&& ((this.getBillcode() == castOther.getBillcode()) || (this
+						.getBillcode() != null
+						&& castOther.getBillcode() != null && this
+						.getBillcode().equals(castOther.getBillcode())))
+				&& ((this.getTrxId() == castOther.getTrxId()) || (this
+						.getTrxId() != null && castOther.getTrxId() != null && this
+						.getTrxId().equals(castOther.getTrxId())))
+				&& ((this.getInvestId() == castOther.getInvestId()) || (this
+						.getInvestId() != null
+						&& castOther.getInvestId() != null && this
+						.getInvestId().equals(castOther.getInvestId())))
+				&& ((this.getContractId() == castOther.getContractId()) || (this
+						.getContractId() != null
+						&& castOther.getContractId() != null && this
+						.getContractId().equals(castOther.getContractId())))
+				&& ((this.getPageType() == castOther.getPageType()) || (this
+						.getPageType() != null
+						&& castOther.getPageType() != null && this
+						.getPageType().equals(castOther.getPageType())));
+	}
+
+	public int hashCode() {
+		int result = 17;
+
+		result = 37 * result + (getId() == null ? 0 : this.getId().hashCode());
+		result = 37
+				* result
+				+ (getInvestAmount() == null ? 0 : this.getInvestAmount()
+						.hashCode());
+		result = 37 * result
+				+ (getMonthRate() == null ? 0 : this.getMonthRate().hashCode());
+		result = 37 * result
+				+ (getInvestor() == null ? 0 : this.getInvestor().hashCode());
+		result = 37 * result
+				+ (getBorrowId() == null ? 0 : this.getBorrowId().hashCode());
+		result = 37
+				* result
+				+ (getInvestTime() == null ? 0 : this.getInvestTime()
+						.hashCode());
+		result = 37
+				* result
+				+ (getOriInvestor() == null ? 0 : this.getOriInvestor()
+						.hashCode());
+		result = 37
+				* result
+				+ (getRealAmount() == null ? 0 : this.getRealAmount()
+						.hashCode());
+		result = 37 * result
+				+ (getHasPi() == null ? 0 : this.getHasPi().hashCode());
+		result = 37 * result
+				+ (getDeadline() == null ? 0 : this.getDeadline().hashCode());
+		result = 37
+				* result
+				+ (getHasDeadline() == null ? 0 : this.getHasDeadline()
+						.hashCode());
+		result = 37
+				* result
+				+ (getRecivedPrincipal() == null ? 0 : this
+						.getRecivedPrincipal().hashCode());
+		result = 37
+				* result
+				+ (getRecievedInterest() == null ? 0 : this
+						.getRecievedInterest().hashCode());
+		result = 37
+				* result
+				+ (getHasPrincipal() == null ? 0 : this.getHasPrincipal()
+						.hashCode());
+		result = 37
+				* result
+				+ (getHasInterest() == null ? 0 : this.getHasInterest()
+						.hashCode());
+		result = 37 * result
+				+ (getRecivedFi() == null ? 0 : this.getRecivedFi().hashCode());
+		result = 37 * result
+				+ (getHasFi() == null ? 0 : this.getHasFi().hashCode());
+		result = 37 * result
+				+ (getManageFee() == null ? 0 : this.getManageFee().hashCode());
+		result = 37 * result
+				+ (getReward() == null ? 0 : this.getReward().hashCode());
+		result = 37
+				* result
+				+ (getRepayStatus() == null ? 0 : this.getRepayStatus()
+						.hashCode());
+		result = 37 * result
+				+ (getFlag() == null ? 0 : this.getFlag().hashCode());
+		result = 37 * result
+				+ (getIsAutoBid() == null ? 0 : this.getIsAutoBid().hashCode());
+		result = 37 * result
+				+ (getIsDebt() == null ? 0 : this.getIsDebt().hashCode());
+		result = 37
+				* result
+				+ (getCheckPrincipal() == null ? 0 : this.getCheckPrincipal()
+						.hashCode());
+		result = 37
+				* result
+				+ (getCheckInterest() == null ? 0 : this.getCheckInterest()
+						.hashCode());
+		result = 37
+				* result
+				+ (getMinInvestId() == null ? 0 : this.getMinInvestId()
+						.hashCode());
+		result = 37
+				* result
+				+ (getMaxInvestId() == null ? 0 : this.getMaxInvestId()
+						.hashCode());
+		result = 37
+				* result
+				+ (getAdjustPrincipal() == null ? 0 : this.getAdjustPrincipal()
+						.hashCode());
+		result = 37
+				* result
+				+ (getDownloadUrl() == null ? 0 : this.getDownloadUrl()
+						.hashCode());
+		result = 37
+				* result
+				+ (getViewpdfUrl() == null ? 0 : this.getViewpdfUrl()
+						.hashCode());
+		result = 37
+				* result
+				+ (getFirstInvest() == null ? 0 : this.getFirstInvest()
+						.hashCode());
+		result = 37
+				* result
+				+ (getLastInvest() == null ? 0 : this.getLastInvest()
+						.hashCode());
+		result = 37 * result
+				+ (getMaxInvest() == null ? 0 : this.getMaxInvest().hashCode());
+		result = 37 * result
+				+ (getPushdate() == null ? 0 : this.getPushdate().hashCode());
+		result = 37 * result
+				+ (getPushstate() == null ? 0 : this.getPushstate().hashCode());
+		result = 37
+				* result
+				+ (getMoneyRecord() == null ? 0 : this.getMoneyRecord()
+						.hashCode());
+		result = 37 * result
+				+ (getVoucherId() == null ? 0 : this.getVoucherId().hashCode());
+		result = 37
+				* result
+				+ (getCirculationInterest() == null ? 0 : this
+						.getCirculationInterest().hashCode());
+		result = 37
+				* result
+				+ (getCirculationForpayStatus() == null ? 0 : this
+						.getCirculationForpayStatus().hashCode());
+		result = 37 * result
+				+ (getReason() == null ? 0 : this.getReason().hashCode());
+		result = 37 * result
+				+ (getRepayDate() == null ? 0 : this.getRepayDate().hashCode());
+		result = 37 * result
+				+ (getBillcode() == null ? 0 : this.getBillcode().hashCode());
+		result = 37 * result
+				+ (getTrxId() == null ? 0 : this.getTrxId().hashCode());
+		result = 37 * result
+				+ (getInvestId() == null ? 0 : this.getInvestId().hashCode());
+		result = 37
+				* result
+				+ (getContractId() == null ? 0 : this.getContractId()
+						.hashCode());
+		result = 37 * result
+				+ (getPageType() == null ? 0 : this.getPageType().hashCode());
+		return result;
+	}
+
+}

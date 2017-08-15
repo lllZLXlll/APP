@@ -1,0 +1,155 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * PreRepayment entity. @author MyEclipse Persistence Tools
+ */
+
+public class PreRepayment implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String repayPeriod;
+	private String repayDate;
+	private Double stillPrincipal;
+	private Double stillInterest;
+	private Double principalBalance;
+	private Double interestBalance;
+	private Double mrate;
+	private Double totalSum;
+	private Double totalAmount;
+	private Long borrowId;
+	private String identify;
+	private Integer sort;
+
+	// Constructors
+
+	/** default constructor */
+	public PreRepayment() {
+	}
+
+	/** full constructor */
+	public PreRepayment(String repayPeriod, String repayDate, Double stillPrincipal, Double stillInterest, Double principalBalance, Double interestBalance, Double mrate,
+			Double totalSum, Double totalAmount, Long borrowId, String identify, Integer sort) {
+		this.repayPeriod = repayPeriod;
+		this.repayDate = repayDate;
+		this.stillPrincipal = stillPrincipal;
+		this.stillInterest = stillInterest;
+		this.principalBalance = principalBalance;
+		this.interestBalance = interestBalance;
+		this.mrate = mrate;
+		this.totalSum = totalSum;
+		this.totalAmount = totalAmount;
+		this.borrowId = borrowId;
+		this.identify = identify;
+		this.sort = sort;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getRepayPeriod() {
+		return this.repayPeriod;
+	}
+
+	public void setRepayPeriod(String repayPeriod) {
+		this.repayPeriod = repayPeriod;
+	}
+
+	public String getRepayDate() {
+		return this.repayDate;
+	}
+
+	public void setRepayDate(String repayDate) {
+		this.repayDate = repayDate;
+	}
+
+	public Double getStillPrincipal() {
+		return this.stillPrincipal;
+	}
+
+	public void setStillPrincipal(Double stillPrincipal) {
+		this.stillPrincipal = stillPrincipal;
+	}
+
+	public Double getStillInterest() {
+		return this.stillInterest;
+	}
+
+	public void setStillInterest(Double stillInterest) {
+		this.stillInterest = stillInterest;
+	}
+
+	public Double getPrincipalBalance() {
+		return this.principalBalance;
+	}
+
+	public void setPrincipalBalance(Double principalBalance) {
+		this.principalBalance = principalBalance;
+	}
+
+	public Double getInterestBalance() {
+		return this.interestBalance;
+	}
+
+	public void setInterestBalance(Double interestBalance) {
+		this.interestBalance = interestBalance;
+	}
+
+	public Double getMrate() {
+		return this.mrate;
+	}
+
+	public void setMrate(Double mrate) {
+		this.mrate = mrate;
+	}
+
+	public Double getTotalSum() {
+		return this.totalSum;
+	}
+
+	public void setTotalSum(Double totalSum) {
+		this.totalSum = totalSum;
+	}
+
+	public Double getTotalAmount() {
+		return this.totalAmount;
+	}
+
+	public void setTotalAmount(Double totalAmount) {
+		this.totalAmount = totalAmount;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public String getIdentify() {
+		return this.identify;
+	}
+
+	public void setIdentify(String identify) {
+		this.identify = identify;
+	}
+
+	public Integer getSort() {
+		return this.sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+
+}

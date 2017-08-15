@@ -1,0 +1,74 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * DivideAccount entity. @author MyEclipse Persistence Tools
+ */
+
+public class DivideAccount implements java.io.Serializable {
+
+	// Fields
+
+	private Integer id;
+	private String ordId;
+	private String divCustId;
+	private String divAcctId;
+	private Long divAmt;
+
+	// Constructors
+
+	/** default constructor */
+	public DivideAccount() {
+	}
+
+	/** full constructor */
+	public DivideAccount(String ordId, String divCustId, String divAcctId, Long divAmt) {
+		this.ordId = ordId;
+		this.divCustId = divCustId;
+		this.divAcctId = divAcctId;
+		this.divAmt = divAmt;
+	}
+
+	// Property accessors
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getOrdId() {
+		return this.ordId;
+	}
+
+	public void setOrdId(String ordId) {
+		this.ordId = ordId;
+	}
+
+	public String getDivCustId() {
+		return this.divCustId;
+	}
+
+	public void setDivCustId(String divCustId) {
+		this.divCustId = divCustId;
+	}
+
+	public String getDivAcctId() {
+		return this.divAcctId;
+	}
+
+	public void setDivAcctId(String divAcctId) {
+		this.divAcctId = divAcctId;
+	}
+
+	public Long getDivAmt() {
+		return this.divAmt;
+	}
+
+	public void setDivAmt(Long divAmt) {
+		this.divAmt = divAmt;
+	}
+
+}

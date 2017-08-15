@@ -1,0 +1,202 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * RechargeDetail entity. @author MyEclipse Persistence Tools
+ * 充值记录实体类
+ */
+
+public class RechargeDetail implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Date rechargeTime;
+	private Integer rechargeType;
+	private String bankName;
+	private Double rechargeMoney;
+	private Double cost;
+	private Integer result;
+	private String paynumber;
+	private String rechargeNumber;
+	private String buyerEmail;
+	private Long rechargeId;
+	private String remark;
+	private String ipAddress;
+	private Double award;
+	private Long operatorId;
+	private String billcode;
+
+	// Constructors
+
+	/** default constructor */
+	public RechargeDetail() {
+	}
+
+	/** full constructor */
+	public RechargeDetail(Long userId, Date rechargeTime,
+			Integer rechargeType, String bankName, Double rechargeMoney,
+			Double cost, Integer result, String paynumber,
+			String rechargeNumber, String buyerEmail, Long rechargeId,
+			String remark, String ipAddress, Double award, Long operatorId,
+			String billcode) {
+		this.userId = userId;
+		this.rechargeTime = rechargeTime;
+		this.rechargeType = rechargeType;
+		this.bankName = bankName;
+		this.rechargeMoney = rechargeMoney;
+		this.cost = cost;
+		this.result = result;
+		this.paynumber = paynumber;
+		this.rechargeNumber = rechargeNumber;
+		this.buyerEmail = buyerEmail;
+		this.rechargeId = rechargeId;
+		this.remark = remark;
+		this.ipAddress = ipAddress;
+		this.award = award;
+		this.operatorId = operatorId;
+		this.billcode = billcode;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Date getRechargeTime() {
+		return this.rechargeTime;
+	}
+
+	public void setRechargeTime(Date rechargeTime) {
+		this.rechargeTime = rechargeTime;
+	}
+
+	public Integer getRechargeType() {
+		return this.rechargeType;
+	}
+
+	public void setRechargeType(Integer rechargeType) {
+		this.rechargeType = rechargeType;
+	}
+
+	public String getBankName() {
+		return this.bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+
+	public Double getRechargeMoney() {
+		return this.rechargeMoney;
+	}
+
+	public void setRechargeMoney(Double rechargeMoney) {
+		this.rechargeMoney = rechargeMoney;
+	}
+
+	public Double getCost() {
+		return this.cost;
+	}
+
+	public void setCost(Double cost) {
+		this.cost = cost;
+	}
+
+	public Integer getResult() {
+		return this.result;
+	}
+
+	public void setResult(Integer result) {
+		this.result = result;
+	}
+
+	public String getPaynumber() {
+		return this.paynumber;
+	}
+
+	public void setPaynumber(String paynumber) {
+		this.paynumber = paynumber;
+	}
+
+	public String getRechargeNumber() {
+		return this.rechargeNumber;
+	}
+
+	public void setRechargeNumber(String rechargeNumber) {
+		this.rechargeNumber = rechargeNumber;
+	}
+
+	public String getBuyerEmail() {
+		return this.buyerEmail;
+	}
+
+	public void setBuyerEmail(String buyerEmail) {
+		this.buyerEmail = buyerEmail;
+	}
+
+	public Long getRechargeId() {
+		return this.rechargeId;
+	}
+
+	public void setRechargeId(Long rechargeId) {
+		this.rechargeId = rechargeId;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public String getIpAddress() {
+		return this.ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public Double getAward() {
+		return this.award;
+	}
+
+	public void setAward(Double award) {
+		this.award = award;
+	}
+
+	public Long getOperatorId() {
+		return this.operatorId;
+	}
+
+	public void setOperatorId(Long operatorId) {
+		this.operatorId = operatorId;
+	}
+
+	public String getBillcode() {
+		return this.billcode;
+	}
+
+	public void setBillcode(String billcode) {
+		this.billcode = billcode;
+	}
+
+}

@@ -1,0 +1,45 @@
+/*huifu result*/
+.pj-result{
+	width:1100px;
+	height:700px;
+	margin:30px auto 0;
+	background-color:#fff;
+}
+.pj-result.bind-emali{
+	background: #fff url(../images/product-loading.gif) center center no-repeat;
+}
+.pj-result .result{
+	padding-top:210px;
+	height:290px;
+	overflow:hidden;
+	background-color:#fff;
+}
+.pj-result .result-success{
+	background:#fff url(../images/success.png) center 80px  no-repeat;
+}
+.pj-result .result-fail{
+	background:#fff url(../images/fail.png) center 80px  no-repeat;
+}
+.pj-result .result p{
+	line-height:30px;
+	text-align:center;
+}
+.pj-result .result button{
+	width:220px;
+	height:40px;
+	line-height:40px;
+	margin:0 auto;
+	display: block;
+}
+.pj-result .result p.big{
+	font-size:24px;
+	line-height:32px;
+}
+.pj-result .result p.small{
+	margin:10px 0 20px 0;
+	color:#999;
+}
+.pj-result .result p.small span{
+	color:#ffa13d;
+	font-size:16px;
+}

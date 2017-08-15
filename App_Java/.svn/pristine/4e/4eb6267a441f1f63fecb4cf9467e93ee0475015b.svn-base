@@ -1,0 +1,66 @@
+package com.pjzb.service.admin.identify;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.UserDao;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DesSecurityUtil;
+import com.shove.Convert;
+import com.shove.web.Utility;
+/**
+ * 认证资料统计
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminAuthenDataService extends BaseController {
+
+	@Autowired
+	private UserDao userDao;
+	
+	public String queryDateCountInitindex(Model model, String tabid, Long pageNum, Long pageSize, String userName, String realName, String materAuthTypeId) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			userName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(userName));
+			realName = ConvertUtil.objToStrConvert(Utility.filteSqlInfusion(realName));
+			int materAuthTypeIdInt = Convert.strToInt(materAuthTypeId+"", -1);
+			List<Map<String, Object>> list = userDao.queryDateCountInitindex((pageNum - 1) * pageSize, pageSize,userName,realName,materAuthTypeIdInt);
+			long count = userDao.queryDateCountInitindexCount(userName,realName,materAuthTypeIdInt);
+			if(list!=null){
+				Iterator<Map<String, Object>> iter = list.iterator();
+				int i = 0;
+				while(iter.hasNext()){
+					Map<String,Object> map = iter.next();
+					list.get(i).put("ids", new DesSecurityUtil().encrypt(map.get("id").toString()));
+					i++;
+				}
+			}
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+			model.addAttribute("userName", userName);
+			model.addAttribute("realName", realName);
+			model.addAttribute("materAuthTypeId", materAuthTypeIdInt);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询认证资料统计异常**************************");
+		}
+		return "/admin/identify/authendata/list.jsp";
+	}
+
+}

@@ -1,0 +1,193 @@
+package com.pjzb.config.nuozhengtong;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+
+import com.pjzb.controller.common.BaseController;
+
+import net.sf.json.JSONObject;
+
+//实名认证
+public class IDcard extends BaseController{
+	public static void main(String[] args) {
+		IDcard demo= new IDcard();
+		demo.idcard_verify("名字","身份证号");
+	}
+	private final static String mall_id="110543";
+	private final static String appkey="bd477703eb7a8ecb380ac25f05ce8ed4";
+	private final static String url="http://121.41.42.121:8080/v2/id-server?";
+	private PrintWriter out;
+	
+	public int idcard_verify(String realname,String idcard){
+		/*
+		 * add by 陈前明
+		 * 2016-9-5
+		 * 
+		 * 这里加入测试环境绕过验证
+		 * 测试环境一律返回一致1000
+		 * 
+		 */
+//		if (IConstants.ISDEMO.equals("1")) {
+//			return 1000;
+//		}
+		
+		idcard=idcard.toLowerCase();
+		long tm=System.currentTimeMillis();
+		String md5_param=mall_id+realname+idcard+tm+appkey;
+		String sign=md5(md5_param);
+		String param=new StringBuffer().append("mall_id="+mall_id)
+				.append("&realname="+realname)
+				.append("&idcard="+idcard)
+				
+				.append("&tm="+tm)
+				.append("&sign="+sign).toString();
+		String url_v=url+param;
+		try {
+			url_v=url_v.replace(realname,URLEncoder.encode(realname,"UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String json=url2string(url_v);
+		String jsonString = null;
+		try {
+			jsonString = new String(json.getBytes(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		JSONObject result = JSONObject.fromObject(jsonString);
+		//JSONObject result=JSONObject.parseObject(jsonString);
+		System.out.println(result);
+		int status=Integer.parseInt(result.getString("status"));
+		int code=Integer.parseInt(result.getJSONObject("data").getString("code"));
+		String message=result.getJSONObject("data").getString("message");
+				
+		/*客户可以根据自己的业务需求进行处理*/
+		if(status==2001){
+			//2001=正常服务
+			
+			if(code==1000){
+				//一致
+				
+			}else if(code==1001){
+				//不一致
+			
+			}else if(code==1002){
+				//库中无此号
+					
+			}
+			//如果命令相应正常，一下情况不需要处理
+			/*
+			else if($code==1101){
+				//商家ID不合法
+				
+			}else if($code==1102){
+				//身份证姓名不合法
+				
+			}else if($code==1103){
+				//身份证号码不合法
+				
+			}else if($code==1104){
+				//签名不合法
+				
+			}else if($code==1107){
+				//tm不合法
+				
+			}*/
+					
+		}
+		//正常情况下不需要处理，商家也可以根据自己的业务进行处理
+		else if(status==2002){
+			//2002=第三方服务器异常
+			
+		}else if(status==2003){
+			//2003=服务器维护
+			
+		}else if(status==2004){
+			//2004=账号余额不足
+			
+		}else if(status==2005){
+			//2005=参数异常
+			
+		}
+		//1000=一致
+		//1001=不一致
+		//1002=库中无此号
+		//1101=商家ID不合法
+		//1102=身份证姓名不合法
+		//1103=身份证号码不合法
+		//1104=签名不合法
+		//1105=第三方服务器异常
+		//1106=账户余额不足
+		//1107=tm不合法
+		//1108=其他异常
+		//1109=账号被暂停
+		
+		return code;
+	}
+	private String md5(String s){
+		char hexDigits[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};       
+        try {
+            byte[] btInput = s.getBytes("utf-8");
+            MessageDigest mdInst = MessageDigest.getInstance("MD5");
+            mdInst.update(btInput);
+            byte[] md = mdInst.digest();
+            int j = md.length;
+            char str[] = new char[j * 2];
+            int k = 0;
+            for (int i = 0; i < j; i++) {
+                byte byte0 = md[i];
+                str[k++] = hexDigits[byte0 >>> 4 & 0xf];
+                str[k++] = hexDigits[byte0 & 0xf];
+            }
+            return new String(str);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+	}
+	private String url2string(String url){
+		StringBuffer sb=new StringBuffer();
+		try {
+			InputStream is=new URL(url).openStream();
+			//BufferedReader br=new BufferedReader(new InputStreamReader(is));  
+			BufferedReader br = new BufferedReader(new InputStreamReader(is,"utf-8"));  
+			/*
+			byte[] buf=new byte[1024*10];
+			int len=0;
+			while((len=is.read(buf, 0, 1024*10))>0){
+				sb.append(new String(buf,0,len));
+			}
+			*/
+			String line=null;   
+			while((line=br.readLine())!=null){   
+				sb.append(line);  
+			}   
+			br.close(); 
+			
+			//is.close();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
+	}
+
+//	public PrintWriter getOut() throws Exception {
+//		response().setCharacterEncoding("UTF-8");
+//		response().setContentType("text/html; charset=UTF-8");
+//		out = response().getWriter();
+//		return out;
+//	}
+
+}

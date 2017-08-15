@@ -1,0 +1,37 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.ExgoBorrow;
+
+public interface ExgoBorrowDao {
+	
+	public List<ExgoBorrow> getExGoBorrow();
+	
+	
+	public List<Map<String, Object>> queryExGoBorrow();
+	
+	/**
+	 * 根据ID查询借款的详情
+	 * @return
+	 */
+	public Map<String, Object> queryExgoBorrowById(long id);
+	
+	public Long addExgoBrowseCount(long id);
+	
+	
+	public void callExGoBorrowJoinProcedure(Map<String, Object> map);
+	
+	
+	public void updateExGoMonney(Double amountDouble,Long userId);
+	
+	public long updateExGoBorrowAccount(String detail,double annualRate,double borrowAmount,int deadline,long id);
+
+	public List<Map<String, Object>> queryEditAccount(long pageNum, Long pageSize);
+
+	public long queryEditAccountCount();
+
+	public Map<String, Object> queryExGoAccountById(Long id);
+
+}

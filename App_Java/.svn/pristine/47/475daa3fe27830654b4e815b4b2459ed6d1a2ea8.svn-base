@@ -1,0 +1,191 @@
+package com.pjzb.service.admin.user;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.PersonDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.dao.UserintegraldetailDao;
+import com.pjzb.util.DesSecurityUtil;
+import com.pjzb.util.ExcelUtils;
+import com.shove.Convert;
+
+/**
+ * 用户积分管理
+ * 
+ * @author zlx
+ *
+ */
+@Service
+public class AdminUserIntegralService extends BaseController {
+
+	@Autowired
+	private PersonDao personDao;
+	
+	@Autowired
+	private UserDao userDao;
+	
+	@Autowired
+	private UserintegraldetailDao userintegraldetailDao;
+	
+	public String queryUserManageintegralindex(Model model, String tabid, String userName, Integer viprecode,
+			Integer creditcode, Long pageNum, Long pageSize) throws Exception {
+		pageNum = pageNum == null ? 1l : pageNum;
+		pageSize = pageSize == null ? 20l : pageSize;
+
+		List<Map<String, Object>> lists = personDao.queryUserManageintegralinfo(userName, viprecode, creditcode,
+				(pageNum - 1) * pageSize, pageSize);
+		long count = personDao.queryUserManageintegralinfoCount(userName, viprecode, creditcode);
+
+		if (lists != null) {
+			Iterator<Map<String, Object>> iter = lists.iterator();
+			int i = 0;
+			while (iter.hasNext()) {
+				Map<String, Object> maps = iter.next();
+				lists.get(i).put("ids", new DesSecurityUtil().encrypt(maps.get("id").toString()));
+				i++;
+			}
+		}
+
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("viprecode", viprecode);
+		model.addAttribute("creditcode", creditcode);
+		model.addAttribute("creditcode", creditcode);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, lists));
+		return "/admin/user/userintegral/list.jsp";
+	}
+
+	public String userintegralcreditinfo(Model model, String tabid, String userIdStr, Integer type, Long pageNum, Long pageSize) throws NumberFormatException, Exception {
+		pageNum = pageNum == null ? 1l : pageNum;
+		pageSize = pageSize == null ? 20l : pageSize;
+		long userId = Long.parseLong(new DesSecurityUtil().decrypt(userIdStr));
+
+		List<Map<String, Object>> list = userDao.userintegralcreditinfo(userId, type, (pageNum - 1) * pageSize,
+				pageSize);
+		long count = userDao.userintegralcreditinfoCount(userId, type);
+
+		if (list != null) {
+			Iterator<Map<String, Object>> iter = list.iterator();
+			int i = 0;
+			while (iter.hasNext()) {
+				Map<String, Object> map = iter.next();
+				list.get(i).put("ids", new DesSecurityUtil().encrypt(map.get("id").toString()));
+				i++;
+			}
+		}
+		
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userId", userIdStr);
+		model.addAttribute("type", type);
+		model.addAttribute("pageBean", new PageBean(pageNum, pageSize, count, list));
+		
+		return "/admin/user/userintegral/list-credit.jsp";
+	}
+
+	public void exportUserManageintegral(HttpServletResponse response, String userName, Integer viprecode,
+			Integer creditcode) {
+		try {
+			List<Map<String, Object>> applyList = personDao.exportUserManageintegral(userName, viprecode, creditcode);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("用户积分管理列表", applyList,
+					new String[] { "用户名", "真实姓名", "信用积分", "会员积分" },
+					new String[] { "username", "realName", "creditrating", "rating" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************用户积分管理列表异常***************************");
+		}
+	}
+
+	public void exportUsercredit(HttpServletResponse response, String userIdStr, Integer type) {
+		try {
+			long userId = Long.parseLong(new DesSecurityUtil().decrypt(userIdStr));
+			List<Map<String, Object>> list = userDao.exportUsercredit(userId, type);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("用户积分管理列表", list,
+					new String[] { "用户名", "真实姓名", "积分类型", "备注", "变动类型", "变动分值", "操作时间" },
+					new String[] { "username", "realName", "intergraltype", "remark", "changetype", "changerecore", "changtime1" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************用户积分管理列表异常***************************");
+		}
+	}
+
+	public  String addintegral(Model model, String id, String tabid) throws NumberFormatException, Exception {
+		long userId = Long.parseLong(new DesSecurityUtil().decrypt(id));
+		Map<String, Object> list = userDao.addintegral(userId);
+		model.addAttribute("item", list);
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("id", id);
+		return "/admin/user/userintegral/list-add.jsp";
+	}
+
+	public Map<String, Object> addintegralreal(String userIdStr, String tabid, Integer type, Integer integral, String remark) throws NumberFormatException, Exception {
+		long result = -1, result1 = -1;
+		long userId = Long.parseLong(new DesSecurityUtil().decrypt(userIdStr));
+		if (type == -1) {
+			return ajaxDoneInfo("300", "请选择类型", "", "");
+		}
+		if (remark == null || remark.trim().length() <= 0) {
+			return ajaxDoneInfo("300", "备注不能为空", "", "");
+		}
+		
+		Map<String, Object> userMap = userDao.queryCreditratingRating(userId);
+		int precreditrating = Convert.strToInt(userMap.get("creditrating") + "", -1);
+		int prerating = Convert.strToInt(userMap.get("rating") + "", -1);
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (type == 1) {
+			result = userDao.updatePrecreditrating(userId, precreditrating + integral);
+			if (result <= 0) {
+				throw new RuntimeException("添加失败");
+			}
+			
+			map.put("changerecore", integral);
+			map.put("intergraltype", "手动添加信用积分");
+			map.put("remark", remark);
+			map.put("changetype", "增加");
+			map.put("time", new Date());
+			map.put("userid", userId);
+			map.put("type", type);
+			result1 = userintegraldetailDao.addserintegraldetail(map);
+		}
+		if (type == 2) {
+			userDao.updatePrerating(userId, prerating + integral);
+			Map<String, Object> map1 = userintegraldetailDao.queryUserIntegral(userId, "手动添加会员积分");
+			if (map1 == null) {
+				map.put("changerecore", integral);
+				map.put("intergraltype", "手动添加会员积分");
+				map.put("remark", remark);
+				map.put("changetype", "增加");
+				map.put("time", new Date());
+				map.put("userid", userId);
+				map.put("type", type);
+				result1 = userintegraldetailDao.addserintegraldetail(map);
+			} else {
+				long changerecore = Convert.strToInt((String) map.get("changerecore"), 1);
+				long minId = Convert.strToInt(map1.get("minId") + "", 1);
+				result1 = userintegraldetailDao.updateUserIntegral(changerecore+integral, minId);
+			}
+		}
+		if (result1 <= 0) {
+			throw new RuntimeException("添加失败");
+		}
+		return ajaxDoneInfo("200", "添加成功", "dialog", tabid);
+	}
+
+}

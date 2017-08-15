@@ -1,0 +1,95 @@
+<div class="content detial-layou">
+    <div class="detial-title" v-html="borrowTitle(productDetail.borrowTitle,productDetail.borrowTypeSubId)"></div>
+    <div class="detial-main flex">
+        <div class="d-m-l">
+            <p>
+                <span>{{productDetail.annualRate}}%</span>
+            </p>
+            <p>预期年化收益</p>
+        </div>
+        <div class="d-m-c">
+            <p>
+                <span>{{productDetail.borrowAmount}}</span>
+                元
+            </p>
+            <p>项目总额</p>
+        </div>
+        <div class="d-m-r">
+            <p v-if="isTiyan">
+                <span>{{productDetail.deadline}}</span>
+                个月
+            </p>
+            <p v-else>
+                <span>{{productDetail.deadline}}</span>
+                天
+            </p>
+            <p>项目期限</p>
+        </div>
+    </div>
+    <div class="detial-line" v-show="taste">
+        <p class="flex"> <i class="pro-line"><em class="pro-line-em" :style={width:productDetail.schedules"%"} title=""></em></i> 
+            <span class="line-num">{{productDetail.schedules}}%</span>
+        </p>
+    </div>
+    <div class="detial-table">
+        <p>发布时间： {{productDetail.createTime}}</p>
+        <p v-html="paymentMode(productDetail.paymentMode)"></p>
+        <p>计息方式：满标计息</p>
+        <p>最小投标金额：{{productDetail.minTenderedSum}}元</p>
+        <div v-if="isNewsPro">
+            <p v-if="maxTender(productDetail.maxTenderedSum)">最大投标金额：无限制</p>
+            <p v-else>最大投标金额：{{productDetail.maxTenderedSum}}</p>
+        </div>
+        <p>
+            剩余可投：
+            <span>{{productDetail.residue}}</span>
+            元
+        </p>
+        <p v-if="isTiyan">
+            可用金额：
+            <span v-html="isLoginOrIn()"></span>
+            元
+        </p>
+        <p v-else>
+            体验金额：
+            <span>{{userMap.accountSum}}</span>
+            元
+        </p>
+    </div>
+    <div class="detial-submit flex">
+        <input v-if="isTiyan" type="text" maxlength="11" placeholder="请输入购买金额" v-model="annualRate" v-getvalue="money" value=""/>
+        <input v-else type="text" maxlength="11" disabled v-model="annualRate" value="{{userMap.accountSum}}"/>
+        <button type="button" @click="submit(productDetail.borrowStatus)" v-bind:class="{ btnDisabled:productDetail.borrowStatus!=2}">{{btnText}}</button>
+    </div>
+    <div class="detial-submit flex" v-if="pwdInput()">
+        <input type="password" maxlength="11" placeholder="请输入投标密码" v-getvalue="password" maxlength="6"/>
+    </div>
+    <div class="detial-submit flex" :class="{detailDisabled:cantVoucher}" v-if="isTiyan" @click="voucher">
+        <p class="voucher-left">{{voucherValue}}</p>
+        <p class="voucher-right">
+            使用代金劵 <i class="icon">&#xe611;</i>
+        </p>
+    </div>
+    <div class="detial-table">
+    	<p class="agreement">点击按钮，即表示您已经阅读并认可《<a @click="AgreeMent(0)">普金资本服务协议</a>》和《<a @click="AgreeMent(1)">风险提示书</a>》，投资有风险，理财需谨慎。</p>
+    </div>
+    <div class="detial-footer flex">
+        <p>
+            预期收益:
+            <span>{{annualRate | reckon voucherAmt}}</span>
+            元
+        </p>
+        <p>
+            <a v-link={path:"/calculator"}>《详细收益明细》</a>
+        </p>
+    </div>
+    <div class="detial-table detial-borrow">
+        <p class="detial-borrow-title">项目介绍</p>
+        <p v-html="productDetail.projectIntro"></p>
+        <p class="detial-borrow-title">项目描述</p>
+        <p v-html="productDetail.detail"></p>
+        <p class="detial-borrow-title">保障措施</p>
+        <p v-html="productDetail.safeMeasures"></p>
+    </div>
+    <div id="productDetail"></div>
+</div>

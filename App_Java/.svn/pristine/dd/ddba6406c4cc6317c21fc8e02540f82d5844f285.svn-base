@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.user;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ *  未激活用户
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminUnActiveUserService extends BaseController {
+
+}

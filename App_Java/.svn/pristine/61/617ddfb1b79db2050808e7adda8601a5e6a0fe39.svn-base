@@ -1,0 +1,11 @@
+package com.pjzb.dao;
+
+import org.apache.ibatis.annotations.Param;
+
+public interface UserVoucherDao {
+	
+	public boolean addUserVoucher(@Param("userId") long userId, @Param("minMoney") double minMoney,
+			@Param("maxMoney") double maxMoney, @Param("rbname") String rbname, @Param("passDate") int passDate,
+			@Param("realMoney") double realMoney);
+
+}

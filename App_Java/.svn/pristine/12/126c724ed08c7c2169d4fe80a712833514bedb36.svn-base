@@ -1,0 +1,99 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/about/Calculator.html');
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			utils.setAppConfig('收益计算器',true,false);
+		},
+		methods:{
+			modelType:function(e,flag){
+				var obj = e.target,_this = this;
+				var dataArr = [];
+				if(flag == '1'){
+					dataArr = ['等额本息还款','先息后本','一次还本付息'];
+				}else if(flag=='2'){
+					dataArr = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+				}else{
+					dataArr = [1,2,3,4,5,6,7,8,9,10,11,12];
+				}
+				$(obj).picker({
+				  toolbarTemplate: '<header class="bar bar-nav bar-picker">\
+				  <button class="button button-link pull-right close-picker">确定</button>\
+				  <h1 class="title">请选择</h1>\
+				  </header>',
+				  cols: [
+				    {
+				      textAlign: 'center',
+				      values: dataArr
+				    }
+				  ],
+				  onClose: function(obj){
+					  console.log(obj);
+					   if(flag=='1'){
+						   _this.$set('backType',obj.value[0]);
+					   }else if(flag == '2'){
+						   _this.$set('annualRate',obj.value[0]);
+					   }else{
+						   _this.$set('time',obj.value[0]);
+					   }
+				  }
+				});
+				$(obj).picker('open');
+			},
+			submit: function(){
+				var _this = this;
+				if(this.money == ''){
+					$.toast('请输入金额');return;
+				};
+				if(!AmtRegExp.test(this.money)){
+					$.toast('金额格式不正确');return;
+				};
+				var repayWay='';
+				if(this.backType == '一次还本付息'){
+					repayWay = '2';
+				}else if(this.backType == '等额本息还款'){
+					repayWay = '1';
+				}else{
+					repayWay = '3';
+				}
+				var param={repayWay:repayWay,borrowSum:this.money,yearRate:this.annualRate,borrowTime:this.time};
+				utils.ajax({
+			        url:'../front/frontfinanceTools.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	console.log(data.lists);
+			        	if(data.error==0){
+			        		_this.$set('Amt',data.lists[0].monForRateA);
+			        		_this.$set('AmtRate',data.lists[0].monRate);
+			        		_this.$set('AmtAll',data.lists[0].allPay);
+			        		Storage.setItem('Calculator',JSON.stringify(data.lists));
+			        		_this.$set('detailFlag',true);
+
+			        	}
+			        }
+			    });
+			},
+			gotoDetail:function(){
+				if(this.detailFlag){
+					router.go({path:'calculatordetail'});
+				}else{
+					$.toast('请先计算！');
+				}
+				
+			}
+		},
+		data: function(){
+			return {
+				backType:'一次还本付息',
+				annualRate:'12',
+				time:'3',
+				money:'',
+				Amt:'0.00',
+				AmtRate:'0%',
+				AmtAll:'0.00'
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

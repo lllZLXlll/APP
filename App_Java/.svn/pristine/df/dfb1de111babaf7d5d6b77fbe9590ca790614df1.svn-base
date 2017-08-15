@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.system;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 联动模块参数
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminLinkModParamService extends BaseController {
+
+}

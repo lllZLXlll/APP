@@ -1,0 +1,55 @@
+<div class="account-right-nav">
+	<div class="sub-a-nav">
+		<a href="javascript:void(0);" class="active" id="dLink">代金券</a>
+		<a href="javascript:void(0);"  id="xLink">现金券</a>
+		<a href="javascript:void(0);"  id="tLink">体验金</a>
+	</div>
+	<em class="em-line"></em>
+</div>
+<div class="account-content" id="dtaste">
+	<div class="sub-nav">
+		<a href="javascript:;" class="active">未使用</a>
+		<a href="javascript:;">已使用</a>
+		<a href="javascript:;">已过期</a>
+	</div>
+	<ul class="taste-list nouse" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+	<ul class="taste-list use" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+	<ul class="taste-list overdue" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+</div>
+<div class="account-content" id="xtaste">
+	<div class="sub-nav">
+		<a href="javascript:;" class="active">未使用</a>
+		<a href="javascript:;">已使用</a>
+		<a href="javascript:;">已过期</a>
+	</div>
+	<ul class="taste-list nouse" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+	<ul class="taste-list use" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+	<ul class="taste-list overdue" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+</div>
+<div class="account-content" id="ttaste">
+	<div class="sub-nav">
+		<a href="javascript:;" class="active">未使用</a>
+		<a href="javascript:;">已使用</a>
+	</div>
+	<ul class="taste-list nouse" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+	<ul class="taste-list use" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+	<ul class="taste-list overdue" >
+		<li class="none">没有符合条件的内容！</li>
+	</ul>
+</div>

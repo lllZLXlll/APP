@@ -1,0 +1,24 @@
+package com.pjzb.dao;
+ 
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.AppVersion;
+
+public interface AppVersionDao {
+	
+	public Map<String, Object> queryAppVersionByType(Integer type);
+
+	public List<Map<String, Object>> queryAppVersionForPage(long l, Long pageSize, String beginTime, String endTime, boolean b);
+
+	public long queryAppVersionCount(String beginTime, String endTime);
+
+	public long addAppVersion(AppVersion appVersion);
+
+	public AppVersion queryAppVersionById(Long id);
+
+	public long updateAppVersionById(AppVersion appVersion);
+
+	public long deleteAppVersionById(Long id);
+
+}

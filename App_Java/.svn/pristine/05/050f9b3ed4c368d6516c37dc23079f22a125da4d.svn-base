@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>安全保障</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+<div class="mod-adv top event-btn-target" style="background:#e04c16">
+    <div class="warp-1000 ">
+        <a href="index.html"><img src="img/tips.png"/></a>
+        <a href="#" class="btn btn-close event-btn-close"></a>
+        <script>
+            $(function() {
+                $('.event-btn-close').click(function() {
+                    $('.event-btn-target').hide();
+                });
+            })
+        </script>
+    </div>
+</div>
+<div class="mod-topbar">	
+    <div class="bar">
+        <div class="warp-1000">
+            <div class="fl">
+                <span>欢迎致电：<em>0755-29556666</em></span>
+                <a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+            </div>
+            <div class="fr">
+                <ul>
+                    <li><a href="#">登录</a></li>
+                    <li><a href="#"><i class="ico ico-red-package"></i>注册领红包</a></li>
+                    <li><a href="#">我要投资</a></li>
+                    <li><a href="#">新手指引</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="nav">
+        <div class="warp-1000">
+            <a href="index.html" class="logo"><img src="img/logo.png"/></a>
+            <ul class="nav-list clearfix">
+                <li><a href="#">首页</a></li>
+                <li class="">
+                    <a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+                    <ul class="children">
+                        <li><a href="#">城投标</a></li>
+                        <li><a href="#">城投标</a></li>
+                        <li><a href="#">城投标</a></li>
+                        <li><a href="#">城投标</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">债券转让</a></li>
+                <li><a href="#">债券转让</a></li>
+                <li><a href="#">债券转让</a></li>
+                <li><a href="#">债券转让</a></li>
+                <li><a href="#">债券转让</a></li>
+                <li><a href="#">债券转让</a></li>
+            </ul>
+            <script type="text/javascript">
+                $(function() {
+                    $('.nav-list>li').hover(function() {
+                        $('.nav-list>li').removeClass('hover');
+                        //console.log($(this).children('.children').length)
+                        //if($(this).children('.children').length>0) {
+                            $(this).addClass('hover');
+                        //}
+                    }, function() {
+                        $('.nav-list>li').removeClass('hover');
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<!--common header-->
+
+<!--mod-security-->
+<div class="mod-index mod-security">
+    <div class="security">
+        <div class="adv"><img src="img/security_banner.png"></div>
+        <div class="warp-1000">
+        
+            <div class="item clearfix">
+                <div class="main">
+                    <h1>账户安全保障</h1>
+                    
+                    <h3>第三方资金托管平台</h3>
+                    <p>由第三方支付公司汇付天下进行资金托管，保障客户交易资金安全。</p>
+                    
+                    <h3>先进的网络技术</h3>
+                    <p>平台采用先进安全技术保护用户的个人信息、账户信息以及交易记录。</p>
+                   
+                    <h3>规范的权限管理</h3>
+                    <p>平台严格遵守国家相关的法律法规，对用户的隐私信息进行保护。</p>
+                    
+                </div>
+                <div class="pic">
+                    <img src="img/security_pic_001.jpg">
+                </div>
+            </div>
+            
+            <div class="item clearfix">
+                <div class="main">
+                    <h1>公司结构保障</h1>
+                    <p>公司平台是由赣州城市开发投资集团与赣州普金资本管理有限公司共同推动筹建的一家P2P网络金融平台，属于江西省首家经国资委核准备案的互联网金融平台，其国资委背景，得到了各级政府、金融监管部门的关心、肯定和支持。</p>
+                    
+                </div>
+                <div class="pic">
+                    <img src="img/security_pic_002.jpg">
+                </div>
+            </div>
+            
+            <div class="item clearfix">
+                <div class="main">
+                    <h1>VIP会员100%本息保障</h1>
+                    <p>注册会员并通过实名认证即可申请加入VIP会员，VIP会员在平台所有投资均优先享受风险保证金制度，如借款方到期未还本息，则平台将先行启动风险保证金制度对投资人进行的本金和利息的垫付。</p>
+                    
+                </div>
+                <div class="pic">
+                    <img src="img/security_pic_003.jpg">
+                </div>
+            </div>
+            
+            <div class="item clearfix">
+                <div class="main"  style="width:100%;">
+                    <h1>项目来源保障</h1>
+                    
+                    <h3>城投标</h3>
+                    <p>政府直接投资项目，城投直接承办项目，由政府财政作为还款来源及还款保障，属政府信用背书。</p>
+                    
+                    <h3>供应链标</h3>
+                    <p>城投供应商以城投项目之应收账款为担保，由城投之应付账款为还款来源及还款保障，属城投信用背书。</p>
+                   
+                    <h3>首付贷</h3>
+                    <p>精选由实力与信用较好的地产开发商且由黑马地产代理之优质楼盘的购买客户，为其提供首付贷款，由优质开发商担保。</p>
+                    
+                    <h3>抵押标</h3>
+                    <p>精选优质担保或小额贷款公司提供优质抵押标，由国企担保公司赣州金盛源担保公司进行担保之优质抵押项目。</p>
+                    
+                </div>
+                
+            </div>
+            
+            <div class="item clearfix">
+                <div class="main">
+                    <h1>隐私保障</h1>
+                    <p>平台设定了严格的内部信息安全管理制度和安全系统，以防止未经授权获取客户信息行为的发生。因合作必要而委托的第三方，在得到平台许可获取客户个人信息时，都被要求严格履行保密义务。</p>
+                    
+                </div>
+                <div class="pic">
+                    <img src="img/security_pic_004.jpg">
+                </div>
+            </div>
+            
+            <div class="item clearfix">
+                <div class="main">
+                    <h1>收益保障</h1>
+                    <p>城投贷的理财资金直接投向信用良好，且还款能力较强的中小微企业或个人，并由合作保障方为本金及收益提供保障和监管。</p>
+                    
+                </div>
+                <div class="pic">
+                    <img src="img/security_pic_005.jpg">
+                </div>
+            </div>
+            
+            <div class="item clearfix">
+                <div class="main">
+                    <h1>风险准备金保障</h1>
+                    <p>为充分保障用户的利益，更好的进行自律监管，自平台成立起便启动了风险准备金计划，平台每笔借款成交时，将提取一定比例的金额放入“风险准备金账户”。当借款出现严重逾期时（即逾期超过30天），根据“风险备用金账户使用规则”，通过“风险备用金”向理财人垫付此笔借款的剩余出借本金或本息（具体情况视投资标的类型的具体垫付规则为准）。</p>
+                    
+                </div>
+                <div class="pic">
+                    <img src="img/security_pic_006.jpg">
+                </div>
+            </div>
+            
+            <div class="item clearfix">
+                <div class="main" style="width:100%;">
+                    <h1>政策法律法规保障</h1>
+                    <p>1、用户在P2P平台中进行的每一笔借款均有电子借款协议，根据《合同法》第11条的规定，当事人可以采用合同书、信件和数据电文（包括电报、电传、传真、电子数据交换和电子邮件）等形式订立合同。电子合同是法律认可的书面合同形式之一。平台采取用户网上点击确认的方式签署电子合同。点击确认后的电子合同符合《中华人民共和国合同法》规定的合同成立、生效的要件，其有效性也被人民法院的司法实践所接受。
+ </p>
+ 					  <p>2、P2P理财平台中投资人与借款人之间的借贷关系是合法的，根据《合同法》第196条规定：“借款合同是借款人向贷款人借款，到期返还借款并支付利息的合同”；根据《合同法》第十二章“借款合同”和最高人民法院《关于人民法院审理借贷案件的若干意见》，我国法律允许自然人等普通民事主体之间发生借贷关系，并允许出借方到期可以收回本金和符合法律规定的利息。理财人作为借款人，与贷款人之间形成的借贷关系受到法律保护。
+ 
+ </p>
+ 					  <p>3、P2P理财平台中获得理财收益是合法的，根据最高人民法院《关于人民法院审理借贷案件的若干意见》第6条：“民间借贷的利率可以适当高于银行的利率，各地人民法院可以根据本地区的实际情况具体掌握，但最高不得超过银行同类贷款利率的四倍（包含利率本数）。超出此限度的，超出部分的利息不予保护。”平台上理财人向借款人出借资金并按照约定利率收取利息，该等利率未超过银行同类贷款利率的四倍，为合法利息收益，受到法律保护。</p>
+                    
+                    <p>4、更多法律政策可以在政策法规界面中进行查阅。</p>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+</div>		
+<!--common footer-->
+<div class="mod-common-footer">
+    <div class="about warp-1000">
+        <a href="#">关于我们</a>
+        <a href="#">关于我们</a>
+        <a href="#">关于我们</a>
+        <a href="#">关于我们</a>
+        <a href="#">关于我们</a>
+        <a href="#">关于我们</a>
+    </div>
+    <div class="cpright">
+        <div class="warp-1000">
+            <p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+            <p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+            <p class="imgs">
+                <a href="#"><img src="img/cpright_001.png"/></a>
+                <a href="#"><img src="img/cpright_002.png"/></a>
+                <a href="#"><img src="img/cpright_003.png"/></a>
+              <a href="#"><img src="img/cpright_004.png"/></a>
+            </p>
+        </div>
+    </div>
+</div>
+<!--common footer-->
+<div class="mod-sidebar">
+	<ul>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-qq"></i></p>
+				<p>客服QQ</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-weichet"></i></p>
+				<p>官方微信</p>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<p class="ico"><i class="ico ico-feedback"></i></p>
+				<p>意见反馈</p>
+			</a>
+		</li>
+	</ul>
+</div>
+</body>
+</html>

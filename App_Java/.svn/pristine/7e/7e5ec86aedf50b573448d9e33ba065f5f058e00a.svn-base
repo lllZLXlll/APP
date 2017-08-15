@@ -1,0 +1,1012 @@
+package com.pjzb.service.front;
+
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.ContextLoader;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AutomaticRepaymentDao;
+import com.pjzb.dao.AwardDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.InvestRepaymentDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RelationDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Award;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.User;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.SMSInterfaceService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.GenerateSequenceNo;
+import com.pjzb.util.IAmountConstants;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+import com.shove.data.DataSet;
+import com.shove.web.Utility;
+
+/**
+ * pc、wap、app端 我的管理（投资管理、债权管理、债权购买、借款管理）相关公共service
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class MyManageService extends BaseController {
+	public static Log log = LogFactory.getLog(MyManageService.class);
+
+	@Autowired
+	private InvestDao investDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private RelationDao relationDao;
+
+	@Autowired
+	private AwardDao awardDao;
+
+	@Autowired
+	private AssignmentDebtService assignmentDebtService;
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private InvestRepaymentDao investRepaymentDao;
+
+	@Autowired
+	private AutomaticRepaymentDao automaticRepaymentDao;
+
+	@Autowired
+	private SMSInterfaceService smsInterfaceService;
+
+	/**
+	 * 投资管理
+	 * 
+	 * @param curPage
+	 * @param userId
+	 * @param startTime
+	 * @param endTime
+	 * @param borrowStatus
+	 * @param pageSize
+	 * @param pageType
+	 * @return
+	 */
+	public Map<String, Object> queryInvestmentManageForPage(Long curPage, Long userId, String startTime, String endTime, List<Integer> borrowStatus, Long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = investDao.queryInvestmentManageForPage(userId, startTime, endTime, borrowStatus, (curPage - 1) * pageSize, pageSize);
+		Long investMap = investDao.queryInvestmentManageCount(userId, startTime, endTime, borrowStatus);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investMap);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+
+	}
+
+	public Map<String, Object> queryInvestTendersingBorrowForPage(Long curPage, Long userId, String startTime, String endTime, Long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = investDao.queryInvestTendersingBorrowForPage(userId, startTime, endTime, (curPage - 1) * pageSize, pageSize);
+		Long investLong = investDao.queryInvestTendersingBorrowCount(userId, startTime, endTime);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investLong);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryRecoveredBorrowForPage(Long curPage, Long userId, String startTime, String endTime, Long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = investDao.queryRecoveredBorrowForPage(userId, startTime, endTime, (curPage - 1) * pageSize, pageSize);
+		Long investMap = investDao.queryRecoveredBorrowCount(userId, startTime, endTime);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investMap);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryInvestManage(JSONObject jsonObject, Long userId, String pageType, Long pageSize) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String startTime = ConvertUtil.objToStrConvert(jsonObject.get("publishTimeStart"));
+		String endTime = ConvertUtil.objToStrConvert(jsonObject.get("publishTimeEnd"));
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+		String borrowFlag = ConvertUtil.objToStrConvert(jsonObject.get("borrowFlag"));
+		borrowFlag = Utility.filteSqlInfusion(borrowFlag);
+		List<Integer> borrowStatus = new ArrayList<Integer>();
+		if ("successLoan".equals(borrowFlag)) {
+			borrowStatus.add(4);
+			borrowStatus.add(5);
+			jsonMap.putAll(queryInvestmentManageForPage(curPage, userId, startTime, endTime, borrowStatus, pageSize, pageType));
+		} else if ("tendersingBorrow".equals(borrowFlag)) {
+			borrowStatus.add(2);
+			jsonMap.putAll(queryInvestmentManageForPage(curPage, userId, startTime, endTime, borrowStatus, pageSize, pageType));
+		} else if ("recycleBorrow".equals(borrowFlag)) {
+			jsonMap.putAll(queryInvestTendersingBorrowForPage(curPage, userId, startTime, endTime, pageSize, pageType));
+		} else {
+			jsonMap.putAll(queryRecoveredBorrowForPage(curPage, userId, startTime, endTime, pageSize, pageType));
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 收款明细
+	 * 
+	 * @param jsonObject
+	 * @param userId
+	 * @param pageSize
+	 * @param pageType
+	 * @return
+	 * @author xiaojin
+	 */
+	public Map<String, Object> getMoneyDetail(JSONObject jsonObject, Long userId, Long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("startTime", "");
+		map.put("endTime", "");
+		map.put("title", "");
+		map.put("in_uid", String.valueOf(userId));
+		Map<String, String> backAcountStatisMap = investDao.callGetBackAcountStatisProcedure(map);
+		jsonMap.put("backAcountStatisMap", backAcountStatisMap);
+		// 回账类型
+		jsonMap.put("type", "5");
+		Long curPage = Long.parseLong(String.valueOf(jsonObject.get("curPage")));
+		String publishTimeStart = ConvertUtil.objToStrConvert(jsonObject.get("publishTimeStart"));
+		String publishTimeEnd = ConvertUtil.objToStrConvert(jsonObject.get("publishTimeEnd"));
+		List<Map<String, Object>> list = investDao.queryBorrowBackAcountByConditionForPage(userId, publishTimeStart, publishTimeEnd, (curPage - 1) * pageSize, pageSize);
+		Long investLong = investDao.queryBorrowBackAcountByConditionCount(userId, publishTimeStart, publishTimeEnd);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investLong);
+		pageBean.setPage(list);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	/**
+	 * 借款管理
+	 * 
+	 * @param curPage
+	 * @param userId
+	 * @param startTime
+	 * @param endTime
+	 * @param borrowStatus
+	 * @param pageSize
+	 * @param pageType
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> queryborrowManage(JSONObject jsonObject, Long userId, Long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String startTime = ConvertUtil.objToStrConvert(jsonObject.get("publishTimeStart"));
+		String endTime = ConvertUtil.objToStrConvert(jsonObject.get("publishTimeEnd"));
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+		String borrowFlag = ConvertUtil.objToStrConvert(jsonObject.get("borrowFlag"));
+		borrowFlag = Utility.filteSqlInfusion(borrowFlag);
+		List<Integer> borrowStatus = new ArrayList<Integer>();
+		if ("auditing".equals(borrowFlag)) {
+			borrowStatus.add(1);
+			borrowStatus.add(3);
+			jsonMap.putAll(queryborrowManageForPage(curPage, userId, startTime, endTime, borrowStatus, pageSize));
+		} else if ("inviting".equals(borrowFlag)) {
+			borrowStatus.add(2);
+			jsonMap.putAll(queryborrowManageForPage(curPage, userId, startTime, endTime, borrowStatus, pageSize));
+		} else if ("success".equals(borrowFlag)) {
+			borrowStatus.add(4);
+			borrowStatus.add(5);
+			jsonMap.putAll(queryMySuccessBorrowList(curPage, userId, startTime, endTime, borrowStatus, pageSize));
+		} else {
+			String username = ConvertUtil.objToStrConvert(jsonObject.get("investor"));
+			jsonMap.putAll(queryBorrowInvestorInfo(curPage, userId, username, pageSize));
+		}
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryborrowManageForPage(Long curPage, Long userId, String startTime, String endTime, List<Integer> borrowStatus, Long pageSize) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = borrowDao.queryborrowManageForPage(userId, startTime, endTime, borrowStatus, (curPage - 1) * pageSize, pageSize);
+		Long investMap = borrowDao.queryborrowManageCount(userId, startTime, endTime, borrowStatus);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investMap);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryMySuccessBorrowList(Long curPage, Long userId, String startTime, String endTime, List<Integer> borrowStatus, Long pageSize) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = borrowDao.queryMySuccessBorrowList(userId, startTime, endTime, borrowStatus, (curPage - 1) * pageSize, pageSize);
+		Long investMap = borrowDao.queryMySuccessBorrowCount(userId, startTime, endTime, borrowStatus);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investMap);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryHetongList(JSONObject jsonObject, Long pageSize) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+		Long borrowId = Convert.strToLong(jsonObject.getString("borrowId"), -1);
+		List<Map<String, Object>> hetongList = borrowDao.queryHetongList(borrowId, (curPage - 1) * pageSize, pageSize);
+		Long hetongCont = borrowDao.queryHetongListCount(borrowId);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(hetongCont);
+		pageBean.setPage(hetongList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	public Map<String, Object> queryBorrowInvestorInfo(Long curPage, Long userId, String username, Long pageSize) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = borrowDao.queryBorrowInvestorInfo(userId, username, (curPage - 1) * pageSize, pageSize);
+		Long investMap = borrowDao.queryBorrowInvestorCount(userId, username);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investMap);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	/**
+	 * 还款明细
+	 * 
+	 * @param jsonObject
+	 * @param userId
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> queryRepaymentDetail(JSONObject jsonObject, Long userId, Long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String startTime = ConvertUtil.objToStrConvert(jsonObject.get("publishTimeStart"));
+		String endTime = ConvertUtil.objToStrConvert(jsonObject.get("publishTimeEnd"));
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+		String borrowFlag = ConvertUtil.objToStrConvert(jsonObject.get("borrowFlag"));
+		List<Integer> borrowStatus = new ArrayList<Integer>();
+		if ("repaymenting".equals(borrowFlag)) {
+			borrowStatus.add(4);
+			jsonMap.putAll(queryMySuccessBorrowList(curPage, userId, startTime, endTime, borrowStatus, pageSize));
+		} else if ("alreadyRepaid".equals(borrowFlag)) {
+			borrowStatus.add(IConstants.BORROW_STATUS_5);
+			jsonMap.putAll(queryMySuccessBorrowList(curPage, userId, startTime, endTime, borrowStatus, pageSize));
+		} else {
+			jsonMap.putAll(queryAllDetails(curPage, startTime, endTime, userId, pageSize));
+		}
+		return jsonMap;
+	}
+
+	private Map<String, Object> queryAllDetails(Long curPage, String startTime, String endTime, Long userId, Long pageSize) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = borrowDao.queryAllDetails(userId, startTime, endTime, (curPage - 1) * pageSize, pageSize);
+		Long investMap = borrowDao.queryAllDetailsCount(userId, startTime, endTime);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investMap);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	/**
+	 * 还款明细（明细）
+	 * 
+	 * @param jsonObject
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> findPayingDetailsByBorrowId(JSONObject jsonObject, Long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+		Long borrowId = Convert.strToLong(jsonObject.getString("borrowId"), -1);
+		if (borrowId == -1) {
+			return null;
+		}
+		int status = -1;
+		if (!pageType.equals(Constants.REACTAPP)) {
+			status = Convert.strToInt(jsonObject.getString("status"), -1);
+		}
+
+		List<Map<String, Object>> investList = borrowDao.queryPayingDetails(borrowId, status, (curPage - 1) * pageSize, pageSize);
+		if (investList != null) {
+			for (Map<String, Object> mp : investList) {
+				if (Convert.strToInt(mp.get("repayStatus").toString(), -1) == Constants.PAYING_STATUS_NON) {
+					mp.put("repayStatus", Constants.PAYING_STATUS_NON_STR);
+				} else if (Convert.strToInt(mp.get("repayStatus").toString(), -1) == Constants.PAYING_STATUS_PAYING) {
+					mp.put("repayStatus", Constants.PAYING_STATUS_PAYING_STR);
+				} else if (Convert.strToInt(mp.get("repayStatus").toString(), -1) == Constants.PAYING_STATUS_SUCCESS) {// 已偿还完
+					mp.put("repayStatus", Constants.PAYING_STATUS_SUCCESS_STR);
+				}
+			}
+		}
+		Long investMap = borrowDao.queryPayingDetailsCount(borrowId, status);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(investMap);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	/**
+	 * 还款明细（还款）
+	 * 
+	 * @param jsonObject
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> findMyPayData(JSONObject jsonObject) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Long payId = Convert.strToLong(jsonObject.getString("payId"), -1);
+		Map<String, Object> investList = borrowDao.findMyPayData(payId);
+		jsonMap.put("payMap", investList);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	/**
+	 * 验证交易密码
+	 * 
+	 * @param userId
+	 * @param pwd
+	 * @return
+	 * @author Li zeyang
+	 */
+	public String valideTradePassWord(long userId, String pwd) {
+		String passWord = "";
+		if ("1".equals(Constants.ENABLED_PASS)) {
+			passWord = com.shove.security.Encrypt.MD5(pwd.trim());
+		} else {
+			passWord = com.shove.security.Encrypt.MD5(pwd.trim() + IConstants.PASS_KEY);
+		}
+		passWord = com.shove.web.Utility.filteSqlInfusion(passWord);
+		passWord = StringEscapeUtils.escapeSql(passWord);
+		Map<String, Object> map = borrowDao.valideTradePassWord(userId, passWord);
+		if (map == null || map.size() == 0) {
+			return "交易密码错误";
+		}
+		return "";
+	}
+
+	public Map<String, Object> queryBorrowByPayId(Long payId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = borrowDao.queryBorrowByPayId(payId);
+		return map;
+	}
+
+	public Map<String, Object> getInvestCountByBorrowTd(Long borrowId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = borrowDao.getInvestCountByBorrowTd(borrowId);
+		return map;
+	}
+
+	public Map<String, Object> getRepamentCountByBorrowId(Long idLong) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = borrowDao.getRepamentCountByBorrowId(idLong);
+		return map;
+	}
+
+	public Map<String, Object> borrowInit(long borrowId) {
+		Map<String, Object> callMap = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
+		callMap.put("in_bid", borrowId);
+		callMap.put("out_ret", 0);
+		callMap.put("out_desc ", "");
+		borrowDao.callBorrowRepaymentinitProcedure(callMap);
+		if (Convert.strToLong(callMap.get("out_ret") + "", -1) <= 0) {
+			// map.put("ret", ret + "");
+			map.put("ret_desc", "");
+			return map;
+		} else {
+			return map;
+		}
+
+	}
+
+	public Map<String, Object> doNormalRepay(long idLong, User sessionUserInfo, String pwd, Double needSum, String basePath) {
+		pwd = Utility.filteSqlInfusion(pwd);
+		String Fee = "0.00";
+		String divDetails = "";
+		String transAmt = "";
+		String inAcctId = "";
+		String outAcctId = "";
+		String outCustId = sessionUserInfo.getIpayAccount() + "";
+		String bgRetUrl = basePath + "pubCallBack.do";
+		List<Map<String, Object>> list = queryAllInvestInfo(idLong);// 查询所有投资人的投资信息
+		JSONObject obj = new JSONObject();
+		String repayPeriod = list.get(0).get("repayPeriod").toString(); // 还款期数
+																		// 格式1/1
+		// String borrowFXJ= list.get(0).get("borrowFXJ").toString();
+		// //借款时扣除的风险保证金
+		int currPeriod = -1;
+		int totalPeriod = -1;
+		if (repayPeriod != null) {
+			String[] arry = repayPeriod.split("/");
+			currPeriod = Convert.strToInt(arry[0], -1);
+			totalPeriod = Convert.strToInt(arry[1], -1);
+		}
+		Map<String, Object> cmap = new HashMap<String, Object>();
+		double accountManageFee = Convert.strToDouble(list.get(0).get("accountManageFee") + "", 0); // 账户管理费
+
+		for (int i = 0, size = list.size(); i < size; i++) {
+			Map<String, Object> map = list.get(i);
+
+			// 2015-3-18 by cqm
+			// 最后一次还款时扣除账户管理费 错误地扣除最后一个投资人（不能把扣款从一个投资人扣除），这里需要再讨论，先屏蔽本段代码
+			/*
+			 * if (i == size - 1) { // 在最后一次还款时扣除账户管理费 Fee = new
+			 * DecimalFormat("0.00").format((accountManageFee)); JSONObject json
+			 * = new JSONObject(); json.put("DivCustId",
+			 * ChinaPnrConfig.chinapnr_merCustId); json.put("DivAcctId",
+			 * ChinaPnrConfig.chinapnr_syqcjr); json.put("DivAmt", new
+			 * DecimalFormat("0.00") .format(accountManageFee)); divDetails =
+			 * "[" + json.toString()+"]"; }
+			 */
+
+			String ordId = GenerateSequenceNo.generateSequenceNo(); // ordId取时间戳
+																	// //map.get("ordId")
+																	// + "";
+			String inCustId = map.get("inCustId") + "";
+			String subOrdId = "-1";
+			String debtId = map.get("debtId") + "";
+			String investId = map.get("invest_id").toString();
+			debtId = Utility.filteSqlInfusion(debtId);
+			investId = Utility.filteSqlInfusion(investId);
+			if (debtId.equals("null") || debtId.equals("-1") || debtId.equals("")) {// 没有发生债权转让
+				subOrdId = map.get("subOrdId") + "";
+
+			} else {// 还款如果有发生债权转让
+
+				List<Map<String, Object>> debtList = queryAssignmentDebtListByInvestId(investId);
+				if (debtList.size() > 0) {
+					// 获取债权转让的交易流水号
+					subOrdId = debtList.get(0).get("ordId") + "";
+				} else {
+					subOrdId = map.get("subOrdId") + "";
+				}
+
+			}
+			String subOrdDate = DateUtil.dateToYMD(DateUtil.strToDate(String.valueOf(map.get("subOrdDate"))));
+			transAmt = map.get("inSum") + "";
+			if (Convert.strToInt(map.get("isWebRepay") + "", -1) == 2) {// 如果已代偿,收款人为担保公司,inCustId为商户子账户
+				inCustId = ChinapnrConfig.CHINAPNR_MERCUSTID;
+				inAcctId = "MDT000001";
+				transAmt = map.get("compensatorySum") + "";
+			}
+
+			JSONObject json = JSONObject.fromObject(ChinapnrService.repayment("20", ordId, outCustId, outAcctId, transAmt, inCustId, inAcctId, subOrdId, subOrdDate, Fee,
+					divDetails, bgRetUrl));
+
+			// 还款发送短信 tangjielong 20160728
+			Map<String, Object> investMap = borrowDao.selectInvestId(Convert.strToLong(investId, 1));
+			String investor = String.valueOf(investMap.get("investor"));
+			investor = Utility.filteSqlInfusion(investor);
+			if (Constants.ISDEMO.equals("2")) {
+				smsInterfaceService.sendSMSModer(Convert.strToLong(investor, 1), transAmt, 4);
+			}
+			// System.out.println(json.toString());
+			String respDesc = "";
+			try {
+				log.info("汇付返回处理结果:" + URLDecoder.decode(json.getString("RespDesc"), "utf-8"));
+				log.info("汇付返回处理结果:" + URLDecoder.decode(json.toString(), "utf-8"));
+				respDesc = java.net.URLDecoder.decode(json.getString("RespDesc"), "UTF-8");
+				int RespCode = json.getInt("RespCode");
+				cmap.put("respDesc", respDesc);
+				cmap.put("result", RespCode + "");
+			} catch (UnsupportedEncodingException e) {
+				obj.put("msg", respDesc);
+				obj.put("error", "8");
+				e.printStackTrace();
+			}
+		}
+		return cmap;
+
+		// 最后一期还款完成后退还风险准备金至借款人账户
+		// if(currPeriod==totalPeriod){
+		// String ordId=generateSequenceNo.generateSequenceNo();
+		// String outSubAcct=ChinaPnrConfig.chinapnr_fx;
+		// String jsonTransfer = ChinaPnRInterface.transfer(ordId + "",
+		// ChinaPnrConfig.chinapnr_merCustId, outSubAcct, borrowFXJ + "",
+		// outCustId, "");
+		// System.out.println(jsonTransfer);
+		// JSONObject json = JSONObject.fromObject(jsonTransfer);
+		// int RespCode = json.getInt("RespCode");
+		// if (RespCode != 0) {
+		// JSONUtils.printObject(json.get("退还风险准备金失败，:"+RespCode));
+		// return;
+		// }
+		// }
+	}
+
+	private List<Map<String, Object>> queryAllInvestInfo(long payId) {
+		return borrowDao.queryAllInvestInfo(payId);
+	}
+
+	private List<Map<String, Object>> queryAssignmentDebtListByInvestId(String investId) {
+		investId = Utility.filteSqlInfusion(investId);
+		List<Map<String, Object>> arrayList = new ArrayList<Map<String, Object>>();
+		arrayList = borrowDao.queryAssignmentDebtListByInvestId(investId);
+		return arrayList;
+	}
+
+	private Map<String, Object> callBorrowRepaymentProcedure(long id, long userId, String dealPWD, String basePath, Date date, BigDecimal bigDecimal, int payType, int i,
+			String string) {
+		dealPWD = Utility.filteSqlInfusion(dealPWD);
+		string = Utility.filteSqlInfusion(string);
+		Map<String, Object> callMap = new HashMap<String, Object>();
+		callMap.put("in_pid", id);
+		callMap.put("in_uid", userId);
+		callMap.put("in_dealpwd", dealPWD);
+		callMap.put("in_basepath", basePath);
+		callMap.put("in_pay_time", date);
+		callMap.put("in_ifeerate", bigDecimal);
+		callMap.put("in_payType", payType);
+		callMap.put("out_ret", i);
+		callMap.put("out_desc", string);
+		borrowDao.callBorrowRepaymentProcedure(callMap);
+		return callMap;
+
+	}
+
+	/**
+	 * 提交还款
+	 * 
+	 * @param id
+	 * @param userId
+	 * @param dealPWD
+	 * @param basePath
+	 * @param username
+	 * @param payType
+	 * @return
+	 * @throws Exception
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> submitPay(long id, long userId, String dealPWD, String basePath, String username, int payType) {
+		dealPWD = Utility.filteSqlInfusion(dealPWD);
+		basePath = Utility.filteSqlInfusion(basePath);
+		username = Utility.filteSqlInfusion(username);
+
+		// Connection conn = MySQL.getConnection();
+		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> userMap = new HashMap<String, Object>();
+		Map<String, Object> borrowUserMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investorList = new ArrayList<Map<String, Object>>();
+
+		if ("1".equals(Constants.ENABLED_PASS)) {
+			dealPWD = com.shove.security.Encrypt.MD5(dealPWD.trim());
+		} else {
+			dealPWD = com.shove.security.Encrypt.MD5(dealPWD.trim() + IConstants.PASS_KEY);
+		}
+		DataSet ds = new DataSet();
+		// List<Object> outParameterValues = new ArrayList<Object>();
+		long ret = -1;
+		// String result = paySubmit(conn,id,userId,dealPWD,basePath,
+		// username);
+		// 查询借款信息得到借款时插入的平台收费标准
+		Map<String, Object> mapacc = borrowDao.queryBorrowCostByPayId(id);
+		String feelog = Convert.strToStr(String.valueOf(mapacc.get("feelog")), "");
+		feelog = Utility.filteSqlInfusion(feelog);
+		@SuppressWarnings("unchecked")
+		Map<String, Double> feeMap = (Map<String, Double>) JSONObject.toBean(JSONObject.fromObject(feelog), HashMap.class);
+		double investFeeRate = Convert.strToDouble(feeMap.get(Constants.INVEST_FEE_RATE) + "", 0);
+		Map<String, Object> outParameterValues = callBorrowRepaymentProcedure(id, userId, dealPWD, basePath, new Date(), new BigDecimal(investFeeRate), payType, -1, "");
+
+		ret = Convert.strToLong(outParameterValues.get("out_ret") + "", -1);
+		map.put("ret", ret + "");
+		map.put("ret_desc", outParameterValues.get("out_desc") + "");
+		if (ret <= 0) {
+			map.put("msg", outParameterValues.get("out_desc") + "");
+		} else {
+			userMap = userDao.queryUserInfoById(userId);
+			OperationLog ol = new OperationLog("t_repayment", Convert.strToStr(String.valueOf(userMap.get("username")), ""), Constants.UPDATE, Convert.strToStr(
+					String.valueOf(userMap.get("lastIP")), ""), new Date(), 0.0, "用户还款", 1, Long.parseLong(String.valueOf(userMap.get("id"))));
+			operationLogDao.addOperationLog(ol);
+			/* //还款成功修改奖励机制 */
+			if ("1".equals(ret + "")) {
+				// // 还款处理积分
+				List<Map<String, Object>> list = borrowDao.DisposeIntegral(id);
+				for (Map<String, Object> map2 : list) {
+					long uId = Convert.strToLong(map2.get("userId") + "", -1);
+					Object obj = map2.get("principal");
+					BigDecimal amounts = BigDecimal.ZERO;
+					if (obj != null) {
+						amounts = new BigDecimal(obj + "").setScale(2, BigDecimal.ROUND_HALF_UP);
+					}
+					updateMoneyNew(uId, amounts, Constants.MONEY_TYPE_2, id);
+				}
+				assignmentDebtService.updatePreRepayment(id, basePath);
+			}
+
+		}
+		borrowUserMap = borrowDao.queryBorrowerById(id);
+		if (borrowUserMap != null) {
+			long uId = Convert.strToLong(String.valueOf(borrowUserMap.get("publisher")), -1);
+			userService.updateSign(uId);// 更换校验码
+		}
+		investorList = borrowDao.queryInvesterById(id);
+		if (investorList != null) {
+			for (Map<String, Object> investorMap : investorList) {
+				if (investorMap != null) {
+					long uId = Convert.strToLong(investorMap.get("investor") + "", -1);
+					userService.updateSign(uId);// 更换校验码
+				}
+				investorMap = null;
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * (新规则) 金额变动
+	 * 
+	 * @param conn
+	 * @param userId用户编号
+	 *            (投资人和理财人)
+	 * @param money变动金额
+	 * @param type1投资2还款
+	 * @param investOrRepaymentId投资
+	 *            /还款明细编号
+	 * @return -1,-2,-3,-4: 0：处理成功 1:此标的不属于实地认证标的，或机构担保标的。
+	 *         2：当前用户已经期满1年，不需要进行奖励了。 3：此用户不是奖励体系的角色。 4：与上一级解除关系了不需要进行奖励。
+	 * @throws Exception
+	 */
+	public int updateMoneyNew(long userId, BigDecimal money, int type, long investOrRepaymentId) {
+		List<Map<String, Object>> relationList = borrowDao.queryRelationByUserId(userId);// 查询用户角色
+		if (relationList == null || relationList.size() <= 0) {
+			return 3;// 不在角色关系系统内，
+		}
+		Map<String, Object> relationMap = new HashMap<String, Object>();
+		relationMap = relationList.get(0);
+		int level = Convert.strToInt(relationMap.get("level") + "", -1);// 当前用户级别
+		int enable = Convert.strToInt(relationMap.get("enable") + "", -1);// 是否和上一级解除关系
+		long parentId = Convert.strToLong(relationMap.get("parentId") + "", -1);
+		if (enable == 2) {
+			return 4;// 与上一级解除了关联
+		}
+		if (level == 4) {// 理财人
+			// 获得理财人的经纪人
+			List<Map<String, Object>> list = borrowDao.queryRelationByPeopleId(parentId);// 理财人的上级是投资人，投资人的上级是经纪人
+			if (list == null || list.size() <= 0) {
+				return 3;// 不在角色关系系统内，
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map = list.get(0);
+			enable = Convert.strToInt(map.get("enable") + "", -1);// 是否和上一级解除关系
+			parentId = Convert.strToLong(map.get("parentId") + "", -1);// 投资人的上级是经纪人
+			// 投资人与上级解除关系了跟理财人跟上级的关系无关
+			// if(enable==2){
+			// return 4;//与上一级解除了关联
+			// }
+		}
+		Map<String, Object> platformCostMap = getPlatformCost();
+		// 奖励机制1：
+		award1New(userId, null, relationMap, parentId, investOrRepaymentId, level, type, money, platformCostMap);
+
+		return 5;
+	}
+
+	/**
+	 * 奖励机制1
+	 * 
+	 * @param conn
+	 * @param userId用户编号
+	 * @param userMap
+	 *            用户明细
+	 * @param relationMap
+	 *            用户角色关系
+	 * @param level
+	 *            用户角色等级
+	 * @param parentId
+	 *            父编号
+	 * @param moneys
+	 *            总待收本金
+	 * @return
+	 * @throws Exception
+	 */
+	public int award1New(long userId, Map<String, String> userMap, Map<String, Object> relationMap, long parentId, long investOrRepaymentId, int level, int type,
+			BigDecimal moneys, Map<String, Object> platformCostMap) {
+		BigDecimal level2Money = BigDecimal.ZERO;
+		long level2UserId = -1;
+		BigDecimal level1Money = BigDecimal.ZERO;
+		long level1UserId = -1;
+		// 总的待收本金与历史最大待收本金作比较xmax，
+		List<Map<String, Object>> relationLevel1List = relationDao.queryRelationStatus(parentId, null);// 根据经纪人查询是否有关联的团队长
+		Map<String, Object> relationLevel1Map = null;
+		if (relationLevel1List != null && relationLevel1List.size() > 0) {
+			relationLevel1Map = relationLevel1List.get(0);
+		}
+		if (relationLevel1Map != null) {
+			int level2enable = Convert.strToInt(relationLevel1Map.get("level2enable") + "", -1);
+			int level1enable = Convert.strToInt(relationLevel1Map.get("level1enable") + "", -1);
+			level2UserId = parentId;
+			// 团队长奖励比例
+			String longTeamRewardRate = Convert.strToStr(platformCostMap.get(IAmountConstants.LONG_TEAM_REWARD_RATE) + "", "0.0025");
+			// 经纪人奖励比率
+			String agent_reward_rate = Convert.strToStr(platformCostMap.get(IAmountConstants.AGENT_REWARD_RATE) + "", "0.0005");
+			level2Money = moneys.multiply(new BigDecimal(agent_reward_rate));// 经纪人所得奖励
+			// 1奖励给经纪人，2奖励完经纪人后，根据经纪人编号查询是否上面有团队长，如果有则按奖励公式给予团队长进行奖励，并作记录
+			int enable1 = Convert.strToInt(relationLevel1Map.get("enable") + "", -1);// 是否和上一级解除关系
+			if (enable1 == 1) {
+				long parentId1 = Convert.strToLong(relationLevel1Map.get("level1userId") + "", -1);
+				level1UserId = parentId1;
+				level1Money = level2Money.multiply(new BigDecimal(longTeamRewardRate));
+				// MySQL.executeNonQuery(conn, " update t_admin set moneys =
+				// moneys+"+level1Money+" where id = "+level1UserId);//奖励团队长提成
+			}
+			if (level2enable != 1) {// 如果经纪人被禁用了则不能获得奖励
+				level2Money = BigDecimal.ZERO;
+			}
+			if (level1enable != 1) {// 如果团队长被禁用了则不能获得奖励
+				level1Money = BigDecimal.ZERO;
+			}
+			Award award = new Award();
+			award.setUserId(userId);
+			award.setLevel2userId(level2UserId);
+			award.setLevel2money(level2Money.doubleValue());
+			award.setLevel1userId(level1UserId);
+			award.setLevel1money(level1Money.doubleValue());
+			award.setIorId(investOrRepaymentId);
+			award.setStatus(1);
+			award.setAddDate(new Date());
+			award.setMx(moneys.doubleValue());
+			award.setMxType(IConstants.MX_TYPE_MAX);
+			award.setIorType(type);
+			award.setMonth(-1);
+			award.setLevel(level);
+			awardDao.addAward(award);
+			// 并把当前总的待收本金赋值给历史最大待收本金，并作记录
+			// MySQL.executeNonQuery(conn," update t_user set xmax = "+moneys+"
+			// where id ="+userId);
+		}
+		// 如果当前总的待收本金小于历史最大待收本金，则不作任何处理
+		return 0;
+	}
+
+	public Map<String, Object> getPlatformCost() {
+		// 获取平台收费
+		Map<String, Object> platformCostMap = (Map<String, Object>) ContextLoader.getCurrentWebApplicationContext().getServletContext()
+				.getAttribute(IAmountConstants.FEE_APPLICATION);
+		if (platformCostMap == null)
+			platformCostMap = new HashMap<String, Object>();
+		return platformCostMap;
+	}
+
+	public Map<String, Object> queryAutomaticBid(long userId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = borrowDao.queryAutomaticBid(userId);
+		return map;
+	}
+
+	public Map<String, Object> queryAutoRepayment(long userId) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, Object> umap = new HashMap<String, Object>();
+		umap = automaticRepaymentDao.queryAutoRepayment(userId);
+		Map<String, Object> automaticBidMap = queryAutomaticBid(userId);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "ok");
+		if (umap == null) {
+			jsonMap.put("bidStatus", "1");
+		} else {
+			jsonMap.put("bidStatus", umap.get("bidStatus"));
+		}
+		jsonMap.put("automaticBidMap", automaticBidMap);
+		return jsonMap;
+	}
+
+	public long addAutoRepayment(Long id, int state) {
+		Map<String, Object> userMap = new HashMap<String, Object>();
+		Map<String, Object> map = automaticRepaymentDao.queryAutoRepayment(id);
+		Date date = new Date();
+		Long result = -1L;
+		if (map != null && map.size() > 0) {
+			// 更新内容
+			result = automaticRepaymentDao.updateAutoRepayment(id, state, date);
+		} else {
+			// 添加内容
+			result = automaticRepaymentDao.addAutoRepayment(id, state, date);
+		}
+		if (result <= 0) {
+			return -1L;
+		} else {
+			userMap = userDao.queryUserInfoById(id);
+			OperationLog operationLog = new OperationLog("t_automaticrepayment", Convert.strToStr(userMap.get("username") + "", ""), Constants.UPDATE, Convert.strToStr(
+					userMap.get("lastIP") + "", ""), new Date(), 0.0, "设置自动还款", 1, Long.parseLong(userMap.get("id") + ""));
+			operationLogDao.addOperationLog(operationLog);
+		}
+
+		return result;
+	}
+
+	public Map<String, Object> updateReferPay(JSONObject jsonObject, long userId, String path, String pageType) {
+		User user = userDao.queryUserById(userId);
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String code = (String) sessionGetAttribute("invest_checkCode");
+		String _code = ConvertUtil.objToStrConvert(jsonObject.get("code"));
+		String id = ConvertUtil.objToStrConvert(jsonObject.get("id"));
+		long idLong = Convert.strToLong(id, -1L);
+		String pwd = ConvertUtil.objToStrConvert(jsonObject.get("pwd"));
+		String mpwd = valideTradePassWord(user.getId(), pwd);
+		code = Utility.filteSqlInfusion(code);
+		_code = Utility.filteSqlInfusion(_code);
+		pwd = Utility.filteSqlInfusion(pwd);
+		mpwd = Utility.filteSqlInfusion(mpwd);
+		if (!StringUtils.isBlank(mpwd)) {
+			jsonMap.put("error", "2");
+			jsonMap.put("msg", "密码错误");
+			return jsonMap;
+		}
+		Double needSum = Convert.strToDouble(String.valueOf(jsonObject.get("needSum")), 0);
+		Map<String, Object> cmap = new HashMap<String, Object>();
+
+		if (needSum <= 0) {
+			jsonMap.put("error", "3");
+			jsonMap.put("msg", "还款金额错误");
+			return jsonMap;
+		}
+
+		if (StringUtils.isBlank(pwd.trim())) {
+			jsonMap.put("error", "4");
+			jsonMap.put("msg", "密码不能为空");
+			return jsonMap;
+		}
+		if (!code.equals(_code)) {
+			jsonMap.put("error", "5");
+			jsonMap.put("msg", "验证码错误");
+			return jsonMap;
+		}
+
+		// 验证密码是否正确
+		/******************** 调用存储过程纠偏还款资金误差开始 ***************************/
+		// 查询出当前还款记录对应的借款记录
+		Map<String, Object> pre = new HashMap<String, Object>();
+		pre = queryBorrowByPayId(idLong);
+		long borrowId = Convert.strToLong(String.valueOf(pre.get("borrow_id")), -1l);
+		// 获取投资信息人数
+		Map<String, Object> investCount = new HashMap<String, Object>();
+		investCount = getInvestCountByBorrowTd(borrowId);
+		Map<String, Object> rePaymentCount = new HashMap<String, Object>();
+		// 获取还款信息人数
+		rePaymentCount = getRepamentCountByBorrowId(idLong);
+
+		if (Long.parseLong(String.valueOf(investCount.get("investCount"))) != Long.parseLong(String.valueOf(rePaymentCount.get("rePaymentCount")))) {
+			jsonMap.put("msg", "还款人数与投资人数不相等，请联系客服！");
+			jsonMap.put("error", "6");
+			return jsonMap;
+		}
+
+		// 调用资金纠偏存储过程
+		Map<String, Object> borrowInit = borrowInit(borrowId);
+		if (borrowInit != null && borrowInit.size() > 0) {
+			jsonMap.put("msg", borrowInit.get("ret_desc"));
+			jsonMap.put("error", "6");
+			return jsonMap;
+		}
+
+		/******************** 调用存储过程纠偏还款资金误差结束 ***************************/
+
+		JSONObject json = JSONObject.fromObject(ChinapnrInterface.queryBalanceBgs(user.getIpayAccount() + ""));
+		String AvlBalString = json.getString("AvlBal");// 用户在汇付可用余额
+		AvlBalString = AvlBalString.replaceAll(",", "");
+		double AvlBal = Convert.strToDouble(AvlBalString + "", 0);
+		if (AvlBal < needSum) {
+			jsonMap.put("msg", "余额不足,请充值");
+			jsonMap.put("error", "7");
+			return jsonMap;
+		}
+		cmap = doNormalRepay(idLong, user, pwd, needSum, path);
+
+		if (cmap != null) {
+			int RespCode = Convert.strToInt((cmap.get("result")) + "", -1);
+			String respDesc = String.valueOf(cmap.get("respDesc"));
+			if (RespCode != 0) {// 当汇付处理不成功时返回汇付提示消息
+				jsonMap.put("msg", respDesc);
+				jsonMap.put("error", "8");
+				return jsonMap;
+			}
+		}
+
+		boolean re = userService.checkSign(user.getId());
+		if (!re) {
+			jsonMap.put("msg", "*您的账号出现异常，请速与管理员联系!");
+			jsonMap.put("error", "10");
+			requestRemoveAttribute("user");
+			request().getSession().invalidate();
+			// try {
+			// getOut().print("<script>alert('*您的账号出现异常，请速与管理员联系! ');window.location.href='login.do';</script>");
+			// } catch (Exception e) {
+			// e.printStackTrace();
+			// }
+			return jsonMap;
+		}
+		Map<String, Object> map = submitPay(idLong, user.getId(), pwd, path, user.getUsername(), 1);
+		String result = Convert.strToStr(String.valueOf(map.get("ret")), "");
+		result = Utility.filteSqlInfusion(result);
+		userService.updateSign(user.getId());// 更换校验码
+		if (result.equalsIgnoreCase("1")) {
+			jsonMap.put("error", "0");
+		} else {
+			jsonMap.put("error", result);
+			jsonMap.put("msg", map.get("ret_desc"));
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 
+	 * @describe:投资管理-已回收的借款查看更多
+	 * @author: xiaojin
+	 * @return
+	 */
+	public Map<String, Object> findBorrowForpayDetail(JSONObject jsonObject, long userId) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String iid = String.valueOf(jsonObject.get("id")) == null ? "" : String.valueOf(jsonObject.get("id"));
+		long iidLong = Convert.strToLong(iid, -1);
+		List<Map<String, Object>> listMap = investRepaymentDao.findBorrowForpayDetail(iidLong, userId);
+		jsonMap.put("listMap", listMap);
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "查询成功");
+		return jsonMap;
+	}
+
+}

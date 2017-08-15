@@ -1,0 +1,22 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+public interface SlbaoEarningsDao {
+
+	public void addSlbaoEarnings(Long userId, double totalAsset, double money);
+
+	public List<Map<String, Object>> findBorrowInvestByCondition(String recordTimeStart, String recordTimeEnd,
+			Long userId, Long pageNum, Long pageSize);
+
+	public List<Map<String, Object>> querySlbaEarnRecordByUserId(@Param("userId") Long id,
+			@Param("pageNum") Long pageno, @Param("pageSize") Long pageSize6Long, @Param("startTime") String startTime,
+			@Param("endTime") String endTime);
+
+	public long querySlbaEarnRecordCountByUserId(@Param("userId") Long id, @Param("startTime") String startTime,
+			@Param("endTime") String endTime);
+
+}

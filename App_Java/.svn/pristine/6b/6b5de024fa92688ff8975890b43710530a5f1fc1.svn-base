@@ -1,0 +1,67 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * AutomaticRepayment entity. @author MyEclipse Persistence Tools
+ */
+
+public class AutomaticRepayment implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long userId;
+	private Integer bidStatus;
+	private Date bidSetTime;
+
+	// Constructors
+
+	/** default constructor */
+	public AutomaticRepayment() {
+	}
+
+	/** full constructor */
+	public AutomaticRepayment(Long userId, Integer bidStatus,
+			Date bidSetTime) {
+		this.userId = userId;
+		this.bidStatus = bidStatus;
+		this.bidSetTime = bidSetTime;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Integer getBidStatus() {
+		return this.bidStatus;
+	}
+
+	public void setBidStatus(Integer bidStatus) {
+		this.bidStatus = bidStatus;
+	}
+
+	public Date getBidSetTime() {
+		return this.bidSetTime;
+	}
+
+	public void setBidSetTime(Date bidSetTime) {
+		this.bidSetTime = bidSetTime;
+	}
+
+}

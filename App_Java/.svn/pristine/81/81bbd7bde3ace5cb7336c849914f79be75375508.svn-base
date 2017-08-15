@@ -1,0 +1,50 @@
+package com.pjzb.dao;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.Redmoneyrecord;
+
+public interface RedmoneyrecordDao {
+	/**
+	 * 添加红包记录
+	 * @param redmoneyrecord
+	 */
+	public long addRedmoneyRecord(Redmoneyrecord redmoneyrecord);
+	
+	/**
+	 * 根据类型查询代金券或现金券的数量
+	 * @param userId
+	 * @param redmoneytype
+	 * @return
+	 */
+	public Map<String, Long> queryRedmoneyrecordByUserIdAndType(Long userId,String redmoneytype);
+	
+	/**
+	 * 根据userId查询用户未使用的代金券信息
+	 * @param userId
+	 * @param redmoneytype
+	 * @return
+	 */
+	public List<Map<String, Object>> getUerVocherById(Long userId);
+	
+	
+	public List<Redmoneyrecord> queryRedmoneyrecordByRedmoneytypeAndUid(String redmoneytype,Long uid);
+	
+	public Long updateVocherAmt(Integer usestatus,Long uid,Long id);
+	
+	public void updateRedmoneyrecordByUsestatus();
+	
+	public Redmoneyrecord queryRedmoneyrecordByRedmoneytypeAndId(String redmoneytype,Long id);
+	
+	public void updateRedmoneyrecordById(Date activetime,Integer usestatus,Date usetime,Long id);
+
+	public void updateVocherAmtById(long parseLong);
+	
+	public List<Map<String, Object>> queryRedmoneyrecordForPage(String username,String redmoneytype,Integer usestatus,Long index,Long pageSize);
+	
+	public long queryRedmoneyrecordCount(String username,String redmoneytype,Integer usestatus);
+	
+	public long queryRedmoneyrecordCountById(Long userId);
+}

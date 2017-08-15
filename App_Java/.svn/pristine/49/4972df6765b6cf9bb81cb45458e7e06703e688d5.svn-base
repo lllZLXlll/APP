@@ -1,0 +1,14 @@
+package com.pjzb.service.admin.identify;
+
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+/**
+ * 认证资料统计
+ * @author xiaojin
+ *
+ */
+@Service
+public class AdminAuthenDataService extends BaseController {
+
+}

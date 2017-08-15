@@ -1,0 +1,90 @@
+define(function (require,exports,module) {
+	//首页
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			utils.setAppConfig('我邀请的好友',true,false);
+		},
+		data:function(){
+			return{
+				listNum:1,
+				loading:false,
+				model:false
+			}
+		},
+		route:{
+			data: function(transition){
+				var _this = this;
+				var param={uid:Storage.getItem('uid'),curPage:_this.listNum};
+				utils.ajax({
+			        url:'../front/friendManagerInit.do',
+			        data:JSON.stringify(repayparam),
+			        dataType:'json',
+			        success: function(data){
+			        	_this.$set('dataList',data.pageBean.page);
+		        		if(data.pageBean.page.length>0){
+		        			_this.$set('dataLength',false);
+		        			_this.$set('totalPageNum',data.pageBean.totalPageNum);
+		        		}else{
+		        			_this.$set('dataLength',true);
+		        		}
+			        },
+			        complete:function(){
+			        	transition.next();
+			        }
+			    })
+			},
+			waitForData: true
+		},
+		ready: function(){
+			var _this = this;
+			$(document).on('infinite',function(){
+				if (_this.loading){return;}
+				_this.$set('model',true);
+				// 设置flag
+				_this.$set('loading',true);
+				var listNum = _this.listNum+1;
+				//如果查询页数大于当前总页数，则返回
+				if(listNum > _this.totalPageNum){
+					$.toast('没有更多记录了哦'); 
+					_this.$set('model',false);
+					_this.$set('loading',false);
+					$.detachInfiniteScroll($('.infinite-scroll'));
+					return;
+				}
+				_this.$set('listNum',listNum);
+				//无线滚动
+				var param={uid:Storage.getItem('uid'),curPage:_this.listNum};
+				utils.ajax({
+			        url:'../front/friendManagerInit.do',
+			        data:JSON.stringify(param),
+			        dataType:'json',
+			        success: function(data){
+			        	if(data.error == '0'){
+			        		if(data.pageBean.page.length>0){
+			        			if(data.pageBean.page.length<20){
+			        				_this.$set('model',false);
+			        			}
+			        			_this.$set('dataList',_this.dataList.concat(data.pageBean.page));
+			        		}
+			        	}
+			        },complete:function(){
+			        	_this.$set('loading',false);
+			        }
+			    })
+			});
+			$.initPage();
+		},
+		filters:{
+			timeSub: function(value){
+				return value
+			}
+		},
+		template:'<div class="content calculator friend track-fund"><div class="track-fund infinite-scroll infinite-scroll-bottom"  data-distance="100"><ul>'+
+				'<li class="track-title"><p>邀请的好友</p><p>注册时间</p><p>成功并投资</p><p>奖励</p></li>'+
+				'<li v-if="dataLength"><span>暂无明细</span></li>'+
+				'<template v-for="list in dataList">'+
+				'<li track-by="list.id"><p>{{list.username}}</p><p>{{list.createTime | timeSub}}</p><p>{{list.vipCreateTime}}</p><p>{{list.money}}</p></li></template>'+
+				'</ul></div><div class="infinite-scroll-preloader" v-show="model"><div class="preloader"></div></div></div>'
+	});
+	module.exports = VueComponent;
+})

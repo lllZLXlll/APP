@@ -1,0 +1,39 @@
+package com.pjzb.dao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.RechargeDetail;
+
+public interface RechargeDetailDao {
+	
+	public List<RechargeDetail> queryRechargeList(Long userId,String startTime, String endTime,Long index,Long num);
+	
+	public Map<String, Long> queryRechargeCountByRechargeTime(Long userId,String startTime, String endTime);
+	
+	public void addRechargeDetail(RechargeDetail rechargeDetail);
+	
+	public void callUseraddmoneyProcedure(Map<String, Object> map);
+	
+	public Map<String, BigDecimal> queryRechargeAmountWithin15Days(Long userId);
+
+	public Map<String, Object> querySuccessRecharge(long userId, int rs);
+
+	public List<Map<String, Object>> queryRechargeRecord(long l, Long pageSize, String userName, String beginTime, String endTime, Integer rechargeType, Integer result);
+
+	public long queryInvestStatisCount(String userName, String beginTime, String endTime, Integer rechargeType, Integer result);
+
+	public Map<String, Object> queryRechargeSum(String userName, String beginTime, String endTime, int awardTypeInt, int resultInt);
+
+	public List<Map<String, Object>> queryRechargeRecords(long l, Long pageSize, String userName, String beginTime, String endTime, int awardTypeInt, int resultInt);
+
+	public List<Map<String, Object>> queryRechargeFirstList(long l, Long pageSize, String userName, String beginTime, String endTime, int awardTypeInt);
+
+	public long queryRechargeFirstListCount(String userName, String beginTime, String endTime, int awardTypeInt);
+
+	public List<Map<String, Object>> queryRechargeFirsts(long l, Long pageSize, String userName, String beginTime, String endTime, int awardTypeInt);
+
+	public Map<String, Object> queryOneFirstChargeDetails(Long rechargeId, boolean b);
+
+}

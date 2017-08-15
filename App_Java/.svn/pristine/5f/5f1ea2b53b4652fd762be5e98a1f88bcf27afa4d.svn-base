@@ -1,0 +1,17 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.OperationLog;
+
+public interface OperationLogDao {
+	
+	public long addOperationLog(OperationLog operationLog);
+
+	public long queryAdminRecordAllCount(String userName, String beginTime, String endTime, String operation_around);
+
+	public List<Map<String, Object>> queryAdminRecordAll(String userName, String beginTime, String endTime, String operation_around, long l,
+			Long pageSize);
+
+}

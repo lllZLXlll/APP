@@ -1,0 +1,12 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+
+public interface MenuDao {
+	public List<Map<String, Object>> getMenu(Long roleId);
+	
+	public List<Map<String, Object>> getMenuByParentID(Long roleId,Integer id);
+
+}

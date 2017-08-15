@@ -1,0 +1,278 @@
+package com.pjzb.service.common;
+
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.AssignmentDebtDao;
+import com.pjzb.dao.FundrecordDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Fundrecord;
+import com.pjzb.entity.User;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+@Service
+public class UserService {
+	public static Log log = LogFactory.getLog(UserService.class);
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private FundrecordDao fundrecordDao;
+
+	@Autowired
+	private AssignmentDebtDao assignmentDebtDao;
+
+	public Map<String, Object> queryTotalUser() {
+		return userDao.queryTotalUser();
+	}
+
+	public void updateUserAmount(Double money, Long userId) {
+		userDao.updateUserAmount(money, userId);
+	}
+
+	public User queryUserById(Long userId) {
+		return userDao.queryUserById(userId);
+	}
+
+	public Map<String, Object> queryUserByIds(Long userId) {
+		return userDao.queryUserInfoById(userId);
+	}
+
+	public Map<String, String> queryUserAmountAfterHander(Long userId) {
+		return userDao.queryUserAmountAfterHander(userId);
+	}
+
+	public void updateSignById(String s1, String s2, Long userId) {
+		userDao.updateSignById(s1, s2, userId);
+	}
+
+	/**
+	 * 更改签名
+	 * 
+	 * @param userId
+	 * @return
+	 * @throws Exception
+	 */
+	public long updateSign(long userId) {
+		DecimalFormat df = new DecimalFormat("0.00");
+		Fundrecord fundrecord = new Fundrecord();
+		User user = userDao.queryUserById(userId);
+		if (user == null) {
+			return -1;
+		} else {
+			String id = user.getId().toString();
+			String usableSum = df.format(
+					user.getUsableSum() == null || user.getUsableSum() + "" == "null" ? 0 : user.getUsableSum());
+			String freezeSum = df.format(
+					user.getFreezeSum() == null || user.getFreezeSum() + "" == "null" ? 0 : user.getFreezeSum());
+			String dueinSum = df
+					.format(user.getDueinSum() == null || user.getDueinSum() + "" == "null" ? 0 : user.getDueinSum());
+			String dueoutSum = df.format(
+					user.getDueoutSum() == null || user.getDueoutSum() + "" == "null" ? 0 : user.getDueoutSum());
+			fundrecord = fundrecordDao.queryMaxIdFundById(userId);
+			if (fundrecord == null) {
+				if ("1".equals(IConstants.ENABLED_PASS)) {
+					String sign = com.shove.security.Encrypt.MD5(id + usableSum + freezeSum + dueinSum + dueoutSum);
+					String sign2 = com.shove.security.Encrypt
+							.MD5("0" + id + "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0");
+					updateSignById(sign, sign2, userId);
+				} else {
+					String sign = com.shove.security.Encrypt
+							.MD5(id + usableSum + freezeSum + dueinSum + dueoutSum + IConstants.PASS_KEY);
+					String sign2 = com.shove.security.Encrypt
+							.MD5("0" + id + "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0" + IConstants.PASS_KEY);
+					updateSignById(sign, sign2, userId);
+				}
+			} else {
+				String f_id = fundrecord.getId().toString();
+				String f_userId = fundrecord.getUserId().toString();
+				String f_handleSum = df.format(fundrecord.getHandleSum());
+				String f_usableSum = df.format(fundrecord.getUsableSum());
+				String f_freezeSum = df.format(fundrecord.getFreezeSum());
+				String f_dueinSum = df.format(fundrecord.getDueinSum());
+				String f_dueoutSum = df.format(fundrecord.getDueoutSum());
+				String f_cost = df.format(fundrecord.getCost());
+				String f_income = df.format(fundrecord.getIncome());
+				String f_spending = df.format(fundrecord.getSpending());
+
+				if ("1".equals(IConstants.ENABLED_PASS)) {
+					String sign = com.shove.security.Encrypt
+							.MD5(f_userId + usableSum + freezeSum + dueinSum + dueoutSum);
+					String sign2 = com.shove.security.Encrypt.MD5(f_id + f_userId + f_handleSum + f_usableSum
+							+ f_freezeSum + f_dueinSum + f_dueoutSum + f_cost + f_income + f_spending);
+					userDao.updateSignById(sign, sign2, userId);
+				} else {
+					String sign = com.shove.security.Encrypt
+							.MD5(f_userId + usableSum + freezeSum + dueinSum + dueoutSum + IConstants.PASS_KEY);
+					String sign2 = com.shove.security.Encrypt
+							.MD5(f_id + f_userId + f_handleSum + f_usableSum + f_freezeSum + f_dueinSum + f_dueoutSum
+									+ f_cost + f_income + f_spending + IConstants.PASS_KEY);
+					updateSignById(sign, sign2, userId);
+				}
+			}
+		}
+		log.info("-------------" + user.getUsername() + "：更换校验码-----------");
+
+		return userId;
+	}
+
+	public Map<String, Long> findUserByMobile(String mobilephone) throws Exception {
+		return userDao.findUserByMobile(mobilephone);
+	}
+
+	public Map<String, String> queryAccountStatisInfo(Long userId) {
+		return userDao.queryAccountStatisInfo(userId);
+	}
+
+	public User findMobilephone(String mobilephone) {
+		return userDao.findMobilephone(mobilephone);
+	}
+
+	public User findUserByMobilePhone(String mobilephone) {
+		return userDao.findUserByMobilePhone(mobilephone);
+	}
+
+	// 通过用户名查询客户信息
+	public User queryUserByUserName(String name) {
+		return userDao.queryUserByUserName(name);
+	}
+
+	/**
+	 * @MethodName: loginCountReFresh
+	 * @Param: UserService
+	 * @Return:
+	 * @Descb: 刷新登录计数
+	 * @Throws:
+	 */
+	public void updateloginCount(long userId) {
+		if (userId > -1) {
+			userDao.updateloginCount(userId);
+		}
+	}
+
+	public long updateAccountNumByid(long id, int accountNum) throws Exception {
+		long result = -1;
+		result = userDao.updateAccountNumByid(id, accountNum);
+		return result;
+	}
+
+	public Long updateUserPasspwdByMobilePhone(String mobilePhone, String password, String colum) {
+		return userDao.updateUserPasspwdByMobilePhone(mobilePhone, password, colum);
+	}
+
+	public Long updateUserDealpwdByMobilePhone(String mobilePhone, String password, String colum) {
+		return userDao.updateUserDealpwdByMobilePhone(mobilePhone, password, colum);
+	}
+
+	public Map<String, String> findIpayAccountByUserId(Long userId) {
+		return userDao.findIpayAccountByUserId(userId);
+	}
+
+	/**
+	 * @MethodName: queryUserMonney
+	 * @Param: FinanceDao
+	 * @Author: gang.lv
+	 * @Date: 2013-3-12 下午08:47:41
+	 * @Return:
+	 * @Descb: 查询用户的金额
+	 * @Throws:
+	 */
+	public Map<String, Object> queryUserMonney(long userId) {
+		return userDao.queryUserMonney(userId);
+	}
+
+	public Map<String, Object> queryAccountSum(long userId) {
+		return userDao.queryAccountSum(userId);
+	}
+
+	public Map<String, Object> getUserInfoById(long userId) {
+		return userDao.getUserInfoById(userId);
+	}
+
+	public User findUserAccountSumById(Long userId) {
+		return userDao.findUserAccountSumById(userId);
+	}
+
+	// 判断验证签名 手机端 tangjielong
+	public boolean checkSign(Long userId) {
+		DecimalFormat df = new DecimalFormat("0.00");
+		Map<String, Object> fundrecord = new HashMap<String, Object>();
+		String sign = "";
+		String sign2 = "";
+		User user = userDao.queryUserById(userId);
+		if (user == null) {
+			return false;
+		} else {
+			String id = user.getId().toString();
+			String usableSum = df.format(user.getUsableSum());
+			String freezeSum = df.format(user.getFreezeSum());
+			String dueinSum = df.format(user.getDueinSum());
+			String dueoutSum = df.format(user.getDueoutSum());
+			fundrecord = fundrecordDao.queryMaxIdFundByIdReturnMap(userId);
+			if (fundrecord == null) {
+				if ("1".equals(IConstants.ENABLED_PASS)) {
+					sign = com.shove.security.Encrypt.MD5(id + usableSum + freezeSum + dueinSum + dueoutSum);
+					sign2 = com.shove.security.Encrypt.MD5("0" + id + "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0");
+				} else {
+					sign = com.shove.security.Encrypt
+							.MD5(id + usableSum + freezeSum + dueinSum + dueoutSum + IConstants.PASS_KEY);
+					sign2 = com.shove.security.Encrypt
+							.MD5("0" + id + "0" + "0" + "0" + "0" + "0" + "0" + "0" + "0" + IConstants.PASS_KEY);
+				}
+			} else {
+				String f_id = Convert.strToStr(fundrecord.get("id") == null ? "0" : fundrecord.get("id")+"", "0");
+				String f_userId = Convert.strToStr(fundrecord.get("userId") == null ? "0" : fundrecord.get("userId")+"", "0");
+				String f_handleSum = Convert.strToStr(fundrecord.get("handleSum") == null ? "0" : fundrecord.get("handleSum")+"", "0");
+				String f_usableSum = Convert.strToStr(fundrecord.get("usableSum") == null ? "0" : fundrecord.get("usableSum")+"", "0");
+				String f_freezeSum = Convert.strToStr(fundrecord.get("freezeSum") == null ? "0" : fundrecord.get("freezeSum")+"", "0");
+				String f_dueinSum = Convert.strToStr(fundrecord.get("dueinSum") == null ? "0" : fundrecord.get("dueinSum")+"", "0");
+				String f_dueoutSum = Convert.strToStr(fundrecord.get("dueoutSum") == null ? "0" : fundrecord.get("dueoutSum")+"", "0");
+				String f_cost = Convert.strToStr(fundrecord.get("cost") == null ? "0" : fundrecord.get("cost")+"", "0");
+				String f_income = Convert.strToStr(fundrecord.get("income") == null ? "0" : fundrecord.get("income")+"", "0");
+				String f_spending = Convert.strToStr(fundrecord.get("spending") == null ? "0" : fundrecord.get("spending")+"", "0");
+				if ("1".equals(IConstants.ENABLED_PASS)) {
+					sign = com.shove.security.Encrypt.MD5(f_userId + usableSum + freezeSum + dueinSum + dueoutSum);
+					sign2 = com.shove.security.Encrypt.MD5(f_id + f_userId + f_handleSum + f_usableSum + f_freezeSum
+							+ f_dueinSum + f_dueoutSum + f_cost + f_income + f_spending);
+				} else {
+					sign = com.shove.security.Encrypt
+							.MD5(f_userId + usableSum + freezeSum + dueinSum + dueoutSum + IConstants.PASS_KEY);
+					sign2 = com.shove.security.Encrypt.MD5(f_id + f_userId + f_handleSum + f_usableSum + f_freezeSum
+							+ f_dueinSum + f_dueoutSum + f_cost + f_income + f_spending + IConstants.PASS_KEY);
+				}
+			}
+			if (user.getSign().equals(sign) && user.getSign2().equals(sign2)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Map<String, Object> queryUserAndPersonByUserId(Long userId) {
+		return userDao.queryUserAndPersonByUserId(userId);
+	}
+
+	public Map<String, String> queryPersonById(long userId) {
+		Map<String, String> map = new HashMap<String, String>();
+		map = userDao.queryPersonById(userId);
+		return map;
+	}
+
+	public String getAdminNameById(long strToLong) {
+		Map<String, Object> map = assignmentDebtDao.queryAdminById(strToLong);
+		return "";
+	}
+
+	public String getUserNameById(long strToLong) {
+		return userDao.queryUserNameById(strToLong);
+	}
+
+}

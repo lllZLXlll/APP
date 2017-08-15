@@ -1,0 +1,257 @@
+package com.pjzb.service.front;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.AssignmentDebtDao;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.MessageDao;
+import com.pjzb.dao.UserDao;
+import com.pjzb.entity.Message;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+/**
+ * pc、wap、app端 债权管理 公共service
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class DebtsManageService extends BaseController {
+
+	@Autowired
+	private AssignmentDebtDao assignmenDebtDao;
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private AssignmentDebtService assignmentDebtService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private MessageDao messageDao;
+
+	/**
+	 * 债权管理
+	 * 
+	 * @param jsonObject
+	 * @param userId
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> querydebtsManage(JSONObject jsonObject, Long userId, Long pageSize, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		String borrowFlag = ConvertUtil.objToStrConvert(jsonObject.get("assignFlag"));
+		String borrowTitle = ConvertUtil.objToStrConvert(jsonObject.get("borrowTitle"));
+		String borrowerName = ConvertUtil.objToStrConvert(jsonObject.get("borrowerName"));
+		Long curPage = Convert.strToLong(jsonObject.getString(Constants.CURPAGE), Constants.LONG_1);
+		List<Integer> debtStatus = new ArrayList<Integer>();
+		if ("canAssign".equals(borrowFlag)) {
+			jsonMap.putAll(queryCanAssignmentDebt(curPage, userId, borrowTitle, borrowerName, pageSize));
+		} else if ("assigning".equals(borrowFlag)) {
+			debtStatus.add(2);
+			jsonMap.putAll(queryAuctingDebt(curPage, userId, borrowTitle, borrowerName, debtStatus, pageSize));
+		} else if ("alreadyAssign".equals(borrowFlag)) {
+			debtStatus.add(3);
+			jsonMap.putAll(queryAuctingDebt(curPage, userId, borrowTitle, borrowerName, debtStatus, pageSize));
+		} else {
+			debtStatus.add(4);
+			debtStatus.add(5);
+			debtStatus.add(6);
+			debtStatus.add(7);
+			jsonMap.putAll(queryAuctingDebt(curPage, userId, borrowTitle, borrowerName, debtStatus, pageSize));
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 查询可转让的债权
+	 * 
+	 * @param curPage
+	 * @param userId
+	 * @param borrowTitle
+	 * @param borrowerName
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	private Map<String, Object> queryCanAssignmentDebt(Long curPage, Long userId, String borrowTitle, String borrowerName, Long pageSize) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = assignmenDebtDao.queryCanAssignmentDebt(userId, borrowTitle, borrowerName, (curPage - 1) * pageSize, pageSize);
+		Long map = assignmenDebtDao.queryCanAssignmentDebtCount(userId, borrowTitle, borrowerName);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(map);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	/**
+	 * 竞拍中的债权
+	 * 
+	 * @param curPage
+	 * @param userId
+	 * @param borrowTitle
+	 * @param borrowerName
+	 * @param debtStatus
+	 * @param pageSize
+	 * @return
+	 * @author Li zeyang
+	 */
+	private Map<String, Object> queryAuctingDebt(Long curPage, Long userId, String borrowTitle, String borrowerName, List<Integer> debtStatus, Long pageSize) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		List<Map<String, Object>> investList = assignmenDebtDao.queryAuctingDebt(userId, borrowTitle, borrowerName, debtStatus, (curPage - 1) * pageSize, pageSize);
+		Long map = assignmenDebtDao.queryAuctingDebtCount(userId, borrowTitle, borrowerName, debtStatus);
+		PageBean pageBean = new PageBean();
+		pageBean.setPageNum(curPage);
+		pageBean.setPageSize(pageSize);
+		pageBean.setTotalNum(map);
+		pageBean.setPage(investList);
+		jsonMap.put("pageBean", pageBean);
+		jsonMap.put("error", "0");
+		return jsonMap;
+	}
+
+	/**
+	 * 债权转让
+	 * 
+	 * @param jsonObject
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> updateDebtsAssignment(JSONObject jsonObject, Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, Object> paramMap = new HashMap<String, Object>();
+		double auctionBasePrice = Convert.strToDouble(String.valueOf(jsonObject.get("auctionBasePrice")), -1);
+		double debtSum = Convert.strToDouble(String.valueOf(jsonObject.get("debtSum")), -1);
+		double lowerPrice = debtSum * 0.5;
+		double highPrice = debtSum * 1.1;
+		String dealpwd = Convert.strToStr(String.valueOf(jsonObject.get("dealpwd")), "");
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		String realDelpasswd = "";
+
+		if ("1".equals(IConstants.ENABLED_PASS)) {
+			dealpwd = com.shove.security.Encrypt.MD5(dealpwd.trim());
+		} else {
+			dealpwd = com.shove.security.Encrypt.MD5(dealpwd.trim() + IConstants.PASS_KEY);
+		}
+
+		map = userDao.queryUserInfoById(userId);
+
+		if (map != null) {
+			realDelpasswd = map.get("dealpwd") + "";
+		}
+
+		if (!dealpwd.equals(realDelpasswd)) {
+			jsonMap.put("msg", "密码错误");
+			return jsonMap;
+
+			// this.addFieldError("paramMap.dealpwd","交易密码错误！");
+			// return INPUT;
+		}
+
+		// paramMap.put("details", "dddd");
+		// paramMap.put("auctionBasePrice", "9000.00");
+		// paramMap.put("auctionDays", "7");
+		if (auctionBasePrice < lowerPrice || auctionBasePrice > highPrice) {
+			NumberFormat nf = new DecimalFormat("0.00");
+			jsonMap.put("msg", "转让价格范围为" + nf.format(lowerPrice) + "到" + nf.format(highPrice) + "元之间,请重新输入转让金额。");
+			return jsonMap;
+
+			// this.addFieldError("paramMap.auctionBasePrice",
+			// "转让价格范围为"+nf.format(lowerPrice)+"到"+auctionBasePrice+"元之间");
+			// //竞拍底价 转让价格
+			// return INPUT;
+		}
+
+		// 转让金额
+		paramMap.put("auctionBasePrice", String.valueOf(jsonObject.get("auctionBasePrice")));
+		// 转让人
+		paramMap.put("alienatorId", userId + "");
+		// 转让时间
+		paramMap.put("applyTime", DateUtil.dateToString(new Date()));
+		// 竞拍天数
+		paramMap.put("auctionDays", String.valueOf(jsonObject.get("auctionDays")));
+		// 借款Id
+		paramMap.put("borrowId", String.valueOf(jsonObject.get("borrowId")));
+		// 投资Id
+		paramMap.put("investId", String.valueOf(jsonObject.get("investId")));
+		// 债权总额
+		paramMap.put("debtSum", String.valueOf(jsonObject.get("debtSum")));
+		// 转让期限;
+		paramMap.put("debtLimit", String.valueOf(jsonObject.get("debtLimit")));
+		// 详细说明
+		System.out.println(String.valueOf(jsonObject.get("details")));
+		paramMap.put("details", String.valueOf(jsonObject.get("details")));
+		System.out.println(paramMap);
+		long reslut = -1;
+		reslut = assignmentDebtService.addAssignmentDebt(paramMap);
+		if (reslut != -1) {
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "转让成功");
+		} else {
+			jsonMap.put("error", "0");
+			jsonMap.put("msg", "转让失败");
+		}
+		return jsonMap;
+	}
+
+	/**
+	 * 债权撤回
+	 * 
+	 * @param jsonObject
+	 * @return
+	 * @author Li zeyang
+	 */
+	public Map<String, Object> updateRecallDebtsAssignment(JSONObject jsonObject, Long userId, String pageType) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		long debtId = Long.parseLong((jsonObject.get("debtId") + ""));
+		assignmentDebtService.updateCancelAssignmentDebt(debtId, 5, userId, 1);
+		Map<String, Object> map = assignmentDebtService.getAssignmentDebt(debtId);
+		if (map != null) {
+			long alienatorId = Convert.strToLong(map.get("alienatorId") + "", -1);// 转让人
+			userService.updateSign(alienatorId);// 更换校验码
+		}
+		List<Map<String, Object>> auctionerList = assignmentDebtService.queryAuctioner(debtId);
+		if (auctionerList != null) {
+			for (Map<String, Object> auctioner : auctionerList) {
+				long auctionerId = Convert.strToLong(auctioner.get("userId") + "", -1);// 竞拍者
+				userService.updateSign(auctionerId);// 更换校验码
+			}
+		}
+		return jsonMap;
+	}
+
+	public Message queryMessageByTypeId(Integer typeId) {
+		return messageDao.queryMessageByTypeId(typeId);
+	}
+
+}

@@ -1,0 +1,133 @@
+package com.pjzb.service.admin.borrow;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.CollectionDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.dao.RepaymentDao;
+import com.pjzb.dao.RepaymentServiceDao;
+import com.pjzb.entity.Admin;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.util.ExcelUtils;
+import com.pjzb.util.IConstants;
+import com.shove.Convert;
+
+/**
+ * 逾期借款
+ * 
+ * @author zlx
+ *
+ */
+
+@Service
+public class AdminOverdueBorrowService extends BaseController {
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private RepaymentDao repaymentDao;
+	
+	@Autowired
+	private RepaymentServiceDao repaymentServiceDao;
+	
+	@Autowired
+	private CollectionDao collectionDao;
+	
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	public String lateRepayInit(Model model, String tabid, Long pageCurrent, Long pageSize, String userName,
+			Long borrowWay, Long borrowState) {
+
+		long count = borrowDao.queryLateRepayByConditionCount(userName, borrowWay, borrowState);
+
+		List<Map<String, Object>> page = borrowDao.queryLateRepayByCondition(userName, borrowWay, borrowState,
+				(pageCurrent - 1) * pageSize, pageSize);
+		// 逾期的借款统计总额
+		Map<String, String> lateRepayMap = borrowDao.queryLateRepayAmount(userName, borrowWay, borrowState);
+
+		// 得到当前页逾期借款金额
+		double lateAmount = 0;
+		double lateFI = 0;
+		double totalSum = 0;
+		if (page != null) {
+			for (Map<String, Object> map : page) {
+				lateAmount = lateAmount + Convert.strToDouble(map.get("repaySum") + "", 0);
+				lateFI = lateFI + Convert.strToDouble(map.get("lateFI") + "", 0);
+				totalSum = totalSum + Convert.strToDouble(map.get("totalSum") + "", 0);
+			}
+		}
+
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("userName", userName);
+		model.addAttribute("borrowWay", borrowWay);
+		model.addAttribute("borrowState", borrowState);
+		model.addAttribute("map", lateRepayMap);
+		model.addAttribute("lateAmount", lateAmount);
+		model.addAttribute("lateFI", lateFI);
+		model.addAttribute("totalSum", totalSum);
+		model.addAttribute("pageBean", new PageBean(pageCurrent, pageSize, count, page));
+
+		return "/admin/borrow/overdueborrow/list.jsp";
+	}
+
+	public void exportlateRepay(String userName, Long borrowWay, Long borrowState, HttpServletResponse response) {
+		try {
+			List<Map<String, Object>> applyList = borrowDao
+					.exportLateRepayByCondition(userName.substring(0, userName.indexOf(",")), borrowWay, borrowState);
+			HSSFWorkbook wb = ExcelUtils.exportExcelCommon("列表", applyList,
+					new String[] { "用户名", "真实姓名", "借款标题", "期数", "类型", "应还时间", "逾期天数（天）", "应还金额（¥）", "逾期金额（¥）", "总还款（¥）",
+							"网站待还", "还款状态" },
+					new String[] { "username", "realName", "borrowTitle", "repayPeriod", "borrowWayName", "repayDate1",
+							"lateDay", "totalSum", "lateFI", "repaySum", "isWebRepay1", "repayStatus1" });
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("**********************企业融资申请导出异常***************************");
+		}
+	}
+
+	public String queryRepaymentDetail(Model model, String tabid, Long id) {
+		Map<String, Object> map = repaymentDao.queryRepaymentDetail(id);
+		List<Map<String, Object>> serviceList = repaymentServiceDao.queryRepaymentService(id);
+		List<Map<String, Object>> collectionList = collectionDao.queryRepaymentCollection(id);
+		
+		model.addAttribute("tabid", tabid);
+		model.addAttribute("map", map);
+		model.addAttribute("serviceList", serviceList);
+		model.addAttribute("collectionList", collectionList);
+		model.addAttribute("id", id);
+		return "/admin/borrow/overdueborrow/show.jsp";
+	}
+
+	public Map<String, Object> addCollection(Model model, String tabid, Long id, String colResult, String remark) throws RuntimeException {
+		long result = collectionDao.addCollection(id, colResult, remark);
+		Admin admin = getSessionAdminInfo();
+		model.addAttribute("tabid", tabid);
+		if (result <= 0) {
+			operationLogDao.addOperationLog(new OperationLog("t_collection", admin.getUserName(), IConstants.INSERT,
+					admin.getLastIp(), new Date(), 0d, "添加催收记录失败", 2, admin.getId()));
+			return ajaxDoneInfo("300", "添加催收记录失败", "", tabid);
+		} else {
+			operationLogDao.addOperationLog(new OperationLog("t_collection", admin.getUserName(), IConstants.INSERT,
+					admin.getLastIp(), new Date(), 0d, "添加催收记录成功", 2, admin.getId()));
+			return ajaxDoneInfo("200", "添加催收记录成功", "", tabid);
+		}
+	}
+
+}

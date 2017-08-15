@@ -1,0 +1,72 @@
+	<script src="http://s4.cnzz.com/z_stat.php?id=1260871948&web_id=1260871948" language="JavaScript"></script>
+	<script type='text/javascript'>(function(){document.getElementById('___szfw_logo___').oncontextmenu = function(){return false;}})();</script>
+	<div class="mod-sidebar">
+		<ul>
+			<li><a href="javascript:;" class="sidebar-qq" id="BizQQWPA"></a></li>
+			<li><a href="javascript:;" class="sidebar-wx"></a></li>
+			<li><a href="calculator.html" class="sidebar-cl"></a></li>
+			<li><a href="javascript:;" class="wenquan" title="填写即送5元代金券"></a></li>
+			<li><a href="javascript:;" class="sidebar-top"></a></li>
+		</ul>
+	</div>
+	<!-- concat -->
+	<div class="index-concat">
+		<div class="wrap cl">
+			<div class="index-concat-left">
+				<img src="src/images/index_erweima.png" alt="扫码关注普金资本">
+			</div>
+			<div class="index-concat-phone">
+				<p>财富热线</p>
+				<h3>400-606-2079</h3>
+			</div>
+			<div class="index-concat-channel">
+				<p class="about_cel_text">
+					<a target="_blank" href="http://weibo.com/pujinziben" class="about_wb"></a>
+					<a href="javascript:void(0);" class="about_wx line_02">
+						<span class="line_l_h">
+							<span class="line_l_sj"></span>
+							<span class="line_l_text">关注普金资本公众号</span>
+							<span class="line_l_pic"></span>
+						</span>
+					</a>
+					<a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=b21f94451a224d115c56e3e20626abf75f33fff218f82fd8dd4a04954f80c70d" class="about_qq"></a>
+					<a href="javascript:void(0);" class="about_wx about_rr">
+						<span class="line_l_j">
+							<span class="line_l_sj"></span>
+							<span class="line_l_texts">400-606-2079</span>
+						</span>
+					</a>
+				</p>
+				<p class="about_cel_no">admin@pujinziben.com</p>
+			</div>
+			<div class="index-concat-link cl">
+			</div>
+		</div>
+	</div>
+	<div class="footer">
+		<div class="wrap">
+			<p class="text">
+			版权所有 © 普金资本运营（赣州）有限公司 All rights reserved <br/>
+			备案确认书：<a href="http://www.miitbeian.gov.cn/publish/query/indexFirst.action" target="_blank" class="beian">赣ICP备16004010号</a><a href="http://new.cnzz.com/v1/login.php?siteid=1260871948" target="_blank">  <img src="/WEB-PC/src/images/CNZZ.png" alt=""/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=36070202000195" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;" class="beian"><img src="/WEB-PC/src/images/beian.png" style="float:left;"/>赣公网安备 36070202000195号</a>
+			 		 
+			</p>
+			<div class="footer-list" style="width:690px;">
+				<a id='___szfw_logo___' href='https://credit.szfw.org/CX05252017016185201512.html' target='_blank'><img src='http://icon.szfw.org/sf.png' border='0' /></a>
+				<!-- <a href="https://credit.cecdc.com/CX20160720023638001698.html"><img src="/WEB-PC/src/images/ft_link_01.png" alt=""></a> -->
+				<a href="https://www.yunaq.com/analytics/login/?site=pujinziben.com"><img src="/WEB-PC/src/images/ft_link_02.png" alt=""></a>
+				<a href="http://si.trustutn.org/info?sn=876160725000486996572"><img src="/WEB-PC/src/images/ft_link_03.png" alt=""></a> 
+				<a href="http://webscan.360.cn/index/checkwebsite/url/www.pujinziben.com"><img width="110px" height="40px" border="0" src="http://img.webscan.360.cn/status/pai/hash/745ef449cbf0f6a74791f73d57aa7ac2"/></a>
+				<a href="https://v.pinpaibao.com.cn/authenticate/cert/?site=www.pujinziben.com&at=business" >
+					<img src="/WEB-PC/src/images/ft_link_04.png" alt="">
+				</a>
+				<a target="_blank" href="http://ec.eqixin.com/?sn=QX3712005910061483682343"><img width="112px" height="34px" src="http://ec.eqixin.com/images/2.png"></a>
+			</div>
+		</div>
+	</div>
+	<div class="popup wechart-box">
+		<p class="title left">关注普金资本微信公众号</p>
+		<a href="javascript:void(0);" class="close icon icon-close"></a>
+		<div class="popup-from">
+			<img src="src/images/wechart.jpg"/>
+		</div>
+	</div>

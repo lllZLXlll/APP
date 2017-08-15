@@ -1,0 +1,162 @@
+package com.pjzb.service.admin.user;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.RecommendUserDao;
+import com.pjzb.entity.RecommendUser;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ExcelUtils;
+
+/**
+ * 推荐人管理
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class AdminRecommendService extends BaseController {
+
+	@Autowired
+	private RecommendUserDao recommendUserDao;
+
+	public String queryRecommendUserForPage(String userIdStr, String username, String recommendUserIdStr, String recommendUsername, Long pageNum, Long pageSize, Model model,
+			String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			String regex = "^\\+?[1-9][0-9]*$";
+			Long userId = null;
+			if (userIdStr != null && !StringUtils.isBlank(userIdStr)) {
+				if (userIdStr.matches(regex)) {
+					userId = Long.parseLong(String.valueOf(userIdStr.trim()));
+				} else {
+					userId = -1L;
+				}
+			}
+			Long recommendUserId = null;
+			if (recommendUserIdStr != null && !StringUtils.isBlank(recommendUserIdStr)) {
+				if (userIdStr.matches(regex)) {
+					recommendUserId = Long.parseLong(String.valueOf(recommendUserIdStr.trim()));
+				} else {
+					recommendUserId = -1L;
+				}
+			}
+			List<Map<String, Object>> list = recommendUserDao.queryRecommendUserForPage(userId, username, recommendUserId, recommendUsername, (pageNum - 1) * pageSize, pageSize,
+					true);
+			long count = recommendUserDao.queryRecommendUserCount(userId, username, recommendUserId, recommendUsername);
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("userId", userIdStr);
+			model.addAttribute("userName", username);
+			model.addAttribute("recommendUserId", recommendUserIdStr);
+			model.addAttribute("recommendUsername", recommendUsername);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询推荐人异常**************************");
+		}
+		return "/admin/user/recommend/list.jsp";
+	}
+
+	public String queryRecommendUserById(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("recommendUser", recommendUserDao.queryRecommendUserById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询推荐人异常**************************");
+		}
+		return "/admin/user/recommend/edit.jsp";
+	}
+
+	public String addRecommendInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/user/recommend/add.jsp";
+	}
+
+	public Map<String, Object> addRecommendUser(RecommendUser recommendUser, String tabid) {
+		if(recommendUser.getUserId().equals(recommendUser.getRecommendUserId())){
+			return ajaxDoneInfo("300", "被推荐人与推荐人不能相同", "", "");
+		}
+		long count=recommendUserDao.queryRecommendUserCountByUserId(recommendUser.getUserId());
+		if(count>0){
+			return ajaxDoneInfo("300", "被推荐人只能被推荐一次", "", "");
+		}
+		long result = recommendUserDao.addRecommendUser(recommendUser);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "推荐人增加成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "推荐人增加失败", "", "");
+		}
+	}
+
+	public Map<String, Object> updateRecommendUserById(RecommendUser recommendUser, String tabid) {
+		if(recommendUser.getUserId()==recommendUser.getRecommendUserId()){
+			return ajaxDoneInfo("300", "被推荐人与推荐人不能相同", "", "");
+		}
+		long count=recommendUserDao.queryRecommendUserCountByUserId(recommendUser.getUserId());
+		if(count>0){
+			return ajaxDoneInfo("300", "推荐人只能被推荐一次", "", "");
+		}
+		long result = recommendUserDao.updateRecommendUserById(recommendUser);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "推荐人修改成功", "dialog", tabid);
+		} else {
+			return ajaxDoneInfo("300", "推荐人修改失败", "", "");
+		}
+	}
+
+	public Map<String, Object> deleteRecommendById(Long id) {
+		Long result = recommendUserDao.deleteRecommendById(id);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "推荐人删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "推荐人删除失败", "", "");
+		}
+	}
+
+	public Map<String, Object> deleteRecommendByIds(Long[] ids) {
+		log.info("************批量删除推荐人delids***********" + ids);
+		Long result = recommendUserDao.deleteRecommendByIds(ids);
+		if (result > 0) {
+			return ajaxDoneInfo("200", "推荐人批量删除成功", "", "");
+		} else {
+			return ajaxDoneInfo("300", "推荐人批量删除失败", "", "");
+		}
+	}
+
+	public void queryRecommendUserInfo(HttpServletResponse response) {
+		try {
+			List<Map<String, Object>> recommendUserList = recommendUserDao.queryRecommendUserForPage(null, null, null, null, null, null, false);
+			System.out.println(recommendUserList);
+			HSSFWorkbook wb = ExcelUtils.exportExcel("用户列表", recommendUserList, new String[] { "被推荐人ID", "被推荐人姓名", "推荐人ID", "推荐人姓名", "金额", "奖励金额", "奖励时间", "维护人" }, new String[] {
+					"userId", "realName", "recommendUserId", "recommendUsername", "moneyTypeId", "rewardMoney", "rewardTime", "maintenanceman" });
+			System.out.println(wb);
+			this.export(wb, new Date().getTime() + ".xls", response);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}

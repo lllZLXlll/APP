@@ -1,0 +1,140 @@
+package com.pjzb.task;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.ContextLoader;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.dao.BorrowDao;
+import com.pjzb.dao.InvestDao;
+import com.pjzb.dao.OperationLogDao;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.util.Constants;
+import com.shove.Convert;
+
+import net.sf.json.JSONObject;
+
+/**
+ * 处理过期借款定时器
+ * 
+ * @author xiaojin
+ * 
+ */
+@Service
+public class JobDealOverdueBorrowService extends BaseController {
+
+	@Autowired
+	private BorrowDao borrowDao;
+
+	@Autowired
+	private OperationLogDao operationLogDao;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private InvestDao investDao;
+
+	/**
+	 * 处理过期借款
+	 * 
+	 * @author xiaojin
+	 */
+	public void dealOverdueBorrow() {
+		log.info("--------------处理过期借款开始--------------");
+		try {
+			List<Long> borrowList = borrowDao.getBorrowIdByBorrowStatus(Constants.BORROWSTATUS_2);
+			for (Long borrowId : borrowList) {
+				Date date = new Date();
+				// 当前时间小于剩余结束时间,剩余开始时间为当前时间
+				Long maxTime = borrowDao.queryMaxTime(date, borrowId);
+				if (maxTime != null) {
+					borrowDao.updateBorrowRemainTimeStartById(date, borrowId);
+				}
+				// 当前时间大于剩余结束时间,剩余开始时间为剩余结束时间
+				Long minTime = borrowDao.queryMinTime(date, borrowId);
+				if (minTime != null) {
+					// 借款总额等于投资总额,则为满标,否则流标
+					Long borrowStatus = borrowDao.queryBorrowState(borrowId);
+					if (borrowStatus != null) {
+						// 更新借款为满标 满标sorts 为 5
+						borrowDao.updateBorrowState(Constants.BORROWSTATUS_3, 5, borrowId);
+					} else {
+						// 更新借款为流标
+						// reBackBorrow(borrowId, -1,getBasePath());
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("***********************处理过期借款**************************");
+		}
+		log.info("--------------处理过期借款结束--------------");
+	}
+
+	public long reBackBorrow(long id, long aId, String basePath) {
+		// 汇付处理
+		String bgRetUrl = basePath + "/pubCallBack.do";
+		// 所有投资人信息
+		List<Map<String, Object>> lists = investDao.queryInvestorInfoByBorrowId(id);
+		if (lists != null) {
+			for (Map<String, Object> map : lists) {
+				// 汇付解冻
+				String jsonStr = ChinapnrService.usrUnFreeze(map.get("trxId") + "", map.get("trxId") + "", bgRetUrl, "UsrUnFreeze");
+				JSONObject json = JSONObject.fromObject(jsonStr);
+				if (json.getInt("RespCode") != 0) {
+					log.error(json.getString("RespDesc"));
+				}
+				log.info("汇付处理解冻结果:" + json.getString("RespDesc"));
+			}
+		}
+		long returnId = -1;
+		ContextLoader.getCurrentWebApplicationContext().getServletContext().getAttribute(Constants.INFORM_TEMPLATE_APPLICATION);
+		List<Map<String, Object>> investorList = new ArrayList<Map<String, Object>>();
+		Map<String, String> borrowCancelMap = new HashMap<String, String>();
+		borrowCancelMap.put("in_bid", String.valueOf(id));
+		borrowCancelMap.put("in_aid", String.valueOf(aId));
+		borrowCancelMap.put("in_status", "6");
+		borrowCancelMap.put("in_audit_opinion", "");
+		borrowCancelMap.put("in_basepath", basePath);
+		borrowCancelMap.put("out_ret", "");
+		borrowCancelMap.put("out_desc", "");
+		borrowDao.callBorrowCancelProcedure(borrowCancelMap);
+		returnId = Long.parseLong(borrowCancelMap.get("out_ret"));
+		Long borrowUserMap = borrowDao.queryBorrowPublishById(id);
+		if (borrowUserMap != null) {
+			long userId = borrowUserMap;
+			userService.updateSign(userId);// 更换校验码
+		}
+		investorList = investDao.queryInvestorByBorrowId(id);
+		if (investorList != null) {
+			for (Map<String, Object> map : investorList) {
+				long userId = Convert.strToLong(map.get("investor") + "", -1);
+				userService.updateSign(userId);// 更换校验码
+				map = null;
+			}
+		}
+		OperationLog operationLog = new OperationLog();
+		operationLog.setOperationTable("t_borrow");
+		operationLog.setOperationUser(null);
+		operationLog.setOperationIp(getRemortIp());
+		operationLog.setOperationType(0);
+		operationLog.setOperationMoney(0d);
+		operationLog.setOperationRemarks("定时器撤销借款");
+		operationLog.setUserId(null);
+		operationLog.setOperationTime(new Date());
+		operationLog.setOperationAround(Constants.OPERATION_TYPE_2);
+		operationLogDao.addOperationLog(operationLog);
+		return returnId;
+	}
+
+}

@@ -1,0 +1,200 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * Withdraw entity. @author MyEclipse Persistence Tools
+ */
+
+public class Withdraw implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String name;
+	private String cellPhone;
+	private String acount;
+	private Double sum;
+	private Double poundage;
+	private Date applyTime;
+	private Integer status;
+	private String bankId;
+	private Long userId;
+	private String remark;
+	private Long checkId;
+	private Date checkTime;
+	private String ipAddress;
+	private Integer versoin;
+	private String billcode;
+	private String trxId;
+
+	// Constructors
+
+	/** default constructor */
+	public Withdraw() {
+	}
+
+	/** full constructor */
+	public Withdraw(String name, String cellPhone, String acount, Double sum,
+			Double poundage, Date applyTime, Integer status,
+			String bankId, Long userId, String remark, Long checkId,
+			Date checkTime, String ipAddress, Integer versoin,
+			String billcode, String trxId) {
+		this.name = name;
+		this.cellPhone = cellPhone;
+		this.acount = acount;
+		this.sum = sum;
+		this.poundage = poundage;
+		this.applyTime = applyTime;
+		this.status = status;
+		this.bankId = bankId;
+		this.userId = userId;
+		this.remark = remark;
+		this.checkId = checkId;
+		this.checkTime = checkTime;
+		this.ipAddress = ipAddress;
+		this.versoin = versoin;
+		this.billcode = billcode;
+		this.trxId = trxId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getCellPhone() {
+		return this.cellPhone;
+	}
+
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
+
+	public String getAcount() {
+		return this.acount;
+	}
+
+	public void setAcount(String acount) {
+		this.acount = acount;
+	}
+
+	public Double getSum() {
+		return this.sum;
+	}
+
+	public void setSum(Double sum) {
+		this.sum = sum;
+	}
+
+	public Double getPoundage() {
+		return this.poundage;
+	}
+
+	public void setPoundage(Double poundage) {
+		this.poundage = poundage;
+	}
+
+	public Date getApplyTime() {
+		return this.applyTime;
+	}
+
+	public void setApplyTime(Date applyTime) {
+		this.applyTime = applyTime;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public String getBankId() {
+		return this.bankId;
+	}
+
+	public void setBankId(String bankId) {
+		this.bankId = bankId;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public Long getCheckId() {
+		return this.checkId;
+	}
+
+	public void setCheckId(Long checkId) {
+		this.checkId = checkId;
+	}
+
+	public Date getCheckTime() {
+		return this.checkTime;
+	}
+
+	public void setCheckTime(Date checkTime) {
+		this.checkTime = checkTime;
+	}
+
+	public String getIpAddress() {
+		return this.ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public Integer getVersoin() {
+		return this.versoin;
+	}
+
+	public void setVersoin(Integer versoin) {
+		this.versoin = versoin;
+	}
+
+	public String getBillcode() {
+		return this.billcode;
+	}
+
+	public void setBillcode(String billcode) {
+		this.billcode = billcode;
+	}
+
+	public String getTrxId() {
+		return this.trxId;
+	}
+
+	public void setTrxId(String trxId) {
+		this.trxId = trxId;
+	}
+
+}

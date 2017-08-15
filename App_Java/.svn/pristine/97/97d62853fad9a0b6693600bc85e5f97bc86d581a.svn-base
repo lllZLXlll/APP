@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<!-- 不识别邮件和不把数字识别为电话号码 -->
+	<meta name="format-detection" content="telephone=no; email=no" />
+	<link rel="stylesheet" type="text/css" href="css/swiper.min.css">
+	<style type="text/css">
+	html,body{width:100%;height:100%;}
+	.swiper-slide:nth-child(1) .swiper-slide-title{color:#e24040;}
+	.swiper-slide:nth-child(2) .swiper-slide-title{color:#6e7aed;}
+	.swiper-slide:nth-child(3) .swiper-slide-title{color:#ff9600;}
+	.slider-close{background: rgba(102,102,102,0.7);top: 10px;right: 10px;padding: 5px 10px;color: #ffffff;position: fixed;z-index: 10000;border-radius: 30px;font-size: 12px;}
+	.toIndex{
+	 -webkit-animation: bs linear 2s 2.5s infinite;
+	  -moz-animation: bs linear 2s 2.5s infinite;
+	  animation: bs linear 2s 2.5s infinite;
+	width:6rem;height:2rem;
+	background-color:#e24040;color:#fff;
+	margin:2rem auto;display:block;
+	text-decoration: none;line-height:2rem;
+	text-align:center;border-radius:0.9rem;}
+	@-webkit-keyframes bs {
+	  0% {
+	    box-shadow:  0 0 0px 0 #f84a1b;
+	  }
+	
+	  50% {
+	    box-shadow:  0 0 20px 0 #f86e1b;
+	  }
+	
+	  100% {
+	    box-shadow:  0 0 0px 0 #f8931b;
+	  }
+	}
+	@keyframes bs {
+	  0% {
+	    box-shadow:  0 0 0px 0 #f84a1b;
+	  }
+	
+	  50% {
+	    box-shadow:  0 0 20px 0 #f86e1b;
+	  }
+	
+	  100% {
+	    box-shadow:  0 0 0px 0 #f8931b;
+	  }
+	}
+	</style>
+	<title>普金资本</title>
+</head>
+<body>
+    <!-- Swiper -->
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+            	<img src="images/1.png" alt="">
+            	<p class="swiper-slide-title">随时随地&nbsp;快速理财</p>
+            </div>
+            <div class="swiper-slide">
+				<img src="images/2.png" alt="">
+				<p class="swiper-slide-title">超低门槛&nbsp;轻松赚钱</p>
+            </div>
+            <div class="swiper-slide" >
+            	<img src="images/3.png" alt="">
+            	<p class="swiper-slide-title">国资背景&nbsp;安全可靠</p>
+            	<a href="app.html#!/regist" class="toIndex" >立即注册</a>
+            </div>
+        </div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+        <div class="slider-close" onclick="">跳过</div>
+    </div>
+    <!-- Swiper JS -->
+    <script src="script/swiper.min.js"></script>
+    <script src="script/fastclick.js"></script>
+    <!-- Initialize Swiper -->
+    <script>
+	window.onload=function(){
+		FastClick.attach(document.body);
+		var elm = document.querySelector('.slider-close');
+		var swiper = new Swiper('.swiper-container', {
+	        pagination: '.swiper-pagination',
+	        paginationClickable: true,
+	        onInit: function(swiper){
+	        	elm.addEventListener('click',toIndex,false);
+	        },
+	        onTransitionStart:function(a){
+	        	if(a.activeIndex == 2){
+	        		elm.removeEventListener('click',toIndex);
+	        		elm.innerText = '注册';
+	        		elm.addEventListener('click',toRegist,false);
+	        	}else{
+	        		elm.removeEventListener('click',toRegist);
+	        		elm.innerText = '跳过';
+	        		elm.addEventListener('click',toIndex,false);
+	        	}
+	        }
+	    });
+	    function toRegist(){
+	    	window.location.href='app.html#!/regist';
+	    }
+	    function toIndex(){
+	    	window.location.href='app.html';
+	    }
+	}
+    </script>
+</body>
+</html>

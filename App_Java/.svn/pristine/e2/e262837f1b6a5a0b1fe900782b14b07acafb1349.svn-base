@@ -1,0 +1,87 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * SendSms entity. @author MyEclipse Persistence Tools
+ */
+
+public class SendSms implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String content;
+	private Date sendTime;
+	private String splitId;
+	private String splitPhone;
+	private Integer status;
+
+	// Constructors
+
+	/** default constructor */
+	public SendSms() {
+	}
+
+	/** full constructor */
+	public SendSms(String content, Date sendTime, String splitId,
+			String splitPhone, Integer status) {
+		this.content = content;
+		this.sendTime = sendTime;
+		this.splitId = splitId;
+		this.splitPhone = splitPhone;
+		this.status = status;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getContent() {
+		return this.content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Date getSendTime() {
+		return this.sendTime;
+	}
+
+	public void setSendTime(Date sendTime) {
+		this.sendTime = sendTime;
+	}
+
+	public String getSplitId() {
+		return this.splitId;
+	}
+
+	public void setSplitId(String splitId) {
+		this.splitId = splitId;
+	}
+
+	public String getSplitPhone() {
+		return this.splitPhone;
+	}
+
+	public void setSplitPhone(String splitPhone) {
+		this.splitPhone = splitPhone;
+	}
+
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+}

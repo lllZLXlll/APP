@@ -1,0 +1,166 @@
+package com.pjzb.service.admin.declare;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.pjzb.controller.common.BaseController;
+import com.pjzb.controller.common.PageBean;
+import com.pjzb.dao.BannerDao;
+import com.pjzb.entity.Banner;
+import com.pjzb.service.front.UploadService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.ConvertUtil;
+
+/**
+ * banner管理
+ * @author xiaojin
+ *
+ */
+
+@Service
+public class AdminBannerService extends BaseController {
+	
+	@Autowired
+	private BannerDao bannerDao;
+	
+	@Autowired
+	private UploadService uploadService;
+
+	public String queryBannerListPageInit(Long pageNum, Long pageSize, Model model, String tabid) {
+		try {
+			pageNum = pageNum == null ? 1 : pageNum;
+			pageSize = pageSize == null ? Constants.PAGE_SIZE_20 : pageSize;
+			List<Map<String, Object>> list = bannerDao.queryBannerListForPage((pageNum - 1) * pageSize, pageSize,
+					true);
+			long count = bannerDao.queryBannerListCount();
+			PageBean pageBean = new PageBean();
+			pageBean.setPageNum(pageNum);
+			pageBean.setPageSize(pageSize);
+			pageBean.setTotalNum(count);
+			pageBean.setPage(list);
+			model.addAttribute("pageBean", pageBean);
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************分页查询网站咨询异常**************************");
+		}
+		return "/admin/declare/banner/list.jsp";
+	}
+
+	public Map<String, Object> updateSortByid(String bannerId, String sort, String tabid) throws RuntimeException{
+		try {
+			long result = bannerDao.updateSortByid(bannerId, sort);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "修改失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("*************修改排序异常*****************");
+		}
+	}
+
+	public String updateBannerByIdInit(Long id, Model model, String tabid) {
+		try {
+			model.addAttribute("banner", bannerDao.queryBannerById(id));
+			model.addAttribute("tabid", tabid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("*********************根据id查询友情链接异常**************************");
+		}
+		return "/admin/declare/banner/edit.jsp";
+	}
+
+	public Map<String, Object> updateBannerById(Banner banner, String tabid) throws RuntimeException{
+		try {
+			long result = bannerDao.updateBannerById(banner);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "Banner修改成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "Banner修改失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**************banner修改异常*****************");
+		}
+	}
+
+	public Map<String, Object> deleteBannerById(Long id) throws RuntimeException{
+		try {
+			long result = bannerDao.deleteBannerById(id);
+			if (result > 0) {
+				return ajaxDoneInfo("200", "删除成功", "", "");
+			} else {
+				return ajaxDoneInfo("300", "删除失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("*************banner删除异常*************");
+		}
+	}
+
+	public Map<String, Object> uploadBanner(MultipartFile file, String dialogId, HttpServletRequest request) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			Calendar cal = Calendar.getInstance();
+			int month = cal.get(Calendar.MONTH) + 1;
+			int year = cal.get(Calendar.YEAR);
+			String fileName = ConvertUtil.dateConvert(new Date(), Constants.DATEYM_MILLI) + ".jpg";
+			String savePath = "upload/banner/" + year + "/" + month + "/";
+			String uploadResult = uploadService.upload(file, savePath, fileName, dialogId, request);
+			if (uploadResult.equals(Constants.SUCCESS)) {
+				map.put("bannerPath", "../" + savePath + fileName);
+				map.put("bannerName", fileName);
+				map.put("statusCode", "200");
+				map.put("message", "上传成功");
+			} else {
+				map.put("statusCode", "300");
+				map.put("message", "上传失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************上传图片异常*****************");
+			map.put("statusCode", "300");
+			map.put("message", "上传异常");
+		}
+		return map;
+	}
+
+	public String addBannerInit(Model model, String tabid) {
+		model.addAttribute("tabid", tabid);
+		return "/admin/declare/banner/add.jsp";
+	}
+
+	public Map<String, Object> addBanner(Banner banner, String tabid) throws RuntimeException{
+		long result = bannerDao.addBanner(banner);
+		try {
+			if (result > 0) {
+				return ajaxDoneInfo("200", "Bannner增加成功", "dialog", tabid);
+			} else {
+				return ajaxDoneInfo("300", "Bannner增加失败", "", "");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			throw new RuntimeException("**************banner增加异常****************");
+		}
+	}
+
+}

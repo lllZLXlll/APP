@@ -1,0 +1,1127 @@
+package com.pjzb.controller.common;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import sun.misc.BASE64Decoder;
+
+import com.pjzb.config.chinapnr.ChinapnrConfig;
+import com.pjzb.config.fadada.FddClient;
+import com.pjzb.entity.AssignmentDebt;
+import com.pjzb.entity.BankCard;
+import com.pjzb.entity.Borrow;
+import com.pjzb.entity.FaDaDa;
+import com.pjzb.entity.Invest;
+import com.pjzb.entity.OperationLog;
+import com.pjzb.entity.Person;
+import com.pjzb.entity.User;
+import com.pjzb.entity.vo.BorrowDebtVo;
+import com.pjzb.service.chinapnr.ChinapnrInterface;
+import com.pjzb.service.chinapnr.ChinapnrService;
+import com.pjzb.service.common.CommonService;
+import com.pjzb.service.common.UserService;
+import com.pjzb.service.front.AssignmentDebtService;
+import com.pjzb.service.front.AuctionDebtService;
+import com.pjzb.service.front.BankCardService;
+import com.pjzb.service.front.BillCodeService;
+import com.pjzb.service.front.BorrowService;
+import com.pjzb.service.front.FaDaDaService;
+import com.pjzb.service.front.FinanceService;
+import com.pjzb.service.front.InvestService;
+import com.pjzb.service.front.PersonService;
+import com.pjzb.service.front.SMSInterfaceService;
+import com.pjzb.util.Constants;
+import com.pjzb.util.DateUtil;
+import com.pjzb.util.FreemarkerUtil;
+import com.pjzb.util.GenerateSequenceNo;
+import com.pjzb.util.IConstants;
+import com.pjzb.util.JspToHtml;
+import com.pjzb.util.ServletUtils;
+import com.shove.Convert;
+
+/**
+ * 汇付天下Controller
+ * 
+ * 
+ */
+@Controller
+public class ChinapnrController extends BaseController {
+	private static Log log = LogFactory.getLog(ChinapnrController.class);
+
+	@Autowired
+	private ChinapnrService chinapnrService;
+
+	@Autowired
+	private BankCardService bankCardService;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private BillCodeService billCodeService;
+
+	@Autowired
+	private SMSInterfaceService sMSInterfaceService;
+
+	@Autowired
+	private AuctionDebtService auctionDebtService;
+
+	@Autowired
+	private PersonService personService;
+
+	@Autowired
+	private AssignmentDebtService assignmentDebtService;
+
+	@Autowired
+	private BorrowService borrowService;
+
+	@Autowired
+	private InvestService investService;
+
+	@Autowired
+	private FaDaDaService faDaDaService;
+
+	@Autowired
+	private FinanceService finService;
+
+	@Autowired
+	private CommonService commonService;
+
+	/**
+	 * BASE64解密
+	 * 
+	 * @param key
+	 * @return
+	 * @throws Exception
+	 */
+	private byte[] decryptBASE64(String key) throws Exception {
+		return (new BASE64Decoder()).decodeBuffer(key);
+	}
+
+	/**
+	 * 开户同步返回参数处理
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/WEB-PC/reCreateIpsAcct")
+	public String reCreateIpsAcct() {
+		log.info("******************开户同步回调开始执行************************");
+		Map<String, String> map = new HashMap<String, String>();
+		String returnPageType = null;
+
+		try {
+			log.info("汇付开户返回参数：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], "UTF-8");
+				log.info(key + "====>" + value);
+			}
+			log.info("开始执行本地：");
+			String pErrCode = requestGetParameter("RespCode");//
+			String merPriv = requestGetParameter("MerPriv");
+
+			String RespDesc = java.net.URLDecoder.decode(requestGetParameter("RespDesc"), "UTF-8");
+			String newmerPriv = new String(decryptBASE64(merPriv)); // base64解密
+			String merPrivs[] = newmerPriv.split("-");
+			String pageType = merPrivs[2].trim();
+			returnPageType = getPageType(pageType);
+			String usrEmail = requestGetParameter("UsrEmail");
+
+			String usrCustId = requestGetParameter("UsrCustId");// 汇付客户号
+			// String UsrName =
+			// java.net.URLDecoder.decode(requestGetParameter("UsrName"),
+			// "UTF-8"); // 用户名
+			// String IdNo = requestGetParameter("IdNo");// 证件号
+			String usrId = Convert.strToStr(requestGetParameter("UsrId"), "");// 该字段格式为:xxxx_123456789
+
+			map = chinapnrService.dealSynchCreateIpsAcct(pErrCode, RespDesc, merPrivs, usrEmail, usrCustId, usrId, getBasePath());
+			requestSetAttribute("msg", map.get("msg"));
+			requestSetAttribute("error", map.get("error"));
+			requestSetAttribute("result", map.get("result"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} // 汇付返回处理消息
+		return returnPageType;
+	}
+
+	/**
+	 * 开户异步返回参数处理
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/reAsyncCreateIpsAcct")
+	@ResponseBody
+	public String reAsyncCreateIpsAcct() {
+		String resultStr = null;
+		log.info("******************开户异步回调开始执行************************");
+		log.info("汇付返回参数：");
+		try {
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], "UTF-8");
+				log.info(key + "====>" + value);
+			}
+
+			log.info("开始执行本地：");
+			String pErrCode = requestGetParameter("RespCode"); //
+			String RespDesc = java.net.URLDecoder.decode(requestGetParameter("RespDesc"), "UTF-8"); // 汇付返回处理消息
+			resultStr = "订单:RECV_ORD_ID_" + requestGetParameter("TrxId");// 处理完请求后，往页面打字符串
+
+			if (!pErrCode.equals("000")) {// 汇付返回开户失败
+				log.info("用户开户汇付返回失败:" + RespDesc);
+				log.info("往页面打印：" + resultStr);
+				return resultStr;
+			}
+
+			String usrCustId = requestGetParameter("UsrCustId"); // 汇付客户号
+			// String UsrName =
+			// java.net.URLDecoder.decode(requestGetParameter("UsrName"),
+			// "UTF-8"); // 用户名
+			// String IdNo = requestGetParameter("IdNo"); // 证件号
+			String merPriv = requestGetParameter("MerPriv");
+			String newmerPriv = new String(decryptBASE64(merPriv)); // base64解密
+
+			String usrEmail = requestGetParameter("UsrEmail");
+			String merPrivs[] = newmerPriv.split("-");
+
+			chinapnrService.dealAsyncCreateIpsAcct(pErrCode, RespDesc, merPrivs, usrEmail, usrCustId, getBasePath());
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// 往页面输出字符串通知汇付已处理
+		log.info("往页面打印：" + resultStr);
+		return resultStr;
+
+	}
+
+	public String queryCardInfo(Long userId, String ipayAccount, String userName, String pageType) {
+		try {
+			JSONObject jsonObject = JSONObject.fromObject(ChinapnrInterface.queryCardInfo(ipayAccount));
+			log.info("返回银行卡信息：" + jsonObject.toString());
+			if (jsonObject.getInt(ChinapnrConfig.RESPCODE) != 0) {
+				String msg = java.net.URLDecoder.decode(jsonObject.getString(ChinapnrConfig.RESPDESC), ChinapnrConfig.UTF_8);
+				log.info("汇付返回msg:" + msg);
+			} else {
+				// 汇付返回成功
+				// 对账结果串变成数组
+				JSONArray jsonArray = JSONArray.fromObject(jsonObject.getString("UsrCardInfolist"));
+
+				// 解析对账结果串放入cardMapList中
+				List<Map<String, String>> cardMapList = new ArrayList<Map<String, String>>();
+				for (int i = 0; i < jsonArray.size(); i++) {
+					JSONObject cardJSONObject = jsonArray.getJSONObject(i);
+					if (!cardJSONObject.isNullObject()) {
+
+						Map<String, String> cardMap = new HashMap<String, String>();
+						@SuppressWarnings("unchecked")
+						Iterator<String> nameItr = cardJSONObject.keys();
+						String name = "";
+						while (nameItr.hasNext()) {
+							name = nameItr.next();
+							cardMap.put(name, cardJSONObject.getString(name));
+						}
+						cardMapList.add(cardMap);
+					}
+				}
+				if (!cardMapList.isEmpty()) {
+					synchronized (bankCardService) {
+						// 汇付在绑定快捷卡是会删除普遍绑卡的信息，删除已作废的银行卡
+						List<BankCard> bankList = bankCardService.queryBankCardByUserId(userId);
+						boolean flag = false;
+						if (!bankList.isEmpty() && bankList.size() > 0) {
+							for (int k = 0; k < bankList.size(); k++) {
+								String cardNo = bankList.get(k).getCardNo(); // 普金平台现有的银行卡号
+
+								for (int i = 0; i < cardMapList.size(); i++) {
+									Map<String, String> cardMap = cardMapList.get(i);
+									String CardId = cardMap.get("CardId");// 汇付查询到的银行卡号
+
+									if (CardId.equalsIgnoreCase(cardNo)) {
+										flag = true;
+									}
+								}
+								if (!flag) {// 说明汇付没有这张银行卡号，平台需要删除已作废的银行卡
+									bankCardService.deleteBanckCardByUserId(cardNo, userId);
+									log.info("删除用户：" + userName + "的已作废的银行卡，卡号：" + cardNo);
+
+								}
+								flag = false;
+							}
+
+						}
+						// 添加银行卡
+						for (int j = 0; j < cardMapList.size(); j++) {
+							Map<String, String> cardMap = cardMapList.get(j);
+							// 成功则添加银行卡
+							String cardNo = cardMap.get("CardId");// 银行卡号
+							String openBankId = cardMap.get("BankId");// 银行代号
+							String bankName = ChinapnrConfig.getBankName(openBankId);// 银行名称
+							if (bankCardService.queryBanckCardByCardNOAndUserId(cardNo, userId) != null) {
+								try {
+									BankCard bankCard = new BankCard();
+									bankCard.setCardNo(cardNo);
+									bankCard.setBankName(bankName);
+									bankCard.setOpenBankId(openBankId);
+									bankCard.setCommitTime(new Date());
+									bankCard.setUserId(userId);
+									bankCardService.addBanckCard(bankCard);
+								} catch (Exception e) {
+									log.info("平台执行绑卡方法抛出异常");
+									e.printStackTrace();
+									return null;
+								}
+							}
+						}
+					}
+
+				} else {
+					log.info("未查到用户(" + userName + ")的银行卡信息！");
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.info(e);
+		}
+		log.info("*****************汇付银行卡信息已同步至普金平台！************************");
+		return null;
+	}
+
+	/**
+	 * 处理充值同步返回参数
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/WEB-PC/reIpayPayment")
+	public String reIpayPayment() {
+		log.info("******************充值同步回调执行开始************************");
+		String returnPageType = null;
+		Map<String, String> jsonMap = new HashMap<String, String>();
+		try {
+			log.info("汇付充值返回参数开始：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], ChinapnrConfig.UTF_8);
+				log.info(key + "====>" + value);
+			}
+			log.info("汇付充值返回参数结束：");
+			String pErrMsg = null;
+			pErrMsg = java.net.URLDecoder.decode(requestGetParameter(ChinapnrConfig.RESPDESC), ChinapnrConfig.UTF_8);
+			String pErrCode = requestGetParameter(ChinapnrConfig.RESPCODE);// 汇付返回代码
+			String merPriv = requestGetParameter(ChinapnrConfig.MERPRIV);
+			double transAmt = Convert.strToDouble(requestGetParameter(ChinapnrConfig.TRANSAMT), Constants.DOUBLE_0);// 交易金额
+			String ordId = requestGetParameter(ChinapnrConfig.ORDID); // 平台充值流水号
+			String trxId = requestGetParameter(ChinapnrConfig.TRXID); // 汇付返回的充值流水号
+			String gateBankId = requestGetParameter("GateBankId"); // 开户银行代号
+			Double feeAmt = Convert.strToDouble(requestGetParameter(ChinapnrConfig.FEEAMT), 0);
+			String[] merPrivs = merPriv.split("-");
+			String rechargeId = merPrivs[0]; // 充值记录表Id
+			long userId = Convert.strToLong(merPrivs[1], -1); // 用户Id
+			String pageType = merPrivs[2]; // 页面类型
+			log.info("******页面类型：" + pageType);
+			returnPageType = getPageType(pageType);
+			jsonMap = chinapnrService.dealRechargeSynchReturn(pErrCode, pErrMsg, merPriv, transAmt, getRemortIp(), ordId, trxId, gateBankId, feeAmt, userId, rechargeId, pageType);
+			requestSetAttribute("error", jsonMap.get("error"));
+			requestSetAttribute("result", jsonMap.get("result"));
+			requestSetAttribute("msg", jsonMap.get("msg"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************充值同步回调执行异常************************");
+			requestSetAttribute("error", "2");
+			requestSetAttribute("result", "充值异常，" + Constants.CUSTOMER_MSG);
+			requestSetAttribute("msg", "充值异常，" + Constants.CUSTOMER_MSG);
+		}
+		log.info("******************充值同步回调执行结束************************");
+		return returnPageType;
+
+	}
+
+	/**
+	 * 处理充值异步返回参数
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/merAsyncServerUrl")
+	@ResponseBody
+	public String merAsyncServerUrl() {
+		String resultStr = null;
+		try {
+			log.info("******************充值异步回调开始执行************************");
+			log.info("汇付返回参数：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], ChinapnrConfig.UTF_8);
+				log.info(key + "====>" + value);
+			}
+			log.info("开始执行本地：");
+			String pErrMsg = java.net.URLDecoder.decode(requestGetParameter(ChinapnrConfig.RESPDESC), ChinapnrConfig.UTF_8); // 汇付返回处理消息
+			resultStr = "订单:RECV_ORD_ID_" + requestGetParameter(ChinapnrConfig.TRXID);// 处理完请求后，往页面打字符串
+			String pErrCode = requestGetParameter(ChinapnrConfig.RESPCODE);// 汇付返回代码
+			String ordId = requestGetParameter("OrdId"); // 我们平台充值流水号
+			String trxId = requestGetParameter("TrxId"); // 汇付返回的充值流水号
+			String[] merPrivs = requestGetParameter(ChinapnrConfig.MERPRIV).split("-");
+			String rechargeId = merPrivs[0]; // 充值记录表Id
+			long userId = Convert.strToLong(merPrivs[1], -1); // 用户Id
+			double transAmt = Convert.strToDouble(requestGetParameter(ChinapnrConfig.TRANSAMT), ChinapnrConfig.DOUBLE_0);
+			String gateBankId = requestGetParameter("GateBankId"); // 开户银行代号
+			resultStr = chinapnrService.dealRechargeAsynchReturn(pErrCode, pErrMsg, transAmt, ordId, trxId, gateBankId, userId, rechargeId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************处理充值异步返回异常************************");
+		}
+		return resultStr;
+	}
+
+	/**
+	 * 处理提现同步回调
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/WEB-PC/reDwTrade")
+	public String reDwTrade() {
+		log.info("******************提现同步回调执行开始************************");
+		String returnPageType = null;
+		Map<String, String> map;
+		try {
+			log.info("汇付提现返回参数开始：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], ChinapnrConfig.UTF_8);
+				log.info(key + "====>" + value);
+			}
+			log.info("汇付提现返回参数结束：");
+			String pErrMsg = requestGetParameter(ChinapnrConfig.RESPDESC);
+			if (pErrMsg != null) {
+				pErrMsg = java.net.URLDecoder.decode(pErrMsg, ChinapnrConfig.UTF_8); // 汇付返回处理消息
+			}
+			String pErrCode = requestGetParameter(ChinapnrConfig.RESPCODE);// 汇付返回代码
+			requestSetAttribute("url", "withdrawLoad.do?ssid=<%=request.getSession().getId()%>");
+			String OrdId = requestGetParameter(ChinapnrConfig.ORDID);
+			String MerPriv = requestGetParameter(ChinapnrConfig.MERPRIV);
+			String[] merPrivs = MerPriv.split("-");
+			long userId = Convert.strToLong(merPrivs[0], -1);
+			String pageType = merPrivs[1];
+			log.info("********页面类型：" + pageType);
+			returnPageType = getPageType(pageType);
+			double moneyD = Convert.strToDouble(requestGetParameter(ChinapnrConfig.TRANSAMT), ChinapnrConfig.DOUBLE_0);// 交易金额
+			double feeAmt = Convert.strToDouble(requestGetParameter(ChinapnrConfig.FEEAMT), ChinapnrConfig.DOUBLE_0);// 汇付返回提现手续费1
+			double ServFee = Convert.strToDouble(requestGetParameter(ChinapnrConfig.SERVFEE), ChinapnrConfig.DOUBLE_0);// 汇付返回提现服务费2
+			map = chinapnrService.dealWithdrawSynchronReturn(pErrCode, pErrMsg, OrdId, MerPriv, moneyD, feeAmt, ServFee, userId, pageType, getBasePath());
+			requestSetAttribute("error", map.get("error"));
+			requestSetAttribute("msg", map.get("msg"));
+			requestSetAttribute("result", map.get("result"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.error(e);
+			requestSetAttribute("error", "4");
+			requestSetAttribute("msg", "提现异常，" + Constants.CUSTOMER_MSG);
+			requestSetAttribute("result", "提现异常，" + Constants.CUSTOMER_MSG);
+			log.info("******************提现同步回调执行异常************************");
+		}
+		log.info("******************提现同步回调执行结束************************");
+		return returnPageType;
+	}
+
+	/**
+	 * 处理提现异步回调
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/reAsyncmerServerUrl")
+	@ResponseBody
+	public String reAsyncmerServerUrl() {
+		String resultStr = null;
+		try {
+			log.info("******************提现异步回调开始执行************************");
+			log.info("汇付返回参数：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], ChinapnrConfig.UTF_8);
+				log.info(key + "====>" + value);
+			}
+			resultStr = "订单:RECV_ORD_ID_" + requestGetParameter(ChinapnrConfig.ORDID);
+			String pErrCode = requestGetParameter(ChinapnrConfig.RESPCODE);//
+			String pErrMsg = java.net.URLDecoder.decode(requestGetParameter(ChinapnrConfig.RESPDESC), ChinapnrConfig.UTF_8); // 汇付返回处理消息
+			String OrdId = requestGetParameter(ChinapnrConfig.ORDID);
+			String MerPriv = requestGetParameter(ChinapnrConfig.MERPRIV);// 商户私有域
+			String[] merPrivs = MerPriv.split("-");
+			long userId = Convert.strToLong(merPrivs[0], -1);
+			double moneyD = Convert.strToDouble(requestGetParameter(ChinapnrConfig.TRANSAMT), ChinapnrConfig.DOUBLE_0);
+			double feeAmt = Convert.strToDouble(requestGetParameter(ChinapnrConfig.FEEAMT), ChinapnrConfig.DOUBLE_0);// 汇付返回手续费1
+			double ServFee = Convert.strToDouble(requestGetParameter(ChinapnrConfig.SERVFEE), ChinapnrConfig.DOUBLE_0);// 汇付返回提现服务费2
+			resultStr = chinapnrService.dealWithdrawAsynchReturn(pErrCode, pErrMsg, OrdId, MerPriv, moneyD, feeAmt, ServFee, userId);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************提现异步回调执行异常************************");
+		}
+		return resultStr;
+	}
+
+	/**
+	 * 异步公共回调
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/pubCallBack")
+	@ResponseBody
+	public String pubCallBack() {
+		String result = null;
+		try {
+			log.info("******************异步公共回调开始执行************************");
+			log.info("汇付返回参数：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], ChinapnrConfig.UTF_8);
+				log.info(key + "====>" + value);
+			}
+			String CmdId = requestGetParameter("CmdId");
+			if ("UserBindCard".equals(CmdId)) {// 绑卡
+				result = "订单:RECV_ORD_ID_" + requestGetParameter(ChinapnrConfig.TRXID);
+			} else if ("PosWhSave".equals(CmdId) || "NetSave".equals(CmdId) || "UserRegister".equals(CmdId)) {
+				result = "订单:RECV_ORD_ID_" + requestGetParameter(ChinapnrConfig.TRXID);
+			} else if ("CorpRegister".equals(CmdId)) {
+				result = "订单:RECV_ORD_ID_" + requestGetParameter(ChinapnrConfig.TRXID);
+			} else {
+				result = "订单:RECV_ORD_ID_" + requestGetParameter(ChinapnrConfig.ORDID);
+			}
+			log.info("异步公共回调往页面打印：" + result);
+			log.info("******************异步公共回调结束行************************");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/**
+	 * 债权转让同步回调处理
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/WEB-PC/reCreditAssign")
+	public String reCreditAssign() {
+		String pageType = null;
+		try {
+			log.info("******************债权转让同步回调开始执行************************");
+			log.info("债权转让汇付返回参数：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], "UTF-8");
+				log.info(key + "====>" + value);
+			}
+
+			log.info("开始执行本地");
+			// 签名和结果验证
+			String MerPriv = requestGetParameter(ChinapnrConfig.MERPRIV);
+			if ("".equals(MerPriv)) {
+				requestSetAttribute("msg", "债权转让失败：");
+				requestSetAttribute("result", "流水号有误");
+				requestSetAttribute("url", "queryFrontAllDebt.do");
+				return Constants.RESULT_PAGE_PC;
+			}
+			String priv = MerPriv.substring(MerPriv.indexOf("-") + 1);
+			// String ordId = MerPriv.substring(0, MerPriv.indexOf("-"));
+			String debtId = MerPriv.substring(0, MerPriv.indexOf("-")); // 平台债权转让流水号
+			// String pageType = MerPriv.substring(2, MerPriv.indexOf("-")); //
+			// pageType
+			pageType = MerPriv.substring(MerPriv.lastIndexOf("-") + 1, MerPriv.length()); // pageType
+
+			// String ordId = generateSequenceNo.generateSequenceNo();
+			String ordId = requestGetParameter(ChinapnrConfig.ORDID);
+			String trxId = requestGetParameter(ChinapnrConfig.ORDID); // 汇付返回的债权流水号（不是汇付返回流水号，这里是自定义）
+			String pErrCode = requestGetParameter(ChinapnrConfig.RESPCODE);// 汇付返回处理代码
+			String pErrMsg = java.net.URLDecoder.decode(requestGetParameter(ChinapnrConfig.RESPDESC), "UTF-8"); // 汇付返回处理消息
+			if (!"000".equals(pErrCode)) {
+				if (pageType.equals(Constants.REACTAPP)) {
+					requestSetAttribute("msg", "债权转让失败：");
+					requestSetAttribute("error", "1");
+					requestSetAttribute("result", pErrMsg);
+					requestSetAttribute("url", "queryFrontAllDebt.do");
+					return Constants.RESULT_PAGE_APP;
+				} else {
+					requestSetAttribute("msg", "债权转让失败：");
+					requestSetAttribute("result", pErrMsg);
+					requestSetAttribute("url", "queryFrontAllDebt.do");
+					return Constants.RESULT_PAGE_PC;
+				}
+
+			}
+			synchronized (billCodeService) {
+				if (!billCodeService.queryBillCode(ordId)) {
+
+					// String trxId = request("TrxId");
+					// String priv = request("MerPriv");
+					String investId = "";// 当为回购时,这里传的是investId
+					String type = "";
+					try {
+						// String ordId = request("OrdId");
+						String transAmt = requestGetParameter("CreditDealAmt");
+						String fee = requestGetParameter("Fee"); // 手续费
+						String pwd = "";// 密码验证已祛除
+						long userId = -1;
+						if (!StringUtils.isBlank(priv)) {
+							String[] array = priv.split("-");
+							userId = new Long(array[0]);
+							if (array.length > 1) {
+								if (array[1].equals("BackBuy")) {
+									userId = Convert.strToLong(ChinapnrConfig.CHINAPNR_DC, 0);
+									pwd = "9527";// 9527作为标识,处理回购业务
+									investId = array[0];
+									type = "BackBuy";
+								} else if (array[1].equals("reactAPP")) {
+									if (IConstants.ISDEMO.equals("2")) {
+										sMSInterfaceService.sendSMSModer(userId, transAmt, 6);
+									}
+								}
+							} else {
+								userId = new Long(priv);
+								// 值backbuy时为回购,userId存放的是usrCustId
+
+								User user = userService.queryUserById(userId);
+								if (IConstants.ISDEMO.equals("2")) {
+									sMSInterfaceService.sendSMSModer(userId, transAmt, 6);
+								}
+								sessionSetAttribute(Constants.SESSION_USER, user);
+							}
+
+						} else {
+							userId = new Long(priv);
+						}
+						Map<String, String> pro_map = auctionDebtService.insertProcedure_Debts(Convert.strToLong(debtId, 0), userId, Convert.strToDouble(transAmt, 0),
+								Convert.strToDouble(fee, 0), pwd, this.getBasePath(), investId, type, trxId, request(), getBasePath());
+						long result = Convert.strToLong(pro_map.get("ret"), -1);
+						if (result < 0) {
+							if (pageType.equals(Constants.REACTAPP)) {
+								requestSetAttribute("result", "债权转让平台执行失败：" + pro_map.get("ret_desc"));
+								requestSetAttribute("msg", "债权转让平台执行失败：" + pro_map.get("ret_desc"));
+								requestSetAttribute("error", "2");
+								requestSetAttribute("url", "queryFrontAllDebt.do");
+								return Constants.RESULT_PAGE_APP;
+							} else {
+								requestSetAttribute("result", "债权转让平台执行失败：" + pro_map.get("ret_desc"));
+								requestSetAttribute("url", "queryFrontAllDebt.do");
+								return Constants.RESULT_PAGE_PC;
+							}
+						} else {
+							// 签署法大大合同
+							String res = fadadaHeTong(userId, debtId);
+							if (res.equals("success")) {
+								log.info("====>法大大合同签署成功！");
+							} else {
+								log.info("====>法大大合同签署失败！");
+							}
+						}
+					} catch (Exception e) {
+						if (pageType.equals(Constants.REACTAPP)) {
+							log.info("债权转让同步回调方法抛出异常");
+							e.printStackTrace();
+							requestSetAttribute("result", "债权转让平台执行失败：执行异常");
+							requestSetAttribute("msg", "债权转让平台执行失败：执行异常");
+							requestSetAttribute("error", "3");
+							requestSetAttribute("url", "queryFrontAllDebt.do");
+							return Constants.RESULT_PAGE_APP;
+						} else {
+							log.info("债权转让同步回调方法抛出异常");
+							e.printStackTrace();
+							requestSetAttribute("result", "债权转让平台执行失败：执行异常");
+							requestSetAttribute("url", "queryFrontAllDebt.do");
+							return Constants.RESULT_PAGE_PC;
+						}
+					}
+				}
+			}
+
+			if (pageType.equals(Constants.REACTAPP)) {
+				requestSetAttribute("result", "债权认购成功");
+				requestSetAttribute("msg", "债权认购成功");
+				requestSetAttribute("error", "0");
+				requestSetAttribute("url", "queryFrontAllDebt.do");
+				return Constants.RESULT_PAGE_APP;
+			} else {
+				requestSetAttribute("result", "债权认购成功");
+				requestSetAttribute("msg", "债权认购成功");
+				requestSetAttribute("error", "0");
+				requestSetAttribute("url", "queryFrontAllDebt.do");
+				return Constants.RESULT_PAGE_PC;
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.error(e);
+			if (pageType.equals(Constants.REACTAPP)) {
+				requestSetAttribute("result", "债权认购异常");
+				requestSetAttribute("msg", "债权认购异常");
+				requestSetAttribute("error", "1");
+				requestSetAttribute("url", "queryFrontAllDebt.do");
+				return Constants.RESULT_PAGE_APP;
+			} else {
+				requestSetAttribute("result", "债权认购异常");
+				requestSetAttribute("msg", "债权认购异常");
+				requestSetAttribute("error", "1");
+				requestSetAttribute("url", "queryFrontAllDebt.do");
+				return Constants.RESULT_PAGE_PC;
+			}
+		}
+
+	}
+
+	/**
+	 * 债权转让异步回调处理
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/reAsyncCreditAssign")
+	@ResponseBody
+	public String reAsyncCreditAssign(HttpServletResponse response, HttpServletRequest request) {
+		try {
+			log.info("******************债权转让异步回调开始执行************************");
+			log.info("债权转让汇付返回参数：");
+			PrintWriter out = response.getWriter();
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], "UTF-8");
+				log.info(key + "====>" + value);
+			}
+
+			log.info("开始执行本地");
+			String resultStr = "订单:RECV_ORD_ID_" + requestGetParameter(ChinapnrConfig.ORDID);// 处理完请求后，往页面打字符串
+			// 签名和结果验证
+			String RespCode = requestGetParameter("RespCode");
+			if (Convert.strToInt(RespCode, -1) != 0) {
+				log.info("债权转让汇付返回失败：" + java.net.URLDecoder.decode(requestGetParameter("RespDesc"), "UTF-8"));
+				log.info("往页面打印：" + resultStr);
+				out.write(resultStr);
+				return null;
+			}
+			String MerPriv = requestGetParameter(ChinapnrConfig.MERPRIV);
+			String priv = MerPriv.substring(MerPriv.indexOf("-") + 1);
+			// String ordId = MerPriv.substring(0, MerPriv.indexOf("-"));
+			String debtId = MerPriv.substring(0, MerPriv.indexOf("-")); // 平台债权转让流水号
+			// String ordId = generateSequenceNo.generateSequenceNo();
+			// String trxId = request("TrxId");
+			String ordId = requestGetParameter(ChinapnrConfig.ORDID); // 我们平台债权流水号
+			String trxId = requestGetParameter(ChinapnrConfig.ORDID); // 汇付返回的债权流水号
+			// String priv = request("MerPriv");
+			String investId = "";// 当为回购时,这里传的是investId
+			String type = "";
+			synchronized (billCodeService) {
+				if (!billCodeService.queryBillCode(ordId)) {
+
+					try {
+						// String ordId = request("OrdId");
+						String transAmt = requestGetParameter(ChinapnrConfig.CREDITDEALAMT);
+						String fee = requestGetParameter(ChinapnrConfig.FEE); // 手续费
+						String pwd = "";// 密码验证已祛除
+						long userId = -1;
+						if (!StringUtils.isBlank(priv)) {
+							String[] array = priv.split("-");
+							if (array.length > 1) {
+								if (array[1].equals("BackBuy")) {
+									userId = Convert.strToLong(ChinapnrConfig.CHINAPNR_DC, 0);
+									pwd = "9527";// 9527作为标识,处理回购业务
+									investId = array[0];
+									type = "BackBuy";
+								}
+							} else {
+								userId = new Long(priv);
+								// 值backbuy时为回购,userId存放的是usrCustId
+								User user = userService.queryUserById(userId);
+								session().setAttribute("user", user);
+							}
+						} else {
+							userId = new Long(priv);
+						}
+
+						Map<String, String> pro_map = auctionDebtService.insertProcedure_Debts(Convert.strToLong(debtId, 0), userId, Convert.strToDouble(transAmt, 0),
+								Convert.strToDouble(fee, 0), pwd, this.getBasePath(), investId, type, trxId, request, getBasePath());
+						long result = Convert.strToLong(pro_map.get("ret"), -1);
+						if (result < 0) {
+							log.info("债权转让执行本地失败：" + pro_map.get("ret_desc"));
+						} else {
+
+							// 签署法大大合同
+							String res = fadadaHeTong(userId, debtId);
+							if (res.equals("success")) {
+								log.info("====>法大大合同签署成功！");
+							} else {
+								log.info("====>法大大合同签署失败！");
+							}
+						}
+					} catch (Exception e) {
+						log.info("债权转让异步回调方法抛出异常");
+						e.printStackTrace();
+						log.info("往页面打印：" + resultStr);
+						out.write(resultStr);
+						return null;
+					}
+				}
+			}
+			log.info("往页面打印：" + resultStr);
+			out.write(resultStr);
+			log.info("******************债权转让异步回调执行结束************************");
+			out.close();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			log.error(e);
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.error(e);
+		}
+		return null;
+	}
+
+	public String fadadaHeTong(long userId, String debtId) {
+		String result = "fail";
+
+		// 1.查询动态生成合同需要的基本信息
+		Map<String, Object> map = new HashMap<String, Object>();
+		BorrowDebtVo mapContent = new BorrowDebtVo();
+		Map<String, Object> sumMap = null;
+
+		long borrowId = -1;
+		long invest_id = -1;
+
+		Person personMap = personService.queryPersonByUserId(userId);// 查询真实姓名
+
+		// Message message = messageService.queryMessageByTypeId(24);
+		map = assignmentDebtService.queryDebtUserName(Long.parseLong(debtId));
+		Date dateEnd = null;
+		if (map != null) {
+			// 得到借款Id
+			borrowId = Convert.strToLong(map.get("borrowId") + "", -1);
+			// 得到投资Id
+			invest_id = Convert.strToLong(map.get("investId") + "", -1);
+			sumMap = borrowService.queryBorrowSumMomeny(borrowId, invest_id);
+			mapContent = borrowService.queryBorrowInfo(borrowId);
+
+			Date datestart = mapContent.getAuditTime();
+			mapContent.setAuditTime(datestart);
+			// 得到借款期限
+			int isdayThe = mapContent.getIsDayThe();
+			int deadline = mapContent.getDeadline();
+			if (isdayThe == 1) {
+				datestart = DateUtil.dateAddMonth(datestart, deadline);
+			} else {
+				datestart = DateUtil.dateAddDay(datestart, deadline);
+			}
+			dateEnd = datestart;
+
+		}
+		log.info("查询动态生成合同需要的基本信息完成");
+
+		String doc_url = "";// 文档地址
+		String doc_typeD = "";// 文档类型
+		String contrac_id = GenerateSequenceNo.generateSequenceNo();
+		String filePath = getProjectRealPath() + "WEB-INF/pages/common/template_zhaiquan.html";
+		String savepath = getProjectRealPath() + "WEB-INF/pages/common/abc.html";
+
+		// 查询原始借款合同的合同编码
+
+		Borrow bidMap = borrowService.queryBorrowById(borrowId);
+		Invest investsMap = investService.queryrInvests(borrowId, invest_id);
+		String contractNO = "";
+		if (bidMap.getBorrowTypeSubId().equals("3") || (bidMap.getBorrowTypeSubId().equals("5") && bidMap.getHetong().equals("109"))) {
+			contractNO = investsMap.getContractId();
+		} else {
+			contractNO = bidMap.getContractId();
+		}
+
+		JspToHtml.JspToHtmlFileZhuaiQuan(filePath, savepath, contractNO, map, sumMap, personMap, mapContent, dateEnd);// 生成pdf文件
+		log.info("转换html成功");
+
+		String pdf = getProjectRealPath() + "WEB-INF/pages/common/pd3ml.pdf";
+		String fontUrl = IConstants.FONTURL;
+		try {
+			FreemarkerUtil.htmlToPdf(savepath, pdf, fontUrl);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("转换pdf成功");
+
+		File file = new File(pdf);
+		String doc_type = ".pdf";
+
+		/**
+		 * client_type 客户类型：1-个人，2-企业 client_role 客户角色: 1 接入平台，2.担保公司，3.投资人，
+		 * 4.借款人
+		 */
+
+		// 调用请求
+		String response = FddClient.invokeUploadDocs(contrac_id, file, "", doc_type);
+
+		log.info(net.sf.json.util.JSONUtils.valueToString(response));
+		JSONObject jobj0 = JSONObject.fromObject(response);
+		if (jobj0.getInt("code") == 1000) {
+			log.info("上传法大大合同成功");
+			// 上传文件成功
+			// 查询受让人的法大大CA证书
+			FaDaDa uMap = faDaDaService.queryFadadaByUserId(userId);
+			// 查询转让人的法大大CA证书
+			FaDaDa jkuanMap = faDaDaService.queryFadadaByUserId(Convert.strToLong(map.get("alienatorId") + "", -1));
+
+			// 查询平台居间方的法大大CA证书
+			FaDaDa middleMap = faDaDaService.queryFadadaByUserId(Long.parseLong(ChinapnrConfig.FADADA_MIDDLE_CUSTOMER));
+
+			String customer_id = uMap.getCustomerId();
+			String contract_send = GenerateSequenceNo.generateSequenceNo();
+			// String behalf_send = generateSequenceNo.generateSequenceNo();
+			String sontract_send = GenerateSequenceNo.generateSequenceNo();
+			String middle_send = GenerateSequenceNo.generateSequenceNo();
+
+			String doc_title = "债权转让及受让协议";
+
+			log.info("合同编码：" + contrac_id);
+			log.info("投资人：" + userId);
+
+			String sign_keyword = "受让人签署";// 自动签署关键字
+
+			// 债权转让的合同，受让人签署个人的
+			String borrowVocher = FddClient.invokeExtSignAutoTwo(contract_send, customer_id, doc_url, "1", "3", contrac_id, doc_title, sign_keyword, "", doc_typeD);
+			JSONObject jb = JSONObject.fromObject(borrowVocher);
+			// 签署关键字
+			String sign_key = "转让人签署";
+			// 受让人签署完，转让人再去签署一下这个合同
+			if (jb.getInt("code") == 1000) {
+				String borrowQians = FddClient.invokeExtSignAutoTwo(sontract_send, jkuanMap.getCustomerId(), doc_url, "1", "3", contrac_id, doc_title, sign_key, "", doc_typeD);
+
+				JSONObject jobt = JSONObject.fromObject(borrowQians);
+				log.info("法大大自动文档签署");
+				log.info(net.sf.json.util.JSONUtils.valueToString(jobt) + "====>");
+				if (jobt.getInt("code") == 1000) {
+
+					// 签署关键字
+					String midd_sign_key = "居间方签署";
+
+					String middSign = FddClient
+							.invokeExtSignAutoTwo(middle_send, middleMap.getCustomerId(), doc_url, "2", "1", contrac_id, doc_title, midd_sign_key, "", doc_typeD);
+					JSONObject jobmiddle = JSONObject.fromObject(middSign);
+
+					log.info("居间方自动文档签署完成");
+					log.info(net.sf.json.util.JSONUtils.valueToString(jobmiddle) + "====>");
+
+					// 签署后文件下载地址
+					String download_url = jb.getString("download_url");
+
+					// 在线查看已签署地址
+					String viewpdf_url = jb.getString("viewpdf_url");
+					AssignmentDebt assignmentDebt = new AssignmentDebt();
+					assignmentDebt.setContractId(contrac_id);
+					assignmentDebt.setDownloadUrl(download_url);
+					assignmentDebt.setViewpdfUrl(viewpdf_url);
+					assignmentDebt.setId(Long.parseLong(debtId));
+					long assignResult = assignmentDebtService.updateAssignmentDebt(assignmentDebt);
+
+					if (assignResult > 0) {
+						// 法大大合同归档
+						String responsed = FddClient.invokeContractFilling(contrac_id);
+
+						JSONObject jbFilling = JSONObject.fromObject(responsed);
+						log.info("法大大合同归档 ====>" + net.sf.json.util.JSONUtils.valueToString(jbFilling));
+						if (jbFilling.getInt("code") == 1000) {
+							result = "success";
+						}
+
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 投标同步处理
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/WEB-PC/reTenderTrade")
+	public String reTenderTrade() {
+		Map<String, String> map = new HashMap<String, String>();
+		String returnPageType = null;
+		try {
+			log.info("******************投标同步回调执行开始************************");
+			log.info("投标汇付返回参数开始：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], "UTF-8");
+				log.info(key + "====>" + value);
+			}
+			log.info("投标汇付返回参数结束：");
+			String pErrDesc = java.net.URLDecoder.decode(requestGetParameter("RespDesc"), "UTF-8");
+			String pErrCode = requestGetParameter("RespCode"); // 汇付返回码
+			String ordId = requestGetParameter("OrdId"); // 平台生成唯一流水号
+			String trxId = requestGetParameter("TrxId"); // 汇付流水号
+			String MerPriv = requestGetParameter("MerPriv"); // 商户私有域
+			String[] merPrivs = MerPriv.split("-");
+			String pageType = merPrivs[4];// 页面类型
+			log.info("**********页面类型：" + pageType);
+			returnPageType = getPageType(pageType);
+			String transAmt = requestGetParameter("TransAmt"); // 投资金额
+			double transAm = Convert.strToDouble(transAmt, 0.00);
+			String usrCustId = requestGetParameter("UsrCustId"); // 投资人汇付客户号
+			String bid = merPrivs[0]; // 标的ID
+			String uid = merPrivs[1]; // 投资人id
+			Long userId = Convert.strToLong(uid + "", -1);
+			String amtDj = merPrivs[2];// 代金券的ID
+			long amtDjq = Convert.strToLong(amtDj, -1);// 代金券的ID
+			String vocherAmt = merPrivs[3];// 代金券的金额
+			double vocherAm = Convert.strToDouble(vocherAmt, 0.00);
+			// 代金券加投资金额总和
+			double sum = vocherAm + transAm;
+			map = chinapnrService.dealFinanceInvestSynchReturn(pErrCode, pErrDesc, ordId, trxId, merPrivs, transAm, usrCustId, getBasePath(), bid, uid, userId, amtDj, amtDjq,
+					vocherAmt, vocherAm, sum, pageType);
+			requestSetAttribute("msg", map.get("msg"));
+			requestSetAttribute("error", map.get("error"));
+			requestSetAttribute("result", map.get("result"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			log.info("******************投标同步回调执行异常************************");
+			requestSetAttribute("error", "3");
+			requestSetAttribute("msg", "投标异常，" + Constants.CUSTOMER_MSG);
+			requestSetAttribute("result", "投标异常，" + Constants.CUSTOMER_MSG);
+		}
+		log.info("******************投标同步回调执行结束************************");
+		return returnPageType;
+	}
+
+	/**
+	 * 投标异步处理
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/reAsyncFinanceInvestUrl")
+	@ResponseBody
+	public String reAsyncFinanceInvestUrl() {
+		String resultStr = null;
+		try {
+			log.info("******************投标异步回调开始执行************************");
+			log.info("投标汇付返回参数：");
+			Map<String, String[]> ret = request().getParameterMap();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], ChinapnrConfig.UTF_8);
+				log.info(key + "====>" + value);
+			}
+			log.info("开始执行本地：");
+			String pErrCode = requestGetParameter("RespCode"); // 汇付返回码
+			String pErrDesc = java.net.URLDecoder.decode(requestGetParameter("RespDesc"), "UTF-8");
+			String ordId = requestGetParameter("OrdId"); // 平台生成唯一流水号
+			String trxId = requestGetParameter("TrxId"); // 汇付流水号
+			String MerPriv = requestGetParameter("MerPriv"); // 商户私有域
+			String[] merPrivs = MerPriv.split("-");
+			String transAmt = requestGetParameter("TransAmt"); // 投资金额
+			double transAm = Convert.strToDouble(transAmt, 0.00);
+			String usrCustId = requestGetParameter("UsrCustId"); // 投资人汇付客户号
+			resultStr = chinapnrService.dealFinanceInvestAsynReturn(pErrCode, pErrDesc, ordId, trxId, merPrivs, transAm, usrCustId, getBasePath());
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("******************投标异步回调开始执行异常************************");
+		}
+		log.info("******************投标异步回调开始执行结束************************");
+		return resultStr;
+	}
+
+	public String getPageType(String pageType) {
+		if (pageType.equalsIgnoreCase(Constants.PC)) {
+			return Constants.RESULT_PAGE_PC;
+		} else if (pageType.equalsIgnoreCase(Constants.REACTAPP)) {
+			return Constants.RESULT_PAGE_APP;
+		} else {
+			return Constants.RESULT_PAGE_WAP;
+		}
+	}
+
+	/**
+	 * 绑卡异步回调
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/WEB-PC/reAddBankInfo")
+	@ResponseBody
+	public Map<String, Object> reAddBankInfo() {
+		log.info("******************绑卡异步回调开始执行************************");
+		log.info("汇付返回参数：");
+		try {
+			Map<String, String[]> ret = request().getParameterMap();
+			PrintWriter out = response().getWriter();
+			for (String key : ret.keySet()) {
+				String value = java.net.URLDecoder.decode(ret.get(key)[0], "UTF-8");
+				log.info(key + "====>" + value);
+			}
+
+			String resultStr = "订单:RECV_ORD_ID_" + requestGetParameter("TrxId");// 处理完请求后，往页面打字符串
+			// 结果验证
+			String pErrCode = requestGetParameter("RespCode");// 汇付返回代码
+			String pErrMsg = java.net.URLDecoder.decode(requestGetParameter("RespDesc"), "UTF-8"); // 汇付返回处理消息
+			long suerId = Convert.strToLong(requestGetParameter("MerPriv"), -1); // 用户ID
+			Map<String, Object> userMap = userService.queryUserByIds(suerId);
+			OperationLog og = new OperationLog("t_bankcard", Convert.strToStr(userMap.get("username") + "", ""), 0, ServletUtils.getRemortIp(), new Date(), 0.0, "用户添加银行卡-"
+					+ pErrCode, 1, suerId);
+			commonService.addOperationLog(og);
+			if (Convert.strToInt(pErrCode, -1) != 0) {
+				out.print(resultStr);
+				log.info("绑卡异步汇付返回失败:" + pErrMsg);
+				log.info("往页面打印：" + resultStr);
+				return null;
+			}
+
+			synchronized (finService) {
+				// 成功则添加银行卡
+				String cardNo = requestGetParameter("OpenAcctId");// 银行卡号
+				String openBankId = requestGetParameter("OpenBankId");// 银行代号
+				String bankName = ChinapnrConfig.getBankName(openBankId);// 银行名称
+				String UsrCustId = requestGetParameter("UsrCustId");
+				// 根据用户id和卡号查询t_bankcard是否存在，解决汇付回调两次导致插入两条数据问题
+				if (!finService.queryBanckCard(cardNo, suerId)) {
+					try {
+						bankCardService.addBankCards(cardNo, bankName, openBankId, UsrCustId); // 直接传sql字符串参数会有问题
+					} catch (Exception e) {
+						log.info("平台执行绑卡方法抛出异常");
+						e.printStackTrace();
+						out.print(resultStr);
+						log.info("往页面打印：" + resultStr);
+						return null;
+					}
+				}
+			}
+			log.info("平台执行绑卡成功");
+			out.print(resultStr);
+			log.info("往页面打印：" + resultStr);
+			log.info("******************绑卡异步回调结束************************");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+}

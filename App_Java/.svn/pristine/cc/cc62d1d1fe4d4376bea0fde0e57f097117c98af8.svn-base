@@ -1,0 +1,31 @@
+package com.pjzb.service.common;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pjzb.dao.ApproveNoticeTemplateDao;
+
+
+/**
+ *  提醒记录   service
+ *
+ */
+@Service
+public class ApproveNoticeTemplateService {
+
+	private static Log log = LogFactory.getLog(ApproveNoticeTemplateService.class);
+	
+	@Autowired
+	private ApproveNoticeTemplateDao  shoveApproveNoticeTemplateDao ;
+	
+	
+	public List<Map<String, Object>> queryAllInformTemplate() {
+		return shoveApproveNoticeTemplateDao.queryAllInformTemplate();
+	}
+	
+}

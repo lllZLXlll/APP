@@ -1,0 +1,25 @@
+define(function (require,exports,module) {
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			var dataList = this.$parent.listData;
+			this.$set('dataList',dataList);
+			utils.setAppConfig('帮助中心',true,false);
+		},
+		methods:{
+			toDetail:function(index){
+				router.go({path:'queston',append:true,query:{index:index}});
+			}
+		},
+		data:function(){
+			return {
+				dataList:[]
+			}
+		},
+		template:'<div class="questonType">问题类型</div><div class="list-block"><ul>'+
+	      '<li class="item-content item-link" v-for="list in dataList" @click="toDetail($index)">'+
+	        '<div class="item-inner">'+
+	          '<div class="item-title"><i class="icon" v-bind:class="list.className"></i>{{list.name}}</div>'+
+	        '</div></li></ul></div>'
+	});
+	module.exports = VueComponent;
+})

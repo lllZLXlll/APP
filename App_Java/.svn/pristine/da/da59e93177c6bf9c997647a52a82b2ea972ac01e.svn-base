@@ -1,0 +1,230 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * RiskDetailId entity. @author MyEclipse Persistence Tools
+ */
+
+public class RiskDetail implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Double riskInCome;
+	private Double riskSpending;
+	private Date riskDate;
+	private Double riskBalance;
+	private String riskType;
+	private String resource;
+	private Long trader;
+	private Long borrowId;
+	private String remark;
+	private Long operator;
+
+	// Constructors
+
+	/** default constructor */
+	public RiskDetail() {
+	}
+
+	/** minimal constructor */
+	public RiskDetail(Long id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public RiskDetail(Long id, Double riskInCome, Double riskSpending,
+			Date riskDate, Double riskBalance, String riskType,
+			String resource, Long trader, Long borrowId, String remark,
+			Long operator) {
+		this.id = id;
+		this.riskInCome = riskInCome;
+		this.riskSpending = riskSpending;
+		this.riskDate = riskDate;
+		this.riskBalance = riskBalance;
+		this.riskType = riskType;
+		this.resource = resource;
+		this.trader = trader;
+		this.borrowId = borrowId;
+		this.remark = remark;
+		this.operator = operator;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Double getRiskInCome() {
+		return this.riskInCome;
+	}
+
+	public void setRiskInCome(Double riskInCome) {
+		this.riskInCome = riskInCome;
+	}
+
+	public Double getRiskSpending() {
+		return this.riskSpending;
+	}
+
+	public void setRiskSpending(Double riskSpending) {
+		this.riskSpending = riskSpending;
+	}
+
+	public Date getRiskDate() {
+		return this.riskDate;
+	}
+
+	public void setRiskDate(Date riskDate) {
+		this.riskDate = riskDate;
+	}
+
+	public Double getRiskBalance() {
+		return this.riskBalance;
+	}
+
+	public void setRiskBalance(Double riskBalance) {
+		this.riskBalance = riskBalance;
+	}
+
+	public String getRiskType() {
+		return this.riskType;
+	}
+
+	public void setRiskType(String riskType) {
+		this.riskType = riskType;
+	}
+
+	public String getResource() {
+		return this.resource;
+	}
+
+	public void setResource(String resource) {
+		this.resource = resource;
+	}
+
+	public Long getTrader() {
+		return this.trader;
+	}
+
+	public void setTrader(Long trader) {
+		this.trader = trader;
+	}
+
+	public Long getBorrowId() {
+		return this.borrowId;
+	}
+
+	public void setBorrowId(Long borrowId) {
+		this.borrowId = borrowId;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public Long getOperator() {
+		return this.operator;
+	}
+
+	public void setOperator(Long operator) {
+		this.operator = operator;
+	}
+
+	public boolean equals(Object other) {
+		if ((this == other))
+			return true;
+		if ((other == null))
+			return false;
+		if (!(other instanceof RiskDetail))
+			return false;
+		RiskDetail castOther = (RiskDetail) other;
+
+		return ((this.getId() == castOther.getId()) || (this.getId() != null
+				&& castOther.getId() != null && this.getId().equals(
+				castOther.getId())))
+				&& ((this.getRiskInCome() == castOther.getRiskInCome()) || (this
+						.getRiskInCome() != null
+						&& castOther.getRiskInCome() != null && this
+						.getRiskInCome().equals(castOther.getRiskInCome())))
+				&& ((this.getRiskSpending() == castOther.getRiskSpending()) || (this
+						.getRiskSpending() != null
+						&& castOther.getRiskSpending() != null && this
+						.getRiskSpending().equals(castOther.getRiskSpending())))
+				&& ((this.getRiskDate() == castOther.getRiskDate()) || (this
+						.getRiskDate() != null
+						&& castOther.getRiskDate() != null && this
+						.getRiskDate().equals(castOther.getRiskDate())))
+				&& ((this.getRiskBalance() == castOther.getRiskBalance()) || (this
+						.getRiskBalance() != null
+						&& castOther.getRiskBalance() != null && this
+						.getRiskBalance().equals(castOther.getRiskBalance())))
+				&& ((this.getRiskType() == castOther.getRiskType()) || (this
+						.getRiskType() != null
+						&& castOther.getRiskType() != null && this
+						.getRiskType().equals(castOther.getRiskType())))
+				&& ((this.getResource() == castOther.getResource()) || (this
+						.getResource() != null
+						&& castOther.getResource() != null && this
+						.getResource().equals(castOther.getResource())))
+				&& ((this.getTrader() == castOther.getTrader()) || (this
+						.getTrader() != null && castOther.getTrader() != null && this
+						.getTrader().equals(castOther.getTrader())))
+				&& ((this.getBorrowId() == castOther.getBorrowId()) || (this
+						.getBorrowId() != null
+						&& castOther.getBorrowId() != null && this
+						.getBorrowId().equals(castOther.getBorrowId())))
+				&& ((this.getRemark() == castOther.getRemark()) || (this
+						.getRemark() != null && castOther.getRemark() != null && this
+						.getRemark().equals(castOther.getRemark())))
+				&& ((this.getOperator() == castOther.getOperator()) || (this
+						.getOperator() != null
+						&& castOther.getOperator() != null && this
+						.getOperator().equals(castOther.getOperator())));
+	}
+
+	public int hashCode() {
+		int result = 17;
+
+		result = 37 * result + (getId() == null ? 0 : this.getId().hashCode());
+		result = 37
+				* result
+				+ (getRiskInCome() == null ? 0 : this.getRiskInCome()
+						.hashCode());
+		result = 37
+				* result
+				+ (getRiskSpending() == null ? 0 : this.getRiskSpending()
+						.hashCode());
+		result = 37 * result
+				+ (getRiskDate() == null ? 0 : this.getRiskDate().hashCode());
+		result = 37
+				* result
+				+ (getRiskBalance() == null ? 0 : this.getRiskBalance()
+						.hashCode());
+		result = 37 * result
+				+ (getRiskType() == null ? 0 : this.getRiskType().hashCode());
+		result = 37 * result
+				+ (getResource() == null ? 0 : this.getResource().hashCode());
+		result = 37 * result
+				+ (getTrader() == null ? 0 : this.getTrader().hashCode());
+		result = 37 * result
+				+ (getBorrowId() == null ? 0 : this.getBorrowId().hashCode());
+		result = 37 * result
+				+ (getRemark() == null ? 0 : this.getRemark().hashCode());
+		result = 37 * result
+				+ (getOperator() == null ? 0 : this.getOperator().hashCode());
+		return result;
+	}
+
+}

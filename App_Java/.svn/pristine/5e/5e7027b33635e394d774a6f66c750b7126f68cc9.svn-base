@@ -1,0 +1,990 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.InvestDao">
+
+	<resultMap type="invest" id="investResultMap">
+		<id column="id" property="id" />
+		<result column="investAmount" property="investAmount" />
+		<result column="moneyRecord" property="moneyRecord" />
+		<result column="voucherId" property="voucherId" />
+		<result column="monthRate" property="monthRate" />
+		<result column="investor" property="investor" />
+		<result column="borrowId" property="borrowId" />
+		<result column="investTime" property="investTime" />
+		<result column="oriInvestor" property="oriInvestor" />
+		<result column="realAmount" property="realAmount" />
+		<result column="hasPI" property="hasPi" />
+		<result column="deadline" property="deadline" />
+		<result column="hasDeadline" property="hasDeadline" />
+		<result column="recivedPrincipal" property="recivedPrincipal" />
+		<result column="recievedInterest" property="recievedInterest" />
+		<result column="hasPrincipal" property="hasPrincipal" />
+		<result column="hasInterest" property="hasInterest" />
+		<result column="recivedFI" property="recivedFi" />
+		<result column="hasFI" property="hasFi" />
+		<result column="manageFee" property="manageFee" />
+		<result column="reward" property="reward" />
+		<result column="repayStatus" property="repayStatus" />
+		<result column="flag" property="flag" />
+		<result column="isAutoBid" property="isAutoBid" />
+		<result column="isDebt" property="isDebt" />
+		<result column="circulationInterest" property="circulationInterest" />
+		<result column="circulationForpayStatus" property="circulationForpayStatus" />
+		<result column="reason" property="reason" />
+		<result column="repayDate" property="repayDate" />
+		<result column="check_principal" property="checkPrincipal" />
+		<result column="check_interest" property="checkInterest" />
+		<result column="min_invest_id" property="minInvestId" />
+		<result column="max_invest_id" property="maxInvestId" />
+		<result column="adjust_principal" property="adjustPrincipal" />
+		<result column="billcode" property="billcode" />
+		<result column="trxId" property="trxId" />
+		<result column="download_url" property="downloadUrl" />
+		<result column="viewpdf_url" property="viewpdfUrl" />
+		<result column="investId" property="investId" />
+		<result column="contract_id" property="contractId" />
+		<result column="pageType" property="pageType" />
+		<result column="firstInvest" property="firstInvest" />
+		<result column="lastInvest" property="lastInvest" />
+		<result column="maxInvest" property="maxInvest" />
+		<result column="pushdate" property="pushdate" />
+		<result column="pushstate" property="pushstate" />
+	</resultMap>
+
+	<select id="queryTotalInvestAmount" resultType="java.util.Map">
+		select
+		FLOOR(sum(t.investAmount)) as investAmount ,FLOOR(sum(t.hasInterest))
+		as hasInterest from (SELECT t_invest.investAmount,
+		t_invest.hasInterest FROM t_invest UNION ALL SELECT
+		t_invest_history.investAmount, t_invest_history.hasInterest FROM
+		t_invest_history) t
+	</select>
+
+	<select id="queryUserIsInvest" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT count(id) count FROM t_invest where oriInvestor=#{userId}
+	</select>
+
+	<select id="queryInvestById" resultMap="investResultMap" parameterType="java.lang.Long">
+		SELECT * FROM t_invest where id =#{id}
+	</select>
+
+
+	<select id="queryInvestRank" resultType="java.util.Map">
+		SELECT CASE WHEN
+		@rowtotal = c.investAmount THEN @rownum WHEN @rowtotal :=
+		c.investAmount THEN @rownum :=@rownum + 1 WHEN
+		@rowtotal = 0 THEN
+		@rownum :=@rownum + 1 END AS rank
+		,INSERT(mobilePhone,4,4,'****') as
+		mobilePhone,round(investAmount,2)
+		as investAmount FROM (SELECT
+		b.mobilePhone AS mobilePhone
+		,sum(a.investAmount) AS investAmount FROM
+		t_invest a,t_user b
+		WHERE a.oriInvestor=b.id GROUP BY a.oriInvestor
+		order by investAmount desc
+		LIMIT 0,10 ) c,(SELECT @rownum := 0
+		,@rowtotal := NULL) r
+	</select>
+
+	<select id="queryEhInvestRank" resultType="java.util.Map">
+		SELECT CASE WHEN
+		@rowtotal = c.investAmount THEN @rownum WHEN @rowtotal :=
+		c.investAmount THEN @rownum :=@rownum + 1 WHEN
+		@rowtotal = 0 THEN
+		@rownum :=@rownum + 1 END AS rank
+		,INSERT(mobilePhone,4,4,'****') as
+		mobilePhone,round(investAmount,2)
+		as investAmount FROM (SELECT b.mobilePhone AS mobilePhone,
+		SUM(a.investAmount) investAmount FROM t_invest a, t_user b
+		WHERE a.oriInvestor = b.id
+		AND a.investTime BETWEEN  '20170801' AND '20170906'
+		GROUP BY a.oriInvestor
+		ORDER BY investAmount DESC LIMIT 0, 10) c,(SELECT @rownum := 0
+		,@rowtotal := NULL) r
+	</select>
+
+	<select id="queryInvestListByCondition" resultType="java.util.Map">
+		SELECT e.id
+		AS id,e.borrowId AS borrowId,e.investAmount AS
+		investAmount,date_format(e.investTime, '%Y-%m-%d %T')
+		AS
+		investTime,e.investor AS investor,e.isDebt AS
+		creditedStatus,e.pageType AS pageType,CASE WHEN c.`rename`
+		IS NULL THEN
+		f_formatting_username (f.username) WHEN c.`rename` IS NOT
+		NULL THEN
+		f_formatting_username (c.`rename`)
+		END AS username FROM t_invest e LEFT
+		JOIN t_user_rename c ON e.investTime
+		BETWEEN c.startTime
+		AND c.endTime
+		LEFT JOIN t_user f ON f.id=e.investor WHERE
+		e.borrowId=#{param1} ORDER
+		BY e.id DESC LIMIT #{param2},#{param3}
+	</select>
+
+	<select id="queryInvestCountByCondition" resultType="java.util.Map">
+		SELECT
+		COUNT(1) as borrowCount from v_t_borrow_investrecord WHERE
+		borrowId=#{borrowId}
+	</select>
+
+	<!-- 查询用户15天之内投资金额 -->
+	<select id="queryInvestAmountWithin15Days" resultType="java.util.Map"
+		parameterType="java.lang.Long">
+		SELECT ifnull(round(sum(investAmount),2),0) AS
+		investAmount FROM (SELECT sum(t.auctionHighPrice) AS investAmount FROM
+		v_t_assignment_debt_success t where t.auctionerId = #{userId} AND
+		t.auctionEndTime >= date_sub(now() ,interval 15 day)
+		union all SELECT
+		sum(investAmount) AS investAmount FROM t_invest WHERE
+		investor=
+		#{userId} AND investTime >= date_sub(now(),
+		interval 15 day))
+		t
+	</select>
+ 
+	<select id="queryInvestByid" resultType="java.util.Map" parameterType="java.lang.Long" >
+	   select   id ,borrowId , f_formatting_username(username) as username , investAmount , investTime , investor , creditedStatus  
+	     from  v_t_borrow_investrecord where  borrowId=#{borrowId} order by investTime asc
+	</select>
+	
+	<select id="queryInvestmentManageForPage" resultType="java.util.Map">
+		SELECT a.id,a.borrowId,a.download_url,a.viewpdf_url,b.borrower,b.borrowTitle,b.borrowWay,b.paymentMode,b.annualRate,b.deadline,
+		b.publishTime,b.credit,b.creditrating, round(a.investAmount,2) as investAmount,b.schedules,b.times,b.isDayThe ,b.borrowShow,
+		DATE_FORMAT(a.investTime,'%Y-%m-%d %T') investTime,b.borrowAmount,b.borrowWayName,b.borrowStatus
+ 		FROM v_t_invest_borrow a  LEFT JOIN   v_t_invest_borrow_list b  ON a.borrowId=b.id WHERE b.borrowStatus in
+ 		 <foreach item="borrowStatus" index="index" collection="param4" open="(" separator="," close=")">  
+		     	#{borrowStatus}
+		 </foreach>  
+ 		<if test="param2!=null and param3!=null">  
+			AND a.investTime &gt;= #{1} and a.investTime  &lt;= #{2} 
+		</if>
+        
+ 		AND  a.investor =#{0} order by b.publishTime desc LIMIT #{4},#{5}
+	</select>
+	
+	<select id="queryInvestmentManageCount" resultType="java.lang.Long">
+		SELECT COUNT(1) AS investCount FROM v_t_invest_borrow a  LEFT JOIN   v_t_invest_borrow_list b  ON a.borrowId=b.id WHERE 
+		 b.borrowStatus in
+ 		 <foreach item="borrowStatus" index="index" collection="param4" open="(" separator="," close=")">  
+		     	#{borrowStatus}
+		 </foreach> 
+ 		<if test="param2!=null and param3!=null">  
+			and a.investTime &gt;= #{1} and a.investTime  &lt;= #{2} 
+		</if>
+		 AND  a.investor =#{0}
+	</select>
+	
+	
+	<select id="queryInvestTendersingBorrowForPage" resultType="java.util.Map">
+		SELECT * FROM v_t_invest_recycling_my a WHERE a.investor =#{0}
+ 		<if test="param2!=null and param3!=null">  
+			AND a.recentlyRepayDate &gt;= #{1} AND a.recentlyRepayDate &lt;= #{2} 
+		</if>
+        ORDER BY a.recentlyRepayDate DESC LIMIT  #{3}, #{4}
+	</select>
+	
+		<select id="queryInvestTendersingBorrowCount" resultType="java.lang.Long">
+			SELECT COUNT(1) AS investCount FROM v_t_invest_recycling_my a WHERE a.investor =#{0}
+ 		<if test="param2!=null and param3!=null">  
+			AND a.recentlyRepayDate &gt;= #{1} AND a.recentlyRepayDate &lt;= #{2} 
+		</if>
+	</select>
+  
+	<select id="addBorrowInvest" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL p_borrow_join(				 
+			  	 #{in_bid,jdbcType=BIGINT,mode=IN},
+				 #{in_uid,jdbcType=BIGINT,mode=IN},
+				 #{in_basepath,jdbcType=VARCHAR,mode=IN},
+				 #{in_invest_amount,jdbcType=DECIMAL,mode=IN},
+				 #{in_invest_time,jdbcType=TIMESTAMP,mode=IN},
+				 #{in_status,jdbcType=INTEGER,mode=IN},
+				 #{in_num,jdbcType=INTEGER,mode=IN},
+				 #{in_billcode,jdbcType=VARCHAR,mode=IN},
+				 #{out_ret,jdbcType=INTEGER,mode=OUT}, 
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT},
+				 #{out_ordid,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }  
+	</select>   
+ 	<select id="queryRecoveredBorrowForPage" resultType="java.util.Map">
+ 		SELECT t.bid,t.investor,t.borrowId,t.borrower,t.borrowTitle,t.borrowWay,t.credit,t.creditrating,t.annualRate,t.deadline,
+ 		t.borrowWayName ,t.isDayThe ,round(t.realAmount,2) as realAmount,round(t.forTotalSum,2) forTotalSum,t.isDebt,t.publishTime,
+ 		t.viewpdf_url,t.download_url FROM (select *  from v_t_invest_recycled_sum_ a LEFT JOIN v_t_invest_borrow_list b ON 
+ 		a.borrowId = b.id where  b.borrowShow = 1 union all select * from  v_t_invest_flow a left join v_t_invest_borrow_list c on  
+ 		a.borrowId = c.id where  c.borrowShow = 2 ) t WHERE   t.investor =#{0} and IFNULL(t.forTotalSum,0)>0
+ 		<if test="param2!=null and param3!=null">  
+ 			AND t.publishTime &gt;= #{1} and t.publishTime &lt;= #{2} 
+		</if>
+ 		 LIMIT  #{3},#{4}
+ 	</select>
+ 	
+ 	<select id="queryRecoveredBorrowCount" resultType="java.lang.Long">
+ 		SELECT COUNT(1) AS investCount  FROM (SELECT *  FROM v_t_invest_recycled_sum_ a LEFT JOIN v_t_invest_borrow_list b ON 
+ 		a.borrowId = b.id where  b.borrowShow = 1 union all SELECT * FROM  v_t_invest_flow a left join v_t_invest_borrow_list c on  
+ 		a.borrowId = c.id where  c.borrowShow = 2 ) t WHERE   t.investor =#{0} and IFNULL(t.forTotalSum,0)>0
+ 		<if test="param2!=null and param3!=null">  
+ 			AND t.publishTime &gt;= #{1} and t.publishTime &lt;= #{2} 
+		</if>
+ 	</select> 
+ 	
+ 	<delete id="deleteBorrowInvest">
+ 		DELETE FROM t_invest t where billcode = #{billcode}
+ 	</delete> 
+
+	<update id="updateInvest" parameterType="invest">
+		UPDATE t_invest 
+		<trim prefix="set" suffixOverrides=",">
+			<if test="investAmount != null">investAmount=#{investAmount},</if> 
+			<if test="moneyRecord != null">moneyRecord=#{moneyRecord},</if> 
+			<if test="voucherId != null">voucherId=#{voucherId},</if> 
+			<if test="monthRate != null">monthRate=#{monthRate},</if> 
+			<if test="investor != null">investor=#{investor},</if> 
+			<if test="borrowId != null">borrowId=#{borrowId},</if> 
+			<if test="investTime != null">investTime=#{investTime},</if> 
+			<if test="oriInvestor != null">oriInvestor=#{oriInvestor},</if> 
+			<if test="realAmount != null">realAmount=#{realAmount},</if> 
+			<if test="hasPi != null">hasPI=#{hasPi},</if> 			
+			<if test="deadline != null">deadline=#{deadline},</if> 
+			<if test="hasDeadline != null">hasDeadline=#{hasDeadline},</if> 
+			<if test="recivedPrincipal != null">recivedPrincipal=#{recivedPrincipal},</if> 
+			<if test="recievedInterest != null">recievedInterest=#{recievedInterest},</if> 
+			<if test="hasPrincipal != null">hasPrincipal=#{hasPrincipal},</if> 
+			<if test="hasInterest != null">hasInterest=#{hasInterest},</if> 
+			<if test="recivedFi != null">recivedFI=#{recivedFi},</if> 
+			<if test="hasFi != null">hasFI=#{hasFi},</if> 
+			<if test="manageFee != null">manageFee=#{manageFee},</if> 
+			<if test="reward != null">reward=#{reward},</if> 
+			<if test="repayStatus != null">repayStatus=#{repayStatus},</if>   			
+			<if test="flag != null">flag=#{flag},</if>   
+			<if test="isAutoBid != null">isAutoBid=#{isAutoBid},</if>   
+			<if test="isDebt != null">isDebt=#{isDebt},</if>   
+			<if test="circulationInterest != null">circulationInterest=#{circulationInterest},</if>   
+			<if test="circulationForpayStatus != null">circulationForpayStatus=#{circulationForpayStatus},</if>   
+			<if test="reason != null">reason=#{reason},</if>   
+			<if test="repayDate != null">repayDate=#{repayDate},</if>   
+			<if test="checkPrincipal != null">check_principal=#{checkPrincipal},</if>   
+			<if test="checkInterest != null">check_interest=#{checkInterest},</if>   
+			<if test="minInvestId != null">min_invest_id=#{minInvestId},</if>   
+			<if test="maxInvestId != null">max_invest_id=#{maxInvestId},</if>   
+			<if test="adjustPrincipal != null">adjust_principal=#{adjustPrincipal},</if>   
+			<if test="billcode != null">billcode=#{billcode},</if>    			
+			<if test="trxId != null">trxId=#{trxId},</if>    
+			<if test="downloadUrl != null">download_url=#{downloadUrl},</if>    
+			<if test="viewpdfUrl != null">viewpdf_url=#{viewpdfUrl},</if>    
+			<if test="investId != null">investId=#{investId},</if>    
+			<if test="contractId != null">contract_id=#{contractId},</if>    
+			<if test="pageType != null">pageType=#{pageType},</if>    
+			<if test="firstInvest != null">firstInvest=#{firstInvest},</if>    
+			<if test="lastInvest != null">lastInvest=#{lastInvest},</if>    
+			<if test="maxInvest != null">maxInvest=#{maxInvest},</if>    
+			<if test="pushdate != null">pushdate=#{pushdate},</if>    
+			<if test="pushstate != null">pushstate=#{pushstate},</if>	
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<select id="queryrInvests" resultMap="investResultMap">
+		select * from t_invest t where t.borrowId = #{0} and t.id = #{1}
+	</select>
+
+	<select id="getInverstMaxId" resultType="java.lang.Long">
+ 		select max(t.id) as id from t_invest t
+ 	</select> 
+
+	<update id="updateInvestPushstate">
+		update t_invest set pushdate =#{0},pushstate =#{1} where id =#{2}
+	</update>
+	
+	
+	<select id="queryUserAmountAfterHander" resultType="java.util.Map">
+ 		select ifnull(a.usableSum,0) usableSum,ifnull(a.freezeSum,0) freezeSum,
+ 		ifnull(sum(b.recivedPrincipal+b.recievedInterest-b.hasPrincipal-b.hasInterest),0.0) forPI 
+ 		,a.lastIP as lastIP from t_user a left join t_invest b on a.id = b.investor where a.id=#{userId} group by a.id
+ 	</select>
+ 	
+ 	
+ 	
+ 	
+	<select id="callGetBackAcountStatisProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL pr_getBackAcountStatis(
+			  	 #{startTime,jdbcType=VARCHAR,mode=IN},
+				 #{endTime,jdbcType=VARCHAR,mode=IN},
+				 #{title,jdbcType=VARCHAR,mode=IN},
+				 #{in_uid,jdbcType=BIGINT,mode=IN}
+			 )
+		  }  
+	</select>  
+	
+	
+	<select id="queryBorrowBackAcountByConditionForPage" resultType="java.util.Map">
+ 		SELECT  a.id as investId,c.username as borrower,b.borrowTitle,b.id as borrowId,b.annualRate,b.deadline,d.name as borrowWayName, 
+ 		round(a.realAmount,2) as realAmount,round((a.hasPrincipal+a.hasInterest),2) forHasSum,round((a.recivedPrincipal+a.recievedInterest-
+		a.hasPrincipal-a.hasInterest),2) forTotalSum,b.isDayThe,b.borrowWay, DATE_FORMAT(b.publishTime,'%Y-%m-%d %H:%i:%s') AS publishTime 
+		FROM t_invest a left join t_borrow b on a.borrowId = b.id left join t_user c on b.publisher= c.id left join t_borrow_sub_type d 
+		on d.id = b.borrowTypeSubId WHERE a.investor =#{0} 
+		<if test="param2!=null and param3!=null">  
+			AND  b.publishTime &gt;=#{1} and b.publishTime &lt;=#{2}
+		</if>
+		AND (a.recivedPrincipal+a.recievedInterest-a.hasPrincipal-a.hasInterest) > 0 ORDER BY a.id DESC LIMIT #{3},#{4}
+ 	</select>
+ 	
+ 	
+ 	<select id="queryBorrowBackAcountByConditionCount" resultType="java.lang.Long">
+ 		SELECT  COUNT(1) AS borrowCount FROM t_invest a left join t_borrow b on a.borrowId = b.id left join t_user c on 
+ 		b.publisher= c.id left join t_borrow_sub_type d on d.id = b.borrowTypeSubId WHERE a.investor =#{0} 
+		<if test="param2!=null and param3!=null">  
+			AND  b.publishTime &gt;=#{1} and b.publishTime &lt;=#{2}
+		</if>
+		AND (a.recivedPrincipal+a.recievedInterest-a.hasPrincipal-a.hasInterest) > 0
+ 	</select> 
+	
+	
+	<select id="queryInvestorInfoByBorrowId" resultType="java.util.Map" parameterType="java.lang.Long" >
+		SELECT i.id,i.trxId,i.investor,i.investAmount,b.publisher,b.borrowTitle,b.id borrrowId,u.usableSum,u.freezeSum 
+		FROM t_invest i LEFT JOIN t_borrow b on i.borrowId=b.id left join t_user u on u.id=i.investor  where b.id=#{borrowId}
+	</select>
+	
+	
+	<select id="queryInvestorByBorrowId" resultType="java.util.Map" parameterType="java.lang.Long" >
+		select investor from t_invest where borrowId=#{borrowId}
+	</select>
+	
+	
+	<select id="queryEndAreaTotalInvestor" resultType="java.lang.Long">
+		SELECT SUM(t.userCount) AS investorCount FROM (SELECT  COUNT(1) AS userCount FROM v_investor_message a WHERE 
+		a.IpArea IS NOT NULL AND a.investTime IS NOT NULL 
+		AND a.IpArea IN  
+		 <foreach item="ipArea" index="index" collection="param1" open="(" separator="," close=")">  
+		     	#{ipArea}
+		     </foreach>  
+		AND a.investTime BETWEEN #{1} AND #{2} GROUP BY a.IpArea) t
+	</select>
+	
+	
+	<select id="queryEndInvestProportByArea" resultType="java.lang.String">
+		SELECT t.percent AS percent FROM ( SELECT CONCAT(ROUND((COUNT(1)/#{0})*100,2),'%') AS percent,IpArea,investTime 
+		FROM v_investor_message WHERE IpArea IS NOT NULL AND investTime IS NOT NULL 
+		AND IpArea IN 
+		<foreach item="ipArea" index="index" collection="param2" open="(" separator="," close=")">  
+		     #{ipArea}
+		 </foreach>   
+		    AND investTime BETWEEN #{2} AND #{3} GROUP BY IpArea) t WHERE t.IpArea=#{4}
+	</select>
+	
+	
+	<select id="queryEndTotalInvestor" resultType="java.lang.Long">
+		SELECT COUNT(1) AS totalInvestUser FROM(SELECT a.investor,a.investTime FROM t_invest a WHERE a.investTime 
+		between #{0} and #{1} GROUP BY a.investor) t
+	</select>
+	
+	
+	<select id="queryEndInvestorSexProportByAge" resultType="java.lang.String">
+		SELECT CONCAT(ROUND((COUNT(1)/ #{0} )*100,2),'%') AS percent FROM (SELECT a.investor,a.investTime,(date_format(now(), '%Y') - 
+		date_format(concat(RIGHT (LEFT(`c`.`idNo`, 10), 4),'-',RIGHT (LEFT(`c`.`idNo`, 12), 2),'-',RIGHT (LEFT(`c`.`idNo`, 14), 2)),'%Y')) 
+		AS `age` FROM t_invest a  LEFT JOIN t_person c ON a.investor=c.userId WHERE a.investTime 
+		BETWEEN #{3} and #{4} GROUP BY a.investor) t WHERE 
+		<if test="param2!=null and param3!=null">  
+			t.age &gt;=#{1} AND t.age &lt;=#{2}
+		</if>
+		<if test="param2!=null and param3==null">  
+			t.age &lt; #{1}
+		</if>
+		<if test="param2==null and param3!=null">  
+			t.age &gt;=#{2} 
+		</if>
+	</select>
+	
+	
+	
+	<select id="queryMonthTotalInvest" resultType="java.util.Map">
+		select FLOOR(sum(t.investAmount)) as investAmount ,FLOOR(sum(t.hasInterest)) as hasInterest from ( 
+		SELECT t_invest.investAmount, t_invest.hasInterest,t_invest.investTime FROM  t_invest 
+		UNION ALL SELECT t_invest_history.investAmount, t_invest_history.hasInterest ,
+		t_invest_history.investTime FROM t_invest_history) t WHERE t.investTime between #{0} and #{1}
+	</select>
+	
+	
+	<select id="findInvestDealNumber" resultType="java.lang.Long">
+		SELECT COUNT(1) AS dealNumber FROM t_invest b LEFT JOIN t_borrow a ON a.id=b.borrowId AND a.borrowStatus IN (3,4,5) AND b.investTime between #{0} and #{1}
+	</select>
+	
+	<select id="queryInvestorByRepaymentId" resultType="java.lang.Long">
+		select investor from t_invest t where t.borrowId= (SELECT r.borrowId from  t_repayment r where r.id=#{repaymentId})
+	</select>
+
+	<select id="dealNumber" resultType="java.util.Map">
+		SELECT COUNT(1) AS dealNumber  FROM t_invest b LEFT JOIN t_borrow a ON a.id=b.borrowId AND a.borrowStatus IN (3,4,5)
+	</select>
+	
+	<select id="queryBorrowInvestByCondition" resultType="java.util.Map">
+		SELECT a.id,a.borrowId,a.download_url,a.viewpdf_url,b.borrower,b.borrowTitle,b.borrowWay,b.paymentMode,
+		b.annualRate,b.deadline,b.publishTime,b.credit,b.creditrating, round(a.investAmount,2) as investAmount,
+		b.schedules,b.times,b.isDayThe ,b.borrowShow ,DATE_FORMAT(a.investTime,'%Y-%m-%d %T') investTime,b.borrowAmount,b.borrowWayName,b.borrowStatus 
+		FROM v_t_invest_borrow a  LEFT JOIN   v_t_invest_borrow_list b  ON a.borrowId=b.id
+		WHERE 1=1
+		<if test="param3!=null and param3!='' and param4!=null and param4!=''">  
+			AND b.publishTime &gt;=#{2} AND b.publishTime &lt;=#{3}
+		</if>
+		<if test="param2!=null and param2!=''">  
+			AND b.borrowTitle LIKE '%'#{1}'%'
+		</if>
+		<if test="param1!=null and param1!=''">  
+			AND b.borrowTypeSubId = #{0}
+		</if>
+		AND a.investor = #{5} order by b.publishTime desc LIMIT #{6},#{7}
+	</select>
+
+	<select id="queryBorrowInvestcount" resultType="java.lang.Long">
+		SELECT count(1) AS counts
+		FROM v_t_invest_borrow a  LEFT JOIN   v_t_invest_borrow_list b  ON a.borrowId=b.id
+		WHERE 1=1
+		<if test="param3!=null and param3!='' and param4!=null and param4!=''">  
+			AND b.publishTime &gt;=#{2} AND b.publishTime &lt;=#{3}
+		</if>
+		<if test="param2!=null and param2!=''">  
+			AND b.borrowTitle LIKE '%'#{1}'%'
+		</if>
+		<if test="param1!=null and param1!=''">  
+			AND b.borrowTypeSubId = #{0}
+		</if>
+		AND a.investor = #{5}
+	</select>
+	
+	<select id="queryActivity_newInvestAward" resultType="map">
+		<![CDATA[
+			SELECT oriInvestor AS investor, t.borrowId, t.investAmount, tb.deadline FROM 
+			(SELECT * FROM t_invest GROUP BY oriInvestor HAVING investAmount >= #{0} ) t 
+			JOIN t_borrow tb ON t.borrowId = tb.id AND tb.auditTime <= #{2}
+			WHERE t.oriInvestor NOT IN (SELECT t.userId FROM t_activity_newinvestaward t WHERE phase = #{3})
+			AND t.investTime BETWEEN #{1} AND #{2}
+			AND t.oriInvestor NOT IN ( SELECT oriInvestor FROM t_invest WHERE investTime < #{1})
+		]]>
+	</select>
+	
+	<insert id="insert_Activity_newInvestAward" parameterType="activityNewinvestaward">
+		INSERT INTO t_activity_newinvestaward (
+			userId, borrowId, investAmount, money, month, phase, investTimeRange
+		) VALUES (
+			#{userId}, #{borrowId}, #{investAmount}, #{money}, #{month}, #{phase}, #{investTimeRange}
+		)
+	</insert>
+	
+	<select id="queryFirstAwardList" resultType="map">
+		<![CDATA[
+			SELECT tt.oriInvestor AS investor, tt.borrowId, tt.investAmount FROM ( 
+				SELECT * FROM t_invest WHERE id IN (
+				SELECT id FROM t_invest WHERE investAmount >= #{0}) GROUP BY borrowId HAVING investTime BETWEEN #{1} AND #{2}
+		  	) tt JOIN t_borrow tb ON tt.borrowId = tb.id
+		  	WHERE tt.oriInvestor NOT IN (SELECT userId FROM t_activity_grabInvestAward WHERE awardType = 1 AND phase = #{3})
+			AND tb.auditTime <= #{2}
+		]]>
+	</select>
+	
+	<select id="queryMaxAwardList" resultType="map">
+		<![CDATA[
+			SELECT * FROM (  
+				SELECT * FROM (  
+					SELECT SUM(investAmount) investAmount, oriInvestor AS investor, borrowId FROM t_invest t WHERE investTime BETWEEN #{1} AND #{2} GROUP BY borrowId,oriInvestor  
+				) t WHERE investAmount = ( 
+					SELECT MAX(sum) sum FROM ( 	
+						SELECT SUM(investAmount) sum, oriInvestor, borrowId FROM t_invest t WHERE investTime BETWEEN  #{1} AND #{2} GROUP BY borrowId,oriInvestor 	
+					) t2 WHERE t.borrowId = t2.borrowId  
+	 			) 
+			) t3 JOIN t_borrow tb ON t3.borrowId = tb.id WHERE tb.auditTime <= #{2}
+		 	AND t3.investor NOT IN (SELECT userId FROM t_activity_grabInvestAward WHERE awardType = 2 AND phase = #{3})
+		]]>
+	</select>
+	
+	<select id="queryLastAwardList" resultType="map">
+		<![CDATA[
+			SELECT t.oriInvestor investor, t.borrowId, t.investAmount FROM t_invest t JOIN t_borrow tb ON t.borrowId = tb.id 
+			WHERE tb.auditTime <= #{2} AND t.id IN ( 
+				SELECT MAX(id) FROM t_invest WHERE investAmount >= #{0} GROUP BY borrowId 
+			) AND investTime BETWEEN #{1} and #{2}
+			AND t.oriInvestor NOT IN (SELECT userId FROM t_activity_grabInvestAward WHERE awardType = 3 AND phase = #{3})
+		]]>
+	</select>
+	
+	<insert id="insert_FirstMaxLastAward">
+		insert into t_activity_grabInvestAward (
+			userId, borrowId, investAmount, money, phase, investTimeRange, awardType
+		) values(
+			#{0}, #{1}, #{2}, #{3}, #{5}, #{6}, #{4}
+		)
+	</insert>
+	
+	<update id="updateMaxInvestAwrad">
+		UPDATE t_activity_grabInvestAward SET money = #{1} WHERE borrowId = #{0} AND awardType = 2
+	</update>
+	
+	<select id="queryOldUserMinMonth" resultType="map">
+		<![CDATA[
+			SELECT t.borrowId,t.oriInvestor AS investor, SUM(t.investAmount) AS investAmounts
+			FROM t_invest t JOIN t_borrow tb ON t.borrowId = tb.id 
+			WHERE t.investTime BETWEEN #{1} and #{2} and tb.deadline <= #{0}
+			AND tb.auditTime <= #{2}
+			AND t.oriInvestor IN ( SELECT oriInvestor FROM t_invest WHERE investTime < #{1} GROUP BY oriInvestor )
+			AND t.borrowId NOT IN (SELECT t.borrowId FROM t_activity_oldinvestaward t WHERE t.deadline = 1 AND phase = #{3})
+			GROUP BY t.borrowId,t.oriInvestor
+		]]>
+	</select>
+	
+	<insert id="insert_activityOldInvestAward">
+		insert into t_activity_oldInvestAward (
+			userId, borrowId, deadline, investAmount, phase, investTimeRange, money
+		) values(
+			#{0}, #{1}, #{2}, #{3}, #{5}, #{6}, #{4}
+		)
+	</insert>
+	
+	<select id="queryOldUserMaxMonth" resultType="map">
+		<![CDATA[
+			SELECT t.borrowId,t.oriInvestor AS investor, SUM(t.investAmount) AS investAmounts
+			FROM t_invest t JOIN t_borrow tb ON t.borrowId = tb.id 
+			WHERE t.investTime BETWEEN  #{1} and #{2} AND tb.deadline > #{0}
+			AND tb.auditTime <= #{2}
+			AND t.oriInvestor IN ( SELECT oriInvestor FROM t_invest WHERE investTime < #{1} GROUP BY oriInvestor )
+			AND t.borrowId NOT IN (SELECT t.borrowId FROM t_activity_oldinvestaward t WHERE t.deadline = 2 AND phase = #{3}) 
+			GROUP BY t.borrowId,t.oriInvestor
+		]]>
+	</select>
+	
+	<select id="queryAllInvestedRecommend" resultType="map">
+		<![CDATA[
+			SELECT oriInvestor AS investor FROM t_invest tii WHERE tii.oriInvestor IN (
+				SELECT t.userId FROM t_recommend_user t,t_user tu WHERE t.userId = tu.id AND tu.createTime BETWEEN #{0} AND #{1} 
+				AND t.recommendUserId NOT IN (105841) AND t.rewardMoney IS NULL
+			) GROUP BY tii.oriInvestor 
+		]]>
+	</select>
+	
+	<select id="queryInvestAmountByInvestor" resultType="map">
+		<![CDATA[
+			SELECT count(1) AS num,MAX(t.investAmount) AS investAmount FROM t_invest t ,t_borrow tb
+			WHERE t.borrowId = tb.id AND t.oriInvestor = #{0} AND t.investAmount >= #{1}
+			AND t.investTime BETWEEN #{2} and #{3} and tb.auditTime <= #{3}
+		]]>
+	</select>
+	
+	<insert id="insert_Activity_inviteAward">
+		insert into t_activity_inviteAward (
+			userId, recommendUserId, investAmount, phase, investTimeRange, money
+		) values(
+			#{1}, #{0}, #{2}, #{4}, #{5}, #{3}
+		)
+	</insert>
+	
+	<select id="queryActivity_inviteAward" resultType="map">
+		<![CDATA[
+			SELECT oriInvestor AS recommendUserId FROM t_invest t WHERE t.oriInvestor IN  (
+				SELECT t.recommendUserId FROM t_recommend_user t,t_user tu WHERE t.userId = tu.id AND tu.createTime BETWEEN #{0} and #{1}
+				AND t.recommendUserId NOT IN (105841) GROUP BY t.recommendUserId
+			) GROUP BY t.oriInvestor 
+		]]>
+	</select>
+	
+	<select id="queryRecommendedInvestAmount" resultType="map">
+		<![CDATA[
+			SELECT SUM(tii.investAmount) AS investAmount FROM t_invest tii 
+			LEFT JOIN t_borrow tb ON tii.borrowId = tb.id WHERE tb.borrowStatus IN (2,3,4,5) AND  
+			tii.oriInvestor IN (
+				SELECT tru.userId FROM t_recommend_user tru ,t_user tu WHERE tru.userId = tu.id AND tu.createTime BETWEEN #{1} and #{2} AND tru.recommendUserId = #{0}
+				AND tru.recommendUserId NOT IN (
+					SELECT recommendUserId FROM t_activity_inviteAward WHERE phase = #{3} AND money <> 5
+				)
+			)
+			AND tii.investTime BETWEEN #{1} and #{2}
+		]]>
+	</select>
+	
+	<select id="queryRecommendedInvestAmountThree" resultType="map">
+		<![CDATA[
+			SELECT SUM(tii.investAmount) AS investAmount FROM t_invest tii 
+			LEFT JOIN t_borrow tb ON tii.borrowId = tb.id WHERE tb.borrowStatus IN (2,3,4,5) AND  
+			tii.oriInvestor IN (
+				SELECT tru.userId FROM t_recommend_user tru ,t_user tu WHERE tru.userId = tu.id AND tu.createTime BETWEEN #{1} and #{2} AND tru.recommendUserId = #{0}
+				AND tru.recommendUserId NOT IN (
+					SELECT recommendUserId FROM t_activity_inviteAward WHERE phase = #{3} AND money not in (5,100)
+				)
+			)
+			AND tii.investTime BETWEEN #{1} and #{2}
+		]]>
+	</select>
+	
+	<select id="queryActivity_cumulateInvite" resultType="map">
+		<![CDATA[
+			SELECT * FROM (
+				SELECT SUM(t1.investAmount) investAmount, oriInvestor AS investor FROM t_invest t1 JOIN t_borrow t2 ON t1.borrowId = t2.id 
+				WHERE t2.auditTime <= #{1} AND t1.investTime BETWEEN #{0} AND #{1} GROUP BY oriInvestor
+			) t3 WHERE t3.investAmount >= #{2} AND t3.investor NOT IN (
+				SELECT userId FROM t_activity_cumulateInviteAward WHERE phase = #{3}
+			)
+		]]>
+	</select>
+	
+	<insert id="insert_Activity_cumulateInvite">
+		INSERT INTO t_activity_cumulateInviteAward(
+			userId, investAmount, cumulateAwardType, awardDescribe, phase, investTimeRange
+		)VALUES(
+			#{0}, #{1}, #{2}, #{3}, #{4}, #{5}
+		)
+	</insert>
+	
+	<select id="queryInvestSumMoneyRecordByBorrowId" resultType="java.util.Map">
+		select SUM(moneyRecord) as sumMoneyRecord from t_invest t where
+			t.borrowId IN (SELECT tb.id FROM t_borrow tb WHERE tb.auditStatus = 2 ) or t.borrowId = #{borrowId}
+	</select>
+	
+	<select id="queryInvestByBorrowId" resultType="java.util.Map">
+		select * from v_t_full_invest where subOrdId = #{borrowId} order by OrdId
+	</select>
+  
+  
+	<select id="callBorrowAuthFullscale" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL p_borrow_auth_fullscale(
+			  	 #{in_bid,jdbcType=BIGINT,mode=IN},
+				 #{in_status,jdbcType=BIGINT,mode=IN},
+				 #{out_ret,jdbcType=INTEGER,mode=OUT}, 
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT},
+				 #{out_amount,jdbcType=DECIMAL,mode=OUT}, 
+				 #{out_annualrate,jdbcType=DECIMAL,mode=OUT},
+				 #{out_deadline,jdbcType=INTEGER,mode=OUT}, 
+				 #{out_isdaythe,jdbcType=INTEGER,mode=OUT},
+				 #{out_payment_mode,jdbcType=INTEGER,mode=OUT}
+			 )
+		  }  
+	</select>   
+  
+	<select id="callBorrowDealFullscale" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {CALL p_borrow_deal_fullscale(
+			  	 #{in_bid,jdbcType=BIGINT,mode=IN},
+				 #{in_aid,jdbcType=BIGINT,mode=IN},
+				 #{in_status,jdbcType=BIGINT,mode=IN},
+				 #{in_auth_time,jdbcType=TIMESTAMP,mode=IN},
+				 #{in_audit_opinion,jdbcType=VARCHAR,mode=IN},
+				 #{in_identify,jdbcType=VARCHAR,mode=IN},
+				 #{in_basepath,jdbcType=VARCHAR,mode=IN},
+				 #{in_ifeerate,jdbcType=DECIMAL,mode=IN},
+				 #{out_ret,jdbcType=INTEGER,mode=OUT}, 
+				 #{out_desc,jdbcType=VARCHAR,mode=OUT}
+			 )
+		  }		  
+	</select>
+	
+	<select id="queryInvestRealAmount" resultType="java.util.Map">
+		 select DISTINCT a.id as id,a.investor as userId,a.realAmount as realAmount,c.publisher as publisher from t_invest a left join t_repayment b on a.borrowId = b.borrowId  left join t_borrow c on a.borrowId = c.id where c.id = #{0}
+	</select>
+	
+	<update id="updateInvestFadadaInfo">
+		update t_invest set contract_id =#{0},download_url =#{1},viewpdf_url=#{2} where trxId=#{3} and investor=#{4}
+	</update>
+	
+	<update id="updateInvestById" parameterType="long">
+		UPDATE t_invest set
+		hasPrincipal=recivedPrincipal,hasInterest=recievedInterest,repayStatus=2
+		WHERE id = #{0}
+	</update>
+	
+	<select id="callFinanceStatisProcedure" statementType="CALLABLE" resultType="java.util.Map" parameterType="java.util.Map">  
+	  	 {
+	  	 	CALL pr_getFinanceEarnStatis
+	  	 	(
+			  	 #{timeStart,jdbcType=VARCHAR,mode=IN},
+				 #{timeEnd,jdbcType=VARCHAR,mode=IN}
+			 )
+		  }  
+	</select>
+	
+	<select id="queryInvestorInfoByUserId" resultType="java.util.Map">
+		SELECT * FROM v_t_usermanage_invest a WHERE  a.investor= #{0}
+		<if test="param2 != null and  param3 != null">
+			AND a.investTime &gt;= #{1} AND a.investTime &lt;= #{2}
+		</if>
+		 ORDER BY a.investTime DESC LIMIT #{3},#{4}
+	</select>
+	
+	<select id="queryInvestorInfoCountByUserId" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_usermanage_invest a WHERE  a.investor= #{0}
+		<if test="param2 != null and  param3 != null">
+			AND a.investTime &gt;= #{1} AND a.investTime &lt;= #{2}
+		</if>
+	</select>
+	
+	<select id="queryInvestStatisForPage" resultType="java.util.Map">
+		SELECT * FROM v_t_invest_statis WHERE 1=1
+		<if test="param3 != '' and param3 != null">
+			AND borrowTitle LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != '' and param4 != null">
+			AND realName LIKE '%' #{3} '%'
+		</if>
+		<if test="param5 != '' and param5 != null">
+			AND recommendrealName LIKE '%' #{4} '%'
+		</if>
+		<if test="param8 != '' and param8 != null">
+			AND investTime &gt;= #{7}
+		</if>
+		<if test="param9 != '' and param9 != null">
+			AND investTime &lt;= #{8}
+		</if>
+		<if test="param6 != -1">
+			AND deadline = #{5}
+		</if>
+		<if test="param7 != -1">
+			AND borrowTypeSubId = #{6}
+		</if>
+		<if test="param10 != -1">
+			AND isAutoBid = #{9}
+		</if>
+		<if test="param11 != null">
+			AND borrowStatus in
+			<foreach item="borrowStatuList" index="index" collection="param11" open="(" separator="," close=")">
+				#{borrowStatuList}
+			</foreach>
+		</if>
+			ORDER BY id DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryInvestStatisCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_invest_statis WHERE 1=1
+		<if test="param1 != '' and param1 != null">
+			AND borrowTitle LIKE '%' #{0} '%'
+		</if>
+		<if test="param2 != '' and param2 != null">
+			AND realName LIKE '%' #{1} '%'
+		</if>
+		<if test="param3 != '' and param3 != null">
+			AND recommendrealName LIKE '%' #{2} '%'
+		</if>
+		<if test="param6 != '' and param6 != null">
+			AND investTime &gt;= #{5}
+		</if>
+		<if test="param7 != '' and param7 != null">
+			AND investTime &lt;= #{6}
+		</if>
+		<if test="param4 != -1">
+			AND deadline = #{3}
+		</if>
+		<if test="param5 != -1">
+			AND borrowTypeSubId = #{4}
+		</if>
+		<if test="param8 != -1">
+			AND isAutoBid = #{7}
+		</if>
+		<if test="param9 != null">
+			AND borrowStatus in	
+			<foreach item="borrowStatuList" index="index" collection="param9" open="(" separator="," close=")">
+				#{borrowStatuList}
+			</foreach>
+		</if>
+	</select>
+	
+	<select id="queryExportInvestStatisForPage" resultType="java.util.Map">
+		SELECT ( 
+			CASE
+				WHEN isAutoBid=1 THEN '是'
+				WHEN isAutoBid=2 THEN '否'
+			END
+		) AS isAutoBid,(
+			CASE
+				WHEN borrowStatus=1 THEN '是'
+				WHEN borrowStatus=2 THEN '是'
+				WHEN borrowStatus=3 THEN '是'
+				WHEN borrowStatus=6 THEN '是'
+				WHEN borrowStatus=4 THEN '否'
+				WHEN borrowStatus=5 THEN '否'
+			END
+		) AS borrowStatus,i.* FROM v_t_invest_statis i WHERE 1=1
+		<if test="param3 != '' and param3 != null">
+			AND i.borrowTitle LIKE '%' #{2} '%'
+		</if>
+		<if test="param4 != '' and param4 != null">
+			AND i.realName LIKE '%' #{3} '%'
+		</if>
+		<if test="param5 != '' and param5 != null">
+			AND i.recommendrealName LIKE '%' #{4} '%'
+		</if>
+		<if test="param8 != '' and param8 != null">
+			AND i.investTime &gt;= #{7}
+		</if>
+		<if test="param9 != '' and param9 != null">
+			AND i.investTime &lt;= #{8}
+		</if>
+		<if test="param6 != -1">
+			AND i.deadline = #{5}
+		</if>
+		<if test="param7 != -1">
+			AND i.borrowTypeSubId = #{6}
+		</if>
+		<if test="param10 != -1">
+			AND i.isAutoBid = #{9}
+		</if>
+		<if test="param11 != null">
+			AND i.borrowStatus in
+			<foreach item="borrowStatuList" index="index" collection="param11" open="(" separator="," close=")">
+				#{borrowStatuList}
+			</foreach>
+		</if>
+			ORDER BY i.id DESC
+	</select>
+	
+	<select id="queryInvestStatisRankForPage" resultType="java.util.Map">
+		SELECT a.*,b.realSum FROM(
+		v_t_invest_rank a LEFT JOIN (SELECT investor,sum(realAmount) realSum FROM v_t_invest_rank WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND investTime &gt;= #{2}
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND investTime &lt;= #{3}
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND investor like '%' #{4} '%'
+		</if>
+		<if test="param6 != -1">
+			AND groupId = #{5}
+		</if>
+		GROUP BY investor) b on a.investor = b.investor) WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND a.investTime &gt;= #{2}
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND a.investTime &lt;= #{3}
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND a.investor like '%' #{4} '%'
+		</if>
+		<if test="param6 != -1">
+			AND a.groupId = #{5}
+		</if>
+		ORDER BY b.realSum DESC,a.realAmount DESC LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryInvestStatisRankCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM(
+		v_t_invest_rank a LEFT JOIN (SELECT investor,sum(realAmount) realSum FROM v_t_invest_rank WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND investTime &gt;= #{0}
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND investTime &lt;= #{1}
+		</if>
+		<if test="param3 != null and param3 != ''">
+			AND investor like '%' #{2} '%'
+		</if>
+		<if test="param4 != -1">
+			AND groupId = #{3}
+		</if>
+		GROUP BY investor) b on a.investor = b.investor) WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND a.investTime &gt;= #{0}
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND a.investTime &lt;= #{1}
+		</if>
+		<if test="param3 != null and param3 != ''">
+			AND a.investor like '%' #{2} '%'
+		</if>
+		<if test="param4 != -1">
+			AND a.groupId = #{3}
+		</if>
+	</select>
+	
+	<select id="queryBorrowStatisInterestInitForPage" resultType="java.util.Map">
+		SELECT * FROM v_t_new_invest_statis a WHERE 1=1
+		<if test="param3 != null and param3 != ''">
+			AND a.investTime &gt;= #{2}
+		</if>
+		<if test="param4 != null and param4 != ''">
+			AND a.investTime &lt;= #{3}
+		</if>
+		<if test="param5 != null and param5 != ''">
+			AND a.investor LIKE '%' #{4} '%'
+		</if>
+		LIMIT #{0},#{1}
+	</select>
+	
+	<select id="queryInvestBorrowStatisInterestInitCount" resultType="java.lang.Long">
+		SELECT COUNT(1) FROM v_t_new_invest_statis a WHERE 1=1
+		<if test="param1 != null and param1 != ''">
+			AND a.investTime &gt;= #{0}
+		</if>
+		<if test="param2 != null and param2 != ''">
+			AND a.investTime &lt;= #{1}
+		</if>
+		<if test="param3 != null and param3 != ''">
+			AND a.investor LIKE '%' #{2} '%'
+		</if>
+	</select>
+	
+	
+	<select id="queryBorrowInvestCondition" resultType="map">
+		<![CDATA[
+			SELECT a.id,a.borrowId,a.download_url,a.viewpdf_url,b.borrower,b.borrowTitle,b.borrowWay,b.paymentMode,
+				   b.annualRate,b.deadline,b.publishTime,b.credit,b.creditrating, ROUND(a.investAmount,2) AS investAmount,
+				   b.schedules,b.times,b.isDayThe ,b.borrowShow ,DATE_FORMAT(a.investTime,'%Y-%m-%d %T') investTime,b.borrowAmount,b.borrowWayName,b.borrowStatus
+			FROM v_t_invest_borrow a LEFT JOIN v_t_invest_borrow_list b  ON a.borrowId = b.id 
+			WHERE 1 = 1
+		]]>
+			<if test="param5 != 2"> AND ( ( 1=1   </if>
+			<if test="param1 != null "> AND b.borrowTypeSubId = #{param1}</if>
+			<if test="param2 != null"> AND b.borrowTitle LIKE CONCAT('%',#{param2},'%')</if>
+			<if test="param3 != null"> AND b.publishTime > #{param3}</if>
+			<if test="param4 != null"> <![CDATA[ AND b.publishTime < #{param4} ]]> </if>
+			<if test="param5 != null"> 
+				AND b.borrowStatus IN
+				<foreach collection="param5" index="index" item="item" open="(" close=")" separator=",">#{item}</foreach>
+		 	</if>
+			<if test="param5 != 2">) OR (b.borrowShow=2) )</if>
+		 	AND a.investor = #{param6} ORDER BY b.publishTime DESC LIMIT #{param7}, #{param8}
+	</select>
+
+	<select id="queryBorrowInvestByConditionCount" resultType="map">
+		<![CDATA[
+			SELECT count(*) total
+			FROM v_t_invest_borrow a LEFT JOIN v_t_invest_borrow_list b  ON a.borrowId = b.id 
+			WHERE 1 = 1
+		]]>
+			<if test="param5 != 2"> AND ( ( 1=1   </if>
+			<if test="param1 != null"> AND b.borrowTypeSubId = #{param1}</if>
+			<if test="param2 != null"> AND b.borrowTitle LIKE CONCAT('%',#{param2},'%')</if>
+			<if test="param3 != null"> AND b.publishTime > #{param3}</if>
+			<if test="param4 != null"> <![CDATA[ AND b.publishTime < #{param4} ]]> </if>
+			<if test="param5 != null"> 
+				AND b.borrowStatus IN
+				<foreach collection="param5" index="index" item="item" open="(" close=")" separator=",">#{item}</foreach>
+		 	</if>
+			<if test="param5 != 2">) OR (b.borrowShow=2) )</if>
+		 	AND a.investor = #{param6} ORDER BY b.publishTime DESC
+	</select>
+
+	<select id="queryWinGift" resultType="map">
+		<![CDATA[
+			SELECT SUM(investAmount) investAmount, oriInvestor userId FROM t_invest WHERE investTime >= #{0} AND investTime <= #{1} GROUP BY oriInvestor
+		]]>
+	</select>
+	
+	<insert id="activityInvestWinGift" parameterType="activityInvestWinGift">
+		INSERT INTO t_activity_investwingift (
+			userId, investAmount, awardDescribe, awardType, startTime, endTime, money, discountMoney
+		) VALUES (
+			#{userId}, #{investAmount}, #{awardDescribe}, #{awardType}, #{startTime}, #{endTime}, #{money}, #{discountMoney}
+		) 
+	</insert>
+	
+	<select id="queryDebtCount" resultType="java.util.Map">
+		SELECT (SUM(t.recivedInterest)+ SUM(t.recivedPrincipal)) AS count  FROM t_invest_repayment t WHERE t.invest_id IN (
+		SELECT t.investId FROM  t_assignment_debt t WHERE auctionerId = #{0}
+		) AND t.repayStatus = 1
+	</select>
+</mapper>
+
+
+

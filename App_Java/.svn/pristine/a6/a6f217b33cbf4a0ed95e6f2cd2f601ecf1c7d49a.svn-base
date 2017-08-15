@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<!-- 不识别邮件和不把数字识别为电话号码 -->
+	<meta name="format-detection" content="telephone=no; email=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<title>呼朋唤友来投资—普金资本—安全可靠专注于供应链金融的国资背景P2P理财平台</title>
+	<link rel="stylesheet" href="css/activity_02.css">
+	<script type="text/javascript">
+		function onhundle(){
+			if(window.Native){
+				var param = {
+					app:true,
+					selectedTab:'user'
+				}
+				setTimeout(function(){
+				try{
+					window.reactNativePostmsg(JSON.stringify(param));
+				}catch(e){
+					window.postMessage(JSON.stringify(param));
+				}
+				},500);
+			}else{
+				window.location.href = '../account.html#tuijian';
+			}
+			
+
+		}
+	</script>
+</head>
+<body>
+	<div class="activity">
+		<a class="btn" onclick="onhundle()">马上推荐</a>
+		<div class="activity-content">
+			<h3>活动时间：2017年8月5日 ~ 9月5日。</h3>
+			<h3>活动对象：所有平台用户</h3>
+     		<p><span>奖励规则：</span>邀请奖励=好友投资金额*返现比例（0.8%）/12*投资期限</p>
+     		<p><span>举个例子：</span>A同学将自己的邀请链接发送给B同学，B同学通过邀请链接注册后并成功投资5万元3月标。则A同学的邀请奖励为：<span>50000*0.8%/12*3=100元</span>。</p>
+     		<p>邀请奖励将于好友所投标的满标复审后7个工作日内直接发放至您的资金账户，详情可在<span>【我的账户-资金记录】</span>中查看。</p>
+		</div>
+	</div>
+	<div class="explain">
+		<h3>活动细则</h3>
+		<p>1、推荐关系确认：活动有效期内，推荐人必须是平台已注册投资用户，被邀请人在填写注册信息时，直接填写推荐人（推荐号）；或被推荐人通过推荐人的推荐链接进行注册；</p>
+		<p>2、每个被推荐账户必须完成投资，推荐资格方为有效；</p>
+		<p>3、本次活动中，投资项目不包含债权转让项目； </p>
+		<p>4、推荐所得现金，可取现（满足取现条件下），可投资；</p>
+		<p>5、在法律许可的合法范畴内，本活动规则最终解释权归普金资本所有，客服热线：400-606-2079。</p>
+	</div>
+	<script type="text/javascript" src="srcipt/init.js"></script>
+</body>
+</html>

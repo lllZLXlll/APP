@@ -1,0 +1,487 @@
+
+.pay-from {
+    width: 480px;
+    margin: 60px auto 0;
+}
+
+.pay-from .label {
+    height: 40px;
+    margin-bottom: 20px;
+}
+
+.pay-from .label label {
+    height: 40px;
+    float: left;
+    line-height: 40px;
+    width: 70px;
+    padding-right: 10px;
+    text-align: right;
+    color: #777;
+}
+
+.pay-from .label label.long {
+    width: 95px;
+}
+
+.pay-from .label input {
+    width: 298px;
+    height: 38px;
+    line-height: 38px;
+    border: 1px solid #d9d9d9;
+    float: left;
+    text-indent: 10px;
+}
+
+.yanZhengMa {
+	width: 100px;
+	height: 40px;
+	float: left;
+	line-height: 40px;
+	text-align: center;
+}
+.yanZhengMa a{
+	color: #e62538;	
+}
+
+.pay-from .label input:focus{
+	border-color:#6cb8ff;
+	box-shadow:0 0 2px #6cb8ff;
+}
+.pay-from .label input.long {
+    width: 313px;
+}
+
+.pay-from .label p.roll {
+    width: 30px;
+    float: left;
+    line-height: 40px;
+    padding-left: 10px;
+}
+
+.pay-from .label p.text {
+    float: left;
+    line-height: 40px;
+}
+
+.pay-from .btn {
+    width: 300px;
+    margin-left: 80px;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.pay-from .btn.long {
+    margin-left: 105px;
+}
+
+.text.ml10 a {
+    color: #999;
+}
+
+.text.ml10 a:hover {
+    color: #319bff;
+}
+
+.label-msg {
+    position: relative;
+}
+
+.label-msg .msg-btn {
+    width: 140px;
+    height: 28px;
+    padding-top: 6px;
+    position: absolute;
+    right: 77px;
+    top: 1px;
+    z-index: 10;
+    background-color: #fff;
+}
+
+.label-msg .msg-btn button {
+    width: 139px;
+    height: 26px;
+    color: #319bff;
+    border-left: 1px solid #d9d9d9;
+    text-align: center;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.select-box {
+    position: absolute;
+    top: 39px;
+    left: 105px;
+    width: 298px;
+    border: 1px solid #d9d9d9;
+    background-color: #fff;
+    display: none;
+}
+
+.select-box li {
+    line-height: 38px;
+}
+
+.select-box li a {
+    padding-left: 10px;
+    height: 38px;
+    display: block;
+}
+
+.select-box li a:hover {
+    background-color: #319bff;
+    color: #fff;
+}
+
+.cash-pay .btn.disabled {
+    height: 46px;
+    border: 1px solid #e0e0e0;
+    background-color: #e6e6e6;
+    line-height: 46px;
+    color: #999;
+}
+
+
+/*资金记录*/
+
+.fund-param-list {
+    height: 26px;
+    margin-bottom: 16px;
+}
+
+.fund-param-list>p {
+    width: 88px;
+    line-height: 26px;
+    float: left;
+}
+
+.fund-param-list>ul,
+.fund-param-list>ul li {
+    float: left;
+}
+
+.fund-param-list>ul li a {
+    display: block;
+    line-height: 26px;
+    padding: 0 16px;
+}
+
+.fund-param-list>ul li.active a,
+.fund-param-list>ul li a:hover {
+    background-color: #ffa13d;
+    color: #fff;
+}
+
+.fund-list-box .children0 {
+    width: 20%;
+}
+
+.fund-list-box .children1 {
+    width: 25%;
+}
+
+.fund-list-box .children2 {
+    width: 20%;
+}
+
+.fund-list-box .children3 {
+    width: 20%;
+}
+
+.fund-list-box .children4 {
+    width: 15%;
+}
+
+/*taste*/
+
+.taste-list li {
+    margin: 20px 20px 0 0;
+    width: 420px;
+    height: 190px;
+    float: left;
+}
+
+.taste-list li.bg-nouse {
+    background: url(../images/account/myquan.png) bottom center no-repeat;
+}
+
+.taste-list .none {
+    margin: 0;
+    width: 100%;
+    height: 55px;
+    text-align: center;
+    line-height: 55px;
+}
+
+.taste-list li.bg-use {
+    background: url(../images/account/myquan_use.png) top center no-repeat;
+}
+
+.taste-list li.bg-date {
+    background: url(../images/account/myquan_date.png) top center no-repeat;
+}
+
+.taste-list li div.bg {
+    height: 126px;
+    padding-left: 30px;
+    background-color: #ffa13d;
+}
+
+.taste-list li div.nobg {
+    height: 126px;
+    padding-left: 30px;
+}
+
+.taste-list li div div {
+    padding-top: 30px;
+    width: 50%;
+    float: left;
+}
+
+.taste-list li div p {
+    line-height: 36px;
+    color: #fff;
+}
+
+.taste-list .taste-bg-l .money {
+    font-size: 20px;
+}
+
+.taste-list .taste-bg-l .money span {
+    font-size: 36px;
+}
+
+.taste-list .taste-bg-l .date {
+    color: #ffcf9c;
+}
+
+.taste-list .nobg .taste-bg-l .date {
+    color: #fff;
+}
+
+.taste-list li .taste-bg-r {
+    padding-top: 45px;
+}
+
+.taste-bg-r .icon-right {
+    background-position: 86px -1196px;
+}
+
+.taste-list .taste-bg-r a {
+    float: right;
+    width: 120px;
+    height: 36px;
+    line-height: 36px;
+    display: block;
+    color: #fff;
+    font-size: 20px;
+}
+
+.taste-list div.text {
+    height: 60px;
+    padding: 5px 0 0 30px;
+}
+
+.taste-list div.text p {
+    color: #999999;
+    line-height: 60px;
+}
+
+.taste-list.use {
+    display: none;
+}
+
+.taste-list.overdue {
+    display: none;
+}
+
+
+/*loan*/
+
+.loan-listData2 {
+    display: none;
+}
+
+.loan-listData3 {
+    display: none;
+}
+
+.loan-listData4 {
+    display: none;
+}
+
+.account-form-investor {
+    display: none;
+}
+
+.loanData li div,
+.detailData li div {
+    float: left;
+}
+
+.loanData .children0,
+.listTable1 .children0 {
+    width: 16%;
+}
+
+.loanData .children1,
+.listTable1 .children1 {
+    width: 10%;
+}
+
+.loanData .children2,
+.listTable1 .children2 {
+    width: 16%;
+}
+
+.loanData .children3,
+.listTable1 .children3 {
+    width: 12%;
+}
+
+.loanData .children4,
+.listTable1 .children4 {
+    width: 8%;
+}
+
+.loanData .children5,
+.listTable1 .children5 {
+    width: 8%;
+}
+
+.loanData .children6,
+.listTable1 .children6 {
+    width: 12%;
+}
+
+.loanData .children7,
+.listTable1 .children7 {
+    width: 10%;
+}
+
+.loanData .children8,
+.listTable1 .children8 {
+    width: 8%;
+}
+
+.loanData .title2 {
+    display: none;
+}
+
+.loanData .title3 {
+    display: none;
+}
+
+.loanData .title3>div,
+.loan-listData4 ul li>div {
+    width: 12.5%!important;
+}
+
+
+/*repay*/
+
+#repay {
+    display: none;
+}
+
+.listTable2 {
+    display: none;
+}
+
+.listTable2 .children0 {
+    width: 16%;
+}
+
+.listTable2 .children1 {
+    width: 10%;
+}
+
+.listTable2 .children2 {
+    width: 12%;
+}
+
+.listTable2 .children3 {
+    width: 8%;
+}
+
+.listTable2 .children4 {
+    width: 8%;
+}
+
+.listTable2 .children5 {
+    width: 12%;
+}
+
+.listTable2 .children6 {
+    width: 12%;
+}
+
+.listTable2 .children7 {
+    width: 12%;
+}
+
+.listTable2 .children8 {
+    width: 10%;
+}
+
+.listTable3 {
+    display: none;
+}
+
+.listTable3 .children0 {
+    width: 16%;
+}
+
+.listTable3 .children1 {
+    width: 8%;
+}
+
+.listTable3 .children2 {
+    width: 12%;
+}
+
+.listTable3 .children3 {
+    width: 12%;
+}
+
+.listTable3 .children4 {
+    width: 12%;
+}
+
+.listTable3 .children5 {
+    width: 8%;
+}
+
+.listTable3 .children6 {
+    width: 8%;
+}
+
+.listTable3 .children7 {
+    width: 8%;
+}
+
+.listTable3 .children8 {
+    width: 10%;
+}
+
+.listTable3 .children9 {
+    width: 6%;
+}
+
+.repay-detail,
+.contract-detail,
+.payment-detail {
+    width: 1000px;
+    margin: -200px 0 0 -500px;
+}
+
+.repay-detail ul>li>div {
+    font-size: 12px;
+    width: 10%;
+    float: left;
+}
+
+.contract-detail ul>li>div {
+    font-size: 12px;
+    width: 20%;
+    float: left;
+}

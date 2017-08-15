@@ -1,0 +1,118 @@
+<%@page import="com.sun.org.apache.xml.internal.serialize.Printer"%>
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@include file="/include/taglib.jsp" %>
+
+<script type="text/javascript">
+				/*	$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+					*/
+</script>
+<!--顶部状态栏 开始-->
+
+ <!-- top1 -->
+<%-- 	<div class="mod-adv top event-btn-target" style="background:#e04c16">--%>
+<%--		<div class="warp-1000">--%>
+<%--			<a href="index.do"><img src="css/shImages/tips.png"></a>--%>
+<%--			<span id="event-btn-close" class="btn btn-close event-btn-close"></span>--%>
+<%--			<a class="btn btn-close event-btn-close" href="javascript:void(0);"></a>--%>
+<%--		--%>
+<%--		</div>--%>
+<%--	</div>--%>
+ <!-- top1 -->
+ <!-- top2 -->
+ 		<div class="mod-topbar">
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fr top-bar">
+				<s:if test="%{#session.user==null}">
+					<ul>
+					<li><a class="line_01">&nbsp;&nbsp;&nbsp;400-606-2079</a></li>
+					<li>
+						<a href="userfinance.do">最新活动</a></li>
+						<li><a href="helpcenter.do">帮助中心</a></li>
+						<li><a href="rechargeInit.do">充值</a></li>
+						<li><a href="login.do">登录</a></li>
+						<li><a href="cellPhoneinit.do"><i class="ico ico-red-package"></i>注册领红包</a></li>
+						
+					</ul>
+				</s:if>
+				<s:else>
+				<a class="line_01">&nbsp;&nbsp;&nbsp;400-606-2079</a>
+					您好！<a href="usercenter.do">${sessionScope.user.nickName}</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="usercenter.do">个人中心</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="helpcenter.do">帮助中心</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="logout.do">退出</a>
+				
+				</s:else>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="index.do" class="logo"><img src="css/shImages/pujinziben.png"/></a>
+				<ul class="nav-list clearfix">
+					<li id="li_1"><a href="index.do">首页</a></li>
+					<li id="li_2"><!-- class="hover" -->
+						<a href="userfinance.do">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<%--
+							<li><a href="userfinance.do?xx=1"><span style="font-weight:bold;">城投标</span></a></li>
+							<li><a href="userfinance.do?xx=2"><span style="font-weight:bold;">首付标</span></a></li>
+							<li><a href="userfinance.do?xx=3"><span style="font-weight:bold;">抵押标</span></a></li>
+							<li><a href="userfinance.do?xx=4"><span style="font-weight:bold;">供应链标</span></a></li>
+							--%>
+							
+							<s:iterator value="#application.borrowSubTypeUsableList" var="subType" status="myStatus">
+							<li><a href="userfinance.do?xx=${subType.id}">${subType.name}</a></li>
+							</s:iterator>
+							
+							<li id="li_3"><a href="queryFrontAllDebt.do">债权转让</a></li>
+						</ul>
+					</li>
+					<li id="li_4">
+					 <li id="li_5"><a href="usersecurity.do">安全保障</a></li>
+					<!-- <li id="li_6"><a href="usercenter.do">我的账户</a></li>  -->
+					<li id="li_6"><a href="usercenter.do">个人中心</a></li> 
+					<li id="li_8"><a href="aboutCompany.do">关于我们</a>
+					<ul class="children">
+							<li id="li_3"><a href="aboutHzhb.do?xx=1">股东背景</a></li>
+							<li id="li_3"><a href="aboutCompany.do">公司简介</a></li>
+							<li id="li_3"><a href="aboutPtzz.do">平台资质</a></li>
+							<li id="li_3"><a href="aboutTdzs.do">管理团队</a></li>
+							<li id="li_3"><a href="aboutadviser.do">顾问团队</a></li>
+							<li id="li_3"><a href="IndustryNews.do?xx=4">公司动态</a></li>
+							<li id="li_3"><a href="paltreport.do">平台公告</a></li>
+							<li id="li_3"><a href="aboutZxns.do">招贤纳士</a></li>
+							<li id="li_3"><a href="aboutUs.do">联系我们</a></li>
+						</ul>
+					</li>						
+				   <!--<li id="li_7"><a href="dzbbsLogin.do" target="_blank">讨论专区</a></li>-->
+					<%--<li><a href="#">债券转让</a></li>--%>
+				</ul>
+				
+			</div>
+		</div>
+	</div>
+ <script type="text/javascript">
+$(function() {
+	$('.nav-list>li').hover(function() {
+		$('.nav-list>li').removeClass('hover');
+		//console.log($(this).children('.children').length)
+		//if($(this).children('.children').length>0) {
+			$(this).addClass('hover');
+		//}
+	}, function() {
+		$('.nav-list>li').removeClass('hover');
+	});
+	
+});
+</script>	
+ <!-- top2 -->
+ 
+<!--顶部主导航 结束-->

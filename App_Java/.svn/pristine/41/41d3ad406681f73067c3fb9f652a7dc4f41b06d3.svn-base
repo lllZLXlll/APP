@@ -1,0 +1,30 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.pjzb.entity.OperateReportPage;
+
+public interface OperateReportPageDao {
+
+	public List<Map<String, Object>> queryOperateReport(Long index, Long num);
+
+	public Map<String, Object> queryOperateReportCount();
+
+	public List<Map<String, Object>> queryOperateReportPageByMonth(String month);
+
+	public List<Map<String, Object>> queryAppOperateReportListForPage(long l, Long pageSize, boolean b);
+
+	public long queryAppOperateReportCount();
+
+	public long addAppOperateReport(OperateReportPage operateReportPage);
+
+	public long deleteAppOperateReportById(Long id);
+
+	public long deleteAppOperateReportByIds(List<Long> list);
+
+	public long updateAppOperateReportById(OperateReportPage operateReportPage);
+
+	public OperateReportPage queryAppOperateReportById(Long id);
+	
+}

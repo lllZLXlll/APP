@@ -1,0 +1,46 @@
+define(function (require,exports,module) {
+	var VueComponent = Vue.extend({
+		compiled: function(){
+			this.$parent.$set('activeClass',1);
+			if(this.$parent.phoneNumber){
+				this.$set('phoneNumber',this.$parent.phoneNumber);
+			}
+		},
+		data: function(){
+			return {
+				phoneNumber:''
+			}
+		},
+		methods: {
+			chosePhone: function(){
+				var _this = this;
+				var phone = this.phoneNumber;
+				if(phone == ''){
+					$.toast("请输入手机号码");return;
+				};
+				var param={cellPhone:phone};
+				utils.ajax({
+		            url:'../isExistPhone.do',
+		            data:JSON.stringify(param),
+		            dataType:'json',
+		            success: function(data){
+		            	if(data.error =='0'){
+		            		_this.$parent.$set('phoneNumber',phone);
+		            		router.go({path:'two',append:true});
+		            	}else{
+		            		$.alert(data.msg);
+		            	}
+		            }
+		        });
+			}
+		},
+		template:'<div><div class="text-item-shadow">'+
+		            '<label><i class="icon icon-color">&#xe60d;</i></label>'+
+		            '<input type="text" placeholder="请输入手机号码" v-getvalue="phoneNumber" value="{{phoneNumber}}" maxlength="16">'+
+		        '</div>'+
+		        '<div class="text-item-submit">'+
+		            '<button type="button" v-on:click="chosePhone" class="btn btn-submit">下一步</button>'+
+		        '</div></div>'
+	});
+	module.exports = VueComponent;
+})

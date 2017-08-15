@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pjzb.dao.RiskDetailDao">
+
+	<resultMap type="riskDetail" id="riskDetailResultMap">
+		<id column="id" property="id" />
+		<result column="riskInCome" property="riskInCome" />
+		<result column="riskSpending" property="riskSpending" />
+		<result column="riskDate" property="riskDate" />
+		<result column="riskBalance" property="riskBalance" />
+		<result column="riskType" property="riskType" />
+		<result column="resource" property="resource" />
+		<result column="trader" property="trader" />
+		<result column="borrowId" property="borrowId" />
+		<result column="remark" property="remark" />
+		<result column="operator" property="operator" />
+	</resultMap>
+
+	<select id="queryTotalRisk" resultType="java.util.Map">
+	     SELECT ((SUM(riskInCome)-SUM(riskSpending))) AS total FROM t_risk_detail
+	</select>
+
+
+	<select id="queryCurrentRisk" resultType="java.util.Map">
+	     SELECT sum(riskInCome) as riskInCome,sum(riskSpending) as riskSpending FROM t_risk_detail WHERE riskDate=NOW()
+	</select>
+	
+	<select id="queryRiskDetailMax" resultMap="riskDetailResultMap">
+	     SELECT * FROM t_risk_detail a WHERE a.id=(select MAX(b.id) from t_risk_detail b)
+	</select>
+	
+	<insert id="insertRiskDetail" parameterType="riskDetail">
+		INSERT INTO t_risk_detail(riskInCome,riskSpending,riskDate,riskBalance,riskType,resource,trader,borrowId,remark,operator) 
+		VALUES(#{riskInCome},#{riskSpending},#{riskDate},#{riskBalance},#{riskType},#{resource},#{trader},#{borrowId},#{remark},
+		#{operator})
+	</insert>
+	
+	<select id="queryRiskDetailForPage" resultType="java.util.Map">
+		SELECT * FROM (SELECT a.id as id,a.riskInCome as
+		riskInCome,a.riskSpending as riskSpending,a.riskDate as
+		riskDate,a.riskBalance as riskBalance,a.riskType as riskType,a.resource
+		as resource,c.realName as realName,a.remark as remark FROM
+		t_risk_detail a LEFT JOIN t_person c ON a.trader=c.userId ORDER BY a.id
+		DESC) a where 1=1 
+		<if test='param3 > 0 '> AND a.riskInCome = #{2}</if>
+		<if test='param4 > 0 '> AND a.riskSpending = #{3}</if>
+		<if test='param5 != null and param5 != ""'> AND a.riskDate >=  #{4}</if>
+		<if test='param6 != null and param6 != ""'><![CDATA[ AND a.riskDate <=  #{5} ]]></if>
+		<if test='param7 != null and param7 != "" and param7 != "x"'> AND a.riskType LIKE '%' #{6} '%'</if>
+		<if test='param8 != null and param8 != ""'> AND a.resource LIKE '%' #{7} '%'</if>
+		LIMIT #{0}, #{1}
+	</select>
+	
+	<select id="queryRiskDetailCount" resultType="long">
+		SELECT COUNT(1) as count FROM (SELECT a.id as id,a.riskInCome
+		as riskInCome,a.riskSpending as riskSpending,a.riskDate as
+		riskDate,a.riskBalance as riskBalance,a.riskType as riskType,
+		a.resource as resource,c.realName as realName FROM t_risk_detail a LEFT
+		JOIN t_person c ON a.trader=c.userId ORDER BY a.id DESC) a WHERE 1=1 
+		<if test="param1 > 0 "> AND a.riskInCome = #{0}</if>
+		<if test="param2 > 0 "> AND a.riskSpending = #{1}</if>
+		<if test='param3 != null and param3 != ""'> AND a.riskDate >=  #{2}</if>
+		<if test='param4 != null and param4 != ""'><![CDATA[ AND a.riskDate <=  #{3} ]]></if>
+		<if test='param5 != null and param5 != "" and param5 != "x"'> AND a.riskType LIKE '%' #{4} '%'</if>
+		<if test='param6 != null and param6 != ""'> AND a.resource LIKE '%' #{5} '%'</if>
+	</select>
+	
+	<select id="exportCompanyFundRecord" resultType="java.util.Map">
+		SELECT * FROM (SELECT a.id as id,a.riskInCome as
+		riskInCome,a.riskSpending as riskSpending,
+		DATE_FORMAT(a.riskDate,'%Y-%m-%d %H:%i:%s') riskDate1,
+		a.riskBalance as riskBalance,a.riskType as riskType,a.resource
+		as resource,c.realName as realName,a.remark as remark FROM
+		t_risk_detail a LEFT JOIN t_person c ON a.trader=c.userId ORDER BY a.id
+		DESC) a
+	</select>
+	
+	
+	<select id="queryRiskDetailSum" resultType="java.math.BigDecimal">		
+		SELECT 
+		<if test='param1 == "支出"'> 
+			IFNULL(SUM(t.riskSpending),0.00)
+		</if>
+		
+		<if test='param1 == "收入"'> 
+			IFNULL(SUM(t.riskInCome),0.00)
+		</if>
+		 AS riskSum 
+		FROM (
+		SELECT a.riskInCome AS
+		riskInCome,a.riskSpending AS riskSpending FROM
+		t_risk_detail a LEFT JOIN t_person c ON a.trader=c.userId
+		WHERE 1=1
+		<if test='param9 != null'> AND a.riskType LIKE CONCAT('%',#{8},'%')</if>
+		<if test='param2 > 0 '> AND a.riskInCome = #{1}</if>
+		<if test='param3 > 0 '> AND a.riskSpending = #{2}</if>
+		<if test='param4 != null and param5 != null'> AND a.riskDate &gt;=  #{3} AND a.riskDate &lt;= #{4} </if>
+		<if test='param6 != null'> AND a.resource LIKE '%' #{5} '%'</if>
+		ORDER BY a.id DESC
+		<if test='param7 != null and param8 != null'>
+			LIMIT #{6},#{7} 
+		</if>  ) t
+	</select>
+	
+</mapper>
+
+
+

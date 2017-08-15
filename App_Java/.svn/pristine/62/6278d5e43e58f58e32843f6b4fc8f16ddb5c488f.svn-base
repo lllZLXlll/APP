@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.MaterialsauthDao">
+
+	<select id="queryEnterprisePictureGroup" resultType="java.util.Map" parameterType="java.lang.Long">
+		select tm.groupid groupid, tm.companyname companyname, tm.userId as id, tmy.`name` as
+		tmyname,
+		tm.auditStatus as
+		auditStatus,tm.id as tmid,tmy.id as tmyid,vts.imagePath as imagePath
+		from t_materialsauth tm left join t_materialsauthtype tmy on tm.materAuthTypeId =
+		tmy.id
+		left join
+		v_t_user_showfirstpicture vts on vts.tmid = tm.id where tmy.id > 16 AND
+		tm.userId = #{userId} group by (groupid)
+	</select>
+
+
+	<select id="queryEnterpriseDataListByUserId" resultType="java.util.Map">
+		select tm.userId as id, tmy.`name` as tmyname, tm.auditStatus as auditStatus,tm.id as
+		tmid,tmy.id as tmyid,vts.imagePath as imagePath from t_materialsauth tm left join
+		t_materialsauthtype tmy on tm.materAuthTypeId = tmy.id left join v_t_user_showfirstpicture vts
+		on vts.tmid =tm.id
+		where tmy.id > 16 AND tm.userId = #{0} and tm.groupid =#{2}
+		<if test="param2!=null">
+			AND tmy.id NOT IN (19,20,22)
+		</if>
+		<if test="param2==null">
+			AND tmy.id =22
+		</if>
+
+
+	</select>
+
+	<select id="queryEnterpriseDataDetail" resultType="java.util.Map" parameterType="java.lang.Long">
+		select tmd.id as id,tmd.imagePath, tmd.auditStatus as auditStatus ,tmy.`name` as
+		tmyname,tm.materAuthTypeId
+		as materAuthTypeId,tmd.visiable as visiable,tmd.materialsauthid from t_materialimagedetal tmd left join t_materialsauth tm on
+		tmd.materialsauthid = tm.id
+		left join t_materialsauthtype tmy on tm.materAuthTypeId = tmy.id
+		where tmd.materialsauthid =#{materialsauthid}
+	</select>
+
+
+	<select id="queryMaterialsauthCountByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+		select max(groupid) groupid from t_materialsauth t where t.userId =#{userId}
+	</select>
+
+	<insert id="addMaterialsauth" parameterType="materialsauth">
+		INSERT INTO t_materialsauth(materAuthTypeId,imgPath,auditStatus,userId,authTime,passTime,`option`,pastTime,materaldetalId,criditing,groupid,companyname)
+		VALUES(#{materAuthTypeId},#{imgPath},#{auditStatus},#{userId},#{authTime},#{passTime},#{option},#{pastTime},#{materaldetalId},#{criditing},#{groupid},#{companyname})
+	</insert>
+
+
+	<select id="queryEnterprisePicturStatuCountAdmin" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT * FROM v_t_enterprise_user_verypictur a WHERE a.id=#{userId}
+	</select>
+	
+
+
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,160 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * TMaterialsauth entity. @author MyEclipse Persistence Tools
+ */
+
+public class Materialsauth implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private Long materAuthTypeId;
+	private String imgPath;
+	private Integer auditStatus;
+	private Long userId;
+	private Date authTime;
+	private Date passTime;
+	private String option;
+	private Date pastTime;
+	private Long materaldetalId;
+	private Integer criditing;
+	private Integer groupid;
+	private String companyname;
+
+	// Constructors
+
+	/** default constructor */
+	public Materialsauth() {
+	}
+
+	/** full constructor */
+	public Materialsauth(Long materAuthTypeId, String imgPath,
+			Integer auditStatus, Long userId, Date authTime,
+			Date passTime, String option, Date pastTime,
+			Long materaldetalId, Integer criditing, Integer groupid,
+			String companyname) {
+		this.materAuthTypeId = materAuthTypeId;
+		this.imgPath = imgPath;
+		this.auditStatus = auditStatus;
+		this.userId = userId;
+		this.authTime = authTime;
+		this.passTime = passTime;
+		this.option = option;
+		this.pastTime = pastTime;
+		this.materaldetalId = materaldetalId;
+		this.criditing = criditing;
+		this.groupid = groupid;
+		this.companyname = companyname;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getMaterAuthTypeId() {
+		return this.materAuthTypeId;
+	}
+
+	public void setMaterAuthTypeId(Long materAuthTypeId) {
+		this.materAuthTypeId = materAuthTypeId;
+	}
+
+	public String getImgPath() {
+		return this.imgPath;
+	}
+
+	public void setImgPath(String imgPath) {
+		this.imgPath = imgPath;
+	}
+
+	public Integer getAuditStatus() {
+		return this.auditStatus;
+	}
+
+	public void setAuditStatus(Integer auditStatus) {
+		this.auditStatus = auditStatus;
+	}
+
+	public Long getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Date getAuthTime() {
+		return this.authTime;
+	}
+
+	public void setAuthTime(Date authTime) {
+		this.authTime = authTime;
+	}
+
+	public Date getPassTime() {
+		return this.passTime;
+	}
+
+	public void setPassTime(Date passTime) {
+		this.passTime = passTime;
+	}
+
+	public String getOption() {
+		return this.option;
+	}
+
+	public void setOption(String option) {
+		this.option = option;
+	}
+
+	public Date getPastTime() {
+		return this.pastTime;
+	}
+
+	public void setPastTime(Date pastTime) {
+		this.pastTime = pastTime;
+	}
+
+	public Long getMateraldetalId() {
+		return this.materaldetalId;
+	}
+
+	public void setMateraldetalId(Long materaldetalId) {
+		this.materaldetalId = materaldetalId;
+	}
+
+	public Integer getCriditing() {
+		return this.criditing;
+	}
+
+	public void setCriditing(Integer criditing) {
+		this.criditing = criditing;
+	}
+
+	public Integer getGroupid() {
+		return this.groupid;
+	}
+
+	public void setGroupid(Integer groupid) {
+		this.groupid = groupid;
+	}
+
+	public String getCompanyname() {
+		return this.companyname;
+	}
+
+	public void setCompanyname(String companyname) {
+		this.companyname = companyname;
+	}
+
+}

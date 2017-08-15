@@ -1,0 +1,76 @@
+define(function (require,exports,module) {
+	var tpl = require('templates/about/Introduced.html');
+	var VueComponent = Vue.extend({
+		compiled:function(){
+			utils.setAppConfig('产品介绍',true,false);
+			this.$set('viewData',this.listData[0]);
+			this.$set('tableData',this.tableData1);
+			this.$set('isShang',true);
+		},
+		data: function(){
+			return {
+				activeLink:1,
+				reviewed:'企业经营资质；企业及个人征信；企业及个人涉诉信息；新闻媒体正负面报道；借款人婚姻家庭状况；担保公司及保证人保证能力；企业财务状况；企业及个人银行流水；企业盈利及健康程度；抵（质）押物权属状况；还款来源与还款意愿分析；',
+				listData:[
+				          {profit:'8%-12%',product:'基于供应链上下游的采购贸易，为采购方或项目方提供融资，融资方以应收账款质押、保证金担保等形式为借款提供担保。'},
+				          {profit:'9%-15%',product:'企业由于生产经营周转或项目投资需要资金，提供足值的不动产或动产作为抵质押物申请借款。'},
+				          {profit:'6%-10%',product:'以保理公司持有的大型知名企业签发并承兑的商业承兑汇票为还款保障的金融产品，借款到期时，保理公司以承兑企业无条件支付的票面资金用于归还借款本息。该产品充分发挥了大型企业的信用价值，在为借款中小微企业解决融资问题的同时，还为投资人提供了风险可控的金融产品。'}
+				          ],
+				viewData:[],
+				imgSrc:'images/pujin.png',
+				tableData:[],
+				tableText:'注：具体项目的保障措施会有所不同，以具体项目的内容为准。',
+				tableData1:[
+				           {name:'供应链融资',text:'于供应链上下游的采购贸易，以应收账款转让或票据质押等形式为采购方或项目方提供融资；'},
+				           {name:'足额应收账款',text:'融资项目获取立足于供应链，保理公司对融资项目100%具备足值抵押或大型企业连带责任担保进行审核，项目通过率只有5%；融资企业应收账款质押   融资方上下游企业担保    融资方股东提供无限责任连带担保'},
+				           {name:'风险保证金',text:'保理公司缴纳融资金额一定比例的风险保证金，利息或本金逾期时，动用风险保证金先行偿付。'}
+				           ],
+	           tableData2:[
+	                       {name:'抵质押担保',text:'借款企业提供商铺、住宅、车辆、厂房、土地、设备等公司或个人名下动产及不动产作为抵质押担保；'},
+	                       {name:'机构担保',text:'融资性担保公司出具担保函，为借款人的贷款本息全额提供无限连带责任保证担保；'},
+	                       {name:'个人担保 ',text:'借款人配偶、子女等亲属出具个人无限连带责任保证担保函，承诺与借款人共同偿还；'},
+	                       {name:'风险保证金',text:'担保公司缴纳融资金额一定比例的风险保证金，利息或本金逾期时，动用风险保证金先行偿付。'}
+	                       ],
+	           tableData3:[
+	                       {name:'严格的准入机制',text:'恒金宝承兑人选择与准入主要以实力较强的大型国有企业、境内上市公司、拟上市公司为主；'},
+	                       {name:'授信的总额控制',text:'恒金宝业务中承兑人在平台上的承兑金额实行总额控制；'},
+	                       {name:'足额的商票质押 ',text:'每个借款项目均有足额商票提供质押担保；'},
+	                       {name:'银行核验与保管',text:'商票的核验、保管、质押背书均在银行系统内部完成，确保票据真实性。'}
+	                       ],
+	           tableDataShang:[
+	                       {name:'一、见票即付',text:'商业承兑汇票经承兑人承兑，由承兑企业在指定日期无条件支付确定的金额给收款人或持票人。'},
+	                       {name:'二、期限灵活',text:'商业承兑汇票承兑期限最长不超过6个月，其中电子商业承兑汇票的最长期限可达1年。'},
+	                       {name:'三、在一定范围内流通',text:'商业承兑汇票由于是企业信用，收款人一般要求承兑人信用较好、实力较强，且商业承兑汇票一般围绕在付款人的生态圈进行流通。'}
+	                       ],
+				
+			}
+		},
+		methods:{
+			investDetail:function(index){
+				if(this.activeLink == index){return;};
+				$('.content-introduced').scrollTop(0);
+				if(index == 1){
+					this.$set('viewData',this.listData[0]);
+					this.$set('tableData',this.tableData1);
+					this.$set('activeLink',1);
+					this.$set('isShang',true);
+					this.$set('imgSrc','images/pujin.png');
+				}else if(index == 2){
+					this.$set('viewData',this.listData[1]);
+					this.$set('tableData',this.tableData2);
+					this.$set('activeLink',2);
+					this.$set('isShang',true);
+					this.$set('imgSrc','images/duojin.png');
+				}else if(index == 3){
+					this.$set('viewData',this.listData[2]);
+					this.$set('tableData',this.tableData3);
+					this.$set('activeLink',3);
+					this.$set('isShang',false);
+					this.$set('imgSrc','images/hengjin.png');
+				}
+			}
+		},
+		template:tpl
+	});
+	module.exports = VueComponent;
+})

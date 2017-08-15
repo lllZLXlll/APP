@@ -1,0 +1,183 @@
+package com.pjzb.entity;
+// default package
+
+import java.util.Date;
+
+/**
+ * CashReconciliation entity. @author MyEclipse Persistence Tools
+ */
+
+public class CashReconciliation implements java.io.Serializable {
+
+	// Fields
+
+	private String ordId;
+	private String merCustId;
+	private String usrCustId;
+	private String cardId;
+	private Double transAmt;
+	private String transStat;
+	private String pnrDate;
+	private String pnrSeqId;
+	private Double servFee;
+	private String servFeeAcctId;
+	private Double feeAmt;
+	private String feeCustId;
+	private String feeAcctId;
+	private Date inDate;
+	private String feeObj;
+
+	// Constructors
+
+	/** default constructor */
+	public CashReconciliation() {
+	}
+
+	/** minimal constructor */
+	public CashReconciliation(String ordId) {
+		this.ordId = ordId;
+	}
+
+	/** full constructor */
+	public CashReconciliation(String ordId, String merCustId, String usrCustId, String cardId, Double transAmt, String transStat, String pnrDate, String pnrSeqId, Double servFee,
+			String servFeeAcctId, Double feeAmt, String feeCustId, String feeAcctId, Date inDate, String feeObj) {
+		this.ordId = ordId;
+		this.merCustId = merCustId;
+		this.usrCustId = usrCustId;
+		this.cardId = cardId;
+		this.transAmt = transAmt;
+		this.transStat = transStat;
+		this.pnrDate = pnrDate;
+		this.pnrSeqId = pnrSeqId;
+		this.servFee = servFee;
+		this.servFeeAcctId = servFeeAcctId;
+		this.feeAmt = feeAmt;
+		this.feeCustId = feeCustId;
+		this.feeAcctId = feeAcctId;
+		this.inDate = inDate;
+		this.feeObj = feeObj;
+	}
+
+	// Property accessors
+
+	public String getOrdId() {
+		return this.ordId;
+	}
+
+	public void setOrdId(String ordId) {
+		this.ordId = ordId;
+	}
+
+	public String getMerCustId() {
+		return this.merCustId;
+	}
+
+	public void setMerCustId(String merCustId) {
+		this.merCustId = merCustId;
+	}
+
+	public String getUsrCustId() {
+		return this.usrCustId;
+	}
+
+	public void setUsrCustId(String usrCustId) {
+		this.usrCustId = usrCustId;
+	}
+
+	public String getCardId() {
+		return this.cardId;
+	}
+
+	public void setCardId(String cardId) {
+		this.cardId = cardId;
+	}
+
+	public Double getTransAmt() {
+		return this.transAmt;
+	}
+
+	public void setTransAmt(Double transAmt) {
+		this.transAmt = transAmt;
+	}
+
+	public String getTransStat() {
+		return this.transStat;
+	}
+
+	public void setTransStat(String transStat) {
+		this.transStat = transStat;
+	}
+
+	public String getPnrDate() {
+		return this.pnrDate;
+	}
+
+	public void setPnrDate(String pnrDate) {
+		this.pnrDate = pnrDate;
+	}
+
+	public String getPnrSeqId() {
+		return this.pnrSeqId;
+	}
+
+	public void setPnrSeqId(String pnrSeqId) {
+		this.pnrSeqId = pnrSeqId;
+	}
+
+	public Double getServFee() {
+		return this.servFee;
+	}
+
+	public void setServFee(Double servFee) {
+		this.servFee = servFee;
+	}
+
+	public String getServFeeAcctId() {
+		return this.servFeeAcctId;
+	}
+
+	public void setServFeeAcctId(String servFeeAcctId) {
+		this.servFeeAcctId = servFeeAcctId;
+	}
+
+	public Double getFeeAmt() {
+		return this.feeAmt;
+	}
+
+	public void setFeeAmt(Double feeAmt) {
+		this.feeAmt = feeAmt;
+	}
+
+	public String getFeeCustId() {
+		return this.feeCustId;
+	}
+
+	public void setFeeCustId(String feeCustId) {
+		this.feeCustId = feeCustId;
+	}
+
+	public String getFeeAcctId() {
+		return this.feeAcctId;
+	}
+
+	public void setFeeAcctId(String feeAcctId) {
+		this.feeAcctId = feeAcctId;
+	}
+
+	public Date getInDate() {
+		return this.inDate;
+	}
+
+	public void setInDate(Date inDate) {
+		this.inDate = inDate;
+	}
+
+	public String getFeeObj() {
+		return this.feeObj;
+	}
+
+	public void setFeeObj(String feeObj) {
+		this.feeObj = feeObj;
+	}
+
+}

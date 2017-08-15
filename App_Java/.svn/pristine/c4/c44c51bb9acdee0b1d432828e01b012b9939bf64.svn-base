@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.pjzb.dao.PlatFormCostDao">
+
+	<resultMap type="platFormCost" id="platFormCostResultMap">
+		<id column="id" property="id"/>
+		<result column="costName" property="costName"/>
+		<result column="costFee" property="costFee"/>
+		<result column="costMode" property="costMode"/>
+		<result column="remark" property="remark"/>
+		<result column="createTime" property="createTime"/>
+		<result column="alias" property="alias"/>
+		<result column="types" property="types"/>
+		<result column="show_view" property="showView"/>
+	</resultMap>
+
+
+	<select id="queryPlatFormCostByView" resultMap="platFormCostResultMap">
+		SELECT * FROM t_platform_cost WHERE show_view =#{showView}
+	</select>
+
+
+	<select id="queryPlatFormCostById" resultMap="platFormCostResultMap">
+		SELECT * FROM t_platform_cost a WHERE a.id=#{id}
+	</select>
+	
+	<select id="queryPlatFormCostByTypesList" resultMap="platFormCostResultMap">
+		SELECT * FROM t_platform_cost a WHERE 1=1
+		 <if test="types > 0">
+		 	AND a.types=#{types} 
+		 </if>
+		LIMIT #{index},#{pageSize}
+	</select>
+	
+	<select id="queryPlatFormCostByTypesCount" resultType="long">
+		SELECT COUNT(1) FROM t_platform_cost a WHERE 1=1
+		 <if test="types > 0">
+		 	AND a.types=#{types} 
+		 </if>
+	</select>
+
+		
+	<update id="updatePlatFormCostById">
+		UPDATE t_platform_cost
+		<trim prefix="set" suffixOverrides=",">
+			<if test="costName != null">costName= #{costName},</if>
+			<if test="costFee != null">costFee = #{costFee},</if>
+			<if test="costMode != null">costMode = #{costMode},</if>
+			<if test="remark != null">remark = #{remark},</if>
+			<if test="createTime != null">createTime = #{createTime},</if>
+			<if test="alias != null">alias = #{alias},</if>
+			<if test="types != null">types = #{types},</if>
+			<if test="showView != null">show_view = #{showView},</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+	
+
+</mapper>
+
+
+
+
+
+
+
+
+

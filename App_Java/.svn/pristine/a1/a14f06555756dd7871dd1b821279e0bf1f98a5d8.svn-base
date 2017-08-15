@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>我的账号-会员积分记录</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/ibanner_full.js"></script>
+</head>
+<body>
+<!--common header-->
+	<div class="mod-adv top event-btn-target" style="background:#0f0100">
+		<div class="warp-1000 ">
+			<a href="#"><img src="http://lorempixel.com/1000/80/"></a>
+			<a href="#" class="btn btn-close event-btn-close"></a>
+			<script>
+				$(function() {
+					$('.event-btn-close').click(function() {
+						$('.event-btn-target').hide();
+					});
+				})
+			</script>
+		</div>
+	</div>
+	<div class="mod-topbar">	
+		<div class="bar">
+			<div class="warp-1000">
+				<div class="fl">
+					<span>欢迎致电：<em>0755-29556666</em></span>
+					<a href="#">分享到<i class="ico ico-arr-down-m"></i></a>
+				</div>
+				<div class="fr">
+					<ul>
+						<li><a href="#">你好，licky</a></li>
+						<li><a href="#">消息 <span class="blue">1</span></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="nav">
+			<div class="warp-1000">
+				<a href="#" class="logo"><img src="http://lorempixel.com/160/47/"/></a>
+				<ul class="nav-list clearfix">
+					<li><a href="#">首页</a></li>
+					<li>
+						<a href="#">投资理财<i class="ico ico-arr-down-s"></i></a>
+						<ul class="children">
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+							<li><a href="#">城投标</a></li>
+						</ul>
+					</li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li><a href="#">债券转让</a></li>
+					<li class="hover"><a href="#">我的账户</a></li>
+					<li><a href="#">债券转让</a></li>
+				</ul>
+				<script type="text/javascript">
+					$(function() {
+						$('.nav-list>li').hover(function() {
+							$('.nav-list>li').removeClass('hover');
+							//console.log($(this).children('.children').length)
+							//if($(this).children('.children').length>0) {
+								$(this).addClass('hover');
+							//}
+						}, function() {
+							$('.nav-list>li').removeClass('hover');
+						});
+					});
+				</script>
+			</div>
+		</div>
+	</div>
+<!--common header-->
+	<!--左右两栏布局-->
+	<div class="mod-two-column">
+		<div class="warp-1000">
+			<div class="side-bar">
+				<div class="menu">
+					<dl>
+						<dt><a href="#">我的账户</a></dt>
+						<dd><a href="#">个人中心</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+					</dl>
+					<dl>
+						<dt><a href="#">融资管理</a></dt>
+						<dd><a href="#">个人中心</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+					</dl>
+					<dl>
+						<dt><a href="#">投资管理</a></dt>
+						<dd><a href="#">个人中心</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+						<dd><a href="#">充值提现</a></dd>
+					</dl>
+					<dl class="last">
+						<dt><a href="#">债权转让</a></dt>
+						<dd class="on"><a href="#">债权转让</a></dd>
+						<dd><a href="#">债权购买</a></dd>
+					</dl>
+				</div>
+			</div>
+			<div class="main">
+				<div class="tab">
+					<ul>
+						<li><a href="#">贷认证</a></li>
+						<li class="on"><a href="#">会员积分记录</a></li>
+					</ul>
+				</div>
+                
+                <div class="title" style="margin:40px 0"><p>我的积分：80分<span>v14</span></p></div>
+				
+				<div class="data">
+					<table>
+						<thead>
+							<tr>
+								<td>积分类型</td>
+								<td>积分</td>
+								<td>V备注</td>
+							</tr>
+						</thead>
+						<tbody>
+						    <tr>
+								<td>登录</td>
+								<td>1</td>
+								<td>登录积分</td>
+							</tr>
+                         <tr>
+								<td>登录</td>
+								<td>1</td>
+								<td>登录积分</td>
+							</tr>
+                         <tr>
+								<td>登录</td>
+								<td>1</td>
+								<td>登录积分</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<!--左右两栏布局-->
+<!--common footer-->
+	<div class="mod-common-footer">
+		<div class="about warp-1000">
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+			<a href="#">关于我们</a>
+		</div>
+		<div class="cpright">
+			<div class="warp-1000">
+				<p>增值电信业务经营许可证(全国)   (北京)   备案确认书   电信与信息服务业务经营许可证   京ICP证050062号   电信业务审批[2005]字第194号   ISO9001国际标准质量体系认证 </p>
+				<p>版权所有 © 2013 深圳普金资本有限公司 粤ICP备130333399号-6</p>
+				<p class="imgs">
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+					<a href="#"><img src="http://lorempixel.com/114/41/"></a>
+				</p>
+			</div>
+		</div>
+	</div>
+<!--common footer-->

@@ -1,0 +1,136 @@
+package com.pjzb.entity;
+// default package
+
+/**
+ * Menu entity. @author MyEclipse Persistence Tools
+ */
+
+public class Menu implements java.io.Serializable {
+
+	// Fields
+
+	private Long id;
+	private String name;
+	private String action;
+	private String description;
+	private Integer isLog;
+	private Integer isIntercept;
+	private String summary;
+	private Long parentId;
+	private Integer isQuery;
+	private Integer indexs;
+	private Long menuId;
+
+	// Constructors
+
+	/** default constructor */
+	public Menu() {
+	}
+
+	/** full constructor */
+	public Menu(String name, String action, String description, Integer isLog,
+			Integer isIntercept, String summary, Long parentId,
+			Integer isQuery, Integer indexs, Long menuId) {
+		this.name = name;
+		this.action = action;
+		this.description = description;
+		this.isLog = isLog;
+		this.isIntercept = isIntercept;
+		this.summary = summary;
+		this.parentId = parentId;
+		this.isQuery = isQuery;
+		this.indexs = indexs;
+		this.menuId = menuId;
+	}
+
+	// Property accessors
+
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAction() {
+		return this.action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Integer getIsLog() {
+		return this.isLog;
+	}
+
+	public void setIsLog(Integer isLog) {
+		this.isLog = isLog;
+	}
+
+	public Integer getIsIntercept() {
+		return this.isIntercept;
+	}
+
+	public void setIsIntercept(Integer isIntercept) {
+		this.isIntercept = isIntercept;
+	}
+
+	public String getSummary() {
+		return this.summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
+
+	public Long getParentId() {
+		return this.parentId;
+	}
+
+	public void setParentId(Long parentId) {
+		this.parentId = parentId;
+	}
+
+	public Integer getIsQuery() {
+		return this.isQuery;
+	}
+
+	public void setIsQuery(Integer isQuery) {
+		this.isQuery = isQuery;
+	}
+
+	public Integer getIndexs() {
+		return this.indexs;
+	}
+
+	public void setIndexs(Integer indexs) {
+		this.indexs = indexs;
+	}
+
+	public Long getMenuId() {
+		return this.menuId;
+	}
+
+	public void setMenuId(Long menuId) {
+		this.menuId = menuId;
+	}
+
+}

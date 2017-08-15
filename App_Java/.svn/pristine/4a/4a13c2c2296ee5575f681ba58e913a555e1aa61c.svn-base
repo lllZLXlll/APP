@@ -1,0 +1,17 @@
+package com.pjzb.dao;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 提醒方式 记录
+ *
+ */
+public interface ApproveNoticeTemplateDao {
+	
+	/**
+	 * 查询所有通知模板
+	 */
+	public List<Map<String,Object>> queryAllInformTemplate();
+	
+}
