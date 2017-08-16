@@ -29,7 +29,7 @@ class App1 extends Component {
         <Button
           title="从这里开始我的APP!"
           onPress={() => 
-            navigate('App2', name: 'name')}/>
+            navigate('Profile')}/>
       </View>
     );
   }
@@ -73,6 +73,9 @@ const App = StackNavigator({
   App1: {screen: App1},
   App2: {screen: App2},
   App3: {screen: App3},
+  Profile: {
+    screen: App3
+  },
 });
 
 
