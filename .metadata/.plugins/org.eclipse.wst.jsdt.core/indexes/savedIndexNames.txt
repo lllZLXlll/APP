@@ -1,0 +1,8 @@
+INDEX VERSION 1.3+/Users/imac/Documents/GitHub/APP/.metadata/.plugins/org.eclipse.wst.jsdt.core/indexes
+579050616.index
+2695071370.index
+4033185043.index
+1587051018.index
+928480604.index
+4245915823.index
+3196011971.index

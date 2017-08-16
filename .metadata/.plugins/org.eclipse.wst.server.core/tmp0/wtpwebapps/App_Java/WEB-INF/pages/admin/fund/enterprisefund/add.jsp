@@ -1,0 +1,49 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ include file="../../../../../include/base.jsp"%> 
+<div class="bjui-pageContent">
+    <form action="addCompanyFundRecord.do" id="j_custom_form" data-toggle="validate" data-alertmsg="false">
+        <input type="hidden" name="tabid" value="${tabid }">
+        <table class="table table-condensed table-hover">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="j_custom_sale" style="margin-left: 100px;">收支类型：</label>
+                       	<select data-toggle="selectpicker" name="riskType">
+				           	<option value="收入">收入</option>
+				           	<option value="支出">支出</option>
+				        </select>
+                    </td>
+                </tr>
+                
+                 <tr>
+                    <td>
+                        <label for="j_custom_sale" style="margin-left: 100px;">收入金额：</label>
+                       <input type="text" id="j_custom_name" size="17.5" name="riskInCome">
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <label for="j_custom_name" style="margin-left: 100px;">支出金额：</label>
+                        <input type="text" id="j_custom_name" size="17.5" name="riskSpending">
+                    </td>
+                </tr>
+                
+                 <tr>
+                    <td>
+                        <label for="j_custom_sale" style="margin-left: 100px;">备注：</label>
+				        <textarea cols="30" rows="5" name="resource"></textarea>
+                    </td>
+                </tr>
+               
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">取消</button></li>
+        <li><button type="submit" class="btn-default" data-icon="save">保存</button></li>
+    </ul>
+</div>
