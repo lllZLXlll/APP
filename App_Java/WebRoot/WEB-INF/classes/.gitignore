@@ -1,9 +1,1 @@
-/.DS_Store
-/applicationContext-dao.xml
-/applicationContext-task.xml
-/applicationContext-transaction.xml
 /com/
-/config.properties
-/config/
-/log4j.properties
-/sqlMapConfig.xml
