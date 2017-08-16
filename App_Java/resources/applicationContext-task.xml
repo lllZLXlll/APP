@@ -47,6 +47,6 @@
    		
 	</task:scheduled-tasks>
 	
-	<bean id="jobTask" class="com.pjzb.task.JobTask"></bean>
+	<bean id="jobTask" class="com.app.task.JobTask"></bean>
 	
 </beans>

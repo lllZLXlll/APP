@@ -53,7 +53,7 @@
 	
 	<!-- aop -->
 	<aop:config>
-		<aop:advisor advice-ref="txAdvice" pointcut="execution(* com.pjzb.service..*.*(..)) or execution(* com.pjzb.task.*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut="execution(* com.app.service..*.*(..)) or execution(* com.app.task.*.*(..))" />
 	</aop:config>
 
 </beans>
