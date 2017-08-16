@@ -9,45 +9,71 @@ import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
+  Button,
 } from 'react-native';
 
-export default class App extends Component {
+import {
+  StackNavigator,
+} from 'react-navigation';
+
+class App1 extends Component {
+  static navigationOptions = {
+    title: '1',
+  };
+
   render() {
+    const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          从这里开始我的APP!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
+      <View>
+        <Button
+          title="从这里开始我的APP!"
+          onPress={() => 
+            navigate('App2', name: 'name')}/>
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+class App2 extends Component {
+  static navigationOptions = {
+    title: '2',
+  };
+  render() {
+    const { navigate } = this.props.navigation;
+    return (
+      <View>
+         <Button
+          title="再跳"
+          onPress={() => 
+            navigate('App3')}/>
+      </View>
+    );
+  }
+}
+
+class App3 extends Component {
+  static navigationOptions = {
+    title: '3',
+  };
+
+  render() {
+    const { navigate } = this.props.navigation;
+    return (
+      <View>
+        <Button title="回去第一个" 
+          onPress={() => navigate('App1')}
+         />
+      </View>
+    );
+  }
+}
+
+const App = StackNavigator({
+  App1: {screen: App1},
+  App2: {screen: App2},
+  App3: {screen: App3},
 });
+
 
 AppRegistry.registerComponent('App', () => App);
