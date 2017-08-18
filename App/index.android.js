@@ -3,80 +3,115 @@
  * https://github.com/facebook/react-native
  * @flow
  */
-
 import React, { Component } from 'react';
 import {
   AppRegistry,
-  StyleSheet,
   Text,
   View,
   Button,
+  StyleSheet,
+  WebView,
+  Image,
 } from 'react-native';
+import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
 
-import {
-  StackNavigator,
-} from 'react-navigation';
-
-class App1 extends Component {
-  static navigationOptions = {
-    title: '1',
-  };
-
+class page1 extends Component {
   render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <View>
-        <Button
-          title="从这里开始我的APP!"
-          onPress={() => 
-            navigate('Profile')}/>
-      </View>
-    );
+    return <Text>页面1</Text>
   }
 }
 
-class App2 extends Component {
-  static navigationOptions = {
-    title: '2',
-  };
+class page2 extends Component {
   render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <View>
-         <Button
-          title="再跳"
-          onPress={() => 
-            navigate('App3')}/>
-      </View>
-    );
+    return <Text>页面2</Text>
   }
 }
 
-class App3 extends Component {
-  static navigationOptions = {
-    title: '3',
-  };
+const Tab = TabNavigator ({
+  page1: {screen: page1 },
+  page2: {screen: page2 },
+});
 
-  render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <View>
-        <Button title="回去第一个" 
-          onPress={() => navigate('App1')}
-         />
-      </View>
-    );
-  }
-}
-
-const App = StackNavigator({
-  App1: {screen: App1},
-  App2: {screen: App2},
-  App3: {screen: App3},
-  Profile: {
-    screen: App3
+const Stack = StackNavigator({
+  Home: {
+    screen: Tab,
+    navigationOptions: {
+      title: '主页', 
+    },
   },
 });
 
+class MyHomeScreen extends React.Component {
+  static navigationOptions = {
+    drawerLabel: 'Home',
+    drawerIcon: ({ tintColor }) => (
+      <Image
+        source={require('./app/images/icon/icon_1.png')}
+      />
+    ),
+  };
 
-AppRegistry.registerComponent('App', () => App);
+  render() {
+    return null;
+  }
+}
+
+class MyNotificationsScreen extends React.Component {
+  static navigationOptions = {
+    drawerLabel: 'Notifications',
+    drawerIcon: ({ tintColor }) => (
+      <Image
+        source={require('./app/images/icon/icon_1.png')}
+      />
+    ),
+  };
+
+  render() {
+    return null;
+  }
+}
+
+class webView extends Component {
+
+  render() {
+    return (
+      <WebView
+          source={{uri: 'https://www.baidu.com'}}
+        />
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  icon: {
+    width: 24,
+    height: 24,
+  },
+});
+
+const Drawer = DrawerNavigator({
+  Home: {
+    screen: Stack,
+    navigationOptions: {
+      title: '', 
+
+    },
+  },
+  Notifications: {
+    screen: MyNotificationsScreen,
+  },
+}, {
+  contentOptions: {
+    activeBackgroundColor: '#999',
+    style: {
+      marginVertical: 0,
+    },
+  },
+  drawerPosition: 'left'
+  // contentComponent: webView,
+
+
+});
+
+
+AppRegistry.registerComponent('App', () => Drawer);
