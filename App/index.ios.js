@@ -12,84 +12,146 @@ import {
   View,
   Image,
   Button,
-  WebView,
 } from 'react-native';
-import { DrawerNavigator } from 'react-navigation';
+import { TabNavigator, StackNavigator } from 'react-navigation';
 
-class MyHomeScreen extends React.Component {
+class Home extends Component {
   static navigationOptions = {
-    drawerLabel: 'Home',
-    drawerIcon: ({ tintColor }) => (
+    tabBarLabel: '首页',
+    tabBarIcon: () => (
       <Image
         source={require('./app/images/icon/icon_1.png')}
+        style={styles.icon}
       />
     ),
   };
 
   render() {
     return (
-      <Button
-        onPress={() => this.props.navigation.navigate('Notifications')}
-        title="Go to notifications"
-      />
+      <View>
+        <Button 
+          title="跳转"
+          onPress={() => this.props.navigation.navigate('Page')}
+        />
+      </View>
     );
   }
 }
 
-class MyNotificationsScreen extends React.Component {
+class Page extends Component {
   static navigationOptions = {
-    drawerLabel: 'Notifications',
-    drawerIcon: ({ tintColor }) => (
+    tabBarLabel: '我的',
+    tabBarIcon: () => (
       <Image
         source={require('./app/images/icon/icon_2.png')}
+        style={styles.icon}
       />
     ),
   };
 
   render() {
+    console.log(this.props.navigation.setParams);
     return (
       <Button
+        title="回跳"
         onPress={() => this.props.navigation.goBack()}
-        title="Go back home"
       />
     );
   }
 }
 
-class webView extends Component {
+class Page1 extends Component {
+  static navigationOptions = {
+    tabBarLabel: '我的',
+    tabBarIcon: () => (
+      <Image
+        source={require('./app/images/icon/icon_2.png')}
+        style={styles.icon}
+      />
+    ),
+  };
 
   render() {
+    console.log(this.props.navigation.setParams);
     return (
-      <WebView
-          source={{uri: 'https://www.baidu.com'}}
-        />
+      <Button
+        title="回跳"
+        onPress={() => this.props.navigation.goBack()}
+      />
     );
   }
 }
+
+class Page2 extends Component {
+  static navigationOptions = {
+    tabBarLabel: '我的',
+    tabBarIcon: () => (
+      <Image
+        source={require('./app/images/icon/icon_2.png')}
+        style={styles.icon}
+      />
+    ),
+  };
+
+  render() {
+    console.log(this.props.navigation.setParams);
+    return (
+      <Button
+        title="回跳"
+        onPress={() => this.props.navigation.goBack()}
+      />
+    );
+  }
+}
+
+const Tab = TabNavigator({
+  Home: {
+    screen: Home,
+  },
+  Page: {
+    screen: Page,
+  },
+  Page1: {
+    screen: Page1,
+  },
+  Page2: {
+    screen: Page2,
+  },
+
+},{
+  tabBarOptions: {
+    activeBackgroundColor: '#999',
+    inactiveBackgroundColor: '#fff',
+    labelStyle: {
+      fontSize: 12,
+      color: 'red',
+      marginLeft: 0,
+    },
+    style: {
+      height: 40,
+    },
+    
+  },
+  lazy: false,
+});
+
+const App = StackNavigator({
+  Home: {
+    screen: Tab,
+    navigationOptions: {
+      title: '首页',
+    },
+  },
+},{
+
+});
+
 
 const styles = StyleSheet.create({
   icon: {
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
   },
 });
 
-const MyApp = DrawerNavigator({
-  Home: {
-    screen: MyHomeScreen,
-  },
-  Notifications: {
-    screen: MyNotificationsScreen,
-  },
-}, {
-  contentOptions: {
-    activeBackgroundColor: '#999',
-    style: {
-      marginVertical: 0,
-    }
-  },
-  contentComponent: webView,
-
-});
-
-AppRegistry.registerComponent('App', () => MyApp);
+AppRegistry.registerComponent('App', () => App);
