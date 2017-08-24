@@ -149,11 +149,17 @@ const App = StackNavigator({
   WebView: {
     screen: WebView,
     navigationOptions: ({ navigation }) => ({
-      title: `${navigation.state.params.title}`,
+		// 导航栏标题动态获取
+		title: `${navigation.state.params.title}`,
+		// 是否启用手势关闭屏幕
+		gesturesEnabled: true,
+	  
     }),
+	
   },
 },{
-  
+	// 让标题随着画面的改变而呈现动画，ios中的默认选项，android设置一样保持动画一致
+	headerMode: 'float',
 });
 
 const styles = StyleSheet.create({

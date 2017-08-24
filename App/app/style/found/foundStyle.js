@@ -37,4 +37,13 @@ export default Styles = StyleSheet.create({
 		height: 80/oPx,
 		width: 80/oPx,
 	},
+	swiperViewStyle: {
+		flex: 1,
+	},
+	flatListView: {
+		flex: 2,
+	},
+	imageStyle: {
+		flex: 1,
+	},
 });

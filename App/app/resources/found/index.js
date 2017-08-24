@@ -10,6 +10,7 @@ import {
 	TouchableOpacity,
 	FlatList,
 } from 'react-native';
+import Swiper from 'react-native-swiper';
 
 import Request from '../../utils/Request';
 import Styles from '../../style/found/foundStyle';
@@ -66,17 +67,39 @@ export default class Found extends Component {
 			}
 		);
 	}
+	
+	getImage(row, index) {
+		console.log(index);
+		console.log(row);
+		return 	<View style={Styles.imageStyle} key={index}>
+					<Image
+						style={Styles.imageStyle}
+						source={{uri: row.image}}
+					/>
+				</View>;
+	}
 
 	render() {
 		return (
 			<View style={Styles.backgroundView}>
-				<FlatList
-				  data={this.state.stories}
-				  renderItem={({item}) => this.getItem(item)}
-				  initialNumToRender={20}
-				  getItemLayout={(data, index) => ({length: 100/oPx, offset: 100/oPx * index , index})}
-				  keyExtractor={(item, index) => item.id}
-				/>
+				<View style={Styles.swiperViewStyle}>
+					<Swiper>
+						{
+							this.state.top_stories.map(( row, index ) => {
+								return this.getImage(row, index);
+							})
+						}
+					</Swiper>
+				</View>
+				<View style={Styles.flatListView}>
+					<FlatList
+					  data={this.state.stories}
+					  renderItem={({item}) => this.getItem(item)}
+					  initialNumToRender={20}
+					  getItemLayout={(data, index) => ({length: 100/oPx, offset: 100/oPx * index , index})}
+					  keyExtractor={(item, index) => item.id}
+					/>
+				</View>
 			</View>
 		);
 	}
