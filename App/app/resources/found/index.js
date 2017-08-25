@@ -102,7 +102,7 @@ export default class Found extends Component {
 			        }
 				>
 					<View style={Styles.swiperViewStyle}>
-						<Swiper autoplay={true} showsPagination={false} >
+						<Swiper autoplay={true} showsPagination={false}>
 							{
 								this.state.top_stories.map(( row, index ) => {
 									return this.getImage(row, index);
