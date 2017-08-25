@@ -38,12 +38,29 @@ export default Styles = StyleSheet.create({
 		width: 80/oPx,
 	},
 	swiperViewStyle: {
-		flex: 1,
-	},
-	flatListView: {
-		flex: 2,
+		width: StyleConfig.screen_width,
+		height: 400/oPx,
 	},
 	imageStyle: {
+		width: StyleConfig.screen_width,
+		height: 400/oPx,
+		alignItems: 'center',
+	},
+	flatListView: {
 		flex: 1,
+	},
+	swiperText: {
+		fontSize: 34/oPx, 
+		color: '#fff', 
+		paddingTop: 320/oPx,
+	},
+	noDataView: {
+		flex: 1, 
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	noDataText: {
+		color: '#999',
+		fontSize: 30/oPx,
 	},
 });
