@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import Request from '../../utils/Request';
-import NetWorkTool from '../../utils/NetWorkTool';
 import Styles from '../../style/found/foundStyle';
 import {StyleConfig} from '../../style/style';
 let oPx = StyleConfig.oPx;
