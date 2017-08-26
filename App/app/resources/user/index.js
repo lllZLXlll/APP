@@ -10,7 +10,12 @@ import {
 	TouchableOpacity,
 } from 'react-native';
 import Styles from '../../style/user/userStyle';
-import {StyleConfig} from '../../style/style';
+import { StyleConfig } from '../../style/style';
+import { TabNavigatior } from 'react-navigation';
+
+// tab 页面
+import Tab from './tab';
+
 
 // 头像
 const portrait = require('../../images/icon/user/icon_user_portrait.png');
@@ -79,11 +84,16 @@ export default class User extends Component {
 				</View>;
 	}
 
+	_getTabComponent() {
+		return 	<Tab />;
+	}
+	
 	render() {
 		return (
 			<ScrollView>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
+				{ this._getTabComponent() }
 			</ScrollView>
 		);
 	}

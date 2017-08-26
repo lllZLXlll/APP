@@ -39,7 +39,6 @@ const Tab = TabNavigator({
     navigationOptions: {
       headerTitle: '首页', // 设置头部导航栏文字
       tabBarLabel: '首页', // 设置标签栏标签文字
-      headerRight: true,
       tabBarIcon: (({ focused }) => {
         return (
           <Image

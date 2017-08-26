@@ -77,6 +77,7 @@ export default Styles = StyleSheet.create({
 	itemTextTopView: {
 		flex: 1,
 		justifyContent: 'flex-end',
+		alignItems: 'center',
 	},
 	itemTopText: {
 		fontSize: 28/oPx,
@@ -85,6 +86,7 @@ export default Styles = StyleSheet.create({
 	itemTextBottomView: {
 		flex: 1,
 		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	itemBottomText: {
 		fontSize: 22/oPx,
