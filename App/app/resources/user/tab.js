@@ -1,13 +1,14 @@
 /*
 	我的首页 2017-8-25
 */
+import React, { Component } from 'react';
 import { TabNavigator } from 'react-navigation';
 
 // tab 页面
 import Article from './article';
 import Comment from './comment';
 import Collection from './collection';
-import Visit from './visitGuest';
+import VisitGuest from './visitGuest';
 
 // 发帖、评论、收藏、访客 tab
 const Tab = TabNavigator({
@@ -29,8 +30,8 @@ const Tab = TabNavigator({
 			tabBarLabel: '收藏',
 		},
 	},
-	Visit: {
-		screen: Visit,
+	VisitGuest: {
+		screen: VisitGuest,
 		navigationOptions: {
 			tabBarLabel: '访客',
 		},

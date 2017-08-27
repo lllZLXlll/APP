@@ -92,4 +92,27 @@ export default Styles = StyleSheet.create({
 		fontSize: 22/oPx,
 		color: '#999',
 	},
+	
+	tabView: {
+		backgroundColor: '#fff',
+		flexDirection: 'row',
+		width: StyleConfig.screen_width,
+		height: 60/oPx,
+		marginTop: 20/oPx,
+	},
+	itemTabView: {
+		flex: 1,
+		flexDirection: 'column',
+		justifyContent: 'center',
+	},
+	tabTextView: {
+		height: 34/oPx,
+		borderColor: StyleConfig.borderColor,
+		borderRightWidth: StyleConfig.borderWidth,
+		alignItems: 'center',
+	},
+	itemTabText: {
+		fontSize: 26/oPx,
+		color: '#000',
+	},
 });

@@ -13,9 +13,11 @@ import Styles from '../../style/user/userStyle';
 import { StyleConfig } from '../../style/style';
 import { TabNavigatior } from 'react-navigation';
 
-// tab 页面
-import Tab from './tab';
-
+// tab 内容页面
+import Article from './article';
+import Comment from './comment';
+import Collection from './collection';
+import VisitGuest from './visitGuest';
 
 // 头像
 const portrait = require('../../images/icon/user/icon_user_portrait.png');
@@ -23,6 +25,13 @@ const portrait = require('../../images/icon/user/icon_user_portrait.png');
 const arrow = require('../../images/icon/user/icon_user_arrow.png');
 
 export default class User extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			isSelect: 1,
+		}
+	}
+
 
 	// 头像组件
 	_getPortraitComponent = () => {
@@ -85,7 +94,80 @@ export default class User extends Component {
 	}
 
 	_getTabComponent() {
-		return 	<Tab />;
+		const textStyle = this.state.textStyle;
+		return 	<View style={Styles.tabView}>
+					<View style={Styles.itemTabView}>
+						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isSelect: 1})}}>
+							<View style={Styles.tabTextView}>
+								{
+									this.state.isSelect == 1 
+									? 
+									<Text style={[Styles.itemTabText, {color: '#ff8200',}]}>发帖</Text>
+									: 
+									<Text style={Styles.itemTabText}>发帖</Text>
+								}
+							</View>
+						</TouchableOpacity>
+					</View>
+					<View style={Styles.itemTabView}>
+						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isSelect: 2})}}>
+							<View style={Styles.tabTextView}>
+								{
+									this.state.isSelect == 2 
+									? 
+									<Text style={[Styles.itemTabText, {color: '#ff8200',}]}>评论</Text>
+									: 
+									<Text style={Styles.itemTabText}>评论</Text>
+								}
+							</View>
+						</TouchableOpacity>
+					</View>
+					<View style={Styles.itemTabView}>
+						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isSelect: 3})}}>
+							<View style={Styles.tabTextView}>
+								{
+									this.state.isSelect == 3 
+									? 
+									<Text style={[Styles.itemTabText, {color: '#ff8200',}]}>收藏</Text>
+									: 
+									<Text style={Styles.itemTabText}>收藏</Text>
+								}
+							</View>
+						</TouchableOpacity>
+					</View>
+					<View style={Styles.itemTabView}>
+						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isSelect: 4})}}>
+							<View style={[Styles.tabTextView, {borderRightWidth: 0}]}>
+								{
+									this.state.isSelect == 4 
+									? 
+									<Text style={[Styles.itemTabText, {color: '#ff8200',}]}>访客</Text>
+									: 
+									<Text style={Styles.itemTabText}>访客</Text>
+								}
+							</View>
+						</TouchableOpacity>
+					</View>
+				</View>;
+	}
+	
+	_getTabConent() {
+		let tabConent = <Article />;
+		switch(this.state.isSelect) {
+			case 1:
+				tabConent = <Article />;
+				break;
+			case 2:
+				tabConent = <Comment />;
+				break;
+			case 3:
+				tabConent = <Collection />;
+				break;
+			case 4:
+				tabConent = <VisitGuest />;
+				break;
+		}
+		return tabConent;
 	}
 	
 	render() {
@@ -94,6 +176,7 @@ export default class User extends Component {
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
 				{ this._getTabComponent() }
+				{ this._getTabConent() }
 			</ScrollView>
 		);
 	}
