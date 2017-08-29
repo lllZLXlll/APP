@@ -9,7 +9,7 @@ const oPx = StyleConfig.oPx;
 
 export default Styles = StyleSheet.create({
 	portraitView: {
-		width: StyleConfig.screen_width,
+		flex: 1,
 		height: 120/oPx,
 		backgroundColor: '#fff',
 		marginTop: 10/oPx,
@@ -170,13 +170,12 @@ export default Styles = StyleSheet.create({
 		height: 30/oPx,
 	},
 	itemConentView: {
-		flex: 1,
 		marginTop: 20/oPx,
 	},
 	itemConentText: {
 		color: '#000',
 		fontSize: 28/oPx,
-		lineHeight: 18,
+		lineHeight: 30,
 	},
 	praiseView: {
 		flex: 1,
@@ -197,6 +196,16 @@ export default Styles = StyleSheet.create({
 		marginLeft: 10/oPx,
 		color: '#999',
 		fontSize: 28/oPx,
+	},
+	itemImage: {
+		flex: 1,
+	},
+	itemImgView: {
+		flexDirection: 'row',
+		marginTop: 10/oPx,
+	},
+	ImgView: {
+		flex: 1,
 	},
 });
 

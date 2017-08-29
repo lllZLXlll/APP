@@ -102,11 +102,94 @@ export default class Article extends Component {
 				</View>;
 	}
 
+	_getActicleItemIconView() {
+		return 	<View style={Styles.articleItemView}>
+					<View style={Styles.itemTopView}>
+						<View style={Styles.itemTopLeftView}>
+							<Text style={Styles.itemTopLeftDate}>2017-08-18 13:53
+								<Text style={[Styles.itemTopLeftDate, {color: '#ff8200'}]}> 发布成功，粉丝将收到您的发帖通知！</Text>
+							</Text>
+						</View>
+						<View style={Styles.itemTopRightView}>
+						{
+							this.state.onClickEdit
+							?
+							<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({selectItem_1: !this.state.selectItem_1})}}>
+								{ this._getSelectIcon() }
+							</TouchableOpacity>
+							: null
+						}	
+						</View>
+					</View>
+					<View style={Styles.itemConentView}>
+						<Text style={Styles.itemConentText}>
+							舒服的沙发上的史蒂夫史蒂夫史蒂夫都是负担舒服的沙发上的史蒂夫史蒂夫史蒂夫都是负担舒服的沙发上的史蒂夫史蒂夫史蒂夫都是负担舒服的沙发上的史蒂夫史蒂夫史蒂夫都是负担
+						</Text>
+					</View>
+					<View style={Styles.itemConentView}>
+						<View style={Styles.itemImgView}>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+						</View>
+						<View style={Styles.itemImgView}>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+						</View>
+						<View style={Styles.itemImgView}>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+							<View style={Styles.ImgView}>
+								<Image source={Icons.img} style={Styles.itemImage} />
+							</View>
+						</View>
+					</View>
+					<View style={Styles.praiseView}>
+						<View style={Styles.itemPraiseView}>
+							<TouchableOpacity activeOpacity={1}>
+								<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
+							</TouchableOpacity>
+							<Text style={Styles.onClickText}>1234</Text>
+						</View>
+						<View style={Styles.itemPraiseView}>
+							<TouchableOpacity activeOpacity={1}>
+								<Image style={Styles.onClickIcon} source={Icons.downIcon_1} />
+							</TouchableOpacity>
+							<Text style={Styles.onClickText}>24</Text>
+						</View>
+						<View style={Styles.itemPraiseView}>
+							<TouchableOpacity activeOpacity={1} onPress={() => {alert('消息')}}>
+								<Image style={Styles.onClickIcon} source={Icons.msgIcon} />
+							</TouchableOpacity>
+							<Text style={Styles.onClickText}>245</Text>
+						</View>
+					</View>
+				</View>;
+	}
+	
 	render() {
 		return (
 			<ScrollView>
 				{ this._getArticleView() }
 				{ this._getActicleItemView() }
+				{ this._getActicleItemIconView() }
 			</ScrollView>
 		);
 	}
