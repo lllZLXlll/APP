@@ -13,6 +13,10 @@ import {
 import Styles from '../../style/user/userStyle';
 
 const itemSelectIcon = require('../../images/icon/icon_1.png');
+// 未点赞
+const praiseIcon_1 = require('../../images/icon/user/icon_user_praise_1.png');
+// 已点赞
+const praiseIcon_2 = require('../../images/icon/user/icon_user_praise_2.png');
 
 export default class Article extends Component {
 
@@ -49,8 +53,12 @@ export default class Article extends Component {
 							舒服的沙发上的史蒂夫史蒂夫史蒂夫都是负担舒服的沙发上的史蒂夫史蒂夫史蒂夫都是负担舒服的沙发上的史蒂夫史蒂夫史蒂夫都是负担舒服的沙发上的史蒂夫史蒂夫史蒂夫都是负担
 						</Text>
 					</View>
-					<View style={Styles.itemPraiseView}>
-						
+					<View style={Styles.praiseView}>
+						<View style={Styles.itemPraiseView}>
+							<TouchableOpacity activeOpacity={1} onPress={() => {alert('点赞')}}>
+								<Image style={Styles.onClickIcon} source={praiseIcon_1} />
+							</TouchableOpacity>
+						</View>
 					</View>
 				</View>;
 	}

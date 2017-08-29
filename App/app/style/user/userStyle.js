@@ -8,7 +8,6 @@ import {StyleConfig} from '../style';
 const oPx = StyleConfig.oPx;
 
 export default Styles = StyleSheet.create({
-	// 头部 部分
 	portraitView: {
 		width: StyleConfig.screen_width,
 		height: 120/oPx,
@@ -93,7 +92,7 @@ export default Styles = StyleSheet.create({
 		fontSize: 22/oPx,
 		color: '#999',
 	},
-	// tab 部分
+	
 	tabView: {
 		backgroundColor: '#fff',
 		flexDirection: 'row',
@@ -116,73 +115,4 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#000',
 	},
-	// 发帖 页面部分
-	articleView: {
-		flex: 1,
-		alignItems: 'center',
-	},
-	articleTopView: {
-		width: StyleConfig.screen_width - 60/oPx,
-		height: 40/oPx,
-		flexDirection: 'row',
-	},
-	textLeftView: {
-		flex: 1,
-		justifyContent: 'center',
-		flexDirection: 'column',
-	},
-	textLeft: {
-		color: '#999',
-		fontSize: 26/oPx,
-	},
-	textRightView: {
-		flex: 1,
-		alignItems: 'flex-end',
-		justifyContent: 'center',
-		flexDirection: 'column',
-	},
-	textRight: {
-		color: '#ff8200',
-		fontSize: 26/oPx,
-	},
-	articleItemView: {
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		flex: 1,
-	},
-	itemTopView: {
-		width: StyleConfig.screen_width - 60/oPx,
-		height: 35/oPx,
-		flexDirection: 'row',
-	},
-	itemTopLeftView: {
-		flex: 9,
-		justifyContent: 'flex-end',
-	},
-	itemTopRightView: {
-		flex: 1,
-		alignItems: 'flex-end',
-		justifyContent: 'flex-end',
-	},
-	itemTopLeftDate: {
-		fontSize: 20/oPx,
-		color: '#999',
-	},
-	itemSelectIcon: {
-		width: 25/oPx,
-		height: 25/oPx,
-	},
-	itemConentView: {
-		flex: 1,
-		width: StyleConfig.screen_width - 60/oPx,
-		marginTop: 20/oPx,
-	},
-	itemConentText: {
-		color: '#999',
-		fontSize: 26/oPx,
-	},
-	itemPraiseView: {
-		marginTop: 20/oPx,
-	},
-
 });
