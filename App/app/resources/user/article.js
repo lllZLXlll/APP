@@ -11,26 +11,47 @@ import {
 } from 'react-native';
 
 import Styles from '../../style/user/userStyle';
-
-const itemSelectIcon = require('../../images/icon/icon_1.png');
-// 未点赞
-const praiseIcon_1 = require('../../images/icon/user/icon_user_praise_1.png');
-// 已点赞
-const praiseIcon_2 = require('../../images/icon/user/icon_user_praise_2.png');
+import Icons from '../../components/Icons';
 
 export default class Article extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			onClickEdit: false,
+			selectComponent_1: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_1} />,
+			selectComponent_2: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_2} />,
+			selectItem_1: false,
+			selectItem_2: false,
+		};
+	}
+
+	_onPressSelect = () => {
+		this.setState({onClickEdit: !this.state.onClickEdit});
+	}
 
 	_getArticleView() {
 		return 	<View style={Styles.articleView}>
-					<View style={Styles.articleTopView}>
 						<View style={Styles.textLeftView}>
 							<Text style={Styles.textLeft}>发帖：2</Text>
 						</View>
 						<View style={Styles.textRightView}>
-							<Text style={Styles.textRight}>编辑</Text>
+						{
+							!this.state.onClickEdit
+							?
+							<Text style={Styles.textRight} onPress={this._onPressSelect}>编辑</Text>
+							:
+							<Text style={[Styles.textRight, {color: 'red'}]} onPress={this._onPressSelect}>删除</Text>
+						}
 						</View>
-					</View>
 				</View>;
+	}
+
+	_getSelectIcon = () => {
+		if (!this.state.selectItem_1) {
+			return this.state.selectComponent_1;
+		} else {
+			return this.state.selectComponent_2;
+		}
 	}
 
 	_getActicleItemView() {
@@ -42,9 +63,14 @@ export default class Article extends Component {
 							</Text>
 						</View>
 						<View style={Styles.itemTopRightView}>
-							<TouchableOpacity activeOpacity={1} onPress={() => {alert('选中')}}>
-								<Image style={Styles.itemSelectIcon} source={itemSelectIcon} />
+						{
+							this.state.onClickEdit
+							?
+							<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({selectItem_1: !this.state.selectItem_1})}}>
+								{ this._getSelectIcon() }
 							</TouchableOpacity>
+							: null
+						}	
 						</View>
 					</View>
 					<View style={Styles.itemConentView}>
@@ -55,9 +81,22 @@ export default class Article extends Component {
 					</View>
 					<View style={Styles.praiseView}>
 						<View style={Styles.itemPraiseView}>
-							<TouchableOpacity activeOpacity={1} onPress={() => {alert('点赞')}}>
-								<Image style={Styles.onClickIcon} source={praiseIcon_1} />
+							<TouchableOpacity activeOpacity={1}>
+								<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
 							</TouchableOpacity>
+							<Text style={Styles.onClickText}>1234</Text>
+						</View>
+						<View style={Styles.itemPraiseView}>
+							<TouchableOpacity activeOpacity={1}>
+								<Image style={Styles.onClickIcon} source={Icons.downIcon_1} />
+							</TouchableOpacity>
+							<Text style={Styles.onClickText}>24</Text>
+						</View>
+						<View style={Styles.itemPraiseView}>
+							<TouchableOpacity activeOpacity={1} onPress={() => {alert('消息')}}>
+								<Image style={Styles.onClickIcon} source={Icons.msgIcon} />
+							</TouchableOpacity>
+							<Text style={Styles.onClickText}>245</Text>
 						</View>
 					</View>
 				</View>;

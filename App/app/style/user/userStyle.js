@@ -115,4 +115,90 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#000',
 	},
+
+	// 发帖
+	articleView: {
+		height: 40/oPx,
+		marginLeft: 30/oPx,
+		marginRight: 30/oPx,
+		flexDirection: 'row',
+	},
+	textLeftView: {
+		flex: 1,
+		justifyContent: 'center',
+	},
+	textRightView: {
+		flex: 1,
+		alignItems: 'flex-end',
+		justifyContent: 'center',
+	},
+	textLeft: {
+		color: '#999',
+		fontSize: 26/oPx,
+	},
+	textRight: {
+		color: '#ff8200',
+		fontSize: 26/oPx,
+	},
+	articleItemView: {
+		flex: 1,
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+		marginBottom: 10/oPx,
+		backgroundColor: '#fff',
+	},
+	itemTopView: {
+		flex: 1,
+		height: 40/oPx,
+		flexDirection: 'row',
+	},
+	itemTopLeftView: {
+		flex: 9,
+		justifyContent: 'flex-end',
+	},
+	itemTopRightView: {
+		flex: 1,
+		justifyContent: 'flex-end',
+		alignItems: 'flex-end',
+	},
+	itemTopLeftDate: {
+		color: '#999',
+		fontSize: 22/oPx,
+	},
+	itemSelectIcon: {
+		width: 30/oPx,
+		height: 30/oPx,
+	},
+	itemConentView: {
+		flex: 1,
+		marginTop: 20/oPx,
+	},
+	itemConentText: {
+		color: '#000',
+		fontSize: 28/oPx,
+		lineHeight: 18,
+	},
+	praiseView: {
+		flex: 1,
+		marginTop: 20/oPx,
+		marginBottom: 20/oPx,
+		flexDirection: 'row',
+	},
+	itemPraiseView: {
+		flex: 1,
+		height: 30/oPx,
+		flexDirection: 'row',	
+	},
+	onClickIcon: {
+		width: 32/oPx,
+		height: 30/oPx,
+	},
+	onClickText: {
+		marginLeft: 10/oPx,
+		color: '#999',
+		fontSize: 28/oPx,
+	},
 });
+
+
+

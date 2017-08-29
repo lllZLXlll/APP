@@ -1,6 +1,3 @@
-/**
- * Created by wsl on 2017/02/17.
- */
 import React, { Component } from 'react';
 import {
     View,
