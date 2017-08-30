@@ -9,6 +9,7 @@ import {
 	ScrollView,
 	TouchableOpacity,
 } from 'react-native';
+
 import Styles from '../../style/user/userStyle';
 import { StyleConfig } from '../../style/style';
 import { TabNavigatior } from 'react-navigation';
@@ -27,7 +28,6 @@ export default class User extends Component {
 			isSelect: 1,
 		}
 	}
-
 
 	// 头像组件
 	_getPortraitComponent = () => {

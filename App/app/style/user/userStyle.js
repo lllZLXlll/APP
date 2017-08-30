@@ -213,6 +213,8 @@ export default Styles = StyleSheet.create({
 	},
 	maxImage: {
 		flex: 1,
+		width: StyleConfig.screen_width-60/oPx,
+		height: StyleConfig.screen_width-60/oPx,
 	},
 });
 

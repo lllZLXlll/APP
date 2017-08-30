@@ -30,10 +30,6 @@ Icons.selectIcon_2 = require('../images/icon/user/icon_user_del_select.png');
 // 阴影背景
 Icons.background = require('../images/icon/user/icon_user_background.png');
 
-// 测试图片
-Icons.img = require('../images/icon/user/icon_user_img.png');
-Icons.img1 = require('../images/icon/user/xxx.png');
-
 // -------------我的-------------end
 
 
