@@ -149,7 +149,7 @@ export default Styles = StyleSheet.create({
 	},
 	itemTopView: {
 		flex: 1,
-		height: 40/oPx,
+		height: 50/oPx,
 		flexDirection: 'row',
 	},
 	itemTopLeftView: {
@@ -171,11 +171,13 @@ export default Styles = StyleSheet.create({
 	},
 	itemConentView: {
 		marginTop: 20/oPx,
+		marginBottom: 10/oPx,
+		flex: 1,
 	},
 	itemConentText: {
 		color: '#000',
 		fontSize: 28/oPx,
-		lineHeight: 30,
+		lineHeight: 38/oPx,
 	},
 	praiseView: {
 		flex: 1,
@@ -198,13 +200,18 @@ export default Styles = StyleSheet.create({
 		fontSize: 28/oPx,
 	},
 	itemImage: {
-		flex: 1,
+		width: (StyleConfig.screen_width-60/oPx) / 3 - 10/oPx,
+		height: (StyleConfig.screen_width-60/oPx) / 3 - 10/oPx,
 	},
 	itemImgView: {
 		flexDirection: 'row',
 		marginTop: 10/oPx,
+		flex: 1,
 	},
 	ImgView: {
+		flex: 1,
+	},
+	maxImage: {
 		flex: 1,
 	},
 });
