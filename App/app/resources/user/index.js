@@ -12,17 +12,13 @@ import {
 import Styles from '../../style/user/userStyle';
 import { StyleConfig } from '../../style/style';
 import { TabNavigatior } from 'react-navigation';
+import Icons from '../../components/Icons';
 
 // tab 内容页面
 import Article from './article';
 import Comment from './comment';
 import Collection from './collection';
 import VisitGuest from './visitGuest';
-
-// 头像
-const portrait = require('../../images/icon/user/icon_user_portrait.png');
-// 箭头图标
-const arrow = require('../../images/icon/user/icon_user_arrow.png');
 
 export default class User extends Component {
 	constructor(props) {
@@ -38,7 +34,7 @@ export default class User extends Component {
 		return 	<TouchableOpacity activeOpacity={0.5} onPress={() => {alert(1)}}>
 					<View style={Styles.portraitView}>
 						<View style={Styles.portrait}>
-							<Image style={Styles.portraitImage} source={portrait} />
+							<Image style={Styles.portraitImage} source={Icons.portrait} />
 						</View>
 						<View style={Styles.userName}>
 							<View style={Styles.userNameView}>
@@ -49,7 +45,7 @@ export default class User extends Component {
 							</View>
 						</View>
 						<View style={Styles.arrow}>
-							<Image style={Styles.arrowImage} source={arrow} />
+							<Image style={Styles.arrowImage} source={Icons.arrow} />
 						</View>
 					</View>
 				</TouchableOpacity>;

@@ -6,6 +6,12 @@
 let Icons = [];
 
 // -------------我的-------------begin
+// 我的信息
+// 头像
+Icons.portrait = require('../images/icon/user/icon_user_portrait.png');
+// 箭头图标
+Icons.arrow = require('../images/icon/user/icon_user_arrow.png');
+
 // 发帖:
 // 未点赞
 Icons.praiseIcon_1 = require('../images/icon/user/icon_user_praise_1.png');

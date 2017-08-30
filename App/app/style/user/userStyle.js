@@ -46,7 +46,7 @@ export default Styles = StyleSheet.create({
 		justifyContent: 'flex-end',
 	},
 	userNameText: {
-		fontSize: 28/oPx,
+		fontSize: 30/oPx,
 		color: '#000',
 	},
 	autographView: {
@@ -54,7 +54,7 @@ export default Styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	autographText: {
-		fontSize: 22/oPx,
+		fontSize: 24/oPx,
 		color: '#999',
 	},
 	arrowImage: {
@@ -80,7 +80,7 @@ export default Styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	itemTopText: {
-		fontSize: 28/oPx,
+		fontSize: 30/oPx,
 		color: '#000',
 	},
 	itemTextBottomView: {
@@ -89,7 +89,7 @@ export default Styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	itemBottomText: {
-		fontSize: 22/oPx,
+		fontSize: 24/oPx,
 		color: '#999',
 	},
 	
@@ -102,7 +102,6 @@ export default Styles = StyleSheet.create({
 	},
 	itemTabView: {
 		flex: 1,
-		flexDirection: 'column',
 		justifyContent: 'center',
 	},
 	tabTextView: {
@@ -110,6 +109,7 @@ export default Styles = StyleSheet.create({
 		borderColor: StyleConfig.borderColor,
 		borderRightWidth: StyleConfig.borderWidth,
 		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	itemTabText: {
 		fontSize: 26/oPx,
@@ -134,11 +134,11 @@ export default Styles = StyleSheet.create({
 	},
 	textLeft: {
 		color: '#999',
-		fontSize: 26/oPx,
+		fontSize: 28/oPx,
 	},
 	textRight: {
 		color: '#ff8200',
-		fontSize: 26/oPx,
+		fontSize: 28/oPx,
 	},
 	articleItemView: {
 		flex: 1,
@@ -163,11 +163,11 @@ export default Styles = StyleSheet.create({
 	},
 	itemTopLeftDate: {
 		color: '#999',
-		fontSize: 22/oPx,
+		fontSize: 24/oPx,
 	},
 	itemSelectIcon: {
-		width: 30/oPx,
-		height: 30/oPx,
+		width: 35/oPx,
+		height: 35/oPx,
 	},
 	itemConentView: {
 		marginTop: 20/oPx,
