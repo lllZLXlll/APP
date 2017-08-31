@@ -10,8 +10,8 @@ import {
 	TouchableOpacity,
 	Modal,
 } from 'react-native';
-// 照片浏览组件
-import ImageViewer from 'react-native-image-zoom-viewer';
+// 照片浏览
+import ImageViewer from '../../components/ImageViewer';
 
 import Styles from '../../style/user/userStyle';
 import Icons from '../../components/Icons';
@@ -35,6 +35,7 @@ export default class Article extends Component {
 			],
 			isOnClickImage: false,
 			dataIndex: 0,
+			onClickIndex: 0,
 		};
 	}
 
@@ -47,15 +48,17 @@ export default class Article extends Component {
 						<View style={Styles.textLeftView}>
 							<Text style={Styles.textLeft}>发帖：2</Text>
 						</View>
+						
 						<View style={Styles.textRightView}>
-						{
-							!this.state.onClickEdit
-							?
-							<Text style={Styles.textRight} onPress={this._onPressSelect}>编辑</Text>
-							:
-							<Text style={[Styles.textRight, {color: 'red'}]} onPress={this._onPressSelect}>删除</Text>
-						}
+							{
+								!this.state.onClickEdit
+								?
+								<Text style={Styles.textRight} onPress={this._onPressSelect}>      编辑</Text>
+								:
+								<Text style={[Styles.textRight, {color: 'red'}]}  onPress={this._onPressSelect}>      删除</Text>
+							}
 						</View>
+
 				</View>;
 	}
 
@@ -71,7 +74,7 @@ export default class Article extends Component {
 	_getImage(row, index, begin, end, dataIndex) {
 		if (index >= begin && index <= end) {
 			return 	<View style={Styles.ImgView} key={index}>
-						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isOnClickImage: true, dataIndex: dataIndex})}}>
+						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isOnClickImage: true, dataIndex: dataIndex, onClickIndex: index})}}>
 							<Image source={{uri: row.url}} style={Styles.itemImage} />
 						</TouchableOpacity>
 					</View>;
@@ -80,14 +83,14 @@ export default class Article extends Component {
 
 	/** 
 		用户最多上传9张图片，每一个view显示三张图片，view布局是row 横向布局，暂时没有
-		找到好的方法循环出不定数量的图片，只能先用这个蠢方法，把集合分成三份，每次循环三
+		找到好的方法循环出不定数量的图片，只能先用这个蠢方法，把集合分成三份，循环三
 		次，调用三次方法，以后找到好的方法记得替换掉。
 	*/
 	_getMaxImageItem(images, begin, end, dataIndex) {
 		if (images) {
 			// 只有一张图片，显示大图
 			if (images.length == 1) {
-				return 	<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isOnClickImage: true, dataIndex: dataIndex})}}>
+				return 	<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isOnClickImage: true, dataIndex: dataIndex,})}}>
 							<View style={Styles.itemImgView}>
 								<Image source={{uri: images[0].url}} style={Styles.maxImage} />
 							</View>
@@ -121,9 +124,7 @@ export default class Article extends Component {
 		return 	<View style={Styles.articleItemView} key={index}>
 					<View style={Styles.itemTopView}>
 						<View style={Styles.itemTopLeftView}>
-							<Text style={Styles.itemTopLeftDate}>{row.sendDate}
-								<Text style={[Styles.itemTopLeftDate, {color: '#ff8200'}]}> {row.sendStatus}</Text>
-							</Text>
+							<Text style={Styles.itemTopLeftDate}>{row.sendDate}</Text>
 						</View>
 						<View style={Styles.itemTopRightView}>
 						{
@@ -177,6 +178,17 @@ export default class Article extends Component {
 				</View>;
 	}
 
+	_getImageViewer = () => {
+		return 	<ImageViewer 
+					visible={this.state.isOnClickImage}
+					imageUrls={this.state.data[this.state.dataIndex].images} // 照片路径
+					index={this.state.onClickIndex} // 初始显示第几张
+					onClick={() => { // 图片单击事件
+                        this.setState({isOnClickImage: false});
+                    }}
+				/>;
+	}
+
 	render() {
 		return (
 			<ScrollView>
@@ -184,25 +196,9 @@ export default class Article extends Component {
 				{ 
 					this.state.data.map((row, index) => {
 						return this._getActicleItem(row, index);
-					}) 
+					})
 				}
-				{
-					this.state.isOnClickImage 
-					?
-					<Modal style={{flex: 1}}>
-			            <ImageViewer
-		                    imageUrls={this.state.data[this.state.dataIndex].images} // 照片路径
-		                    enableImageZoom={true} // 是否开启手势缩放
-		                    index={0} // 初始显示第几张
-		                    onChange={(index) => {}} // 图片切换时触发
-		                    onClick={() => { // 图片单击事件
-		                        this.setState({isOnClickImage: false});
-		                    }}
-		                />
-	                </Modal>
-	                : null
-				}
-				
+				{ this._getImageViewer() }
 			</ScrollView>
 		);
 	}

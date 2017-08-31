@@ -1,12 +1,12 @@
 /**
- * Created by wsl on 2017/01/13.
+ * 原生消息提示框
  */
 
  import Toast from 'react-native-root-toast';
 
  let toast;
 
- export const toastShort = (content,position) => {
+ export const ToastShort = (content,position) => {
    if (toast !== undefined) {
      Toast.hide(toast);
    }
@@ -20,7 +20,7 @@
    });
  };
 
- export const toastLong = (content,position) => {
+ export const ToastLong = (content,position) => {
    if (toast !== undefined) {
      Toast.hide(toast);
    }

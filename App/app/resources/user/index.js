@@ -38,10 +38,10 @@ export default class User extends Component {
 						</View>
 						<View style={Styles.userName}>
 							<View style={Styles.userNameView}>
-								<Text style={Styles.userNameText}>开车老司机</Text>
+								<Text style={Styles.userNameText} numberOfLines={1}>开车老司机</Text>
 							</View>
 							<View style={Styles.autographView}>
-								<Text style={Styles.autographText}>今晚秋名山见，看到我的尾灯算我输！</Text>
+								<Text style={Styles.autographText} numberOfLines={1}>今晚秋名山见，看到我的尾灯算我输！</Text>
 							</View>
 						</View>
 						<View style={Styles.arrow}>
@@ -168,12 +168,12 @@ export default class User extends Component {
 	
 	render() {
 		return (
-			<ScrollView>
+			<View>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
 				{ this._getTabComponent() }
 				{ this._getTabConent() }
-			</ScrollView>
+			</View>
 		);
 	}
 }

@@ -10,7 +10,7 @@ const oPx = StyleConfig.oPx;
 export default Styles = StyleSheet.create({
 	portraitView: {
 		flex: 1,
-		height: 120/oPx,
+		height: 160/oPx,
 		backgroundColor: '#fff',
 		marginTop: 10/oPx,
 		flexDirection : 'row',
@@ -19,12 +19,12 @@ export default Styles = StyleSheet.create({
 	},
 	portrait: {
 		flex: 1,
-		marginBottom: 10/oPx,
-		marginTop: 10/oPx,
+		marginBottom: 20/oPx,
+		marginTop: 20/oPx,
 		marginLeft: 30/oPx,
 	},
 	userName: {
-		flex: 4,
+		flex: 3,
 		marginBottom: 10/oPx,
 		marginTop: 10/oPx,
 	},
@@ -37,16 +37,15 @@ export default Styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	portraitImage: {
-		flex: 1,
-		width: 100/oPx,
-		height: 100/oPx,
+		width: 120/oPx,
+		height: 120/oPx,
 	},
 	userNameView: {
 		flex: 1,
 		justifyContent: 'flex-end',
 	},
 	userNameText: {
-		fontSize: 30/oPx,
+		fontSize: 34/oPx,
 		color: '#000',
 	},
 	autographView: {
@@ -54,7 +53,7 @@ export default Styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	autographText: {
-		fontSize: 24/oPx,
+		fontSize: 26/oPx,
 		color: '#999',
 	},
 	arrowImage: {
@@ -97,7 +96,7 @@ export default Styles = StyleSheet.create({
 		backgroundColor: '#fff',
 		flexDirection: 'row',
 		width: StyleConfig.screen_width,
-		height: 60/oPx,
+		height: 70/oPx,
 		marginTop: 20/oPx,
 	},
 	itemTabView: {
@@ -112,13 +111,13 @@ export default Styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	itemTabText: {
-		fontSize: 26/oPx,
+		fontSize: 28/oPx,
 		color: '#000',
 	},
 
 	// 发帖
 	articleView: {
-		height: 40/oPx,
+		height: 50/oPx,
 		marginLeft: 30/oPx,
 		marginRight: 30/oPx,
 		flexDirection: 'row',
@@ -163,7 +162,7 @@ export default Styles = StyleSheet.create({
 	},
 	itemTopLeftDate: {
 		color: '#999',
-		fontSize: 24/oPx,
+		fontSize: 26/oPx,
 	},
 	itemSelectIcon: {
 		width: 35/oPx,
