@@ -168,12 +168,12 @@ export default class User extends Component {
 	
 	render() {
 		return (
-			<View>
+			<ScrollView style={{flex: 1}}>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
 				{ this._getTabComponent() }
 				{ this._getTabConent() }
-			</View>
+			</ScrollView>
 		);
 	}
 }

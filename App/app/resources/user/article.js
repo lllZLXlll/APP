@@ -191,7 +191,7 @@ export default class Article extends Component {
 
 	render() {
 		return (
-			<ScrollView>
+			<ScrollView style={{flex: 1}}>
 				{ this._getArticleView() }
 				{ 
 					this.state.data.map((row, index) => {
