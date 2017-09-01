@@ -30,11 +30,11 @@ export default class Found extends Component {
 	}
 
 	componentDidMount(){
-		this.getData();
+		this._getData();
 	}
 
 	// 请求数据
-	getData = () => {
+	_getData = () => {
 		Request.get('https://news-at.zhihu.com/api/4/news/latest',{},(data)=>{
 			this.setState({
 				stories: data.stories,
@@ -97,7 +97,7 @@ export default class Found extends Component {
 					refreshControl={
 			            <RefreshControl
 			              	refreshing={false}
-			              	onRefresh={this.getData}
+			              	onRefresh={this._getData}
 			            />
 			        }
 				>
@@ -125,7 +125,7 @@ export default class Found extends Component {
 						refreshControl={
 				            <RefreshControl
 				              	refreshing={false}
-				              	onRefresh={this.getData}
+				              	onRefresh={this._getData}
 				            />
 				        }
 					>

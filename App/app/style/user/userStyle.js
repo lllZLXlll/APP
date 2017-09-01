@@ -9,7 +9,6 @@ const oPx = StyleConfig.oPx;
 
 export default Styles = StyleSheet.create({
 	portraitView: {
-		flex: 1,
 		height: 160/oPx,
 		backgroundColor: '#fff',
 		marginTop: 10/oPx,
@@ -214,6 +213,16 @@ export default Styles = StyleSheet.create({
 		flex: 1,
 		width: StyleConfig.screen_width-60/oPx,
 		height: StyleConfig.screen_width-60/oPx,
+	},
+
+	moreView: {
+		marginTop: 20/oPx,
+		marginBottom: 20/oPx,
+		alignItems: 'center',
+	},
+	moreText: {
+		fontSize: 26/oPx,
+		color: '#ff8200',
 	},
 });
 

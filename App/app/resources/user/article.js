@@ -9,15 +9,13 @@ import {
 	ScrollView,
 	TouchableOpacity,
 	Modal,
+	FlatList,
 } from 'react-native';
 // 照片浏览
 import ImageViewer from '../../components/ImageViewer';
 
 import Styles from '../../style/user/userStyle';
 import Icons from '../../components/Icons';
-
-// 临时图片数据
-const imagesUri = 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460';
 
 export default class Article extends Component {
 	constructor(props) {
@@ -28,11 +26,7 @@ export default class Article extends Component {
 			selectComponent_2: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_2} />,
 			selectItem_1: false,
 			selectItem_2: false,
-			data: [
-				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80},
-				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 1824, downCount: 24, msgCount: 248},
-				{sendDate: '2017-8-27 12:25', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '好多好多可爱叮当猫呀！', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 124, downCount: 59, msgCount: 77},
-			],
+			data: this.props.data ? this.props.data : null,
 			isOnClickImage: false,
 			dataIndex: 0,
 			onClickIndex: 0,
@@ -189,17 +183,34 @@ export default class Article extends Component {
 				/>;
 	}
 
+	_getMore() {
+		return 	<View style={Styles.moreView}>
+					<Text style={Styles.moreText}>—查看更多—</Text>
+				</View>;
+	}
+
 	render() {
-		return (
-			<ScrollView style={{flex: 1}}>
-				{ this._getArticleView() }
-				{ 
-					this.state.data.map((row, index) => {
-						return this._getActicleItem(row, index);
-					})
-				}
-				{ this._getImageViewer() }
-			</ScrollView>
-		);
+		if (this.state.data != null) {
+			return (
+				<View style={{flex: 1}}>
+					{ this._getArticleView() }
+					
+					{ 
+						this.state.data.map((row, index) => {
+							return this._getActicleItem(row, index);
+						})
+					}
+
+					{ this._getImageViewer() }
+
+					{ this._getMore() }
+				</View>
+			);
+		} else {
+			return (
+				<Text>暂无记录</Text>
+			);
+		}
+		
 	}
 }
