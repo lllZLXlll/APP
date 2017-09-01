@@ -21,20 +21,18 @@ export default class Article extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			onClickEdit: false,
-			selectComponent_1: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_1} />,
-			selectComponent_2: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_2} />,
-			selectItem_1: false,
-			selectItem_2: false,
+			delComponent: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_1} />,
 			data: this.props.data ? this.props.data : null,
 			isOnClickImage: false,
 			dataIndex: 0,
 			onClickIndex: 0,
+			_onPressMore: this.props._onPressMore,
 		};
 	}
 
-	_onPressSelect = () => {
-		this.setState({onClickEdit: !this.state.onClickEdit});
+	_onPressMore = () => {
+		alert(1);
+		this.state._onPressMore();
 	}
 
 	_getArticleView() {
@@ -44,24 +42,18 @@ export default class Article extends Component {
 						</View>
 						
 						<View style={Styles.textRightView}>
-							{
-								!this.state.onClickEdit
-								?
-								<Text style={Styles.textRight} onPress={this._onPressSelect}>      编辑</Text>
-								:
-								<Text style={[Styles.textRight, {color: 'red'}]}  onPress={this._onPressSelect}>      删除</Text>
-							}
+							<Text style={Styles.textRight} onPress={this._onPressMore}>      更多</Text>
 						</View>
 
 				</View>;
 	}
 
-	_getSelectIcon = () => {
-		if (!this.state.selectItem_1) {
-			return this.state.selectComponent_1;
-		} else {
-			return this.state.selectComponent_2;
-		}
+	_deleteArticle() {
+		alert('确定要删除吗？');
+	}
+
+	_getDelComponent = () => {
+		return this.state.delComponent;
 	}
 
 	// 获得图片方法：集合，下标，开始位置，结束位置
@@ -121,14 +113,11 @@ export default class Article extends Component {
 							<Text style={Styles.itemTopLeftDate}>{row.sendDate}</Text>
 						</View>
 						<View style={Styles.itemTopRightView}>
-						{
-							this.state.onClickEdit
-							?
-							<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({selectItem_1: !this.state.selectItem_1})}}>
-								{ this._getSelectIcon() }
-							</TouchableOpacity>
-							: null
-						}	
+
+						<TouchableOpacity activeOpacity={1} onPress={() => {this._deleteArticle()}}>
+							{ this._getDelComponent() }
+						</TouchableOpacity>
+
 						</View>
 					</View>
 
@@ -185,7 +174,7 @@ export default class Article extends Component {
 
 	_getMore() {
 		return 	<View style={Styles.moreView}>
-					<Text style={Styles.moreText}>—查看更多—</Text>
+					<Text style={Styles.moreText} onPress={this._onPressMore}>    —查看更多—    </Text>
 				</View>;
 	}
 

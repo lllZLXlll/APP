@@ -44,9 +44,14 @@ export default class User extends Component {
 		
 	}
 
+	// 查看更多
+	_onPressMore = () => {
+		this.props.navigation.navigate('Mores');
+	}
+
 	// 头像组件
 	_getPortraitComponent = () => {
-		return 	<TouchableOpacity activeOpacity={0.5} onPress={() => {alert(1)}}>
+		return 	<TouchableOpacity activeOpacity={0.5} onPress={() => {this._onPressMore}}>
 					<View style={Styles.portraitView}>
 						<View style={Styles.portrait}>
 							<Image style={Styles.portraitImage} source={Icons.portrait} />
@@ -170,7 +175,7 @@ export default class User extends Component {
 		let tabConent = <Article />;
 		switch(this.state.isSelect) {
 			case 1:
-				tabConent = <Article data={this.state.data_1} />;
+				tabConent = <Article data={this.state.data_1} _onPressMore={this._onPressMore} />;
 				break;
 			case 2:
 				tabConent = <Comment />;

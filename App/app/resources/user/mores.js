@@ -2,7 +2,7 @@
 	我的首页 2017-8-25
 */
 import React, { Component } from 'react';
-import { TabNavigator } from 'react-navigation';
+import { TabNavigator, StackNavigator } from 'react-navigation';
 
 // tab 页面
 import Article from './article';
@@ -42,4 +42,21 @@ const Tab = TabNavigator({
 	lazy: true,
 });
 
-export default Tab;
+const Mores = StackNavigator({
+  Tab: {
+    screen: Tab,
+    navigationOptions: ({ navigation }) => {
+      const title = '详情';
+      const headerTitleStyle = {
+        alignSelf: 'center',
+      };
+      return{title, headerTitleStyle};
+    },
+  },
+
+},{
+	// 让标题随着画面的改变而呈现动画，ios中的默认选项，android设置一样保持动画一致
+	headerMode: 'float',
+});
+
+export default Mores;
