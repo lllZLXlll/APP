@@ -196,7 +196,7 @@ export default class Article extends Component {
 			);
 		} else {
 			return (
-				<Text>暂无记录</Text>
+				<View style={Styles.noDataView}><Text style={Styles.noDataText}>暂无记录</Text></View>
 			);
 		}
 		

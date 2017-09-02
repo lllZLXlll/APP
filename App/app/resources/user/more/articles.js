@@ -10,10 +10,11 @@ import {
 	TouchableOpacity,
 	Modal,
 	FlatList,
-	RefreshControl,
 } from 'react-native';
 // 照片浏览
 import ImageViewer from '../../../components/ImageViewer';
+// 底部加载组件
+import FooterComponent from '../../../components/FooterComponent';
 
 import Styles from '../../../style/user/userStyle';
 import Icons from '../../../components/Icons';
@@ -29,9 +30,9 @@ export default class Article extends Component {
 		this.state = {
 			delComponent: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_1} />,
 			data: [
-				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80},
-				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 1824, downCount: 24, msgCount: 248},
-				{sendDate: '2017-8-27 12:25', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '好多好多可爱叮当猫呀！', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 124, downCount: 59, msgCount: 77},
+				{id: 1, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80},
+				{id: 2, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 1824, downCount: 24, msgCount: 248},
+				{id: 3, sendDate: '2017-8-27 12:25', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '好多好多可爱叮当猫呀！', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 124, downCount: 59, msgCount: 77},
 			],
 			isOnClickImage: false,
 			dataIndex: 0,
@@ -168,6 +169,21 @@ export default class Article extends Component {
 				/>;
 	}
 
+	_getListFooterComponent() {
+		return 	<FooterComponent />;
+	}
+
+	// 滑动到底部时加载
+	_onEndReached = () => {
+		let data = this.state.data;
+		let a = {id: 4, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', upCount: 84, downCount: 94, msgCount: 80};
+		let b = {id: 5, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', upCount: 84, downCount: 94, msgCount: 80};
+		let c = {id: 6, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', upCount: 84, downCount: 94, msgCount: 80};
+		data.push(a);
+		data.push(b);
+		data.push(c);
+	}
+
 	render() {
 		if (this.state.data != null) {
 			return (
@@ -177,13 +193,11 @@ export default class Article extends Component {
 					  	data={this.state.data}
 					  	renderItem={({item, index}) => this._getActicleItem(item, index)}
 					  	getItemLayout={(data, index) => ({length: 100/oPx, offset: 100/oPx * index , index})}
+					  	keyExtractor={(item, index) => item.id}
 				  		initialNumToRender={10}
-				  		onRefresh={
-				  			<RefreshControl
-				              	onRefresh={this._getData}
-				            />
-				  		}
-				  		refreshing={true}
+				  		ListFooterComponent={() => this._getListFooterComponent()}
+				  		onEndReachedThreshold={0.2}
+				  		onEndReached={this._onEndReached}
 					/>
 
 					{ this._getImageViewer() }
@@ -191,7 +205,7 @@ export default class Article extends Component {
 			);
 		} else {
 			return (
-				<Text>暂无记录</Text>
+				<View style={Styles.noDataView}><Text style={Styles.noDataText}>暂无记录</Text></View>
 			);
 		}
 		

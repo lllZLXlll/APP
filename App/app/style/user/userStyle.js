@@ -224,6 +224,15 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#ff8200',
 	},
+	noDataView: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	noDataText: {
+		fontSize: 30/oPx,
+		color: '#999',
+	},
 });
 
 

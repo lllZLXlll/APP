@@ -125,7 +125,7 @@ const Tab = TabNavigator({
       backgroundColor: '#fff',
     },
   },
-  lazy: true, // 当切换到某选项卡时才进行加载
+  lazy: false, // 当切换到某选项卡时才进行加载
   swipeEnabled: true, // 是否允许在标签之间进行滑动
 });
 
