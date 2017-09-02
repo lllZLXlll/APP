@@ -5,7 +5,7 @@ import {
     ImageEditor,
     Alert,
 } from 'react-native';
-import {ToastShort} from '../utils/Toast';
+//import {ToastShort} from '../utils/Toast';
 
 let ImageSave = {
   Save: (url) => {

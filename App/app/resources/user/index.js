@@ -22,7 +22,6 @@ import Comment from './comment';
 import Collection from './collection';
 import VisitGuest from './visitGuest';
 
-
 // 临时图片数据
 const imagesUri = 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460';
 
@@ -46,7 +45,7 @@ export default class User extends Component {
 
 	// 查看更多
 	_onPressMore = () => {
-		this.props.navigation.navigate('Mores');
+		this.props.navigation.navigate('Mores', {title: '详情'});
 	}
 
 	// 头像组件

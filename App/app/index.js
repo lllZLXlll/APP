@@ -26,6 +26,9 @@ import Found from './resources/found/index';
 import User from './resources/user/index';
 import Screen from './resources/home/screen';
 
+// 我的-发帖，收藏，评论，访客tab页面
+import Mores from './resources/user/more/mores';
+
 import WebView from './components/WebView'
 
 
@@ -157,6 +160,18 @@ const App = StackNavigator({
     }),
 	
   },
+  
+  Mores: {
+    screen: Mores,
+    navigationOptions: ({ navigation }) => ({
+    // 导航栏标题动态获取
+    title: `${navigation.state.params.title}`,
+    // 是否启用手势关闭屏幕
+    gesturesEnabled: true,
+    
+    }),
+  },
+
 },{
 	// 让标题随着画面的改变而呈现动画，ios中的默认选项，android设置一样保持动画一致
 	headerMode: 'float',
