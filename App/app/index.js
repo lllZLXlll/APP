@@ -152,10 +152,10 @@ const App = StackNavigator({
   WebView: {
     screen: WebView,
     navigationOptions: ({ navigation }) => ({
-		// 导航栏标题动态获取
-		title: `${navigation.state.params.title}`,
-		// 是否启用手势关闭屏幕
-		gesturesEnabled: true,
+  		// 导航栏标题动态获取
+  		title: `${navigation.state.params.title}`,
+  		// 是否启用手势关闭屏幕
+  		gesturesEnabled: true,
 	  
     }),
 	
@@ -164,10 +164,8 @@ const App = StackNavigator({
   Mores: {
     screen: Mores,
     navigationOptions: ({ navigation }) => ({
-    // 导航栏标题动态获取
-    title: `${navigation.state.params.title}`,
-    // 是否启用手势关闭屏幕
-    gesturesEnabled: true,
+      // 是否启用手势关闭屏幕
+      gesturesEnabled: true,
     
     }),
   },

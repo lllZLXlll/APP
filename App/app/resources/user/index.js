@@ -45,7 +45,7 @@ export default class User extends Component {
 
 	// 查看更多
 	_onPressMore = () => {
-		this.props.navigation.navigate('Mores', {title: '详情'});
+		this.props.navigation.navigate('Mores');
 	}
 
 	// 头像组件
@@ -177,7 +177,7 @@ export default class User extends Component {
 				tabConent = <Article data={this.state.data_1} _onPressMore={this._onPressMore} />;
 				break;
 			case 2:
-				tabConent = <Comment />;
+				tabConent = <Comment  _onPressMore={this._onPressMore} />;
 				break;
 			case 3:
 				tabConent = <Collection />;
