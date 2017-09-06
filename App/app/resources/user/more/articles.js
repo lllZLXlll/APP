@@ -11,6 +11,8 @@ import {
 	Modal,
 	FlatList,
 } from 'react-native';
+import { NavigationActions } from 'react-navigation';
+
 // 照片浏览
 import ImageViewer from '../../../components/ImageViewer';
 // 底部加载组件
@@ -187,7 +189,7 @@ export default class Article extends Component {
 	render() {
 		if (this.state.data != null) {
 			return (
-				<View style={{flex: 1}}>
+				<View style={Styles.view}>
 					
 					<FlatList
 					  	data={this.state.data}

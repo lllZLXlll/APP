@@ -180,7 +180,7 @@ export default class Article extends Component {
 	render() {
 		if (this.state.data != null) {
 			return (
-				<View style={{flex: 1}}>
+				<View style={Styles.view}>
 					{ this._getArticleView() }
 					
 					{ 

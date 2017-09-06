@@ -8,6 +8,9 @@ import {StyleConfig} from '../style';
 const oPx = StyleConfig.oPx;
 
 export default Styles = StyleSheet.create({
+	view: {
+		flex: 1,
+	},
 	portraitView: {
 		height: 160/oPx,
 		backgroundColor: '#fff',

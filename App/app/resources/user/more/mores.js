@@ -17,29 +17,25 @@ const Mores = TabNavigator({
 	Articles: {
 		screen: Articles,
 		navigationOptions: {
-			headerTitle: '发帖',
-			tabBarLabel: '发帖',
+			title: '发帖',
 		},
 	},
 	Comments: {
 		screen: Comments,
 		navigationOptions: {
-			headerTitle: '评论',
-			tabBarLabel: '评论',
+			title: '评论',
 		},
 	},
 	Collections: {
 		screen: Collections,
 		navigationOptions: {
-			headerTitle: '收藏',
-			tabBarLabel: '收藏',
+			title: '收藏',
 		},
 	},
 	VisitGuests: {
 		screen: VisitGuests,
 		navigationOptions: {
-			headerTitle: '访客',
-			tabBarLabel: '访客',
+			title: '访客',
 		},
 	},
 }, {
@@ -60,7 +56,7 @@ const Mores = TabNavigator({
   },
   lazy: true, // 当切换到某选项卡时才进行加载
   swipeEnabled: true, // 是否允许在标签之间进行滑动
-  initialRouteName: 'Comments',
+  // initialRouteName: 'Comments',
 });
 
 export default Mores;

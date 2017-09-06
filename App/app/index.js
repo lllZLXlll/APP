@@ -166,7 +166,6 @@ const App = StackNavigator({
     navigationOptions: ({ navigation }) => ({
       // 是否启用手势关闭屏幕
       gesturesEnabled: true,
-    
     }),
   },
 

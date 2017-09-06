@@ -45,7 +45,7 @@ export default class User extends Component {
 
 	// 查看更多
 	_onPressMore = () => {
-		this.props.navigation.navigate('Mores');
+		this.props.navigation.navigate('Mores', {name: '1'});
 	}
 
 	// 头像组件
