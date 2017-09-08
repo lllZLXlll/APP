@@ -159,7 +159,7 @@ export default Styles = StyleSheet.create({
 	},
 	itemTopRightView: {
 		flex: 1,
-		justifyContent: 'flex-end',
+		justifyContent: 'center',
 		alignItems: 'flex-end',
 	},
 	itemTopLeftDate: {
