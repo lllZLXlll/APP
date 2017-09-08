@@ -31,6 +31,8 @@ Icons.selectIcon_2 = require('../images/icon/user/icon_user_del_select.png');
 Icons.background = require('../images/icon/user/icon_user_background.png');
 // 评论图片
 Icons.commentImg = require('../images/icon/user/icon_user_image.png');
+// 挂件图片
+Icons.pendantImage = require('../images/icon/user/icon_user_img.png');
 
 // -------------我的-------------end
 

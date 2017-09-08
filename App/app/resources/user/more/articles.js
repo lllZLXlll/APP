@@ -171,6 +171,7 @@ export default class Article extends Component {
 				/>;
 	}
 
+	// 加载组件
 	_getListFooterComponent() {
 		return 	<FooterComponent />;
 	}

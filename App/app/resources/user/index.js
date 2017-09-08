@@ -180,7 +180,7 @@ export default class User extends Component {
 				tabConent = <Comment  _onPressMore={this._onPressMore} />;
 				break;
 			case 3:
-				tabConent = <Collection />;
+				tabConent = <Collection data={this.state.data_1} _onPressMore={this._onPressMore} />;
 				break;
 			case 4:
 				tabConent = <VisitGuest />;

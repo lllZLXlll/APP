@@ -58,12 +58,19 @@ export default class Comment extends Component {
 				</View>;
 	}
 
+	_getMore() {
+		return 	<View style={Styles.moreView}>
+					<Text style={Styles.moreText} onPress={this._onPressMore}>    —查看更多—    </Text>
+				</View>;
+	}
+
 	render() {
 		return (
 			<View style={Styles.view}>
 				{ this._getCommentView() }
 				{ this._getCommentItem() }
 				{ this._getCommentItem_Img() }
+				{ this._getMore() }
 			</View>
 		);
 	}

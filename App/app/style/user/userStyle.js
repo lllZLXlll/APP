@@ -239,7 +239,6 @@ export default Styles = StyleSheet.create({
 
 	// 评论
 	commentItemView: {
-		flex: 1,
 		backgroundColor: '#fff',
 		marginBottom: 10/oPx,
 		paddingLeft: 30/oPx,
@@ -261,6 +260,36 @@ export default Styles = StyleSheet.create({
 		height: 32/oPx,
 		marginTop: 10/oPx,
 		marginBottom: 20/oPx,
+	},
+
+	// 收藏
+	pendantView: { // 头部挂件
+		flex: 1,
+		height: 30/oPx,
+		backgroundColor: '#fff',
+	},
+	pendantImage: { // 挂件图片
+		width: StyleConfig.screen_width,
+		height: 30/oPx,
+	},
+	topView: {
+		flex: 1,
+		flexDirection: 'row',
+	},
+	portraitItem: {
+		width: 65/oPx,
+		height: 65/oPx,
+	},
+	collectionRightView: {
+		marginLeft: 20/oPx,
+	},
+	collectionTopView: {
+		flex: 1,
+		justifyContent: 'flex-end',
+	},
+	collectionBottomView: {
+		flex: 1,
+		justifyContent: 'flex-end',
 	},
 });
 
