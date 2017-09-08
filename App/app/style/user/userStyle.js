@@ -236,6 +236,32 @@ export default Styles = StyleSheet.create({
 		fontSize: 30/oPx,
 		color: '#999',
 	},
+
+	// 评论
+	commentItemView: {
+		flex: 1,
+		backgroundColor: '#fff',
+		marginBottom: 10/oPx,
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+	},
+	commentTopText: {
+		color: '#000',
+		fontSize: 28/oPx,
+		marginTop: 10/oPx,
+		lineHeight: 20,
+	},
+	commentConentView: {
+		backgroundColor: '#ebebeb',
+		marginTop: 10/oPx,
+		marginBottom: 20/oPx,
+	},
+	commentImg: {
+		width: 50/oPx,
+		height: 32/oPx,
+		marginTop: 10/oPx,
+		marginBottom: 20/oPx,
+	},
 });
 
 

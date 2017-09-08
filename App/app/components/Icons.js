@@ -29,6 +29,8 @@ Icons.selectIcon_1 = require('../images/icon/user/icon_user_del.png');
 Icons.selectIcon_2 = require('../images/icon/user/icon_user_del_select.png');
 // 阴影背景
 Icons.background = require('../images/icon/user/icon_user_background.png');
+// 评论图片
+Icons.commentImg = require('../images/icon/user/icon_user_image.png');
 
 // -------------我的-------------end
 
