@@ -291,6 +291,19 @@ export default Styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'flex-end',
 	},
+
+	// 访客
+	mothView: {
+		height: 50/oPx,
+		borderBottomWidth: StyleConfig.borderWidth,
+		borderColor: StyleConfig.borderColor,
+		justifyContent: 'center',
+	},
+	mothText: {
+		fontSize: 30/oPx,
+		color: '#000',
+		marginLeft: 30/oPx,
+	},
 });
 
 
