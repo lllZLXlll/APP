@@ -18,7 +18,7 @@ import {
   StackNavigator,
   NavigationActions,
 } from 'react-navigation';
-
+// 五个底部模块页面
 import Home from './resources/home/index';
 import Message from './resources/message/index';
 import Send from './resources/send/index';
@@ -26,12 +26,17 @@ import Found from './resources/found/index';
 import User from './resources/user/index';
 import Screen from './resources/home/screen';
 
+// 我的
 // 我的-发帖，收藏，评论，访客tab页面
 import Mores from './resources/user/more/mores';
 
+// 用户详情页面
+import UserMore from './resources/user/userMore';
+
+// 通用网页页面
 import WebView from './components/WebView'
 
-
+// 临时底部图标
 const icon1 = require('./images/icon/icon_1.png');
 const icon2 = require('./images/icon/icon_1_1.png');
 
@@ -146,6 +151,9 @@ const App = StackNavigator({
       title: '跳转的页面',
       headerLeft: (<Button title="返回" onPress={() => {navigation.goBack()}} />),
       headerRight: (<Button title="设置" onPress={() => {alert('设置')}} />),
+	  headerTitleStyle: {
+		  alignSelf: 'center',
+	  },
     }),
   },
   // 通用webview，跳转网页
@@ -169,6 +177,20 @@ const App = StackNavigator({
     }),
   },
 
+  UserMore: {
+    screen: UserMore,
+    navigationOptions: ({ navigation }) => ({
+      // 是否启用手势关闭屏幕
+      gesturesEnabled: true,
+	  title: '个人信息',
+	  headerTitleStyle: {
+		  alignSelf: 'center',
+	  },
+	  headerRight: (<Text></Text>),  // 如果没有组件那么标题将会不居中
+    }),
+  },
+  
+  
 },{
 	// 让标题随着画面的改变而呈现动画，ios中的默认选项，android设置一样保持动画一致
 	headerMode: 'float',

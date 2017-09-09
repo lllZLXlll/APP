@@ -37,11 +37,11 @@ export default class Visit extends Component {
 							<Image style={Styles.visitItemImg} source={Icons.portrait} />
 							<View style={Styles.visitView}>
 								<View style={Styles.visitItemTextView}>
-									<Text style={Styles.visitItemName} numberOfLine={1}>老司机1号</Text>
+									<Text style={Styles.visitItemName} numberOfLines={1}>老司机1号</Text>
 								</View>
 								
 								<View style={[Styles.visitItemTextView,{justifyContent: 'flex-start'}]}>
-									<Text style={Styles.visitItemContent} numberOfLine={1}>07-14 09:14 访问 [我的资料]</Text>
+									<Text style={Styles.visitItemContent} numberOfLines={1}>07-14 09:14 访问 [我的资料]</Text>
 								</View>
 							</View>
 							<View style={Styles.arrowImgView}>
@@ -54,11 +54,11 @@ export default class Visit extends Component {
 							<Image style={Styles.visitItemImg} source={Icons.portrait} />
 							<View style={Styles.visitView}>
 								<View style={Styles.visitItemTextView}>
-									<Text style={Styles.visitItemName} numberOfLine={1}>老司机2号</Text>
+									<Text style={Styles.visitItemName} numberOfLines={1}>老司机2号</Text>
 								</View>
 								
 								<View style={[Styles.visitItemTextView,{justifyContent: 'flex-start'}]}>
-									<Text style={Styles.visitItemContent} numberOfLine={1}>07-14 09:14 访问 [我的帖子]</Text>
+									<Text style={Styles.visitItemContent} numberOfLines={1}>07-14 09:14 访问 [我的帖子]</Text>
 								</View>
 							</View>
 							<View style={Styles.arrowImgView}>
@@ -79,11 +79,11 @@ export default class Visit extends Component {
 							<Image style={Styles.visitItemImg} source={Icons.portrait} />
 							<View style={Styles.visitView}>
 								<View style={Styles.visitItemTextView}>
-									<Text style={Styles.visitItemName} numberOfLine={1}>老司机3号</Text>
+									<Text style={Styles.visitItemName} numberOfLines={1}>老司机3号</Text>
 								</View>
 								
 								<View style={[Styles.visitItemTextView,{justifyContent: 'flex-start'}]}>
-									<Text style={Styles.visitItemContent} numberOfLine={1}>08-21 19:44 访问 [我的资料]</Text>
+									<Text style={Styles.visitItemContent} numberOfLines={1}>08-21 19:44 访问 [我的资料]</Text>
 								</View>
 							</View>
 							<View style={Styles.arrowImgView}>
