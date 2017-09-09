@@ -293,6 +293,11 @@ export default Styles = StyleSheet.create({
 	},
 
 	// 访客
+	visitGuestItemView: {
+		flex: 1,
+		backgroundColor: '#fff',
+		marginBottom: 10/oPx,
+	},
 	mothView: {
 		height: 50/oPx,
 		borderBottomWidth: StyleConfig.borderWidth,
@@ -303,6 +308,44 @@ export default Styles = StyleSheet.create({
 		fontSize: 30/oPx,
 		color: '#000',
 		marginLeft: 30/oPx,
+	},
+	visitItemView: {
+		height: 80/oPx,
+		flexDirection: 'row',
+		marginLeft: 30/oPx,
+		paddingRight: 30/oPx,
+		borderBottomWidth: StyleConfig.borderWidth,
+		borderColor: StyleConfig.borderColor,
+	},
+	visitItemImg: {
+		height: 60/oPx,
+		width: 60/oPx,
+		marginTop: 10/oPx,
+	},
+	visitItemTextView: {
+		flex: 1,
+		justifyContent: 'flex-end',
+		marginLeft: 20/oPx,
+	},
+	visitItemName: {
+		fontSize: 22/oPx,
+		color: '#000',
+	},
+	visitItemContent: {
+		fontSize: 20/oPx,
+		color: '#999',
+	},
+	visitItemArrow: {
+		height: 24/oPx,
+		width: 12/oPx,
+	},
+	visitView: {
+		flex: 2,
+	},
+	arrowImgView: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'flex-end',
 	},
 });
 

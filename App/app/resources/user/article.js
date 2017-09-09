@@ -47,7 +47,7 @@ export default class Article extends Component {
 	_getArticleView() {
 		return 	<View style={Styles.articleView}>
 						<View style={Styles.textLeftView}>
-							<Text style={Styles.textLeft}>收藏：2</Text>
+							<Text style={Styles.textLeft}>发帖：2</Text>
 						</View>
 						
 						<View style={Styles.textRightView}>
