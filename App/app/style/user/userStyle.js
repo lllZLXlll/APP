@@ -291,6 +291,121 @@ export default Styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'flex-end',
 	},
+
+	// 访客
+	visitGuestItemView: {
+		flex: 1,
+		backgroundColor: '#fff',
+		marginBottom: 10/oPx,
+	},
+	mothView: {
+		height: 50/oPx,
+		borderBottomWidth: StyleConfig.borderWidth,
+		borderColor: StyleConfig.borderColor,
+		justifyContent: 'center',
+	},
+	mothText: {
+		fontSize: 30/oPx,
+		color: '#000',
+		marginLeft: 30/oPx,
+	},
+	visitItemView: {
+		height: 80/oPx,
+		flexDirection: 'row',
+		marginLeft: 30/oPx,
+		paddingRight: 30/oPx,
+		borderBottomWidth: StyleConfig.borderWidth,
+		borderColor: StyleConfig.borderColor,
+	},
+	visitItemImg: {
+		height: 60/oPx,
+		width: 60/oPx,
+		marginTop: 10/oPx,
+	},
+	visitItemTextView: {
+		flex: 1,
+		justifyContent: 'flex-end',
+		marginLeft: 20/oPx,
+	},
+	visitItemName: {
+		fontSize: 22/oPx,
+		color: '#000',
+	},
+	visitItemContent: {
+		fontSize: 20/oPx,
+		color: '#999',
+	},
+	visitItemArrow: {
+		height: 24/oPx,
+		width: 12/oPx,
+	},
+	visitView: {
+		flex: 2,
+	},
+	arrowImgView: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'flex-end',
+	},
+	
+	// 个人信息
+	userMoreTopView: {
+		backgroundColor: '#fff',
+		height: 120/oPx,
+		marginTop: 35/oPx,
+		marginBottom: 35/oPx,
+		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+	},
+	userItemView: {
+		flex: 1,
+		justifyContent: 'center',
+	},
+	userItemLeftText: {
+		fontSize: 28/oPx,
+		color: '#000',
+	},
+	userItemCenterView: {
+		flex: 4,
+		justifyContent: 'center',
+		alignItems: 'flex-end',
+		paddingRight: 20/oPx,
+		paddingLeft: 50/oPx,
+	},
+	arrowImageView: {
+		justifyContent: 'center',
+	},
+	userPortraitImage: {
+		width: 100/oPx,
+		height: 100/oPx,
+	},
+	
+	userMoreItemView: {
+		backgroundColor: '#fff',
+		height: 60/oPx,
+		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+		borderBottomWidth: StyleConfig.borderWidth,
+		borderColor: StyleConfig.borderColor,
+	},
+	arrowImage_item: {
+		height: 24/oPx,
+		width: 12/oPx,
+	},
+	exitItemView: {
+		height: 60/oPx,
+		width: StyleConfig.screen_width,
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginTop: 35/oPx,
+		backgroundColor: '#fff',
+	},
+	exitText: {
+		fontSize: 28/oPx,
+		color: 'red',
+	},
 });
 
 

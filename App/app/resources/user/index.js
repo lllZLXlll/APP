@@ -45,12 +45,17 @@ export default class User extends Component {
 
 	// 查看更多
 	_onPressMore = () => {
-		this.props.navigation.navigate('Mores', {name: '1'});
+		this.props.navigation.navigate('Mores');
+	}
+	
+	// 查看用户更多资料
+	_onPressUserMore = () => {
+		this.props.navigation.navigate('UserMore');
 	}
 
 	// 头像组件
 	_getPortraitComponent = () => {
-		return 	<TouchableOpacity activeOpacity={0.5} onPress={() => {this._onPressMore}}>
+		return 	<TouchableOpacity activeOpacity={0.5} onPress={this._onPressUserMore}>
 					<View style={Styles.portraitView}>
 						<View style={Styles.portrait}>
 							<Image style={Styles.portraitImage} source={Icons.portrait} />
