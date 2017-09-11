@@ -90,6 +90,11 @@ export default Styles = StyleSheet.create({
 		fontSize: 24/oPx,
 		color: '#999',
 	},
+
+    itemBottomTextIsSelect: {
+        fontSize: 24/oPx,
+        color: '#eeb323',
+    },
 	
 	tabView: {
 		backgroundColor: '#fff',
@@ -224,6 +229,29 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#ff8200',
 	},
+	FansTable: {
+        height: 160/oPx,
+        backgroundColor: '#fff',
+        flexDirection : 'row',
+        borderTopWidth: StyleConfig.borderWidth,
+        borderColor: StyleConfig.borderColor,
+	},
+    FansTableP: {
+        marginTop: 20/oPx,
+	},
+    FansTableC: {
+        marginTop: 40/oPx,
+        marginLeft: 10/oPx
+    },
+    attentionImage: {
+        width: 100/oPx,
+        height: 50/oPx,
+    },
+    fansPortraitImage: {
+        width: 110/oPx,
+        height: 110/oPx,
+        marginLeft: 30/oPx
+    },
 });
 
 

@@ -25,6 +25,9 @@ import Send from './resources/send/index';
 import Found from './resources/found/index';
 import User from './resources/user/index';
 import Screen from './resources/home/screen';
+import Fans from './resources/user/fans/fans';
+
+
 
 import WebView from './components/WebView'
 
