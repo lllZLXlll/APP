@@ -74,38 +74,34 @@ export default class User extends Component {
 	// 粉丝，关注，点赞组件
 	_getStatisticsComponent = () => {
 		return 	<View style={Styles.statisticsView}>
-					<View style={Styles.itemView}>
-						<TouchableOpacity activeOpacity={1} onPress={() => {alert(2)}}>
-							<View style={Styles.itemTextTopView}>
-								<Text style={Styles.itemTopText}>25</Text>
-							</View>
-							<View style={Styles.itemTextBottomView}>
-								<Text style={Styles.itemBottomText}>粉丝</Text>
-							</View>
-						</TouchableOpacity>
-					</View>
-					
-					<View style={Styles.itemView}>
-						<TouchableOpacity activeOpacity={1} onPress={() => {alert(3)}}>
-							<View style={Styles.itemTextTopView}>
-								<Text style={Styles.itemTopText}>124</Text>
-							</View>
-							<View style={Styles.itemTextBottomView}>
-								<Text style={Styles.itemBottomText}>关注</Text>
-							</View>
-						</TouchableOpacity>
-					</View>
-					
-					<View style={Styles.itemView}>
-						<TouchableOpacity activeOpacity={1} onPress={() => {alert(4)}}>
-							<View style={Styles.itemTextTopView}>
-								<Text style={Styles.itemTopText}>45</Text>
-							</View>
-							<View style={Styles.itemTextBottomView}>
-								<Text style={Styles.itemBottomText}>被赞</Text>
-							</View>
-						</TouchableOpacity>
-					</View>
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => this.props.navigation.navigate('Fans')}style={Styles.itemView}>
+
+                        <View style={Styles.itemTextTopView}>
+                            <Text style={Styles.itemTopText}>25</Text>
+                        </View>
+                        <View style={Styles.itemTextBottomView}>
+                            <Text style={Styles.itemBottomText}>粉丝</Text>
+                        </View>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity activeOpacity={1} onPress={() => {alert(3)}} style={Styles.itemView}>
+                        <View style={Styles.itemTextTopView}>
+                            <Text style={Styles.itemTopText}>124</Text>
+                        </View>
+                        <View style={Styles.itemTextBottomView}>
+                            <Text style={Styles.itemBottomText}>关注</Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity activeOpacity={1} onPress={() => {alert(4)}} style={Styles.itemView}>
+                        <View style={Styles.itemTextTopView}>
+                            <Text style={Styles.itemTopText}>45</Text>
+                        </View>
+                        <View style={Styles.itemTextBottomView}>
+                            <Text style={Styles.itemBottomText}>被赞</Text>
+                        </View>
+                    </TouchableOpacity>
 				</View>;
 	}
 

@@ -160,6 +160,18 @@ const App = StackNavigator({
     }),
 	
   },
+    Fans: {
+    screen: Fans,
+    navigationOptions: ({ navigation }) => ({
+		// 是否启用手势关闭屏幕
+		gesturesEnabled: true,
+        headerTitleStyle: {
+            alignSelf: 'center',
+        },
+
+    }),
+
+  },
 },{
 	// 让标题随着画面的改变而呈现动画，ios中的默认选项，android设置一样保持动画一致
 	headerMode: 'float',
