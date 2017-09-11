@@ -232,7 +232,7 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#ff8200',
 	},
-//粉丝
+	// 粉丝
 	FansTable: {
         height: 160/oPx,
         backgroundColor: '#fff',
