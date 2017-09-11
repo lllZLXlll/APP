@@ -232,7 +232,7 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#ff8200',
 	},
-<<<<<<< HEAD
+	// 粉丝
 	FansTable: {
         height: 160/oPx,
         backgroundColor: '#fff',
@@ -256,7 +256,7 @@ export default Styles = StyleSheet.create({
         height: 110/oPx,
         marginLeft: 30/oPx
     },
-=======
+
 	noDataView: {
 		flex: 1,
 		alignItems: 'center',
@@ -436,7 +436,6 @@ export default Styles = StyleSheet.create({
 		fontSize: 28/oPx,
 		color: 'red',
 	},
->>>>>>> 4be2cf6a41de058c39eba2b8ba79ddfe8b3bf00a
 });
 
 
