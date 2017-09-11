@@ -8,6 +8,9 @@ import {StyleConfig} from '../style';
 const oPx = StyleConfig.oPx;
 
 export default Styles = StyleSheet.create({
+	view: {
+		flex: 1,
+	},
 	portraitView: {
 		height: 160/oPx,
 		backgroundColor: '#fff',
@@ -161,7 +164,7 @@ export default Styles = StyleSheet.create({
 	},
 	itemTopRightView: {
 		flex: 1,
-		justifyContent: 'flex-end',
+		justifyContent: 'center',
 		alignItems: 'flex-end',
 	},
 	itemTopLeftDate: {
@@ -229,6 +232,7 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#ff8200',
 	},
+<<<<<<< HEAD
 	FansTable: {
         height: 160/oPx,
         backgroundColor: '#fff',
@@ -252,6 +256,187 @@ export default Styles = StyleSheet.create({
         height: 110/oPx,
         marginLeft: 30/oPx
     },
+=======
+	noDataView: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	noDataText: {
+		fontSize: 30/oPx,
+		color: '#999',
+	},
+
+	// 评论
+	commentItemView: {
+		backgroundColor: '#fff',
+		marginBottom: 10/oPx,
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+	},
+	commentTopText: {
+		color: '#000',
+		fontSize: 28/oPx,
+		marginTop: 10/oPx,
+		lineHeight: 20,
+	},
+	commentConentView: {
+		backgroundColor: '#ebebeb',
+		marginTop: 10/oPx,
+		marginBottom: 20/oPx,
+	},
+	commentImg: {
+		width: 50/oPx,
+		height: 32/oPx,
+		marginTop: 10/oPx,
+		marginBottom: 20/oPx,
+	},
+
+	// 收藏
+	pendantView: { // 头部挂件
+		flex: 1,
+		height: 30/oPx,
+		backgroundColor: '#fff',
+	},
+	pendantImage: { // 挂件图片
+		width: StyleConfig.screen_width,
+		height: 30/oPx,
+	},
+	topView: {
+		flex: 1,
+		flexDirection: 'row',
+	},
+	portraitItem: {
+		width: 65/oPx,
+		height: 65/oPx,
+	},
+	collectionRightView: {
+		marginLeft: 20/oPx,
+	},
+	collectionTopView: {
+		flex: 1,
+		justifyContent: 'flex-end',
+	},
+	collectionBottomView: {
+		flex: 1,
+		justifyContent: 'flex-end',
+	},
+
+	// 访客
+	visitGuestItemView: {
+		flex: 1,
+		backgroundColor: '#fff',
+		marginBottom: 10/oPx,
+	},
+	mothView: {
+		height: 50/oPx,
+		borderBottomWidth: StyleConfig.borderWidth,
+		borderColor: StyleConfig.borderColor,
+		justifyContent: 'center',
+	},
+	mothText: {
+		fontSize: 30/oPx,
+		color: '#000',
+		marginLeft: 30/oPx,
+	},
+	visitItemView: {
+		height: 80/oPx,
+		flexDirection: 'row',
+		marginLeft: 30/oPx,
+		paddingRight: 30/oPx,
+		borderBottomWidth: StyleConfig.borderWidth,
+		borderColor: StyleConfig.borderColor,
+	},
+	visitItemImg: {
+		height: 60/oPx,
+		width: 60/oPx,
+		marginTop: 10/oPx,
+	},
+	visitItemTextView: {
+		flex: 1,
+		justifyContent: 'flex-end',
+		marginLeft: 20/oPx,
+	},
+	visitItemName: {
+		fontSize: 22/oPx,
+		color: '#000',
+	},
+	visitItemContent: {
+		fontSize: 20/oPx,
+		color: '#999',
+	},
+	visitItemArrow: {
+		height: 24/oPx,
+		width: 12/oPx,
+	},
+	visitView: {
+		flex: 2,
+	},
+	arrowImgView: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'flex-end',
+	},
+	
+	// 个人信息
+	userMoreTopView: {
+		backgroundColor: '#fff',
+		height: 120/oPx,
+		marginTop: 35/oPx,
+		marginBottom: 35/oPx,
+		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+	},
+	userItemView: {
+		flex: 1,
+		justifyContent: 'center',
+	},
+	userItemLeftText: {
+		fontSize: 28/oPx,
+		color: '#000',
+	},
+	userItemCenterView: {
+		flex: 4,
+		justifyContent: 'center',
+		alignItems: 'flex-end',
+		paddingRight: 20/oPx,
+		paddingLeft: 50/oPx,
+	},
+	arrowImageView: {
+		justifyContent: 'center',
+	},
+	userPortraitImage: {
+		width: 100/oPx,
+		height: 100/oPx,
+	},
+	
+	userMoreItemView: {
+		backgroundColor: '#fff',
+		height: 60/oPx,
+		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+		borderBottomWidth: StyleConfig.borderWidth,
+		borderColor: StyleConfig.borderColor,
+	},
+	arrowImage_item: {
+		height: 24/oPx,
+		width: 12/oPx,
+	},
+	exitItemView: {
+		height: 60/oPx,
+		width: StyleConfig.screen_width,
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginTop: 35/oPx,
+		backgroundColor: '#fff',
+	},
+	exitText: {
+		fontSize: 28/oPx,
+		color: 'red',
+	},
+>>>>>>> 4be2cf6a41de058c39eba2b8ba79ddfe8b3bf00a
 });
 
 

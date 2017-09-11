@@ -22,7 +22,6 @@ import Comment from './comment';
 import Collection from './collection';
 import VisitGuest from './visitGuest';
 
-
 // 临时图片数据
 const imagesUri = 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460';
 
@@ -48,10 +47,15 @@ export default class User extends Component {
 	_onPressMore = () => {
 		this.props.navigation.navigate('Mores');
 	}
+	
+	// 查看用户更多资料
+	_onPressUserMore = () => {
+		this.props.navigation.navigate('UserMore');
+	}
 
 	// 头像组件
 	_getPortraitComponent = () => {
-		return 	<TouchableOpacity activeOpacity={0.5} onPress={() => {this._onPressMore}}>
+		return 	<TouchableOpacity activeOpacity={0.5} onPress={this._onPressUserMore}>
 					<View style={Styles.portraitView}>
 						<View style={Styles.portrait}>
 							<Image style={Styles.portraitImage} source={Icons.portrait} />
@@ -174,10 +178,10 @@ export default class User extends Component {
 				tabConent = <Article data={this.state.data_1} _onPressMore={this._onPressMore} />;
 				break;
 			case 2:
-				tabConent = <Comment />;
+				tabConent = <Comment  _onPressMore={this._onPressMore} />;
 				break;
 			case 3:
-				tabConent = <Collection />;
+				tabConent = <Collection data={this.state.data_1} _onPressMore={this._onPressMore} />;
 				break;
 			case 4:
 				tabConent = <VisitGuest />;

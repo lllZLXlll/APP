@@ -7,8 +7,8 @@ import {
 	Text,
 	Image,
 } from 'react-native';
-import Styles from '../../style/user/userStyle';
-import Icons from '../../components/Icons';
+import Styles from '../../../style/user/userStyle';
+import Icons from '../../../components/Icons';
 
 export default class Comment extends Component {
 	constructor(props) {
@@ -19,19 +19,6 @@ export default class Comment extends Component {
 	}
 	_onPressMore = () => {
 		this.state._onPressMore();
-	}
-
-	_getCommentView() {
-		return 	<View style={Styles.articleView}>
-						<View style={Styles.textLeftView}>
-							<Text style={Styles.textLeft}>评论：2</Text>
-						</View>
-						
-						<View style={Styles.textRightView}>
-							<Text style={Styles.textRight} onPress={this._onPressMore}>      更多</Text>
-						</View>
-
-				</View>;
 	}
 
 	_getCommentItem() {
@@ -58,19 +45,11 @@ export default class Comment extends Component {
 				</View>;
 	}
 
-	_getMore() {
-		return 	<View style={Styles.moreView}>
-					<Text style={Styles.moreText} onPress={this._onPressMore}>    —查看更多—    </Text>
-				</View>;
-	}
-
 	render() {
 		return (
 			<View style={Styles.view}>
-				{ this._getCommentView() }
 				{ this._getCommentItem() }
 				{ this._getCommentItem_Img() }
-				{ this._getMore() }
 			</View>
 		);
 	}
