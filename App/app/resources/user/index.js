@@ -9,6 +9,7 @@ import {
 	ScrollView,
 	TouchableOpacity,
 	RefreshControl,
+	StatusBar,
 } from 'react-native';
 
 import Styles from '../../style/user/userStyle';
@@ -23,7 +24,7 @@ import Collection from './collection';
 import VisitGuest from './visitGuest';
 
 // 临时图片数据
-const imagesUri = 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460';
+const imagesUri = 'http://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
 
 export default class User extends Component {
 	constructor(props) {
@@ -35,7 +36,7 @@ export default class User extends Component {
 				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 1824, downCount: 24, msgCount: 248},
 				{sendDate: '2017-8-27 12:25', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '好多好多可爱叮当猫呀！', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 124, downCount: 59, msgCount: 77},
 			],
-		}
+		};
 	}
 
 	// 请求数据
@@ -202,6 +203,9 @@ export default class User extends Component {
 		            />
 		        }
 			>
+				<StatusBar
+					hidden={true}
+				/>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
 				{ this._getTabComponent() }

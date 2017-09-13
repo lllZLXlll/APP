@@ -148,8 +148,6 @@ export default Styles = StyleSheet.create({
 	},
 	articleItemView: {
 		flex: 1,
-		paddingLeft: 30/oPx,
-		paddingRight: 30/oPx,
 		marginBottom: 10/oPx,
 		backgroundColor: '#fff',
 	},
@@ -179,9 +177,11 @@ export default Styles = StyleSheet.create({
 		marginTop: 20/oPx,
 		marginBottom: 10/oPx,
 		flex: 1,
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
 	},
 	itemConentText: {
-		color: '#000',
+		color: '#333',
 		fontSize: 30/oPx,
 		lineHeight: 38/oPx,
 	},
@@ -190,6 +190,8 @@ export default Styles = StyleSheet.create({
 		marginTop: 20/oPx,
 		marginBottom: 20/oPx,
 		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
 	},
 	itemPraiseView: {
 		flex: 1,
@@ -206,15 +208,18 @@ export default Styles = StyleSheet.create({
 		fontSize: 28/oPx,
 	},
 	itemImage: {
-		width: (StyleConfig.screen_width-60/oPx) / 3 - 10/oPx,
-		height: (StyleConfig.screen_width-60/oPx) / 3 - 10/oPx,
+		width: (StyleConfig.screen_width-60/oPx) / 3 - 5/oPx,
+		height: (StyleConfig.screen_width-60/oPx) / 3 - 5/oPx,
+		marginRight: 5/oPx,
+	},
+	itemImage_4: {
+		width: (StyleConfig.screen_width-60/oPx) / 2 - 5/oPx,
+		height: (StyleConfig.screen_width-60/oPx) / 2 - 5/oPx,
+		marginRight: 5/oPx,
 	},
 	itemImgView: {
 		flexDirection: 'row',
-		marginTop: 10/oPx,
-		flex: 1,
-	},
-	ImgView: {
+		marginTop: 5/oPx,
 		flex: 1,
 	},
 	maxImage: {
@@ -232,6 +237,12 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#ff8200',
 	},
+	itemCommentView: {
+		backgroundColor: '#eee',
+		marginTop: 20/oPx,
+		marginBottom: 20/oPx,
+	},
+	
 	// 粉丝
 	FansTable: {
         height: 160/oPx,
@@ -304,10 +315,12 @@ export default Styles = StyleSheet.create({
 	topView: {
 		flex: 1,
 		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
 	},
 	portraitItem: {
-		width: 80/oPx,
-		height: 80/oPx,
+		width: 70/oPx,
+		height: 70/oPx,
 	},
 	collectionRightView: {
 		marginLeft: 20/oPx,
@@ -413,7 +426,7 @@ export default Styles = StyleSheet.create({
 	
 	userMoreItemView: {
 		backgroundColor: '#fff',
-		height: 60/oPx,
+		height: 70/oPx,
 		flexDirection: 'row',
 		paddingLeft: 30/oPx,
 		paddingRight: 30/oPx,
@@ -425,7 +438,7 @@ export default Styles = StyleSheet.create({
 		width: 12/oPx,
 	},
 	exitItemView: {
-		height: 60/oPx,
+		height: 70/oPx,
 		width: StyleConfig.screen_width,
 		alignItems: 'center',
 		justifyContent: 'center',

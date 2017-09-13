@@ -118,6 +118,7 @@ const Tab = TabNavigator({
       navigationOptions: ({ navigation }) => ({
       headerTitle: '我的',
       tabBarLabel: '我的',
+	  headerLeft: (<Text></Text>),
       headerRight: (
           <TouchableOpacity activeOpacity={0.6} onPress={() => {navigation.navigate('UserSet')}}>
             <Image source={Icons.set} style={Styles.set} />
