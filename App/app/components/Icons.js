@@ -33,7 +33,12 @@ Icons.background = require('../images/icon/user/icon_user_background.png');
 Icons.commentImg = require('../images/icon/user/icon_user_image.png');
 // 挂件图片
 Icons.pendantImage = require('../images/icon/user/icon_user_img.png');
-
+//关注
+Icons.attention = require('../images/icon/common/icon_msg_gz.png');
+//已关注
+Icons.attentioned = require('../images/icon/common/icon_msg_ygz.png');
+//设置
+Icons.set = require('../images/icon/user/icon_user_set.png');
 // -------------我的-------------end
 
 

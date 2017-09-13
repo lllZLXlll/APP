@@ -12,6 +12,7 @@ import {
   View,
   Image,
   Button,
+  TouchableOpacity,
 } from 'react-native';
 import { 
   TabNavigator, 
@@ -26,6 +27,13 @@ import Found from './resources/found/index';
 import User from './resources/user/index';
 import Screen from './resources/home/screen';
 import Fans from './resources/user/fans/fans';
+import Focus from './resources/user/fans/focus';
+import Praise from './resources/user/fans/praise';
+import Icons from './components/Icons';
+import Styles from './style/user/userStyle';
+//用户设置
+import UserSet from './resources/user/userSet';
+
 
 
 
@@ -107,9 +115,14 @@ const Tab = TabNavigator({
   },
   User: {
     screen: User,
-    navigationOptions: {
+      navigationOptions: ({ navigation }) => ({
       headerTitle: '我的',
       tabBarLabel: '我的',
+      headerRight: (
+          <TouchableOpacity activeOpacity={0.6} onPress={() => {navigation.navigate('UserSet')}}>
+            <Image source={Icons.set} style={Styles.set} />
+          </TouchableOpacity>
+      ),
       tabBarIcon: (({ focused }) => {
         return (
           <Image
@@ -118,7 +131,7 @@ const Tab = TabNavigator({
           /> 
         );  
       }),
-    },
+    }),
   },
 
 }, {
@@ -171,7 +184,18 @@ const App = StackNavigator({
     }),
 	
   },
-
+    UserSet: {
+        screen: UserSet,
+        navigationOptions: ({ navigation }) => ({
+            // 是否启用手势关闭屏幕
+            title:'设置',
+            gesturesEnabled: true,
+            headerTitleStyle: {
+                alignSelf: 'center',
+            },
+            headerRight: (<Text></Text>),
+        }),
+    },
     Fans: {
     screen: Fans,
     navigationOptions: ({ navigation }) => ({
@@ -180,12 +204,38 @@ const App = StackNavigator({
         headerTitleStyle: {
             alignSelf: 'center',
         },
-
+        headerRight: (<Text></Text>),
     }),
 
   },
-  
-  Mores: {
+
+    Focus: {
+        screen: Focus,
+        navigationOptions: ({ navigation }) => ({
+            // 是否启用手势关闭屏幕
+            gesturesEnabled: true,
+            headerTitleStyle: {
+                alignSelf: 'center',
+            },
+            headerRight: (<Text></Text>),
+        }),
+
+    },
+
+    Praise: {
+        screen: Praise,
+        navigationOptions: ({ navigation }) => ({
+            // 是否启用手势关闭屏幕
+            gesturesEnabled: true,
+            headerTitleStyle: {
+                alignSelf: 'center',
+            },
+            headerRight: (<Text></Text>),
+        }),
+
+    },
+
+    Mores: {
     screen: Mores,
     navigationOptions: ({ navigation }) => ({
       // 是否启用手势关闭屏幕

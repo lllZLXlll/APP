@@ -15,7 +15,7 @@ export default class FansTable extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isSelect: 1,
+            isClick: 0,
             data: [
                 {userName: '水电费',text:  '发布成功，粉丝将收到您的发帖通知！'},
                 {userName: '围观VB',text:  '发布成功，粉丝将收到您的发帖通知！'},
@@ -25,35 +25,40 @@ export default class FansTable extends Component {
     }
 
     _getTextItem(row, index) {
-        return <TouchableOpacity activeOpacity={0.5} onPress={() => {alert(1)}} key={index}>
-            <View style={Styles.FansTable}>
-                <View style={Styles.FansTableP}>
-                    <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
-                </View>
-                <View  style={Styles.FansTableC}>
-                    <View>
-                        <Text style={Styles.userNameText}>
-                            {row.userName}
-                        </Text>
+        return <View style={Styles.FansTable} key={index}>
+                    <View style={Styles.FansTableP}>
+                        <TouchableOpacity activeOpacity={0.5}>
+                        <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
+                        </TouchableOpacity>
                     </View>
-                    <View>
-                        <Text style={Styles.autographText}>
-                            {row.text}
-                        </Text>
+                    <View  style={Styles.FansTableC}>
+                        <TouchableOpacity activeOpacity={0.5}>
+                            <View>
+                                <Text style={Styles.userNameText}>
+                                    {row.userName}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity activeOpacity={0.5}>
+                        <View>
+                            <Text style={Styles.autographText}>
+                                {row.text}
+                            </Text>
+                        </View>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={Styles.FansTableC} >
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
+                        {
+                            this.state.isClick == index+1
+                                ?
+                                <Image style={Styles.attentionImage} source={Icons.attentioned}/>
+                                :
+                                <Image style={Styles.attentionImage} source={Icons.attention}/>
+                        }
+                        </TouchableOpacity>
                     </View>
                 </View>
-                <View style={Styles.FansTableC} onPress={() => {this.state({isSelect:6})}}>
-                    {
-                        this.state.isSelect == 6
-                            ?
-                            <Image style={Styles.attentionImage} source={Icons.praiseIcon_2}/>
-                            :
-                            <Image style={Styles.attentionImage} source={Icons.praiseIcon_1}/>
-                    }
-
-                </View>
-            </View>
-        </TouchableOpacity>
     }
 
     render() {

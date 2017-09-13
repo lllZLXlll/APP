@@ -89,7 +89,7 @@ export default class User extends Component {
 
                     </TouchableOpacity>
 
-                    <TouchableOpacity activeOpacity={1} onPress={() => {alert(3)}} style={Styles.itemView}>
+                    <TouchableOpacity activeOpacity={1} onPress={() => this.props.navigation.navigate('Focus')} style={Styles.itemView}>
                         <View style={Styles.itemTextTopView}>
                             <Text style={Styles.itemTopText}>124</Text>
                         </View>
@@ -98,7 +98,7 @@ export default class User extends Component {
                         </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity activeOpacity={1} onPress={() => {alert(4)}} style={Styles.itemView}>
+                    <TouchableOpacity activeOpacity={1} onPress={() => this.props.navigation.navigate('Praise')} style={Styles.itemView}>
                         <View style={Styles.itemTextTopView}>
                             <Text style={Styles.itemTopText}>45</Text>
                         </View>
