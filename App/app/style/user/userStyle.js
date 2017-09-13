@@ -244,19 +244,18 @@ export default Styles = StyleSheet.create({
         marginTop: 20/oPx,
 	},
     FansTableC: {
-        marginTop: 40/oPx,
-        marginLeft: 10/oPx
+        marginLeft: 10/oPx,
+        alignSelf: 'center',
     },
     attentionImage: {
-        width: 100/oPx,
-        height: 50/oPx,
+        width: 96/oPx,
+        height: 42/oPx,
     },
     fansPortraitImage: {
         width: 110/oPx,
         height: 110/oPx,
         marginLeft: 30/oPx
     },
-
 	noDataView: {
 		flex: 1,
 		alignItems: 'center',
@@ -437,6 +436,40 @@ export default Styles = StyleSheet.create({
 		fontSize: 28/oPx,
 		color: 'red',
 	},
+    fansPraise: {
+        height: 30/oPx,
+        width: 32/oPx,
+        marginLeft: 31/oPx,
+	},
+	set: {
+        height: 45/oPx,
+        width: 45/oPx,
+		marginRight: 30/oPx,
+	},
+	//夜间模式
+    nightModelView: {
+        backgroundColor: '#fff',
+        height: 90/oPx,
+        marginTop: 50/oPx,
+        marginBottom: 50/oPx,
+        flexDirection: 'row',
+        paddingLeft: 30/oPx,
+        paddingRight: 30/oPx,
+    },
+	//当前版本
+    versionsView: {
+        height: 90/oPx,
+        width: StyleConfig.screen_width,
+        flexDirection: 'row',
+        paddingLeft: 30/oPx,
+        paddingRight: 30/oPx,
+        marginTop: 50/oPx,
+        backgroundColor: '#fff',
+    },
+    versionsText: {
+        fontSize: 28/oPx,
+        color: '#9e9e9e',
+	}
 });
 
 

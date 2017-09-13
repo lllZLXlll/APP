@@ -43,7 +43,7 @@ export default class Article extends Component {
 	}
 
 	_getImageViewer = () => {
-		return 	<ImageViewer 
+		return 	<ImageViewer
 					visible={this.state.isOnClickImage}
 					imageUrls={this.state.data[this.state.dataIndex].images} // 照片路径
 					index={this.state.onClickIndex} // 初始显示第几张
