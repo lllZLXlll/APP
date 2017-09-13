@@ -140,7 +140,7 @@ export default Styles = StyleSheet.create({
 	},
 	textLeft: {
 		color: '#999',
-		fontSize: 28/oPx,
+		fontSize: 30/oPx,
 	},
 	textRight: {
 		color: '#ff8200',
@@ -182,7 +182,7 @@ export default Styles = StyleSheet.create({
 	},
 	itemConentText: {
 		color: '#000',
-		fontSize: 28/oPx,
+		fontSize: 30/oPx,
 		lineHeight: 38/oPx,
 	},
 	praiseView: {
@@ -307,8 +307,8 @@ export default Styles = StyleSheet.create({
 		flexDirection: 'row',
 	},
 	portraitItem: {
-		width: 65/oPx,
-		height: 65/oPx,
+		width: 80/oPx,
+		height: 80/oPx,
 	},
 	collectionRightView: {
 		marginLeft: 20/oPx,
@@ -340,17 +340,18 @@ export default Styles = StyleSheet.create({
 		marginLeft: 30/oPx,
 	},
 	visitItemView: {
-		height: 80/oPx,
+		height: 100/oPx,
 		flexDirection: 'row',
 		marginLeft: 30/oPx,
 		paddingRight: 30/oPx,
 		borderBottomWidth: StyleConfig.borderWidth,
 		borderColor: StyleConfig.borderColor,
+		paddingTop: 10/oPx,
+		paddingBottom: 10/oPx,
 	},
 	visitItemImg: {
-		height: 60/oPx,
-		width: 60/oPx,
-		marginTop: 10/oPx,
+		height: 80/oPx,
+		width: 80/oPx,
 	},
 	visitItemTextView: {
 		flex: 1,
@@ -358,11 +359,11 @@ export default Styles = StyleSheet.create({
 		marginLeft: 20/oPx,
 	},
 	visitItemName: {
-		fontSize: 22/oPx,
+		fontSize: 28/oPx,
 		color: '#000',
 	},
 	visitItemContent: {
-		fontSize: 20/oPx,
+		fontSize: 24/oPx,
 		color: '#999',
 	},
 	visitItemArrow: {

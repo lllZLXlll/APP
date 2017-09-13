@@ -17,7 +17,7 @@ export default class Visit extends Component {
 	_getTopView() {
 		return 	<View style={Styles.articleView}>
 						<View style={Styles.textLeftView}>
-							<Text style={Styles.textLeft}>总访客：3       今日访客：0</Text>
+							<Text style={[Styles.itemTabText,{color: '#999'}]}>总访客：3       今日访客：0</Text>
 						</View>
 						
 						<View style={Styles.textRightView}>
@@ -40,7 +40,7 @@ export default class Visit extends Component {
 									<Text style={Styles.visitItemName} numberOfLines={1}>老司机1号</Text>
 								</View>
 								
-								<View style={[Styles.visitItemTextView,{justifyContent: 'flex-start'}]}>
+								<View style={[Styles.visitItemTextView,{justifyContent: 'center'}]}>
 									<Text style={Styles.visitItemContent} numberOfLines={1}>07-14 09:14 访问 [我的资料]</Text>
 								</View>
 							</View>
@@ -57,7 +57,7 @@ export default class Visit extends Component {
 									<Text style={Styles.visitItemName} numberOfLines={1}>老司机2号</Text>
 								</View>
 								
-								<View style={[Styles.visitItemTextView,{justifyContent: 'flex-start'}]}>
+								<View style={[Styles.visitItemTextView,{justifyContent: 'center'}]}>
 									<Text style={Styles.visitItemContent} numberOfLines={1}>07-14 09:14 访问 [我的帖子]</Text>
 								</View>
 							</View>
@@ -82,7 +82,7 @@ export default class Visit extends Component {
 									<Text style={Styles.visitItemName} numberOfLines={1}>老司机3号</Text>
 								</View>
 								
-								<View style={[Styles.visitItemTextView,{justifyContent: 'flex-start'}]}>
+								<View style={[Styles.visitItemTextView,{justifyContent: 'center'}]}>
 									<Text style={Styles.visitItemContent} numberOfLines={1}>08-21 19:44 访问 [我的资料]</Text>
 								</View>
 							</View>
