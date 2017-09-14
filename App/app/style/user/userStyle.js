@@ -175,7 +175,6 @@ export default Styles = StyleSheet.create({
 	},
 	itemConentView: {
 		marginTop: 20/oPx,
-		marginBottom: 10/oPx,
 		flex: 1,
 		paddingLeft: 30/oPx,
 		paddingRight: 30/oPx,

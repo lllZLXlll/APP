@@ -34,7 +34,9 @@ import Styles from './style/user/userStyle';
 //用户设置
 import UserSet from './resources/user/userSet';
 
-
+// 首页
+// 帖子详情
+import ArticleDetails from './resources/home/articleDetails';
 
 
 // 我的
@@ -161,6 +163,16 @@ const App = StackNavigator({
       };
       return{title, headerTitleStyle};
     },
+  },
+  ArticleDetails: {
+    screen: ArticleDetails,
+    navigationOptions: ({ navigation }) => ({
+      title: '详情',
+      headerRight: (<Text/>),
+      headerTitleStyle: {
+        alignSelf: 'center',
+      },
+    }),
   },
   Screen: {
     screen: Screen,

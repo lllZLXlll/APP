@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 import { AppRegistry,Text } from 'react-native';
 import AppPage from './app/index';
-//import AppPage from './app/resources/user/index.js';
+// import AppPage from './app/components/TabComponent.js';
 
 class App extends Component {
 

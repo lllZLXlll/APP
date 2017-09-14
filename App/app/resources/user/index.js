@@ -15,7 +15,10 @@ import {
 import Styles from '../../style/user/userStyle';
 import { StyleConfig } from '../../style/style';
 import { TabNavigatior } from 'react-navigation';
+// 图片常量组件
 import Icons from '../../components/Icons';
+// tab切换组件
+import TabComponent from '../../components/TabComponent';
 
 // tab 内容页面
 import Article from './article';
@@ -30,12 +33,17 @@ export default class User extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			isSelect: 1,
 			data_1: [
 				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80},
 				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 1824, downCount: 24, msgCount: 248},
 				{sendDate: '2017-8-27 12:25', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '好多好多可爱叮当猫呀！', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 124, downCount: 59, msgCount: 77},
 			],
+			// tab切换栏数据
+			tabTitleMap: [
+	        	{tabTitle: '发帖'}, {tabTitle: '评论'}, {tabTitle: '收藏'}, {tabTitle: '访客'}
+	      	],
+	      	// 选中的tab序号0开始
+	      	isSelect: 0,
 		};
 	}
 
@@ -110,88 +118,29 @@ export default class User extends Component {
 				</View>;
 	}
 
-	_getTabComponent() {
-		const textStyle = this.state.textStyle;
-		return 	<View style={Styles.tabView}>
-					<View style={Styles.itemTabView}>
-						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isSelect: 1})}}>
-							<View style={Styles.tabTextView}>
-								{
-									this.state.isSelect == 1 
-									? 
-									<Text style={[Styles.itemTabText, {color: '#ff8200',}]}>发帖</Text>
-									: 
-									<Text style={Styles.itemTabText}>发帖</Text>
-								}
-							</View>
-						</TouchableOpacity>
-					</View>
-					<View style={Styles.itemTabView}>
-						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isSelect: 2})}}>
-							<View style={Styles.tabTextView}>
-								{
-									this.state.isSelect == 2 
-									? 
-									<Text style={[Styles.itemTabText, {color: '#ff8200',}]}>评论</Text>
-									: 
-									<Text style={Styles.itemTabText}>评论</Text>
-								}
-							</View>
-						</TouchableOpacity>
-					</View>
-					<View style={Styles.itemTabView}>
-						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isSelect: 3})}}>
-							<View style={Styles.tabTextView}>
-								{
-									this.state.isSelect == 3 
-									? 
-									<Text style={[Styles.itemTabText, {color: '#ff8200',}]}>收藏</Text>
-									: 
-									<Text style={Styles.itemTabText}>收藏</Text>
-								}
-							</View>
-						</TouchableOpacity>
-					</View>
-					<View style={Styles.itemTabView}>
-						<TouchableOpacity activeOpacity={1} onPress={() => {this.setState({isSelect: 4})}}>
-							<View style={[Styles.tabTextView, {borderRightWidth: 0}]}>
-								{
-									this.state.isSelect == 4 
-									? 
-									<Text style={[Styles.itemTabText, {color: '#ff8200',}]}>访客</Text>
-									: 
-									<Text style={Styles.itemTabText}>访客</Text>
-								}
-							</View>
-						</TouchableOpacity>
-					</View>
-				</View>;
-	}
-	
-	_goScreen = () => {
-		this.props.navigation.navigate('Screen', {name: 'name1234'});
+	// 设置tab切换
+	_setIsSelect = (index) => {
+		this.setState({isSelect: index});
 	}
 
 	_getTabConent() {
 		let tabConent = <Article />;
 		switch(this.state.isSelect) {
-			case 1:
+			case 0:
 				tabConent = <Article data={this.state.data_1} _onPressMore={this._onPressMore} />;
 				break;
-			case 2:
+			case 1:
 				tabConent = <Comment  _onPressMore={this._onPressMore} />;
 				break;
-			case 3:
+			case 2:
 				tabConent = <Collection data={this.state.data_1} _onPressMore={this._onPressMore} />;
 				break;
-			case 4:
+			case 3:
 				tabConent = <VisitGuest />;
 				break;
 		}
 		return tabConent;
 	}
-
-
 	
 	render() {	
 		return (
@@ -208,7 +157,7 @@ export default class User extends Component {
 				/>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
-				{ this._getTabComponent() }
+				<TabComponent isSelect={this.state.isSelect} tabTitleMap={this.state.tabTitleMap} _setIsSelect={this._setIsSelect} />
 				{ this._getTabConent() }
 			</ScrollView>
 		);

@@ -155,25 +155,30 @@ export default class Item extends Component {
 							row.images ? this._getImages(row.images, index) : null
 						}
 						
-						<View style={Styles.itemCommentView}>
-							<View style={[Styles.topView, {marginTop: 10/oPx, marginBottom: 5/oPx}]}>
-								<Image style={[Styles.portraitItem, {}]} source={Icons.portrait} />
-								<View style={Styles.collectionRightView}>
-									<View style={[Styles.collectionTopView, {justifyContent: 'center'}]}>
-										<Text style={[Styles.textLeft, {color: '#333'}]}>用户名</Text>
+						{
+							!this.props.isNoShowComment
+							?
+							<View style={Styles.itemCommentView}>
+								<View style={[Styles.topView, {marginTop: 10/oPx, marginBottom: 5/oPx}]}>
+									<Image style={[Styles.portraitItem, {}]} source={Icons.portrait} />
+									<View style={Styles.collectionRightView}>
+										<View style={[Styles.collectionTopView, {justifyContent: 'center'}]}>
+											<Text style={[Styles.textLeft, {color: '#333'}]}>用户名</Text>
+										</View>
+									</View>
+									<View style={[Styles.itemTopRightView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end',}]}>
+										<TouchableOpacity activeOpacity={1} onPress={() => {this._deleteArticle()}}>
+											<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
+										</TouchableOpacity>
+										<Text style={Styles.onClickText}>{row.upCount}</Text>
 									</View>
 								</View>
-								<View style={[Styles.itemTopRightView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end',}]}>
-									<TouchableOpacity activeOpacity={1} onPress={() => {this._deleteArticle()}}>
-										<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
-									</TouchableOpacity>
-									<Text style={Styles.onClickText}>{row.upCount}</Text>
+								<View style={[Styles.topView, {marginBottom: 10/oPx}]}>
+									<Text style={[Styles.textLeft, {color: '#333'}]} numberOflines={5}>你发的什么东西，会不会说人话？给你五分钟让你重新组织一下语言。</Text>
 								</View>
 							</View>
-							<View style={[Styles.topView, {marginBottom: 10/oPx}]}>
-								<Text style={[Styles.textLeft, {color: '#333'}]} numberOflines={5}>你发的什么东西，会不会说人话？给你五分钟让你重新组织一下语言。</Text>
-							</View>
-						</View>
+							: null
+						}
 
 						<View style={Styles.praiseView}>
 							<View style={Styles.itemPraiseView}>
@@ -189,7 +194,7 @@ export default class Item extends Component {
 								<Text style={Styles.onClickText}>{row.downCount}</Text>
 							</View>
 							<View style={Styles.itemPraiseView}>
-								<TouchableOpacity activeOpacity={1} onPress={() => {alert('消息')}}>
+								<TouchableOpacity activeOpacity={1} onPress={this.props._toMsgDetails}>
 									<Image style={Styles.onClickIcon} source={Icons.msgIcon} />
 								</TouchableOpacity>
 								<Text style={Styles.onClickText}>{row.msgCount}</Text>
