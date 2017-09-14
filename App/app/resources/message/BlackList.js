@@ -26,11 +26,9 @@ export default class BlackList extends Component {
     _getTextItem(row, index) {
         return <View style={Styles.blacklistTable} key={index}>
             <View style={Styles.blacklistTableP}>
-                <View style={Styles.messageTablePs}>
                     <TouchableOpacity activeOpacity={0.5}>
                         <Image style={Styles.messagePortraitImage} source={Icons.portrait} />
                     </TouchableOpacity>
-                </View>
             </View>
             <View  style={Styles.blacklistTableC}>
                 <TouchableOpacity activeOpacity={0.5}>

@@ -131,6 +131,7 @@ export default Styles = StyleSheet.create({
     },
     blacklistTableP: {
         justifyContent: 'center',
+        alignSelf: 'center',
         flexDirection: 'row',
         flex : 1,
     },
