@@ -410,12 +410,18 @@ export default Styles = StyleSheet.create({
 		color: '#000',
 	},
 	userItemCenterView: {
-		flex: 1,
+		flex: 4,
 		justifyContent: 'center',
 		alignItems: 'flex-end',
+		paddingRight: 20/oPx,
+		paddingLeft: 50/oPx,
 	},
 	arrowImageView: {
 		justifyContent: 'center',
+	},
+	userPortraitImage: {
+		width: 100/oPx,
+		height: 100/oPx,
 	},
 	
 	userMoreItemView: {
@@ -456,9 +462,9 @@ export default Styles = StyleSheet.create({
 	//夜间模式
     nightModelView: {
         backgroundColor: '#fff',
-        height: 80/oPx,
-        marginTop: 30/oPx,
-        marginBottom: 30/oPx,
+        height: 70/oPx,
+        marginTop: 50/oPx,
+        marginBottom: 50/oPx,
         flexDirection: 'row',
         paddingLeft: 30/oPx,
         paddingRight: 30/oPx,
