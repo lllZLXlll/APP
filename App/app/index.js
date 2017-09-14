@@ -33,6 +33,8 @@ import Icons from './components/Icons';
 import Styles from './style/user/userStyle';
 //用户设置
 import UserSet from './resources/user/userSet';
+//黑名单
+import BlackList from './resources/message/BlackList';
 
 
 
@@ -47,6 +49,8 @@ import UserMore from './resources/user/userMore';
 // 通用网页页面
 import WebView from './components/WebView'
 
+//消息样式
+import msgStyles from './style/message/messageStyle';
 // 临时底部图标
 const icon1 = require('./images/icon/icon_1.png');
 const icon2 = require('./images/icon/icon_1_1.png');
@@ -70,18 +74,24 @@ const Tab = TabNavigator({
   },
   Message: {
     screen: Message,
-    navigationOptions: {
+      navigationOptions: ({ navigation }) => ({
       headerTitle: '消息',
       tabBarLabel: '消息',
       tabBarIcon: (({ focused }) => {
         return (
           <Image
             source={focused ? icon1 : icon2}
-            style={styles.icon}  
-          /> 
+            style={styles.icon}
+          />
         );  
       }),
-    },
+      headerLeft: (<Text/>),
+      headerRight: (
+       <TouchableOpacity activeOpacity={0.6} onPress={() => {navigation.navigate('BlackList')}}>
+         <Text style={msgStyles.blacklistFont}>黑名单</Text>
+       </TouchableOpacity>
+      ),
+    }),
   },
   Send: {
     screen: Send,
@@ -123,6 +133,7 @@ const Tab = TabNavigator({
             <Image source={Icons.set} style={Styles.set} />
           </TouchableOpacity>
       ),
+      headerLeft:(<Text/>),
       tabBarIcon: (({ focused }) => {
         return (
           <Image
@@ -226,6 +237,19 @@ const App = StackNavigator({
         screen: Praise,
         navigationOptions: ({ navigation }) => ({
             // 是否启用手势关闭屏幕
+            gesturesEnabled: true,
+            headerTitleStyle: {
+                alignSelf: 'center',
+            },
+            headerRight: (<Text></Text>),
+        }),
+
+    },
+    BlackList: {
+        screen: BlackList,
+        navigationOptions: ({ navigation }) => ({
+            // 是否启用手势关闭屏幕
+            title: '黑名单',
             gesturesEnabled: true,
             headerTitleStyle: {
                 alignSelf: 'center',
