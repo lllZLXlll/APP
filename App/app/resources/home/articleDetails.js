@@ -16,6 +16,8 @@ import ImageViewer from '../../components/ImageViewer';
 import FooterComponent from '../../components/FooterComponent';
 // tab切换组件
 import TabComponent from '../../components/TabComponent';
+// 帖子详情中评论item
+import CommentItem from '../../components/CommentItem';
 // Item
 import Item from '../../components/Item';
 
@@ -38,6 +40,13 @@ export default class ArticleDetails extends Component {
 			// tab切换栏数据
 			tabTitleMap: [
 	        	{tabTitle: '趣评(6)'},{tabTitle: '最新评论(1.2万)'},{tabTitle: '赞过(3.1万)'},
+	      	],
+	      	// 帖子回复临时数据
+	      	commentDate: [
+	      		{userName: '闷骚青年', pariseCount: 15, revertCount: 7, commentContent: '没怎么看懂，看懂的来点个赞，回复一下。'},
+	      		{userName: '楼上儿子', pariseCount: 11, revertCount: 25, commentContent: '这都不懂还怎么玩，一楼滚下来，顶起来！'},
+	      		{userName: '楼下许巍', pariseCount: 5, revertCount: 2, commentContent: '曾梦想仗剑走天涯，最后老老实实成了家，嘀嘀哩哩嘀嘀嘀嘀噔哒。。。'},
+	      		{userName: '在下许巍', pariseCount: 3, revertCount: 6, commentContent: '嘀嘀哩哩嘀嘀嘀嘀噔哒,嘀嘀哩哩嘀嘀嘀嘀哒哒'},
 	      	],
 	      	// 选中的tab序号0开始
 	      	isSelect: 0,
@@ -76,6 +85,10 @@ export default class ArticleDetails extends Component {
 		this.setState({isSelect: index});
 	}
 
+	_getComenItem(row, index) {
+		return	<CommentItem row={row} key={index} />;
+	}
+
 	render() {
 		return (
 			<ScrollView style={Styles.view}>
@@ -88,8 +101,15 @@ export default class ArticleDetails extends Component {
 				 <TabComponent isSelect={this.state.isSelect} 
 			 		tabTitleMap={this.state.tabTitleMap} 
 			 		_setIsSelect={this._setIsSelect}
-			 		marginTop={0} 
+			 		marginTop={0}
 		 		/>
+
+		 		{
+		 			this.state.commentDate.map((row, index) => {
+		 				return	this._getComenItem(row, index);
+		 			})
+		 		}
+		 		
 
 				{ this._getImageViewer() }
 			</ScrollView>

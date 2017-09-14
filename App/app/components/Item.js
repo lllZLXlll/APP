@@ -173,8 +173,8 @@ export default class Item extends Component {
 										<Text style={Styles.onClickText}>{row.upCount}</Text>
 									</View>
 								</View>
-								<View style={[Styles.topView, {marginBottom: 10/oPx}]}>
-									<Text style={[Styles.textLeft, {color: '#333'}]} numberOflines={5}>你发的什么东西，会不会说人话？给你五分钟让你重新组织一下语言。</Text>
+								<View style={[Styles.topView, {marginBottom: 20/oPx, marginTop: 10/oPx}]}>
+									<Text style={[Styles.textLeft, {color: '#333', lineHeight: 38/oPx,}]} numberOflines={5}>你发的什么东西，会不会说人话？给你五分钟让你重新组织一下语言。</Text>
 								</View>
 							</View>
 							: null

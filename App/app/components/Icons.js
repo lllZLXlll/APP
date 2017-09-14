@@ -11,6 +11,8 @@ let Icons = [];
 Icons.portrait = require('../images/icon/user/icon_user_portrait.png');
 // 箭头图标
 Icons.arrow = require('../images/icon/user/icon_user_arrow.png');
+// 箭头图标灰色
+Icons.arrow_1 = require('../images/icon/user/icon_user_arrow_1.png');
 
 // 发帖:
 // 未点赞
