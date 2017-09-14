@@ -36,7 +36,9 @@ import UserSet from './resources/user/userSet';
 //黑名单
 import BlackList from './resources/message/BlackList';
 
-
+// 首页
+// 帖子详情
+import ArticleDetails from './resources/home/articleDetails';
 
 
 // 我的
@@ -128,6 +130,7 @@ const Tab = TabNavigator({
       navigationOptions: ({ navigation }) => ({
       headerTitle: '我的',
       tabBarLabel: '我的',
+	  headerLeft: (<Text></Text>),
       headerRight: (
           <TouchableOpacity activeOpacity={0.6} onPress={() => {navigation.navigate('UserSet')}}>
             <Image source={Icons.set} style={Styles.set} />
@@ -171,6 +174,16 @@ const App = StackNavigator({
       };
       return{title, headerTitleStyle};
     },
+  },
+  ArticleDetails: {
+    screen: ArticleDetails,
+    navigationOptions: ({ navigation }) => ({
+      title: '详情',
+      headerRight: (<Text/>),
+      headerTitleStyle: {
+        alignSelf: 'center',
+      },
+    }),
   },
   Screen: {
     screen: Screen,

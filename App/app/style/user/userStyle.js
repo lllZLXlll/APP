@@ -140,7 +140,7 @@ export default Styles = StyleSheet.create({
 	},
 	textLeft: {
 		color: '#999',
-		fontSize: 28/oPx,
+		fontSize: 30/oPx,
 	},
 	textRight: {
 		color: '#ff8200',
@@ -148,8 +148,6 @@ export default Styles = StyleSheet.create({
 	},
 	articleItemView: {
 		flex: 1,
-		paddingLeft: 30/oPx,
-		paddingRight: 30/oPx,
 		marginBottom: 10/oPx,
 		backgroundColor: '#fff',
 	},
@@ -177,12 +175,13 @@ export default Styles = StyleSheet.create({
 	},
 	itemConentView: {
 		marginTop: 20/oPx,
-		marginBottom: 10/oPx,
 		flex: 1,
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
 	},
 	itemConentText: {
-		color: '#000',
-		fontSize: 28/oPx,
+		color: '#333',
+		fontSize: 30/oPx,
 		lineHeight: 38/oPx,
 	},
 	praiseView: {
@@ -190,6 +189,8 @@ export default Styles = StyleSheet.create({
 		marginTop: 20/oPx,
 		marginBottom: 20/oPx,
 		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
 	},
 	itemPraiseView: {
 		flex: 1,
@@ -206,15 +207,18 @@ export default Styles = StyleSheet.create({
 		fontSize: 28/oPx,
 	},
 	itemImage: {
-		width: (StyleConfig.screen_width-60/oPx) / 3 - 10/oPx,
-		height: (StyleConfig.screen_width-60/oPx) / 3 - 10/oPx,
+		width: (StyleConfig.screen_width-60/oPx) / 3 - 5/oPx,
+		height: (StyleConfig.screen_width-60/oPx) / 3 - 5/oPx,
+		marginRight: 5/oPx,
+	},
+	itemImage_4: {
+		width: (StyleConfig.screen_width-60/oPx) / 2 - 5/oPx,
+		height: (StyleConfig.screen_width-60/oPx) / 2 - 5/oPx,
+		marginRight: 5/oPx,
 	},
 	itemImgView: {
 		flexDirection: 'row',
-		marginTop: 10/oPx,
-		flex: 1,
-	},
-	ImgView: {
+		marginTop: 5/oPx,
 		flex: 1,
 	},
 	maxImage: {
@@ -232,6 +236,12 @@ export default Styles = StyleSheet.create({
 		fontSize: 26/oPx,
 		color: '#ff8200',
 	},
+	itemCommentView: {
+		backgroundColor: '#eee',
+		marginTop: 20/oPx,
+		marginBottom: 20/oPx,
+	},
+	
 	// 粉丝
 	FansTable: {
         height: 160/oPx,
@@ -304,10 +314,12 @@ export default Styles = StyleSheet.create({
 	topView: {
 		flex: 1,
 		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
 	},
 	portraitItem: {
-		width: 65/oPx,
-		height: 65/oPx,
+		width: 70/oPx,
+		height: 70/oPx,
 	},
 	collectionRightView: {
 		marginLeft: 20/oPx,
@@ -339,17 +351,18 @@ export default Styles = StyleSheet.create({
 		marginLeft: 30/oPx,
 	},
 	visitItemView: {
-		height: 80/oPx,
+		height: 100/oPx,
 		flexDirection: 'row',
 		marginLeft: 30/oPx,
 		paddingRight: 30/oPx,
 		borderBottomWidth: StyleConfig.borderWidth,
 		borderColor: StyleConfig.borderColor,
+		paddingTop: 10/oPx,
+		paddingBottom: 10/oPx,
 	},
 	visitItemImg: {
-		height: 60/oPx,
-		width: 60/oPx,
-		marginTop: 10/oPx,
+		height: 80/oPx,
+		width: 80/oPx,
 	},
 	visitItemTextView: {
 		flex: 1,
@@ -357,11 +370,11 @@ export default Styles = StyleSheet.create({
 		marginLeft: 20/oPx,
 	},
 	visitItemName: {
-		fontSize: 22/oPx,
+		fontSize: 28/oPx,
 		color: '#000',
 	},
 	visitItemContent: {
-		fontSize: 20/oPx,
+		fontSize: 24/oPx,
 		color: '#999',
 	},
 	visitItemArrow: {
@@ -412,7 +425,7 @@ export default Styles = StyleSheet.create({
 	
 	userMoreItemView: {
 		backgroundColor: '#fff',
-		height: 60/oPx,
+		height: 70/oPx,
 		flexDirection: 'row',
 		paddingLeft: 30/oPx,
 		paddingRight: 30/oPx,
@@ -424,7 +437,7 @@ export default Styles = StyleSheet.create({
 		width: 12/oPx,
 	},
 	exitItemView: {
-		height: 60/oPx,
+		height: 70/oPx,
 		width: StyleConfig.screen_width,
 		alignItems: 'center',
 		justifyContent: 'center',
@@ -448,7 +461,7 @@ export default Styles = StyleSheet.create({
 	//夜间模式
     nightModelView: {
         backgroundColor: '#fff',
-        height: 90/oPx,
+        height: 70/oPx,
         marginTop: 50/oPx,
         marginBottom: 50/oPx,
         flexDirection: 'row',
@@ -457,7 +470,7 @@ export default Styles = StyleSheet.create({
     },
 	//当前版本
     versionsView: {
-        height: 90/oPx,
+        height: 70/oPx,
         width: StyleConfig.screen_width,
         flexDirection: 'row',
         paddingLeft: 30/oPx,

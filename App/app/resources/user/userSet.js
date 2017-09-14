@@ -28,7 +28,7 @@ export default class UserSet extends Component {
                     <Text style={Styles.userItemLeftText}>夜间模式</Text>
                 </View>
                 <View style={Styles.userItemCenterView}>
-                    <Switch style={Styles.userPortraitImage} value={this.state.isSelect}
+                    <Switch value={this.state.isSelect}
                         onValueChange={()=> {this.setState({isSelect: !this.state.isSelect})}}
                     />
                 </View>
