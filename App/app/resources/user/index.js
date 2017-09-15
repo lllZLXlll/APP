@@ -153,6 +153,16 @@ export default class User extends Component {
 		return tabConent;
 	}
 	
+	_onMomentumScrollEnd(e) {
+		console.log();
+	 	var offsetY = e.nativeEvent.contentOffset.y; //滑动距离
+        var contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView contentSize高度
+        var oriageScrollHeight = e.nativeEvent.layoutMeasurement.height; //scrollView高度
+        if (offsetY + oriageScrollHeight >= contentSizeHeight){
+            console.log('上传滑动到底部事件')
+        }
+	}
+
 	render() {
 		return (
 			<ScrollView style={{flex: 1}}
@@ -164,6 +174,7 @@ export default class User extends Component {
 		        }
 		        stickyHeaderIndices={[2]}
 		        ref={(scrollView) => { _scrollView = scrollView; }}
+		        onMomentumScrollEnd={this._onMomentumScrollEnd}
 			>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
