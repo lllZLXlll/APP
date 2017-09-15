@@ -52,6 +52,12 @@ export default class ArticleDetails extends Component {
 	      		{userName: '楼下许巍1', pariseCount: 5, revertCount: 2, commentContent: '曾梦想仗剑走天涯，最后老老实实成了家，嘀嘀哩哩嘀嘀嘀嘀噔哒。。。'},
 	      		{userName: '在下许巍1', pariseCount: 3, revertCount: 6, commentContent: '嘀嘀哩哩嘀嘀嘀嘀噔哒,嘀嘀哩哩嘀嘀嘀嘀哒哒'},
 	      	],
+	      	// 点赞临时数据
+	      	praiseData: [
+                {userName: '盖伦',text:  '发布成功，粉丝将收到您的发帖通知！'},
+                {userName: '进克斯',text:  '发布成功，粉丝将收到您的发帖通知！'},
+                {userName: '拉克丝',text:  '发布成功，粉丝将收到您的发帖通知！'},
+            ],
 	      	// 选中的tab序号0开始
 	      	isSelect: 0,
 			isOnClickImage: false,
@@ -93,6 +99,39 @@ export default class ArticleDetails extends Component {
 		return	<CommentItem row={row} key={index} />;
 	}
 
+	_getPraiseItem(row, index) {
+        return <View style={Styles.FansTable} key={index}>
+                    <View style={Styles.FansTableP}>
+                        <TouchableOpacity activeOpacity={0.5}>
+                            <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
+                        </TouchableOpacity>
+                    </View>
+                    <View  style={Styles.FansTableC}>
+                        <View style={Styles.userNameView}>
+                            <Text style={[Styles.userNameText, {fontSize: 30/oPx}]}>
+                                {row.userName}
+                            </Text>
+                        </View>
+                        <View style={Styles.autographView}>
+                            <Text style={Styles.autographText}>
+                                {row.text}
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={{flex: 1, alignItems: 'flex-end', justifyContent: 'center', paddingRight: 30/oPx}} >
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
+                            {
+                                this.state.isClick == index+1
+                                    ?
+                                    <Image style={Styles.fansPraise} source={Icons.praiseIcon_2}/>
+                                    :
+                                    <Image style={Styles.fansPraise} source={Icons.praiseIcon_1}/>
+                            }
+                        </TouchableOpacity>
+                    </View>
+                </View>
+    }
+
 	_getTab = () => {
 		switch(this.state.isSelect) {
 			case 0:
@@ -106,7 +145,9 @@ export default class ArticleDetails extends Component {
 	 			});
 				break;
 			case 2:
-				
+				return this.state.praiseData.map((row, index) => {
+	 				return	this._getPraiseItem(row, index);
+	 			});
 				break;
 			default:
 				return this.state.commentData.map((row, index) => {
