@@ -68,6 +68,7 @@ export default Styles = StyleSheet.create({
 		height: 80/oPx,
 		backgroundColor: '#fff',
 		flexDirection : 'row',
+		marginBottom: 20/oPx,
 	},
 	itemView: {
 		flex: 1,
@@ -104,7 +105,6 @@ export default Styles = StyleSheet.create({
 		flexDirection: 'row',
 		width: StyleConfig.screen_width,
 		height: 70/oPx,
-		marginTop: 20/oPx,
 	},
 	itemTabView: {
 		flex: 1,

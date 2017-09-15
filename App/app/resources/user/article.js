@@ -51,11 +51,6 @@ export default class Article extends Component {
 						<View style={Styles.textLeftView}>
 							<Text style={Styles.textLeft}>发帖：2</Text>
 						</View>
-						
-						<View style={Styles.textRightView}>
-							<Text style={Styles.textRight} onPress={this._onPressMore}>      更多</Text>
-						</View>
-
 				</View>;
 	}
 
@@ -105,8 +100,6 @@ export default class Article extends Component {
 					}
 
 					{ this._getImageViewer() }
-
-					{ this._getMore() }
 				</View>
 			);
 		} else {

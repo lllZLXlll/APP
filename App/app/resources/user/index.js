@@ -19,6 +19,8 @@ import { TabNavigatior } from 'react-navigation';
 import Icons from '../../components/Icons';
 // tab切换组件
 import TabComponent from '../../components/TabComponent';
+// 底部加载组件
+import FooterComponent from '../../components/FooterComponent';
 
 // tab 内容页面
 import Article from './article';
@@ -26,6 +28,8 @@ import Comment from './comment';
 import Collection from './collection';
 import VisitGuest from './visitGuest';
 
+// 滚动视图
+var _scrollView = ScrollView;
 // 临时图片数据
 const imagesUri = 'https://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
 
@@ -120,7 +124,11 @@ export default class User extends Component {
 
 	// 设置tab切换
 	_setIsSelect = (index) => {
-		this.setState({isSelect: index});
+		if(index != this.state.isSelect) {
+			// 回到顶部
+			//_scrollView.scrollTo({x: 0, y: 0, animated: false});
+			this.setState({isSelect: index});
+		}
 	}
 
 	_getTabConent() {
@@ -145,7 +153,7 @@ export default class User extends Component {
 		return tabConent;
 	}
 	
-	render() {	
+	render() {
 		return (
 			<ScrollView style={{flex: 1}}
 				refreshControl={
@@ -154,14 +162,15 @@ export default class User extends Component {
 		              	onRefresh={this._getData}
 		            />
 		        }
+		        stickyHeaderIndices={[2]}
+		        ref={(scrollView) => { _scrollView = scrollView; }}
 			>
-				<StatusBar
-					hidden={true}
-				/>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
 				<TabComponent isSelect={this.state.isSelect} tabTitleMap={this.state.tabTitleMap} _setIsSelect={this._setIsSelect} />
 				{ this._getTabConent() }
+
+				<FooterComponent />
 			</ScrollView>
 		);
 	}

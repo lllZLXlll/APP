@@ -159,9 +159,9 @@ export default class ArticleDetails extends Component {
 
 	render() {
 		return (
-			<ScrollView style={Styles.view}>
+			<ScrollView style={Styles.view} stickyHeaderIndices={[1]}>
 				<Item row={this.state.data[0]}
-				 	index={0} 
+				 	index={0}
 				 	_setDataIndex={this._setDataIndex} 
 				 	isNoShowComment={true}
 				 />
