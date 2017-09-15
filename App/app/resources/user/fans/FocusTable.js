@@ -9,6 +9,8 @@ import {
 
 import Icons from '../../../components/Icons';
 import Styles from '../../../style/user/userStyle';
+import {StyleConfig} from '../../../style/style';
+let oPx = StyleConfig.oPx;
 
 export default class FansTable extends Component {
 
@@ -32,22 +34,18 @@ export default class FansTable extends Component {
                 </TouchableOpacity>
             </View>
             <View  style={Styles.FansTableC}>
-                <TouchableOpacity activeOpacity={0.5}>
-                    <View>
-                        <Text style={Styles.userNameText}>
-                            {row.userName}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.5}>
-                    <View>
-                        <Text style={Styles.autographText}>
-                            {row.text}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
+                <View style={Styles.userNameView}>
+                    <Text style={[Styles.userNameText, {fontSize: 30/oPx}]}>
+                        {row.userName}
+                    </Text>
+                </View>
+                <View style={Styles.autographView}>
+                    <Text style={Styles.autographText}>
+                        {row.text}
+                    </Text>
+                </View>
             </View>
-            <View style={Styles.FansTableC} >
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}} >
                 <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
                     {
                         this.state.isClick == index+1

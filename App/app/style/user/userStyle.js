@@ -244,14 +244,14 @@ export default Styles = StyleSheet.create({
 	
 	// 粉丝
 	FansTable: {
-        height: 160/oPx,
+        height: 100/oPx,
         backgroundColor: '#fff',
         flexDirection : 'row',
         borderTopWidth: StyleConfig.borderWidth,
         borderColor: StyleConfig.borderColor,
 	},
     FansTableP: {
-        marginTop: 20/oPx,
+        marginTop: 10/oPx,
 	},
     FansTableC: {
         marginLeft: 10/oPx,
@@ -262,8 +262,8 @@ export default Styles = StyleSheet.create({
         height: 42/oPx,
     },
     fansPortraitImage: {
-        width: 110/oPx,
-        height: 110/oPx,
+        width: 80/oPx,
+        height: 80/oPx,
         marginLeft: 30/oPx
     },
 	noDataView: {
@@ -451,7 +451,6 @@ export default Styles = StyleSheet.create({
     fansPraise: {
         height: 30/oPx,
         width: 32/oPx,
-        marginLeft: 31/oPx,
 	},
 	set: {
         height: 45/oPx,

@@ -25,7 +25,7 @@ import Icons from '../../components/Icons';
 let oPx = StyleConfig.oPx;
 
 // 临时图片数据
-const imagesUri = 'http://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
+const imagesUri = 'https://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
 
 export default class Index extends Component {
 	constructor(props) {

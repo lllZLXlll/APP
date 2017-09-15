@@ -27,7 +27,7 @@ import Collection from './collection';
 import VisitGuest from './visitGuest';
 
 // 临时图片数据
-const imagesUri = 'http://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
+const imagesUri = 'https://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
 
 export default class User extends Component {
 	constructor(props) {
@@ -137,6 +137,9 @@ export default class User extends Component {
 				break;
 			case 3:
 				tabConent = <VisitGuest />;
+				break;
+			default:
+				tabConent = <Article data={this.state.data_1} _onPressMore={this._onPressMore} />;
 				break;
 		}
 		return tabConent;
