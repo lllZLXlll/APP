@@ -31,26 +31,23 @@ export default class BlackList extends Component {
                     </TouchableOpacity>
             </View>
             <View  style={Styles.blacklistTableC}>
-                <TouchableOpacity activeOpacity={0.5}>
-                    <View style={Styles.blacklistTextView}>
+                    <View style={[Styles.blacklistTextView, {justifyContent: 'flex-end',}]}>
                         <Text style={Styles.userNameText}>
                             {row.userName}
                         </Text>
                     </View>
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.5}>
-                    <View style={[{flexDirection: 'row',},Styles.blacklistTextView]}>
-                        <Text style={Styles.blacklistText}>拉黑理由：</Text>
-                        <Text style={Styles.autographText} numberOfLines={1}>
-                            {row.text}
+                    <View style={Styles.blacklistTextView}>
+                        <Text style={Styles.blacklistText} numberOfLines={1}>拉黑理由：
+                            <Text style={Styles.autographText}>
+                                {row.text}
+                            </Text>
                         </Text>
                     </View>
-                </TouchableOpacity>
             </View>
             <View style={Styles.blacklistTableB}>
                 <TouchableOpacity activeOpacity={0.5}>
                     <View style={Styles.blacklistBt}>
-                        <Text style={Styles.userNameText}>移除黑名单</Text>
+                        <Text style={Styles.blackText}>移除黑名单</Text>
                     </View>
                 </TouchableOpacity>
             </View>

@@ -19,9 +19,9 @@ export default class FansTable extends Component {
         this.state = {
             isClick: 0,
             data: [
-                {userName: '盖伦',text:  '发布成功，粉丝将收到您的发帖通知！'},
-                {userName: '进克斯',text:  '发布成功，粉丝将收到您的发帖通知！'},
-                {userName: '拉克丝',text:  '发布成功，粉丝将收到您的发帖通知！'},
+                {userName: '水电费',text:  '发布成功，粉丝将收到您的发帖通知！'},
+                {userName: '围观VB',text:  '发布成功，粉丝将收到您的发帖通知！'},
+                {userName: '金克木',text:  '发布成功，粉丝将收到您的发帖通知！'},
             ],
         }
     }
@@ -35,17 +35,17 @@ export default class FansTable extends Component {
             </View>
             <View  style={Styles.FansTableC}>
                 <View style={Styles.userNameView}>
-                    <Text style={[Styles.userNameText, {fontSize: 30/oPx}]}>
+                    <Text style={[Styles.userNameText, {fontSize: 24/oPx}]}>
                         {row.userName}
                     </Text>
                 </View>
                 <View style={Styles.autographView}>
-                    <Text style={Styles.autographText}>
+                    <Text style={[Styles.autographText, {fontSize: 18/oPx}]}>
                         {row.text}
                     </Text>
                 </View>
             </View>
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}} >
+            <View style={{alignItems: 'center', justifyContent: 'center', marginRight: 30/oPx}} >
                 <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
                     {
                         this.state.isClick == index+1

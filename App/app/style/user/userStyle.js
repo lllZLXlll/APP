@@ -255,7 +255,7 @@ export default Styles = StyleSheet.create({
 	},
     FansTableC: {
         marginLeft: 10/oPx,
-        alignSelf: 'center',
+		flex: 1,
     },
     attentionImage: {
         width: 96/oPx,
@@ -480,7 +480,7 @@ export default Styles = StyleSheet.create({
     versionsText: {
         fontSize: 28/oPx,
         color: '#9e9e9e',
-	}
+	},
 });
 
 
