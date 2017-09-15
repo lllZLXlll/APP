@@ -125,9 +125,9 @@ export default class User extends Component {
 	// 设置tab切换
 	_setIsSelect = (index) => {
 		if(index != this.state.isSelect) {
+			this.setState({isSelect: index});
 			// 回到顶部
 			//_scrollView.scrollTo({x: 0, y: 0, animated: false});
-			this.setState({isSelect: index});
 		}
 	}
 
@@ -153,13 +153,20 @@ export default class User extends Component {
 		return tabConent;
 	}
 	
-	_onMomentumScrollEnd(e) {
-		console.log();
+	_onMomentumScrollEnd = (e) => {
 	 	var offsetY = e.nativeEvent.contentOffset.y; //滑动距离
-        var contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView contentSize高度
         var oriageScrollHeight = e.nativeEvent.layoutMeasurement.height; //scrollView高度
-        if (offsetY + oriageScrollHeight >= contentSizeHeight){
-            console.log('上传滑动到底部事件')
+        var contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView 内容高度
+        console.log(offsetY + '|' + oriageScrollHeight + '|' + contentSizeHeight );
+        if (offsetY + oriageScrollHeight >= contentSizeHeight - 500){
+        	// 如果距离底部500，加载数据
+    		let a = {sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80};
+			let c = {sendDate: '2017-8-27 12:25', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '好多好多可爱叮当猫呀！', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 124, downCount: 59, msgCount: 77};
+			let data = this.state.data_1;
+			data.push(a);
+			data.push(c);
+			this.setState({data_1: data});
+            console.log(this.state.data_1);
         }
 	}
 
@@ -174,7 +181,8 @@ export default class User extends Component {
 		        }
 		        stickyHeaderIndices={[2]}
 		        ref={(scrollView) => { _scrollView = scrollView; }}
-		        onMomentumScrollEnd={this._onMomentumScrollEnd}
+				onMomentumScrollEnd={this._onMomentumScrollEnd}
+
 			>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
