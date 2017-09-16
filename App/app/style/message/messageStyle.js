@@ -44,7 +44,7 @@ export default Styles = StyleSheet.create({
         borderColor: StyleConfig.borderColor,
     },
     messageItemLeftText: {
-        fontSize: 26/oPx,
+        fontSize: 24/oPx,
         color: '#000',
     },
     arrowImage_item: {
@@ -84,11 +84,11 @@ export default Styles = StyleSheet.create({
     },
     messageTableC: {
         justifyContent: 'center',
-        alignSelf: 'center',
-        flex: 7,
+        flex: 1,
     },
     messageItems: {
-
+        justifyContent: 'center',
+        flex: 1,
     },
     messagePortraitImage: {
         width: 80/oPx,
@@ -96,13 +96,13 @@ export default Styles = StyleSheet.create({
         justifyContent: 'center',
     },
     autographText: {
-        fontSize: 20/oPx,
+        fontSize: 18/oPx,
+        justifyContent: 'center',
         color: '#999',
     },
     userNameText: {
-        fontSize: 26/oPx,
+        fontSize: 24/oPx,
         color: '#000',
-        marginBottom: 0,
     },
     messageMoreItemView1: {
         backgroundColor: '#fff',
@@ -115,39 +115,36 @@ export default Styles = StyleSheet.create({
         borderColor: StyleConfig.borderColor,
     },
     blacklistText: {
-        fontSize: 20/oPx,
+        fontSize: 18/oPx,
         color: '#000000',
     },
     blacklistView: {
         marginTop: 10/oPx,
     },
     blacklistBt: {
-        width: 140/oPx,
+        width: 135/oPx,
         height: 40/oPx,
         borderWidth: StyleConfig.borderWidth,
         borderColor: '#000',
         justifyContent: 'center',
-        alignSelf: 'center',
+        alignItems: 'center',
     },
     blacklistTableP: {
         justifyContent: 'center',
         alignSelf: 'center',
-        flexDirection: 'row',
-        flex : 1,
     },
     blacklistTableC: {
         justifyContent: 'center',
-        alignSelf: 'center',
-        flex: 7,
+        flex: 1,
+        marginLeft: 10/oPx,
     },
     blacklistTableB: {
         justifyContent: 'center',
         alignSelf: 'center',
     },
     blacklistTextView: {
-        height: 40/oPx,
-        marginLeft: 10/oPx,
-        width : 220/oPx,
+        justifyContent: 'center',
+        flex: 1,
     },
     blacklistTable: {
         height: 100/oPx,
@@ -157,5 +154,9 @@ export default Styles = StyleSheet.create({
         paddingRight: 30/oPx,
         borderBottomWidth: StyleConfig.borderWidth,
         borderColor: StyleConfig.borderColor,
+    },
+    blackText: {
+        fontSize: 24/oPx,
+        color: '#000',
     },
 });

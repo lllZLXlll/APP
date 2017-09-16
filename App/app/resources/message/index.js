@@ -99,27 +99,22 @@ export default class Message extends Component {
 							●
 						</Text>
                         :
-						<Text style={{color:'#fff5fd'}}>
-							●
+						<Text>
 						</Text>
                 }
 
 			</View>
 			<View  style={Styles.messageTableC}>
-				<TouchableOpacity activeOpacity={0.5}>
-					<View style={Styles.messageItems}>
+					<View style={[Styles.messageItems, {justifyContent: 'flex-end',}]}>
 						<Text style={Styles.userNameText}>
                             {row.userName}
 						</Text>
 					</View>
-				</TouchableOpacity>
-				<TouchableOpacity activeOpacity={0.5}>
 					<View style={Styles.messageItems}>
 						<Text style={Styles.autographText} numberOfLines={1}>
                             {row.text}
 						</Text>
 					</View>
-				</TouchableOpacity>
 			</View>
 		</View>
     }

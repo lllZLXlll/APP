@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import Styles from '../../style/user/userStyle';
+import StylesLogin from '../../style/user/loginStyle';
 import { StyleConfig } from '../../style/style';
 import { TabNavigatior } from 'react-navigation';
 // 图片常量组件
@@ -170,7 +171,15 @@ export default class User extends Component {
         }
 	}
 
+	_getLoginComponent() {
+		return 	<View style={StylesLogin.loginIconView}></View>;
+	}
+
 	render() {
+		// 头像、粉丝组件
+		// { this._getPortraitComponent() }
+		// 		{ this._getStatisticsComponent() }	
+
 		return (
 			<ScrollView style={{flex: 1}}
 				refreshControl={
@@ -184,12 +193,14 @@ export default class User extends Component {
 				onMomentumScrollEnd={this._onMomentumScrollEnd}
 
 			>
-				{ this._getPortraitComponent() }
-				{ this._getStatisticsComponent() }
+				
+				{ this._getLoginComponent() }
+				
 				<TabComponent isSelect={this.state.isSelect} tabTitleMap={this.state.tabTitleMap} _setIsSelect={this._setIsSelect} />
 				{ this._getTabConent() }
 
 				<FooterComponent />
+
 			</ScrollView>
 		);
 	}
