@@ -80,7 +80,7 @@ export default Styles = StyleSheet.create({
         flexDirection: 'row',
     },
     messageRead: {
-        width:20/oPx
+        width:10/oPx
     },
     messageTableC: {
         justifyContent: 'center',
@@ -159,4 +159,54 @@ export default Styles = StyleSheet.create({
         fontSize: 24/oPx,
         color: '#000',
     },
+    syslistTable: {
+        backgroundColor: '#fff',
+        flexDirection : 'column',
+        paddingLeft: 30/oPx,
+        paddingRight: 30/oPx,
+        paddingTop: 10/oPx,
+        paddingBottom: 10/oPx,
+        borderBottomWidth: StyleConfig.borderWidth,
+        borderColor: StyleConfig.borderColor,
+        marginBottom: 10/oPx
+    },
+    trumpetStyle: {
+        width: 49/oPx,
+        height: 42/oPx,
+    },
+    syslistTextView: {
+        justifyContent: 'center',
+    },
+    sysTimeText: {
+        fontSize: 24/oPx,
+        marginLeft: 10/oPx,
+        color: '#000',
+    },
+    syslistTableC: {
+        flex: 1,
+        flexDirection:'row',
+    },
+    syslistTableP: {
+        justifyContent: 'center',
+        flex: 1,
+    },
+    sysText: {
+        fontSize: 24/oPx,
+        color: '#000000',
+    },
+    clear: {
+        fontSize: 30/oPx,
+        color: '#000000',
+        marginRight: 30/oPx
+    },
+    syslistView: {
+        marginTop: 15/oPx,
+    },
+    sysTitle: {
+        fontSize: 42/oPx,
+    },
+    linksText: {
+        fontSize: 24/oPx,
+        color: '#2e87cb'
+    }
 });
