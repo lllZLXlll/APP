@@ -60,6 +60,8 @@ Icons.wechat = require('../images/icon/login/icon_wechat.png');
 Icons.wechats = require('../images/icon/login/icon_wechats.png');
 // weibo
 Icons.weibo = require('../images/icon/login/icon_weibo.png');
+// loginBg
+Icons.loginBg = require('../images/icon/login/icon_loginBg.png');
 
 // -------------登录-------------end
 

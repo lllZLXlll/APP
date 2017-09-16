@@ -173,26 +173,34 @@ export default class User extends Component {
         }
 	}
 
-	_getLoginComponent() {
-		return 	<View style={StylesLogin.loginIconView}>
-					<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('qq')}}>
-						<Image style={StylesLogin.loginItemImg} source={Icons.qq} />
-						<Text style={StylesLogin.loginItemText}>QQ登录</Text>
-					</TouchableOpacity>
-					<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('微信')}}>
-						<Image style={StylesLogin.loginItemImg} source={Icons.wechat} />
-						<Text style={StylesLogin.loginItemText}>微信登录</Text>
-					</TouchableOpacity>
-					<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('微博')}}>
-						<Image style={StylesLogin.loginItemImg} source={Icons.weibo} />
-						<Text style={StylesLogin.loginItemText}>微博登录</Text>
-					</TouchableOpacity>
-				</View>;
-	}
-
 	// 用户未登录
 	_getLogin() {
-		return 	this._getLoginComponent();
+		return 	<View style={Styles.view}>
+					<View style={StylesLogin.loginIconView}>
+						<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('qq')}}>
+							<Image style={StylesLogin.loginItemImg} source={Icons.qq} />
+							<Text style={StylesLogin.loginItemText}>QQ登录</Text>
+						</TouchableOpacity>
+						<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('微信')}}>
+							<Image style={StylesLogin.loginItemImg} source={Icons.wechat} />
+							<Text style={StylesLogin.loginItemText}>微信登录</Text>
+						</TouchableOpacity>
+						<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('微博')}}>
+							<Image style={StylesLogin.loginItemImg} source={Icons.weibo} />
+							<Text style={StylesLogin.loginItemText}>微博登录</Text>
+						</TouchableOpacity>
+					</View>
+					
+					<View style={StylesLogin.loginContentView}>
+						<Text style={StylesLogin.loginItemText}>
+							登录后可发帖、将有趣的，喜欢的内容收藏起来、与粉丝好友私信、将帖子分享到各大平台。
+						</Text>
+					</View>
+
+					<View style={StylesLogin.loginBottomView}>
+						<Image style={StylesLogin.loginBgImg} source={Icons.loginBg} />
+					</View>
+				</View>;
 	}
 
 	// 用户已登录，展示数据
