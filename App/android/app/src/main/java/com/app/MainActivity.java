@@ -1,6 +1,7 @@
 package com.app;
 
 import com.facebook.react.ReactActivity;
+import cn.reactnative.modules.qq.QQPackage;
 
 public class MainActivity extends ReactActivity {
 
@@ -13,10 +14,10 @@ public class MainActivity extends ReactActivity {
         return "App";
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
-        mReactInstanceManager.onActivityResult(requestCode, resultCode, data);
-    }
+    // @Override
+    // public void onActivityResult(int requestCode, int resultCode, Intent data){
+    //     super.onActivityResult(requestCode, resultCode, data);
+    //     mReactInstanceManager.onActivityResult(requestCode, resultCode, data);
+    // }
 
 }
