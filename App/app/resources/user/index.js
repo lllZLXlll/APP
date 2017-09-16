@@ -12,6 +12,9 @@ import {
 	StatusBar,
 } from 'react-native';
 
+// qq
+import * as QQAPI from 'react-native-qq';
+
 import Styles from '../../style/user/userStyle';
 import StylesLogin from '../../style/user/loginStyle';
 import { StyleConfig } from '../../style/style';
@@ -173,11 +176,17 @@ export default class User extends Component {
         }
 	}
 
+	// QQ登录
+	_toQQLogin() {
+		QQAPI.login();
+	}
+
+
 	// 用户未登录
 	_getLogin() {
 		return 	<View style={Styles.view}>
 					<View style={StylesLogin.loginIconView}>
-						<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('qq')}}>
+						<TouchableOpacity style={StylesLogin.loginItemView} onPress={this._toQQLogin}>
 							<Image style={StylesLogin.loginItemImg} source={Icons.qq} />
 							<Text style={StylesLogin.loginItemText}>QQ登录</Text>
 						</TouchableOpacity>
