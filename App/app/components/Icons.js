@@ -53,6 +53,21 @@ Icons.trumpet = require('../images/icon/message/trumpet.png');
 Icons.message = require('../images/icon/message/msgShow.png');
 // -------------我的-------------end
 
+// -------------登录-------------begin
+// QQ
+Icons.qq = require('../images/icon/login/icon_qq.png');
+// Qzone
+Icons.qzone = require('../images/icon/login/icon_qzone.png');
+// wechat
+Icons.wechat = require('../images/icon/login/icon_wechat.png');
+// wechats
+Icons.wechats = require('../images/icon/login/icon_wechats.png');
+// weibo
+Icons.weibo = require('../images/icon/login/icon_weibo.png');
+// loginBg
+Icons.loginBg = require('../images/icon/login/icon_loginBg.png');
+
+// -------------登录-------------end
 
 
 

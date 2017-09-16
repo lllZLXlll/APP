@@ -12,7 +12,11 @@ import {
 	StatusBar,
 } from 'react-native';
 
+// qq
+import * as QQAPI from 'react-native-qq';
+
 import Styles from '../../style/user/userStyle';
+import StylesLogin from '../../style/user/loginStyle';
 import { StyleConfig } from '../../style/style';
 import { TabNavigatior } from 'react-navigation';
 // 图片常量组件
@@ -37,6 +41,8 @@ export default class User extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			// 是否登录
+			isLogin: false,
 			data_1: [
 				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80},
 				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 1824, downCount: 24, msgCount: 248},
@@ -170,27 +176,80 @@ export default class User extends Component {
         }
 	}
 
+	// QQ登录
+	_toQQLogin() {
+		QQAPI.login();
+	}
+
+
+	// 用户未登录
+	_getLogin() {
+		return 	<View style={Styles.view}>
+					<View style={StylesLogin.loginIconView}>
+						<TouchableOpacity style={StylesLogin.loginItemView} onPress={this._toQQLogin}>
+							<Image style={StylesLogin.loginItemImg} source={Icons.qq} />
+							<Text style={StylesLogin.loginItemText}>QQ登录</Text>
+						</TouchableOpacity>
+						<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('微信')}}>
+							<Image style={StylesLogin.loginItemImg} source={Icons.wechat} />
+							<Text style={StylesLogin.loginItemText}>微信登录</Text>
+						</TouchableOpacity>
+						<TouchableOpacity style={StylesLogin.loginItemView} onPress={() => {alert('微博')}}>
+							<Image style={StylesLogin.loginItemImg} source={Icons.weibo} />
+							<Text style={StylesLogin.loginItemText}>微博登录</Text>
+						</TouchableOpacity>
+					</View>
+					
+					<View style={StylesLogin.loginContentView}>
+						<Text style={StylesLogin.loginItemText}>
+							登录后可发帖、将有趣的，喜欢的内容收藏起来、与粉丝好友私信、将帖子分享到各大平台。
+						</Text>
+					</View>
+
+					<View style={StylesLogin.loginBottomView}>
+						<Image style={StylesLogin.loginBgImg} source={Icons.loginBg} />
+					</View>
+				</View>;
+	}
+
+	// 用户已登录，展示数据
+	_getUser() {
+		return 	<ScrollView style={{flex: 1}}
+					refreshControl={
+			            <RefreshControl
+			              	refreshing={false}
+			              	onRefresh={this._getData}
+			            />
+			        }
+			        stickyHeaderIndices={[2]}
+			        ref={(scrollView) => { _scrollView = scrollView; }}
+					onMomentumScrollEnd={this._onMomentumScrollEnd}
+
+				>
+					{ this._getPortraitComponent() }
+			 		{ this._getStatisticsComponent() }
+					
+					<TabComponent isSelect={this.state.isSelect} tabTitleMap={this.state.tabTitleMap} _setIsSelect={this._setIsSelect} />
+					{ this._getTabConent() }
+
+					<FooterComponent />
+
+				</ScrollView>;
+	}
+
+	_getPage = () => {
+		if (this.state.isLogin) {
+			return this._getUser();
+		} else {
+			return this._getLogin();
+		}
+	}
+
 	render() {
 		return (
-			<ScrollView style={{flex: 1}}
-				refreshControl={
-		            <RefreshControl
-		              	refreshing={false}
-		              	onRefresh={this._getData}
-		            />
-		        }
-		        stickyHeaderIndices={[2]}
-		        ref={(scrollView) => { _scrollView = scrollView; }}
-				onMomentumScrollEnd={this._onMomentumScrollEnd}
-
-			>
-				{ this._getPortraitComponent() }
-				{ this._getStatisticsComponent() }
-				<TabComponent isSelect={this.state.isSelect} tabTitleMap={this.state.tabTitleMap} _setIsSelect={this._setIsSelect} />
-				{ this._getTabConent() }
-
-				<FooterComponent />
-			</ScrollView>
+			<View style={Styles.view}>
+				{ this._getPage() }
+			</View>
 		);
 	}
 }
