@@ -31,9 +31,8 @@ let oPx = StyleConfig.oPx;
   }
 
    render(){
-    let marginTop = this.props.marginTop == 0 ? this.props.marginTop/oPx : 20/oPx;
       return (
-        <View style={[Styles.tabView, {marginTop: marginTop}]}>
+        <View style={Styles.tabView}>
           { 
             this.props.tabTitleMap.map((row, index) => {
               return  this._getTabComponent(row, index);

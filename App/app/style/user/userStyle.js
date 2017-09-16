@@ -68,6 +68,7 @@ export default Styles = StyleSheet.create({
 		height: 80/oPx,
 		backgroundColor: '#fff',
 		flexDirection : 'row',
+		marginBottom: 20/oPx,
 	},
 	itemView: {
 		flex: 1,
@@ -104,7 +105,6 @@ export default Styles = StyleSheet.create({
 		flexDirection: 'row',
 		width: StyleConfig.screen_width,
 		height: 70/oPx,
-		marginTop: 20/oPx,
 	},
 	itemTabView: {
 		flex: 1,
@@ -244,26 +244,26 @@ export default Styles = StyleSheet.create({
 	
 	// 粉丝
 	FansTable: {
-        height: 160/oPx,
+        height: 100/oPx,
         backgroundColor: '#fff',
         flexDirection : 'row',
         borderTopWidth: StyleConfig.borderWidth,
         borderColor: StyleConfig.borderColor,
 	},
     FansTableP: {
-        marginTop: 20/oPx,
+        marginTop: 10/oPx,
 	},
     FansTableC: {
         marginLeft: 10/oPx,
-        alignSelf: 'center',
+		flex: 1,
     },
     attentionImage: {
         width: 96/oPx,
         height: 42/oPx,
     },
     fansPortraitImage: {
-        width: 110/oPx,
-        height: 110/oPx,
+        width: 80/oPx,
+        height: 80/oPx,
         marginLeft: 30/oPx
     },
 	noDataView: {
@@ -451,7 +451,6 @@ export default Styles = StyleSheet.create({
     fansPraise: {
         height: 30/oPx,
         width: 32/oPx,
-        marginLeft: 31/oPx,
 	},
 	set: {
         height: 45/oPx,
@@ -481,7 +480,7 @@ export default Styles = StyleSheet.create({
     versionsText: {
         fontSize: 28/oPx,
         color: '#9e9e9e',
-	}
+	},
 });
 
 

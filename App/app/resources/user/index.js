@@ -19,6 +19,8 @@ import { TabNavigatior } from 'react-navigation';
 import Icons from '../../components/Icons';
 // tab切换组件
 import TabComponent from '../../components/TabComponent';
+// 底部加载组件
+import FooterComponent from '../../components/FooterComponent';
 
 // tab 内容页面
 import Article from './article';
@@ -26,8 +28,10 @@ import Comment from './comment';
 import Collection from './collection';
 import VisitGuest from './visitGuest';
 
+// 滚动视图
+var _scrollView = ScrollView;
 // 临时图片数据
-const imagesUri = 'http://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
+const imagesUri = 'https://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
 
 export default class User extends Component {
 	constructor(props) {
@@ -120,7 +124,11 @@ export default class User extends Component {
 
 	// 设置tab切换
 	_setIsSelect = (index) => {
-		this.setState({isSelect: index});
+		if(index != this.state.isSelect) {
+			this.setState({isSelect: index});
+			// 回到顶部
+			//_scrollView.scrollTo({x: 0, y: 0, animated: false});
+		}
 	}
 
 	_getTabConent() {
@@ -138,11 +146,31 @@ export default class User extends Component {
 			case 3:
 				tabConent = <VisitGuest />;
 				break;
+			default:
+				tabConent = <Article data={this.state.data_1} _onPressMore={this._onPressMore} />;
+				break;
 		}
 		return tabConent;
 	}
 	
-	render() {	
+	_onMomentumScrollEnd = (e) => {
+	 	var offsetY = e.nativeEvent.contentOffset.y; //滑动距离
+        var oriageScrollHeight = e.nativeEvent.layoutMeasurement.height; //scrollView高度
+        var contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView 内容高度
+        console.log(offsetY + '|' + oriageScrollHeight + '|' + contentSizeHeight );
+        if (offsetY + oriageScrollHeight >= contentSizeHeight - 500){
+        	// 如果距离底部500，加载数据
+    		let a = {sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80};
+			let c = {sendDate: '2017-8-27 12:25', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '好多好多可爱叮当猫呀！', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 124, downCount: 59, msgCount: 77};
+			let data = this.state.data_1;
+			data.push(a);
+			data.push(c);
+			this.setState({data_1: data});
+            console.log(this.state.data_1);
+        }
+	}
+
+	render() {
 		return (
 			<ScrollView style={{flex: 1}}
 				refreshControl={
@@ -151,14 +179,17 @@ export default class User extends Component {
 		              	onRefresh={this._getData}
 		            />
 		        }
+		        stickyHeaderIndices={[2]}
+		        ref={(scrollView) => { _scrollView = scrollView; }}
+				onMomentumScrollEnd={this._onMomentumScrollEnd}
+
 			>
-				<StatusBar
-					hidden={true}
-				/>
 				{ this._getPortraitComponent() }
 				{ this._getStatisticsComponent() }
 				<TabComponent isSelect={this.state.isSelect} tabTitleMap={this.state.tabTitleMap} _setIsSelect={this._setIsSelect} />
 				{ this._getTabConent() }
+
+				<FooterComponent />
 			</ScrollView>
 		);
 	}

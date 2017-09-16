@@ -11,6 +11,8 @@ let Icons = [];
 Icons.portrait = require('../images/icon/user/icon_user_portrait.png');
 // 箭头图标
 Icons.arrow = require('../images/icon/user/icon_user_arrow.png');
+// 箭头图标灰色
+Icons.arrow_1 = require('../images/icon/user/icon_user_arrow_1.png');
 
 // 发帖:
 // 未点赞
@@ -39,6 +41,12 @@ Icons.attention = require('../images/icon/common/icon_msg_gz.png');
 Icons.attentioned = require('../images/icon/common/icon_msg_ygz.png');
 //设置
 Icons.set = require('../images/icon/user/icon_user_set.png');
+//粉丝关注
+Icons.fansAttention = require('../images/icon/message/msg_03.png');
+//评论回复
+Icons.Reply = require('../images/icon/message/msg_1_03.png');
+//系统消息
+Icons.systemMessage = require('../images/icon/message/msg_2_07.png');
 // -------------我的-------------end
 
 
