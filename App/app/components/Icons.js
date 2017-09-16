@@ -47,6 +47,10 @@ Icons.fansAttention = require('../images/icon/message/msg_03.png');
 Icons.Reply = require('../images/icon/message/msg_1_03.png');
 //系统消息
 Icons.systemMessage = require('../images/icon/message/msg_2_07.png');
+//喇叭
+Icons.trumpet = require('../images/icon/message/trumpet.png');
+//消息提示
+Icons.message = require('../images/icon/message/msgShow.png');
 // -------------我的-------------end
 
 

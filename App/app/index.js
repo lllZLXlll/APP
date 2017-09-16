@@ -35,6 +35,8 @@ import Styles from './style/user/userStyle';
 import UserSet from './resources/user/userSet';
 //黑名单
 import BlackList from './resources/message/BlackList';
+//系统消息
+import SystemMessage from './resources/message/SystemMessage';
 
 // 首页
 // 帖子详情
@@ -290,6 +292,24 @@ const App = StackNavigator({
 	  },
 	  headerRight: (<Text></Text>),  // 如果没有组件那么标题将会不居中
     }),
+  },
+  SystemMessage: {
+        screen: SystemMessage,
+        navigationOptions: ({ navigation }) => ({
+            // 是否启用手势关闭屏幕
+            gesturesEnabled: true,
+            headerTitle:'系统消息',
+            headerTitleStyle: {
+                alignSelf: 'center',
+            },
+            headerRight: (
+                <TouchableOpacity activeOpacity={0.6} onPress={() => {alert(1)}}>
+                    <Text style={msgStyles.clear}>
+                        清空
+                    </Text>
+                </TouchableOpacity>
+            ),
+        }),
   },
   
 },{

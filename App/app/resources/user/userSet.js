@@ -22,7 +22,7 @@ export default class UserSet extends Component {
     }
 
     _getNightView() {
-        return 	<TouchableOpacity onPress={() => {alert(1)}}>
+        return 	<TouchableOpacity >
             <View style={Styles.nightModelView}>
                 <View style={Styles.userItemView}>
                     <Text style={Styles.userItemLeftText}>夜间模式</Text>

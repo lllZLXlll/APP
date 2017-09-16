@@ -12,6 +12,8 @@ import {
 import { TabNavigatior } from 'react-navigation';
 import Icons from '../../components/Icons';
 import  Styles from '../../style/message/messageStyle';
+import {StyleConfig} from '../../style/style';
+let oPx = StyleConfig.oPx;
 
 export default class Message extends Component {
 
@@ -67,7 +69,7 @@ export default class Message extends Component {
 
     _getItemView_1() {
         return <TouchableOpacity onPress={() => {
-            alert(1)
+            this.props.navigation.navigate('SystemMessage')
         }}>
 			<View style={Styles.messageMoreItemView1}>
 				<View style={Styles.arrowImageView}>
@@ -95,9 +97,7 @@ export default class Message extends Component {
                 {
                     row.read == 0
                         ?
-						<Text style={{color:'#f55'}}>
-							●
-						</Text>
+                        <Image  style={{width:10/oPx,height:10/oPx,marginTop:10/oPx}} source={Icons.message}/>
                         :
 						<Text>
 						</Text>

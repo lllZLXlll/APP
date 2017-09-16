@@ -45,8 +45,9 @@ export default class FansTable extends Component {
                             </Text>
                         </View>
                     </View>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
                     <View style={{alignItems: 'center', justifyContent: 'center', marginRight: 30/oPx}} >
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
+
                         {
                             this.state.isClick == index+1
                                 ?
@@ -54,8 +55,9 @@ export default class FansTable extends Component {
                                 :
                                 <Image style={Styles.attentionImage} source={Icons.attention}/>
                         }
-                        </TouchableOpacity>
+
                     </View>
+                    </TouchableOpacity>
                 </View>
     }
 
