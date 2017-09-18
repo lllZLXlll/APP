@@ -42,7 +42,7 @@ export default class User extends Component {
 		super(props);
 		this.state = {
 			// 是否登录
-			isLogin: false,
+			isLogin: true,
 			data_1: [
 				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80},
 				{sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 1824, downCount: 24, msgCount: 248},
@@ -184,7 +184,7 @@ export default class User extends Component {
 
 	// 用户未登录
 	_getLogin() {
-		return 	<View style={Styles.view}>
+		return 	<ScrollView style={Styles.view}>
 					<View style={StylesLogin.loginIconView}>
 						<TouchableOpacity style={StylesLogin.loginItemView} onPress={this._toQQLogin}>
 							<Image style={StylesLogin.loginItemImg} source={Icons.qq} />
@@ -209,7 +209,7 @@ export default class User extends Component {
 					<View style={StylesLogin.loginBottomView}>
 						<Image style={StylesLogin.loginBgImg} source={Icons.loginBg} />
 					</View>
-				</View>;
+				</ScrollView>;
 	}
 
 	// 用户已登录，展示数据
