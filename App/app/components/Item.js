@@ -128,14 +128,14 @@ export default class Item extends Component {
 					</View>
 					<View style={Styles.articleItemView}>
 						<View style={Styles.topView}>
-							<Image style={Styles.portraitItem} source={Icons.portrait} />
+							<Image style={Styles.portraitItem} source={{uri: row.portrait}} />
 							<View style={Styles.collectionRightView}>
 								<View style={Styles.collectionTopView}>
-									<Text style={[Styles.textLeft, {color: '#333'}]}>用户名</Text>
+									<Text style={[Styles.textLeft, {color: '#333'}]}>{row.userName}</Text>
 								</View>
 
 								<View style={Styles.collectionBottomView}>
-									<Text style={[Styles.textLeft, {color: '#999', fontSize: 24/oPx}]}>08-18 17:24</Text>
+									<Text style={[Styles.textLeft, {color: '#999', fontSize: 24/oPx}]}>{row.articleDate}</Text>
 								</View>
 							</View>
 							<View style={Styles.itemTopRightView}>
@@ -145,59 +145,60 @@ export default class Item extends Component {
 							</View>
 						</View>
 
-						<View style={[Styles.itemConentView, {marginBottom: 0}]}>
+						<View style={[Styles.itemConentView, {marginBottom: 10/oPx}]}>
 							<Text style={Styles.itemConentText}>
-								{row.sendContent}
+								{row.articleContent}
 							</Text>
 						</View>
 
 						{
-							row.images ? this._getImages(row.images, index) : null
+							row.articleImages ? this._getImages(row.articleImages, index) : null
 						}
 						
-						{
-							!this.props.isNoShowComment
-							?
-							<View style={Styles.itemCommentView}>
-								<View style={[Styles.topView, {marginTop: 10/oPx, marginBottom: 5/oPx}]}>
-									<Image style={[Styles.portraitItem, {}]} source={Icons.portrait} />
-									<View style={Styles.collectionRightView}>
-										<View style={[Styles.collectionTopView, {justifyContent: 'center'}]}>
-											<Text style={[Styles.textLeft, {color: '#333'}]}>用户名</Text>
-										</View>
-									</View>
-									<View style={[Styles.itemTopRightView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end',}]}>
-										<TouchableOpacity activeOpacity={1} onPress={() => {this._deleteArticle()}}>
-											<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
-										</TouchableOpacity>
-										<Text style={Styles.onClickText}>{row.upCount}</Text>
-									</View>
-								</View>
-								<View style={[Styles.topView, {marginBottom: 20/oPx, marginTop: 10/oPx}]}>
-									<Text style={[Styles.textLeft, {color: '#333', lineHeight: 38/oPx,}]} numberOflines={5}>你发的什么东西，会不会说人话？给你五分钟让你重新组织一下语言。</Text>
-								</View>
-							</View>
-							: null
-						}
+						{/* 热评模块 */}
+						{/*{*/}
+							{/*!this.props.isNoShowComment*/}
+							{/*?*/}
+							{/*<View style={Styles.itemCommentView}>*/}
+							{/*	<View style={[Styles.topView, {marginTop: 10/oPx, marginBottom: 5/oPx}]}>*/}
+							{/*		<Image style={[Styles.portraitItem, {}]} source={Icons.portrait} />*/}
+							{/*		<View style={Styles.collectionRightView}>*/}
+							{/*			<View style={[Styles.collectionTopView, {justifyContent: 'center'}]}>*/}
+							{/*				<Text style={[Styles.textLeft, {color: '#333'}]}>用户名</Text>*/}
+							{/*			</View>*/}
+							{/*		</View>*/}
+							{/*		<View style={[Styles.itemTopRightView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end',}]}>*/}
+							{/*			<TouchableOpacity activeOpacity={1} onPress={() => {this._deleteArticle()}}>*/}
+							{/*				<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />*/}
+							{/*			</TouchableOpacity>*/}
+							{/*			<Text style={Styles.onClickText}>{row.upCount}</Text>*/}
+							{/*		</View>*/}
+							{/*	</View>*/}
+							{/*	<View style={[Styles.topView, {marginBottom: 20/oPx, marginTop: 10/oPx}]}>*/}
+							{/*		<Text style={[Styles.textLeft, {color: '#333', lineHeight: 38/oPx,}]} numberOflines={5}>内容</Text>*/}
+							{/*	</View>*/}
+							{/*</View>*/}
+							{/*: null*/}
+						{/*}*/}
 
 						<View style={Styles.praiseView}>
 							<View style={Styles.itemPraiseView}>
 								<TouchableOpacity activeOpacity={1}>
 									<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
 								</TouchableOpacity>
-								<Text style={Styles.onClickText}>{row.upCount}</Text>
+								<Text style={Styles.onClickText}>{row.fabulousCount}</Text>
 							</View>
 							<View style={Styles.itemPraiseView}>
 								<TouchableOpacity activeOpacity={1}>
 									<Image style={Styles.onClickIcon} source={Icons.downIcon_1} />
 								</TouchableOpacity>
-								<Text style={Styles.onClickText}>{row.downCount}</Text>
+								<Text style={Styles.onClickText}>{row.stampedeCount}</Text>
 							</View>
 							<View style={Styles.itemPraiseView}>
 								<TouchableOpacity activeOpacity={1} onPress={this.props._toMsgDetails}>
 									<Image style={Styles.onClickIcon} source={Icons.msgIcon} />
 								</TouchableOpacity>
-								<Text style={Styles.onClickText}>{row.msgCount}</Text>
+								<Text style={Styles.onClickText}>{row.commentCount}</Text>
 							</View>
 						</View>
 					</View>

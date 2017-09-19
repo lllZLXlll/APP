@@ -2,9 +2,11 @@
  * 请求组件 2017/08/24
  */
 
+let HOST = 'http://192.168.1.120/app/';
+
 let Request = {
    post : async (url,data,successCallback,failCallback) => {
-      fetch(url,{
+      fetch(HOST + '' + url,{
         method: 'POST',
         headers: {
           'Accept': 'application/json',
