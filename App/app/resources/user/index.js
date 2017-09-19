@@ -27,6 +27,8 @@ import TabComponent from '../../components/TabComponent';
 import FooterComponent from '../../components/FooterComponent';
 // 请求组件
 import Request from '../../utils/Request';
+// 存储数据组件
+import Storage from '../../utils/Storage';
 
 // tab 内容页面
 import Article from './article';
@@ -68,10 +70,24 @@ export default class User extends Component {
 	}
 
 	_getData() {
-		console.log('request result:');
 		Request.post('user/userInfo.do',{uid: 1},(data)=>{
 			console.log(data);
 			this.setState({userInfoMap: data});
+			let param = {
+				// 用户id
+                UID:data.id,
+                // 用户名
+                USERNAME:data.userName,
+                // 性别
+                SEX: data.sex,
+                // 签名
+                SIGNATURE: data.signature,
+                // 电话
+                USERPHONE: data.userPhont,
+                // 头像
+                PORTRAIT: data.portrait,
+            };
+            Storage.setItem('USER',param);
 		},(error)=>{
 		    console.log(error);
 		});

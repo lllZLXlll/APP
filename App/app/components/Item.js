@@ -24,10 +24,6 @@ export default class Item extends Component {
 		};
 	}
 
-	_onPressMore = () => {
-		this.state._onPressMore();
-	}
-
 	_deleteArticle() {
 		alert('确定要删除吗？');
 	}
@@ -182,18 +178,14 @@ export default class Item extends Component {
 						{/*}*/}
 
 						<View style={Styles.praiseView}>
-							<View style={Styles.itemPraiseView}>
-								<TouchableOpacity activeOpacity={1}>
-									<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
-								</TouchableOpacity>
+							<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this.props._fabulous(row.id, index)}}>
+								<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
 								<Text style={Styles.onClickText}>{row.fabulousCount}</Text>
-							</View>
-							<View style={Styles.itemPraiseView}>
-								<TouchableOpacity activeOpacity={1}>
-									<Image style={Styles.onClickIcon} source={Icons.downIcon_1} />
-								</TouchableOpacity>
+							</TouchableOpacity>
+							<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this.props._stampede(row.id, index)}}>
+								<Image style={Styles.onClickIcon} source={Icons.downIcon_1} />
 								<Text style={Styles.onClickText}>{row.stampedeCount}</Text>
-							</View>
+							</TouchableOpacity>
 							<View style={Styles.itemPraiseView}>
 								<TouchableOpacity activeOpacity={1} onPress={this.props._toMsgDetails}>
 									<Image style={Styles.onClickIcon} source={Icons.msgIcon} />

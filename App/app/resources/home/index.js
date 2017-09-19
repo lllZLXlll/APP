@@ -20,6 +20,8 @@ import FooterComponent from '../../components/FooterComponent';
 import Item from '../../components/Item';
 // 请求组件
 import Request from '../../utils/Request';
+// 存储数据组件
+import Storage from '../../utils/Storage';
 
 import Styles from '../../style/user/userStyle';
 import {StyleConfig} from '../../style/style';
@@ -38,7 +40,7 @@ export default class Index extends Component {
 			_onPressMore: this.props._onPressMore,
 			// 分页参数
 			pageNum: 1,
-			pageSize: 10,
+			pageSize: 20,
 			totalPageNum: 0,
 			// 是否有数据，true则显示底部加载，false则显示底线
 			isData: true,
@@ -52,7 +54,7 @@ export default class Index extends Component {
 	_getData(pageNum, pageSize) {
 		// 如果没有值那么就是第一次加载
 		if (!pageNum && !pageSize) {
-			Request.post('home/index.do',{pageNum: 1, pageSize: 10},(data)=>{
+			Request.post('home/index.do',{pageNum: 1, pageSize: 20},(data)=>{
 				this.setState({
 					indexList: data.page,
 					// 总页数
@@ -106,8 +108,39 @@ export default class Index extends Component {
 		}
 	}
 
+	// 点赞 
+	async _fabulous(id, index) {
+		let USER = await Storage.getItem('USER');
+		Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
+			if (data.error == 0) {
+				alert(data.msg);
+			} else {
+				alert(data.msg);
+			}
+		});
+
+		let indexList = this.state.indexList;
+		let data = indexList[index];
+		data.fabulousCount = data.fabulousCount + 1;
+		indexList[index] = data;
+		this.setState({
+			indexList: indexList
+		});
+	}
+
+	// 踩 
+	_stampede = () => {
+		
+	}
+
 	_getItem(row, index) {
-		return	<Item row={row} index={index} key={index} _setDataIndex={this._setDataIndex} _toMsgDetails={this._toMsgDetails} />
+		return	<Item row={row} 
+					index={index} key={index} 
+					_setDataIndex={this._setDataIndex} 
+					_toMsgDetails={this._toMsgDetails}
+					_fabulous={this._fabulous.bind(this)}
+					_stampede={this._stampede}
+				/>
 	}
 
 	_setDataIndex = (dataIndex, index) => {
@@ -128,33 +161,26 @@ export default class Index extends Component {
 	}
 
 	render() {
-		if (this.state.indexList != null) {
-			return (
-				<View style={Styles.view}>
+		return (
+			<View style={Styles.view}>
 
-					<FlatList
-					  	data={this.state.indexList}
-					  	renderItem={({item, index}) => this._getItem(item, index)}
-					  	getItemLayout={(data, index) => ({length: 100/oPx, offset: 100/oPx * index , index})}
-					  	keyExtractor={(item, index) => item.id}
-				  		initialNumToRender={20}
-				  		ListFooterComponent={() => this._getListFooterComponent()}
-				  		onEndReachedThreshold={0.2}
-				  		onEndReached={this._onEndReached}
-				  		refreshing={false}
-				  		onRefresh={() => {
-				  			this._getData()
-				  		}}
-					/>
+				<FlatList
+				  	data={this.state.indexList}
+				  	renderItem={({item, index}) => this._getItem(item, index)}
+				  	getItemLayout={(data, index) => ({length: 100/oPx, offset: 100/oPx * index , index})}
+				  	keyExtractor={(item, index) => item.id}
+			  		initialNumToRender={20}
+			  		ListFooterComponent={() => this._getListFooterComponent()}
+			  		onEndReachedThreshold={0.2}
+			  		onEndReached={this._onEndReached}
+			  		refreshing={false}
+			  		onRefresh={() => {
+			  			this._getData()
+			  		}}
+				/>
 
-					{ this._getImageViewer() }
-				</View>
-			);
-		} else {
-			return (
-				<View style={Styles.noDataView}><Text style={Styles.noDataText}>暂无记录</Text></View>
-			);
-		}
-		
+				{ this._getImageViewer() }
+			</View>
+		);
 	}
 }
