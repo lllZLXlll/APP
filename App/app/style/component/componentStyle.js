@@ -16,11 +16,21 @@ export default Styles = StyleSheet.create({
 	centerView: {
 		flex: 1,
 		flexDirection: 'row',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+		marginTop: 20/oPx,
+		marginBottom: 20/oPx,
+		alignItems: 'center',
 	},
 	footerText: {
 		fontSize: 28/oPx,
 		color: '#999',
 		marginLeft: 15/oPx,
+	},
+	threadView: {
+		flex: 1,
+		height: StyleConfig.borderWidth,
+		backgroundColor: '#999',
 	},
 
 	// 帖子详情中的评论item

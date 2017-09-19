@@ -249,9 +249,12 @@ export default Styles = StyleSheet.create({
         flexDirection : 'row',
         borderTopWidth: StyleConfig.borderWidth,
         borderColor: StyleConfig.borderColor,
+        justifyContent: 'center'
+
 	},
     FansTableP: {
-        marginTop: 10/oPx,
+        /*marginTop: 10/oPx,*/
+        justifyContent: 'center'
 	},
     FansTableC: {
         marginLeft: 10/oPx,

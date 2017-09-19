@@ -29,35 +29,37 @@ export default class FansTable extends Component {
 
     _getTextItem(row, index) {
         return <View style={Styles.FansTable} key={index}>
-                    <View style={Styles.FansTableP}>
-                        <TouchableOpacity activeOpacity={0.5}>
-                            <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
-                        </TouchableOpacity>
-                    </View>
-                    <View  style={Styles.FansTableC}>
-                        <View style={Styles.userNameView}>
-                            <Text style={[Styles.userNameText, {fontSize: 24/oPx}]}>
-                                {row.userName}
-                            </Text>
-                        </View>
-                        <View style={Styles.autographView}>
-                            <Text style={[Styles.autographText, {fontSize: 18/oPx}]}>
-                                {row.text}
-                            </Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
-                        <View style={{alignItems: 'center', justifyContent: 'center', marginRight: 30/oPx}} >
-                            {
-                                this.state.isClick == index+1
-                                    ?
-                                    <Image style={Styles.fansPraise} source={Icons.praiseIcon_2}/>
-                                    :
-                                    <Image style={Styles.fansPraise} source={Icons.praiseIcon_1}/>
-                            }
-                        </View>
-                    </TouchableOpacity>
+            <View style={Styles.FansTableP}>
+                <TouchableOpacity activeOpacity={0.5}>
+                    <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
+                </TouchableOpacity>
+            </View>
+            <View  style={Styles.FansTableC}>
+                <View style={Styles.userNameView}>
+                    <Text style={[Styles.userNameText, {fontSize: 24/oPx}]}>
+                        {row.userName}
+                    </Text>
                 </View>
+                <View style={Styles.autographView}>
+                    <Text style={[Styles.autographText, {fontSize: 18/oPx,}]}>
+                        {row.text}
+                    </Text>
+                </View>
+            </View>
+
+            <View style={{justifyContent: 'center', marginRight: 30/oPx}} >
+                <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
+                    {
+                        this.state.isClick == index+1
+                            ?
+                            <Image style={Styles.attentionImage} source={Icons.attentioned}/>
+                            :
+                            <Image style={Styles.attentionImage} source={Icons.attention}/>
+                    }
+                </TouchableOpacity>
+            </View>
+
+        </View>
     }
 
     render() {
