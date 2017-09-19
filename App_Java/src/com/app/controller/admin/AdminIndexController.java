@@ -16,6 +16,7 @@ import com.app.controller.common.BaseController;
 public class AdminIndexController extends BaseController {
 	public static Log log = LogFactory.getLog(AdminIndexController.class);
 	
+	
 	@RequestMapping(value = "/login")
 	public String login(){
 		return "/admin/login/login.jsp";
