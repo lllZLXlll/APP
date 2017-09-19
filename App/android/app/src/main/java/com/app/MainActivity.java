@@ -14,10 +14,4 @@ public class MainActivity extends ReactActivity {
         return "App";
     }
 
-    // @Override
-    // public void onActivityResult(int requestCode, int resultCode, Intent data){
-    //     super.onActivityResult(requestCode, resultCode, data);
-    //     mReactInstanceManager.onActivityResult(requestCode, resultCode, data);
-    // }
-
 }
