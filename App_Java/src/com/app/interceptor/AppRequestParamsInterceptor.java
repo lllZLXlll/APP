@@ -50,12 +50,10 @@ public class AppRequestParamsInterceptor extends BaseController implements Handl
 			log.info("============URI=============" +requestURI);
 			if (!uncheckUrls.contains(requestURI.trim())) {
 				JSONObject jsonObject = getAppParams();
-				// 示列数据
-				// jsonObject=JSONObject.fromObject("{uid:'7816059797cd2462f06dc818b5f89abb960962932e40efc9',pageType:'reactApp'}");
 				if (jsonObject != null) {
 					String userIdStr =ConvertUtil.objToStrConvert(jsonObject.get("uid"));
 					if (userIdStr == null) {
-						jsonMap.put("error", "888");
+						jsonMap.put("error", "-999");
 						jsonMap.put("msg", "您的登录已超时，请重新登录！");
 						JSONUtils.printObject(jsonMap, response);
 						return false;
@@ -65,7 +63,7 @@ public class AppRequestParamsInterceptor extends BaseController implements Handl
 							request.setAttribute(Constants.APPPARAMS, jsonObject);
 							return true;
 						} else {
-							jsonMap.put("error", "999");
+							jsonMap.put("error", "-999");
 							jsonMap.put("msg", "您的身份验证失败");
 							JSONUtils.printObject(jsonMap, response);
 							return false;

@@ -21,5 +21,9 @@ public class UserService {
 	public Map<String, Object> queryUserInfo(){
 		return userDao.queryUserInfo();
 	}
+
+	public Map<String, Object> queryUserInfoById(Long uid) {
+		return userDao.queryUserInfoById(uid);
+	}
 	
 }
