@@ -10,26 +10,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.app.controller.common.BaseController;
-import com.app.service.UserService;
+import com.app.controller.common.PageBean;
+import com.app.service.IndexService;
 
 /**
  * 首页
  * 
  */
 @Controller
-@RequestMapping(value = "/app")
+@RequestMapping(value = "/home")
 public class AppIndexController extends BaseController {
 	public static Log log = LogFactory.getLog(AppIndexController.class);
 	
 	@Autowired
-	private UserService userService;
+	private IndexService indexService;
 	
+	// 首页数据查询
 	@RequestMapping(value = "/index")
 	@ResponseBody
-	public Map<String, Object> login(){
-		Map<String, Object> userInfo = userService.queryUserInfo();
-		System.out.println(userInfo);
-		return userInfo;
+	public PageBean index(){
+		return indexService.queryIndexContent(getAppParams());
+	}
+	
+	// 点赞
+	@RequestMapping(value = "/fabulous")
+	@ResponseBody
+	public Map<String, Object> fabulous(){
+		return indexService.investFabulousArticle(getAppParams());
 	}
 	
 }

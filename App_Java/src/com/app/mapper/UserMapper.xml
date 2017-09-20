@@ -8,7 +8,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.app.dao.UserDao">
 
 	<select id="queryUserInfo" resultType="map">
-		select * from t_user;
+		select * from t_user
+	</select>
+	
+	<select id="queryUserInfoById" resultType="map">
+		select * from t_user where id = #{0}
 	</select>
 	
 </mapper>

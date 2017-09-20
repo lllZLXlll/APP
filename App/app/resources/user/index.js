@@ -25,6 +25,10 @@ import Icons from '../../components/Icons';
 import TabComponent from '../../components/TabComponent';
 // 底部加载组件
 import FooterComponent from '../../components/FooterComponent';
+// 请求组件
+import Request from '../../utils/Request';
+// 存储数据组件
+import Storage from '../../utils/Storage';
 
 // tab 内容页面
 import Article from './article';
@@ -41,6 +45,9 @@ export default class User extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			// 用户信息
+			userInfoMap: [],
+
 			// 是否登录
 			isLogin: true,
 			data_1: [
@@ -58,8 +65,32 @@ export default class User extends Component {
 	}
 
 	// 请求数据
-	_getData = () => {
-		
+	componentDidMount(){
+		this._getData();
+	}
+
+	_getData() {
+		Request.post('user/userInfo.do',{uid: 1},(data)=>{
+			console.log(data);
+			this.setState({userInfoMap: data});
+			let param = {
+				// 用户id
+                UID:data.id,
+                // 用户名
+                USERNAME:data.userName,
+                // 性别
+                SEX: data.sex,
+                // 签名
+                SIGNATURE: data.signature,
+                // 电话
+                USERPHONE: data.userPhont,
+                // 头像
+                PORTRAIT: data.portrait,
+            };
+            Storage.setItem('USER',param);
+		},(error)=>{
+		    console.log(error);
+		});
 	}
 
 	// 查看更多
@@ -81,10 +112,10 @@ export default class User extends Component {
 						</View>
 						<View style={Styles.userName}>
 							<View style={Styles.userNameView}>
-								<Text style={Styles.userNameText} numberOfLines={1}>开车老司机</Text>
+								<Text style={Styles.userNameText} numberOfLines={1}>{this.state.userInfoMap.userName}</Text>
 							</View>
 							<View style={Styles.autographView}>
-								<Text style={Styles.autographText} numberOfLines={1}>今晚秋名山见，看到我的尾灯算我输！</Text>
+								<Text style={Styles.autographText} numberOfLines={1}>{this.state.userInfoMap.signature}</Text>
 							</View>
 						</View>
 						<View style={Styles.arrow}>
@@ -100,7 +131,7 @@ export default class User extends Component {
                     <TouchableOpacity activeOpacity={0.6} onPress={() => this.props.navigation.navigate('Fans')}style={Styles.itemView}>
 
                         <View style={Styles.itemTextTopView}>
-                            <Text style={Styles.itemTopText}>25</Text>
+                            <Text style={Styles.itemTopText}>{this.state.userInfoMap.fansCount}</Text>
                         </View>
                         <View style={Styles.itemTextBottomView}>
                             <Text style={Styles.itemBottomText}>粉丝</Text>
@@ -110,7 +141,7 @@ export default class User extends Component {
 
                     <TouchableOpacity activeOpacity={1} onPress={() => this.props.navigation.navigate('Focus')} style={Styles.itemView}>
                         <View style={Styles.itemTextTopView}>
-                            <Text style={Styles.itemTopText}>124</Text>
+                            <Text style={Styles.itemTopText}>{this.state.userInfoMap.followCount}</Text>
                         </View>
                         <View style={Styles.itemTextBottomView}>
                             <Text style={Styles.itemBottomText}>关注</Text>
@@ -119,7 +150,7 @@ export default class User extends Component {
 
                     <TouchableOpacity activeOpacity={1} onPress={() => this.props.navigation.navigate('Praise')} style={Styles.itemView}>
                         <View style={Styles.itemTextTopView}>
-                            <Text style={Styles.itemTopText}>45</Text>
+                            <Text style={Styles.itemTopText}>{this.state.userInfoMap.fabulousCount}</Text>
                         </View>
                         <View style={Styles.itemTextBottomView}>
                             <Text style={Styles.itemBottomText}>被赞</Text>

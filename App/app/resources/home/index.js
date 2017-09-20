@@ -18,65 +18,129 @@ import ImageViewer from '../../components/ImageViewer';
 import FooterComponent from '../../components/FooterComponent';
 // Item
 import Item from '../../components/Item';
+// 请求组件
+import Request from '../../utils/Request';
+// 存储数据组件
+import Storage from '../../utils/Storage';
 
 import Styles from '../../style/user/userStyle';
 import {StyleConfig} from '../../style/style';
 import Icons from '../../components/Icons';
 let oPx = StyleConfig.oPx;
 
-// 临时图片数据
-const imagesUri = 'https://www.pujinziben.com/upload/banner/2017/9/20170911083746952.jpg';
-
 export default class Index extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			data: [
-				{id: 1, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80},
-				{id: 2, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri} ], upCount: 1824, downCount: 24, msgCount: 248},
-				{id: 3, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '可爱叮当猫', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri} ], upCount: 1824, downCount: 24, msgCount: 248},
-				{id: 4, sendDate: '2017-8-27 12:25', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '好多好多可爱叮当猫呀！', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, {url:imagesUri}, ], upCount: 124, downCount: 59, msgCount: 77},
-			],
+			// 首页数据
+			indexList: [],
 			isOnClickImage: false,
 			dataIndex: 0,
 			onClickIndex: 0,
 			_onPressMore: this.props._onPressMore,
+			// 分页参数
+			pageNum: 1,
+			pageSize: 20,
+			totalPageNum: 0,
+			// 是否有数据，true则显示底部加载，false则显示底线
+			isData: true,
 		};
 	}
 
-	_getData() {
-		alert('刷新数据');
+	componentDidMount(){
+		this._getData();
+	}
+
+	_getData(pageNum, pageSize) {
+		// 如果没有值那么就是第一次加载
+		if (!pageNum && !pageSize) {
+			Request.post('home/index.do',{pageNum: 1, pageSize: 20},(data)=>{
+				this.setState({
+					indexList: data.page,
+					// 总页数
+					totalPageNum: data.totalPageNum,
+					// 如果总页数等于1直接设置底部底线
+					isData: data.totalPageNum <= 1 ? false : true,
+				});
+			},(error)=>{
+			    console.log(error);
+			});
+		} else { // 不是第一次加载
+			Request.post('home/index.do',{pageNum: pageNum, pageSize: pageSize},(data)=>{
+				this.setState({
+					// concat方法把数据追加到原数据后面
+					indexList: this.state.indexList.concat(data.page),
+					pageNum: data.pageNum,
+					isData: data.pageNum >= data.totalPageNum ? false : true,
+				});
+			},(error)=>{
+			    console.log(error);
+			});
+		}
 	}
 
 	_getImageViewer = () => {
-		return 	<ImageViewer
-					visible={this.state.isOnClickImage}
-					imageUrls={this.state.data[this.state.dataIndex].images} // 照片路径
-					index={this.state.onClickIndex} // 初始显示第几张
-					onClick={() => { // 图片单击事件
-                        this.setState({isOnClickImage: false});
-                    }}
-				/>;
+		if (this.state.indexList != [] && this.state.indexList != null && this.state.indexList != '' && this.state.indexList[this.state.dataIndex].articleImages != null){
+			return 	<ImageViewer
+						visible={this.state.isOnClickImage}
+						imageUrls={this.state.indexList[this.state.dataIndex].articleImages} // 照片路径
+						index={this.state.onClickIndex} // 初始显示第几张
+						onClick={() => { // 图片单击事件
+	                        this.setState({isOnClickImage: false});
+	                        console.log(this.state.isOnClickImage);
+	                    }}
+					/>;
+		}
 	}
 
 	// 加载组件
 	_getListFooterComponent() {
-		return 	<FooterComponent />;
+		return 	<FooterComponent isData={this.state.isData} />;
 	}
 
 	// 滑动到底部时加载
 	_onEndReached = () => {
-		let data = this.state.data;
-		let a = {id: 4, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', upCount: 84, downCount: 94, msgCount: 80};
-		let b = {id: 5, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', upCount: 84, downCount: 94, msgCount: 80};
-		let c = {id: 6, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', upCount: 84, downCount: 94, msgCount: 80};
-		data.push(a);
-		data.push(b);
-		data.push(c);
+		if ((this.state.pageNum + 1) <= this.state.totalPageNum) {
+			this._getData(this.state.pageNum + 1, this.state.pageSize);
+		} else {
+			if (this.state.totalPageNum > 0) 
+				this.setState({isData: false});
+		}
+	}
+
+	// 点赞 
+	async _fabulous(id, index) {
+		let USER = await Storage.getItem('USER');
+		Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
+			if (data.error == 0) {
+				alert(data.msg);
+			} else {
+				alert(data.msg);
+			}
+		});
+
+		let indexList = this.state.indexList;
+		let data = indexList[index];
+		data.fabulousCount = data.fabulousCount + 1;
+		indexList[index] = data;
+		this.setState({
+			indexList: indexList
+		});
+	}
+
+	// 踩 
+	_stampede = () => {
+		
 	}
 
 	_getItem(row, index) {
-		return	<Item row={row} index={index} key={index} _setDataIndex={this._setDataIndex} _toMsgDetails={this._toMsgDetails} />
+		return	<Item row={row} 
+					index={index} key={index} 
+					_setDataIndex={this._setDataIndex} 
+					_toMsgDetails={this._toMsgDetails}
+					_fabulous={this._fabulous.bind(this)}
+					_stampede={this._stampede}
+				/>
 	}
 
 	_setDataIndex = (dataIndex, index) => {
@@ -97,33 +161,26 @@ export default class Index extends Component {
 	}
 
 	render() {
-		if (this.state.data != null) {
-			return (
-				<View style={Styles.view}>
+		return (
+			<View style={Styles.view}>
 
-					<FlatList
-					  	data={this.state.data}
-					  	renderItem={({item, index}) => this._getItem(item, index)}
-					  	getItemLayout={(data, index) => ({length: 100/oPx, offset: 100/oPx * index , index})}
-					  	keyExtractor={(item, index) => item.id}
-				  		initialNumToRender={20}
-				  		ListFooterComponent={() => this._getListFooterComponent()}
-				  		onEndReachedThreshold={0.2}
-				  		onEndReached={this._onEndReached}
-				  		refreshing={false}
-				  		onRefresh={() => {
-				  			this._getData()
-				  		}}
-					/>
+				<FlatList
+				  	data={this.state.indexList}
+				  	renderItem={({item, index}) => this._getItem(item, index)}
+				  	getItemLayout={(data, index) => ({length: 100/oPx, offset: 100/oPx * index , index})}
+				  	keyExtractor={(item, index) => item.id}
+			  		initialNumToRender={20}
+			  		ListFooterComponent={() => this._getListFooterComponent()}
+			  		onEndReachedThreshold={0.2}
+			  		onEndReached={this._onEndReached}
+			  		refreshing={false}
+			  		onRefresh={() => {
+			  			this._getData()
+			  		}}
+				/>
 
-					{ this._getImageViewer() }
-				</View>
-			);
-		} else {
-			return (
-				<View style={Styles.noDataView}><Text style={Styles.noDataText}>暂无记录</Text></View>
-			);
-		}
-		
+				{ this._getImageViewer() }
+			</View>
+		);
 	}
 }
