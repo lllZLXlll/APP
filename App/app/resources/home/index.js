@@ -111,22 +111,16 @@ export default class Index extends Component {
 
 	// 点赞 修改数据库数据
 	async _fabulous(id, index) {
-		let USER = await Storage.getItem('USER');
-		Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
-			if (data.error == 0) {
-				console.log(data.msg);
-			} else {
-				alert(data.msg);
-			}
-		});
+		// let USER = await Storage.getItem('USER');
+		// Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
+		// 	if (data.error == 0) {
+		// 		console.log(data.msg);
+		// 	} else {
+		// 		alert(data.msg);
+		// 	}
+		// });
 		
-		let indexList = this.state.indexList;
-		let data = indexList[index];
-		data.fabulousCount = data.fabulousCount + 1;
-		indexList[index] = data;
-		this.setState({
-			indexList: indexList
-		});
+		this._fabulousUpdatePage(index);
 	}
 
 	// 点赞 修改页面数据
@@ -134,7 +128,9 @@ export default class Index extends Component {
 		let indexList = this.state.indexList;
 		let data = indexList[index];
 		data.fabulousCount = data.fabulousCount + 1;
+
 		data.fabulous = data.fabulous + 1;
+		
 		indexList[index] = data;
 		this.setState({
 			indexList: indexList
@@ -152,13 +148,7 @@ export default class Index extends Component {
 			}
 		});
 
-		let indexList = this.state.indexList;
-		let data = indexList[index];
-		data.stampedeCount = data.stampedeCount + 1;
-		indexList[index] = data;
-		this.setState({
-			indexList: indexList
-		});
+		this._stampedeUpdatePage(index);
 	}
 
 	// 踩 修改页面数据
