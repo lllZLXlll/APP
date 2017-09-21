@@ -10,12 +10,15 @@ import {
 	Platform,
 	PermissionsAndroid,
     TouchableOpacity,
+    TouchableWithoutFeedback
 } from 'react-native';
 
 import Sound from 'react-native-sound';          // 播放声音组件
 import {AudioRecorder, AudioUtils} from 'react-native-audio';
 // let audioPath = AudioUtils.DocumentDirectoryPath + '/test.aac';
 // 目录/data/user/0/com.opms_rn/files/test.aac
+
+import {createResponder} from 'react-native-gesture-responder';
 
 export default class Send extends Component {
 
@@ -28,6 +31,9 @@ export default class Send extends Component {
             finished: false,                                                    //是否完成录音
             audioPath: AudioUtils.DocumentDirectoryPath + '/test.aac',          //路径下的文件名
             hasPermission: undefined,                                           //是否获取权限
+            gestureState: {},
+            left: 0,
+            top: 0
         };
 
         this.prepareRecordingPath = this.prepareRecordingPath.bind(this);     //执行录音的方法
@@ -170,7 +176,7 @@ export default class Send extends Component {
         console.log(`Finished recording of duration ${this.state.currentTime} seconds at path: ${filePath}`);
     }
 
-    componentDidMount () {
+    async componentDidMount () {
 
         // 页面加载完成后获取权限
         this.checkPermission().then((hasPermission) => {
@@ -195,9 +201,55 @@ export default class Send extends Component {
         // console.log(audioPath)
     }
 
+    async componentWillMount() {
+        this.gestureResponder = createResponder({
+            onStartShouldSetResponder: (evt, gestureState) => true,
+            onStartShouldSetResponderCapture: (evt, gestureState) => true,
+            onMoveShouldSetResponder: (evt, gestureState) => true,
+            onMoveShouldSetResponderCapture: (evt, gestureState) => true,
+
+            onResponderGrant: (evt, gestureState) => {
+            },
+            onResponderMove: (evt, gestureState) => {
+                if (gestureState.pinch && gestureState.previousPinch) {
+                    thumbSize *= (gestureState.pinch / gestureState.previousPinch)
+                }
+                let {left, top} = this.state;
+                left += (gestureState.moveX - gestureState.previousMoveX);
+                top += (gestureState.moveY - gestureState.previousMoveY);
+
+                this.setState({
+                    gestureState: {
+                        ...gestureState
+                    },
+                    left, top,
+                })
+            },
+            onResponderTerminationRequest: (evt, gestureState) => true,
+            onResponderRelease: (evt, gestureState) => {
+                this.setState({
+                    gestureState: {
+                        ...gestureState
+                    }
+                })
+            },
+            onResponderTerminate: (evt, gestureState) => {
+            },
+            onResponderSingleTapConfirmed: (evt, gestureState) => {
+                console.log('onResponderSingleTapConfirmed...' + JSON.stringify(gestureState));
+            },
+            debug: true
+        })
+    }
+
+    async _onPressIn () {
+        alert(1)
+        //this.state.gestureState.x0
+    }
+
     render() {
         return (
-			<View style={{flex:1}}>
+			<View style={{flex:1}} {...this.componentWillMount}>
 				<TouchableOpacity onPress={this.record} activeOpacity={0.5}>
 					<View>
 						<Text>录音</Text>
@@ -206,6 +258,12 @@ export default class Send extends Component {
 				<Text onPress={this.stop}>停止录音</Text>
 				<Text onPress={this.pause}>暂停录音</Text>
 				<Text onPress={this.play}>播放录音</Text>
+                <TouchableWithoutFeedback delayLongPress={1000} onLongPress={this._onPressIn}>
+                        <View>
+                            <Text>长按测试</Text>
+                        </View>
+                </TouchableWithoutFeedback>
+                <Text>{this.state.gestureState.x0}</Text>
 			</View>
         )
     }

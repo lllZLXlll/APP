@@ -10,6 +10,7 @@
     "react": "16.0.0-alpha.12",
     "react-native": "0.47.1",
     "react-native-audio": "^3.2.2",
+    "react-native-gesture-responder": "^0.1.1",
     "react-native-image-zoom-viewer": "^2.0.10",
     "react-native-qq": "^2.0.5",
     "react-native-sound": "^0.10.4",
