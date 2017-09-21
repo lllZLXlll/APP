@@ -7,6 +7,8 @@ import {
 	Text,
 	Image,
 	TouchableOpacity,
+	Animated,
+	LayoutAnimation,
 } from 'react-native';
 // 照片浏览
 import ImageViewer from './ImageViewer';
@@ -21,6 +23,16 @@ export default class Item extends Component {
 		super(props);
 		this.state = {
 			delComponent: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_1} />,
+			// 是否点赞
+			praise: false,
+			praiseIcon: Icons.praiseIcon_1,
+			// 是否踩
+			down: false,
+			downIcon: Icons.downIcon_1,
+			
+			// 动画初始值
+			praiseValue: new Animated.Value(1),
+			stampedeValue: new Animated.Value(1),
 		};
 	}
 
@@ -178,13 +190,31 @@ export default class Item extends Component {
 						{/*}*/}
 
 						<View style={Styles.praiseView}>
-							<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this.props._fabulous(row.id, index)}}>
-								<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
-								<Text style={Styles.onClickText}>{row.fabulousCount}</Text>
+							<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._fabulous(row.id, index)}}>
+								<Animated.Image 
+									style={[Styles.onClickIcon, {transform: [{scale: this.state.praiseValue}]}]}
+									source={this.state.praiseIcon} />
+								{ 
+									this.state.praise
+									?
+									<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.fabulousCount}</Text>
+									:
+									<Text style={Styles.onClickText}>{row.fabulousCount}</Text>
+		
+								}
 							</TouchableOpacity>
-							<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this.props._stampede(row.id, index)}}>
-								<Image style={Styles.onClickIcon} source={Icons.downIcon_1} />
-								<Text style={Styles.onClickText}>{row.stampedeCount}</Text>
+							<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._stampede(row.id, index)}}>		
+								<Animated.Image 
+									style={[Styles.onClickIcon, {transform: [{scale: this.state.stampedeValue}]}]}
+									source={this.state.downIcon} />
+								{ 
+									this.state.down
+									?
+									<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.stampedeCount}</Text>
+									:
+									<Text style={Styles.onClickText}>{row.stampedeCount}</Text>
+		
+								}
 							</TouchableOpacity>
 							<View style={Styles.itemPraiseView}>
 								<TouchableOpacity activeOpacity={1} onPress={this.props._toMsgDetails}>
@@ -197,6 +227,79 @@ export default class Item extends Component {
 				</View>;
 	}
 
+	_fabulous(id, index) {
+		if (!this.state.praise && !this.state.down) {
+			// 用户点击赞后更换图片
+			this.setState({praise: true, praiseIcon: Icons.praiseIcon_2});
+			// 点赞动画
+			Animated.sequence([  //  组合动画 parallel（同时执行）、sequence（顺序执行）、stagger（错峰，其实就是插入了delay的parrllel）和delay（延迟）
+				Animated.spring( //  基础的单次弹跳物理模型
+					this.state.praiseValue,
+					{
+						toValue: 1.8,
+						friction: 5, // 摩擦力，默认为7.
+						tension: 80, // 张力，默认40。
+					}
+				),
+				Animated.spring( //  基础的单次弹跳物理模型
+					this.state.praiseValue,
+					{
+						toValue: 1,
+						friction: 7, // 摩擦力，默认为7.
+						tension: 40, // 张力，默认40。
+					}
+				),
+
+			]).start();
+
+			// 调用父组件方法请求点赞
+			this.props._fabulous(id, index);
+		} else {
+			if (this.state.praise) {
+				alert('你已赞过');
+			} else {
+				alert('你已踩过');
+			}
+		}
+	    
+	}
+
+	_stampede(id, index) {
+		if (!this.state.down && !this.state.praise) {
+			// 用户点击赞后更换图片
+			this.setState({down: true, downIcon: Icons.downIcon_2});
+			// 点赞动画
+			Animated.sequence([  //  组合动画 parallel（同时执行）、sequence（顺序执行）、stagger（错峰，其实就是插入了delay的parrllel）和delay（延迟）
+				Animated.spring( //  基础的单次弹跳物理模型
+					this.state.stampedeValue,
+					{
+						toValue: 1.8,
+						friction: 5, // 摩擦力，默认为7.
+						tension: 80, // 张力，默认40。
+					}
+				),
+				Animated.spring( //  基础的单次弹跳物理模型
+					this.state.stampedeValue,
+					{
+						toValue: 1,
+						friction: 7, // 摩擦力，默认为7.
+						tension: 40, // 张力，默认40。
+					}
+				),
+
+			]).start();
+
+			// 调用父组件方法请求点赞
+			this.props._stampede(id, index);
+		} else {
+			if (this.state.down) {
+				alert('你已踩过');
+			} else {
+				alert('你已赞过');
+			}
+		}
+	}
+
 	render() {
 		return (
 			<View style={Styles.view}>
@@ -204,4 +307,3 @@ export default class Item extends Component {
 			</View>
 		);
 	}
-}
