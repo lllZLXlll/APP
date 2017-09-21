@@ -202,7 +202,7 @@ export default Styles = StyleSheet.create({
 		height: 30/oPx,
 	},
 	onClickText: {
-		marginLeft: 10/oPx,
+		marginLeft: 20/oPx,
 		color: '#999',
 		fontSize: 28/oPx,
 	},

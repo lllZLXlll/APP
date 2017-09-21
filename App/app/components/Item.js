@@ -307,3 +307,5 @@ export default class Item extends Component {
 			</View>
 		);
 	}
+
+}
