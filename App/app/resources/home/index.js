@@ -51,10 +51,11 @@ export default class Index extends Component {
 		this._getData();
 	}
 
-	_getData(pageNum, pageSize) {
+	async _getData(pageNum, pageSize) {
+		let USER = await Storage.getItem('USER');
 		// 如果没有值那么就是第一次加载
 		if (!pageNum && !pageSize) {
-			Request.post('home/index.do',{pageNum: 1, pageSize: 20},(data)=>{
+			Request.post('home/index.do',{uid: USER.UID, pageNum: 1, pageSize: 20},(data)=>{
 				this.setState({
 					indexList: data.page,
 					// 总页数
@@ -66,7 +67,7 @@ export default class Index extends Component {
 			    console.log(error);
 			});
 		} else { // 不是第一次加载
-			Request.post('home/index.do',{pageNum: pageNum, pageSize: pageSize},(data)=>{
+			Request.post('home/index.do',{uid: USER.UID, pageNum: pageNum, pageSize: pageSize},(data)=>{
 				this.setState({
 					// concat方法把数据追加到原数据后面
 					indexList: this.state.indexList.concat(data.page),

@@ -128,8 +128,85 @@ export default class Item extends Component {
 		}
 	}
 	
+	// 获得点赞组件
+	_getFabulous(row, index) {
+		// 如果已经点赞了
+		if (row.fabulous > 0) {
+			return	<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._checkFabulousStampede(row)}}>
+						<Image style={Styles.onClickIcon} source={Icons.praiseIcon_2} />
+						<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.fabulousCount}</Text>
+					</TouchableOpacity>;
+		} else if (row.stampede > 0) { // 如果已经踩了
+			return	<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._checkFabulousStampede(row)}}>
+						<Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
+						<Text style={Styles.onClickText}>{row.fabulousCount}</Text>
+					</TouchableOpacity>;
+		} else { // 都没有
+			return	<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._fabulous(row.id, index)}}>
+						<Animated.Image 
+							style={[Styles.onClickIcon, {transform: [{scale: this.state.praiseValue}]}]}
+							source={this.state.praiseIcon} />
+						{ 
+							this.state.praise
+							?
+							<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.fabulousCount}</Text>
+							:
+							<Text style={Styles.onClickText}>{row.fabulousCount}</Text>
+
+						}
+					</TouchableOpacity>;
+		}
+	}
+
+	// 获得踩组件
+	_getStampede(row, index) {
+		// 如果已经踩了
+		if (row.stampede > 0) {
+			return	<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._checkFabulousStampede(row)}}>
+						<Image style={Styles.onClickIcon} source={Icons.downIcon_2} />
+						<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.stampedeCount}</Text>
+					</TouchableOpacity>;
+		} else if (row.fabulous > 0) { // 如果已经点赞了
+			return	<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._checkFabulousStampede(row)}}>
+						<Image style={Styles.onClickIcon} source={Icons.downIcon_1} />
+						<Text style={Styles.onClickText}>{row.stampedeCount}</Text>
+					</TouchableOpacity>;
+		} else {  // 都没有
+			return	<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._stampede(row.id, index)}}>		
+						<Animated.Image 
+							style={[Styles.onClickIcon, {transform: [{scale: this.state.stampedeValue}]}]}
+							source={this.state.downIcon} />
+						{ 
+							this.state.down
+							?
+							<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.stampedeCount}</Text>
+							:
+							<Text style={Styles.onClickText}>{row.stampedeCount}</Text>
+
+						}
+					</TouchableOpacity>;
+		}
+	}
+
+
 	// 获得发帖item方法
-	_getActicleItem(row, index) {
+	_getActicleItem = (row, index) => {
+		// console.log(row);
+		// 已赞过
+		// if (row.fabulous > 0) {
+		// 	this.setState({
+		// 		praise: true, 
+		// 		praiseIcon: Icons.praiseIcon_2,
+		// 	});
+		// } 
+		// // 已踩过
+		// if (row.stampede > 0) {
+		// 	this.setState({
+		// 		down: true, 
+		// 		downIcon: Icons.downIcon_2,
+		// 	});
+		// }
+
 		return 	<View style={Styles.view}>
 					<View style={Styles.pendantView}>
 						<Image style={Styles.pendantImage} source={Icons.pendantImage} />
@@ -190,32 +267,10 @@ export default class Item extends Component {
 						{/*}*/}
 
 						<View style={Styles.praiseView}>
-							<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._fabulous(row.id, index)}}>
-								<Animated.Image 
-									style={[Styles.onClickIcon, {transform: [{scale: this.state.praiseValue}]}]}
-									source={this.state.praiseIcon} />
-								{ 
-									this.state.praise
-									?
-									<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.fabulousCount}</Text>
-									:
-									<Text style={Styles.onClickText}>{row.fabulousCount}</Text>
-		
-								}
-							</TouchableOpacity>
-							<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this._stampede(row.id, index)}}>		
-								<Animated.Image 
-									style={[Styles.onClickIcon, {transform: [{scale: this.state.stampedeValue}]}]}
-									source={this.state.downIcon} />
-								{ 
-									this.state.down
-									?
-									<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.stampedeCount}</Text>
-									:
-									<Text style={Styles.onClickText}>{row.stampedeCount}</Text>
-		
-								}
-							</TouchableOpacity>
+							{/* 点赞组件 */}
+							{ this._getFabulous(row, index) }
+							{ this._getStampede(row, index) }
+
 							<View style={Styles.itemPraiseView}>
 								<TouchableOpacity activeOpacity={1} onPress={this.props._toMsgDetails}>
 									<Image style={Styles.onClickIcon} source={Icons.msgIcon} />
@@ -225,6 +280,14 @@ export default class Item extends Component {
 						</View>
 					</View>
 				</View>;
+	}
+
+	_checkFabulousStampede(row) {
+		if (row.fabulous > 0) {
+			alert('你已赞过');
+		} else {
+			alert('你已踩过');
+		}
 	}
 
 	_fabulous(id, index) {

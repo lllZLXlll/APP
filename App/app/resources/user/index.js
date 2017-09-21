@@ -71,7 +71,7 @@ export default class User extends Component {
 
 	_getData() {
 		Request.post('user/userInfo.do',{uid: 1},(data)=>{
-			console.log(data);
+			// console.log(data);
 			this.setState({userInfoMap: data});
 			let param = {
 				// 用户id
