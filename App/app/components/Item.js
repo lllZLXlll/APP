@@ -191,25 +191,10 @@ export default class Item extends Component {
 
 	// 获得发帖item方法
 	_getActicleItem = (row, index) => {
-		// console.log(row);
-		// 已赞过
-		// if (row.fabulous > 0) {
-		// 	this.setState({
-		// 		praise: true, 
-		// 		praiseIcon: Icons.praiseIcon_2,
-		// 	});
-		// } 
-		// // 已踩过
-		// if (row.stampede > 0) {
-		// 	this.setState({
-		// 		down: true, 
-		// 		downIcon: Icons.downIcon_2,
-		// 	});
-		// }
-
 		return 	<View style={Styles.view}>
 					<View style={Styles.pendantView}>
-						<Image style={Styles.pendantImage} source={Icons.pendantImage} />
+						{/* 头部挂件 */}
+						{/*<Image style={Styles.pendantImage} source={Icons.pendantImage} />*/}
 					</View>
 					<View style={Styles.articleItemView}>
 						<View style={Styles.topView}>
@@ -224,9 +209,10 @@ export default class Item extends Component {
 								</View>
 							</View>
 							<View style={Styles.itemTopRightView}>
-								<TouchableOpacity activeOpacity={1} onPress={() => {this._deleteArticle()}}>
-									{ this._getDelComponent() }
-								</TouchableOpacity>
+								{/* 删除此贴 */}
+								{/*<TouchableOpacity activeOpacity={1} onPress={() => {this._deleteArticle()}}>*/}
+								{/*	{ this._getDelComponent() }*/}
+								{/*</TouchableOpacity>*/}
 							</View>
 						</View>
 
@@ -270,13 +256,21 @@ export default class Item extends Component {
 							{/* 点赞组件 */}
 							{ this._getFabulous(row, index) }
 							{ this._getStampede(row, index) }
-
-							<View style={Styles.itemPraiseView}>
-								<TouchableOpacity activeOpacity={1} onPress={this.props._toMsgDetails}>
+							
+							{/* 在首页可以点击查看评论，但在评论页面不能再跳转了 */}
+							{
+								this.props.isToComment
+								?
+								<TouchableOpacity style={Styles.itemPraiseView} activeOpacity={1} onPress={() => {this.props._toMsgDetails(index, JSON.stringify(row))}}>
 									<Image style={Styles.onClickIcon} source={Icons.msgIcon} />
+									<Text style={Styles.onClickText}>{row.commentCount}</Text>
 								</TouchableOpacity>
-								<Text style={Styles.onClickText}>{row.commentCount}</Text>
-							</View>
+								:
+								<View style={Styles.itemPraiseView}>
+									<Image style={Styles.onClickIcon} source={Icons.msgIcon} />
+									<Text style={Styles.onClickText}>{row.commentCount}</Text>
+								</View>
+							}
 						</View>
 					</View>
 				</View>;

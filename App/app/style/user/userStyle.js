@@ -307,12 +307,12 @@ export default Styles = StyleSheet.create({
 	// 收藏
 	pendantView: { // 头部挂件
 		flex: 1,
-		height: 30/oPx,
+		height: 20/oPx,
 		backgroundColor: '#fff',
 	},
 	pendantImage: { // 挂件图片
 		width: StyleConfig.screen_width,
-		height: 30/oPx,
+		height: 20/oPx,
 	},
 	topView: {
 		flex: 1,

@@ -109,7 +109,7 @@ export default class Index extends Component {
 		}
 	}
 
-	// 点赞 
+	// 点赞 修改数据库数据
 	async _fabulous(id, index) {
 		let USER = await Storage.getItem('USER');
 		Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
@@ -119,7 +119,7 @@ export default class Index extends Component {
 				alert(data.msg);
 			}
 		});
-
+		
 		let indexList = this.state.indexList;
 		let data = indexList[index];
 		data.fabulousCount = data.fabulousCount + 1;
@@ -129,7 +129,19 @@ export default class Index extends Component {
 		});
 	}
 
-	// 踩 
+	// 点赞 修改页面数据
+	_fabulousUpdatePage = (index) => {
+		let indexList = this.state.indexList;
+		let data = indexList[index];
+		data.fabulousCount = data.fabulousCount + 1;
+		data.fabulous = data.fabulous + 1;
+		indexList[index] = data;
+		this.setState({
+			indexList: indexList
+		});
+	}
+
+	// 踩 修改数据库数据
 	async _stampede(id, index) {
 		let USER = await Storage.getItem('USER');
 		Request.post('home/stampede.do',{uid: USER.UID, articleId: id,},(data)=>{
@@ -149,6 +161,18 @@ export default class Index extends Component {
 		});
 	}
 
+	// 踩 修改页面数据
+	_stampedeUpdatePage = (index) => {
+		let indexList = this.state.indexList;
+		let data = indexList[index];
+		data.stampedeCount = data.stampedeCount + 1;
+		data.stampede = data.stampedeCount;
+		indexList[index] = data;
+		this.setState({
+			indexList: indexList
+		});
+	}
+
 	_getItem(row, index) {
 		return	<Item row={row} 
 					index={index} key={index} 
@@ -156,6 +180,7 @@ export default class Index extends Component {
 					_toMsgDetails={this._toMsgDetails}
 					_fabulous={this._fabulous.bind(this)}
 					_stampede={this._stampede.bind(this)}
+					isToComment={true}
 				/>
 	}
 
@@ -172,8 +197,13 @@ export default class Index extends Component {
 	}
 
 	// 跳转帖子详情
-	_toMsgDetails = () => {
-		this.props.navigation.navigate('ArticleDetails');
+	_toMsgDetails = (index, row) => {
+		this.props.navigation.navigate('ArticleDetails', {
+			index: index,
+			row: row,
+			_fabulous: this._fabulousUpdatePage,
+			_stampede: this._stampedeUpdatePage,
+		});
 	}
 
 	render() {

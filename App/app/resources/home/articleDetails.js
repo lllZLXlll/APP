@@ -20,6 +20,10 @@ import TabComponent from '../../components/TabComponent';
 import CommentItem from '../../components/CommentItem';
 // Item
 import Item from '../../components/Item';
+// 请求组件
+import Request from '../../utils/Request';
+// 存储数据组件
+import Storage from '../../utils/Storage';
 
 import Styles from '../../style/user/userStyle';
 import {StyleConfig} from '../../style/style';
@@ -33,10 +37,7 @@ export default class ArticleDetails extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// 临时帖子数据
-			data: [
-				{id: 1, sendDate: '2017-8-26 17:53', sendStatus: '发布成功，粉丝将收到您的发帖通知！', sendContent: '煞风景啊谁来讲故事了飞机发生了几份酸辣粉极乐世界发送大量开发建设垃圾焚烧粉红色沙发。', images: [{url:imagesUri}, {url:imagesUri}, {url:imagesUri}], upCount: 84, downCount: 94, msgCount: 80},
-			],
+			data: JSON.parse(this.props.navigation.state.params.row),
 			// tab切换栏数据
 			tabTitleMap: [
 	        	{tabTitle: '趣评(6)'},{tabTitle: '最新评论(1.2万)'},{tabTitle: '赞过(3.1万)'},
@@ -68,14 +69,16 @@ export default class ArticleDetails extends Component {
 	}
 
 	_getImageViewer = () => {
-		return 	<ImageViewer
-					visible={this.state.isOnClickImage}
-					imageUrls={this.state.data[this.state.dataIndex].images} // 照片路径
-					index={this.state.onClickIndex} // 初始显示第几张
-					onClick={() => { // 图片单击事件
-                        this.setState({isOnClickImage: false});
-                    }}
-				/>;
+		if (this.state.data != [] && this.state.data != null && this.state.data != '' && this.state.data.articleImages != null){
+			return 	<ImageViewer
+						visible={this.state.isOnClickImage}
+						imageUrls={this.state.data.articleImages} // 照片路径
+						index={this.state.onClickIndex} // 初始显示第几张
+						onClick={() => { // 图片单击事件
+	                        this.setState({isOnClickImage: false});
+	                    }}
+					/>;
+		}
 	}
 
 	_setDataIndex = (dataIndex, index) => {
@@ -157,13 +160,56 @@ export default class ArticleDetails extends Component {
 		}
 	}
 
+	// 点赞 
+	async _fabulous(id, index) {
+		let data = this.state.data;
+		data.fabulousCount = data.fabulousCount + 1;
+		this.setState({
+			data: data
+		});
+
+		let USER = await Storage.getItem('USER');
+		Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
+			if (data.error == 0) {
+				console.log(data.msg);
+			} else {
+				alert(data.msg);
+			}
+		});
+		
+		// 调用首页传进来点赞方法，修改首页数据
+		this.props.navigation.state.params._fabulous(this.props.navigation.state.params.index);
+	}
+
+	// 踩 
+	async _stampede(id, index) {
+		let data = this.state.data;
+		data.stampedeCount = data.stampedeCount + 1;
+		this.setState({
+			data: data
+		});
+
+		let USER = await Storage.getItem('USER');
+		Request.post('home/stampede.do',{uid: USER.UID, articleId: id,},(data)=>{
+			if (data.error == 0) {
+				console.log(data.msg);
+			} else {
+				alert(data.msg);
+			}
+		});
+
+		// 调用首页传进来踩方法，修改首页数据
+		this.props.navigation.state.params._stampede(this.props.navigation.state.params.index);
+	}
+
 	render() {
+		let row = JSON.parse(this.props.navigation.state.params.row);
 		return (
 			<ScrollView style={Styles.view} stickyHeaderIndices={[1]}>
-				<Item row={this.state.data[0]}
+				<Item row={this.state.data}
 				 	index={0}
-				 	_setDataIndex={this._setDataIndex} 
-				 	isNoShowComment={true}
+				 	_fabulous={this._fabulous.bind(this)}
+				 	_stampede={this._stampede.bind(this)}
 				 />
 
 				 <TabComponent isSelect={this.state.isSelect} 

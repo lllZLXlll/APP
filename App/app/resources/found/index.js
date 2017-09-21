@@ -11,7 +11,8 @@ import {
 	FlatList,
 	ScrollView,
 	RefreshControl,
-	NetInfo
+	NetInfo,
+	ImageBackground,
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import Request from '../../utils/Request';
@@ -53,12 +54,12 @@ export default class Found extends Component {
 	getImage(row, index) {
 		return 	<TouchableOpacity key={index} activeOpacity={1} onPress={() => this.onPress(row.id)}>
 					<View style={Styles.imageStyle}>
-						<Image
+						<ImageBackground
 							style={Styles.imageStyle}
 							source={{uri: row.image}}
 						>
 							<Text style={Styles.swiperText} numberOfLines={2}>{row.title}</Text>
-						</Image>
+						</ImageBackground>
 					</View>
 				</TouchableOpacity>;
 	}
