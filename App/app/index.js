@@ -22,7 +22,7 @@ import {
 // 五个底部模块页面
 import Home from './resources/home/index';
 import Message from './resources/message/index';
-import Send from './resources/send/index';
+import Send from './resources/home/index';
 import Found from './resources/found/index';
 import User from './resources/user/index';
 import Screen from './resources/home/screen';
