@@ -186,11 +186,11 @@ export default Styles = StyleSheet.create({
 	},
 	praiseView: {
 		flex: 1,
-		marginTop: 20/oPx,
-		marginBottom: 20/oPx,
+		height: 70/oPx,
 		flexDirection: 'row',
 		paddingLeft: 30/oPx,
 		paddingRight: 30/oPx,
+		alignItems: 'center',
 	},
 	itemPraiseView: {
 		flex: 1,
@@ -202,7 +202,7 @@ export default Styles = StyleSheet.create({
 		height: 30/oPx,
 	},
 	onClickText: {
-		marginLeft: 10/oPx,
+		marginLeft: 20/oPx,
 		color: '#999',
 		fontSize: 28/oPx,
 	},
