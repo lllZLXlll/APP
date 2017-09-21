@@ -113,7 +113,7 @@ export default class Index extends Component {
 		let USER = await Storage.getItem('USER');
 		Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
 			if (data.error == 0) {
-				console.log(data.msg);
+				alert(data.msg);
 			} else {
 				alert(data.msg);
 			}
@@ -128,25 +128,9 @@ export default class Index extends Component {
 		});
 	}
 
-
 	// 踩 
-	async _stampede(id, index) {
-		let USER = await Storage.getItem('USER');
-		Request.post('home/stampede.do',{uid: USER.UID, articleId: id,},(data)=>{
-			if (data.error == 0) {
-				console.log(data.msg);
-			} else {
-				alert(data.msg);
-			}
-		});
-
-		let indexList = this.state.indexList;
-		let data = indexList[index];
-		data.stampedeCount = data.stampedeCount + 1;
-		indexList[index] = data;
-		this.setState({
-			indexList: indexList
-		});
+	_stampede = () => {
+		
 	}
 
 	_getItem(row, index) {
@@ -155,7 +139,7 @@ export default class Index extends Component {
 					_setDataIndex={this._setDataIndex} 
 					_toMsgDetails={this._toMsgDetails}
 					_fabulous={this._fabulous.bind(this)}
-					_stampede={this._stampede.bind(this)}
+					_stampede={this._stampede}
 				/>
 	}
 
