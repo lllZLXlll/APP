@@ -25,14 +25,23 @@ export default class Item extends Component {
 			delComponent: <Image style={Styles.itemSelectIcon} source={Icons.selectIcon_1} />,
 			// 是否点赞
 			praise: false,
+			// 未赞时图片
 			praiseIcon: Icons.praiseIcon_1,
+			// 点赞数量
+			fabulous: this.props.row.fabulous,
+
 			// 是否踩
 			down: false,
+			// 未踩时图片
 			downIcon: Icons.downIcon_1,
+			// 踩数量
+			stampede: this.props.row.stampede,
 			
 			// 动画初始值
 			praiseValue: new Animated.Value(1),
 			stampedeValue: new Animated.Value(1),
+
+
 		};
 	}
 
@@ -149,7 +158,7 @@ export default class Item extends Component {
 						{ 
 							this.state.praise
 							?
-							<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.fabulousCount}</Text>
+							<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{this.state.fabulous}</Text>
 							:
 							<Text style={Styles.onClickText}>{row.fabulousCount}</Text>
 
@@ -179,7 +188,7 @@ export default class Item extends Component {
 						{ 
 							this.state.down
 							?
-							<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{row.stampedeCount}</Text>
+							<Text style={[Styles.onClickText, {color: '#ff8200'}]}>{this.state.stampede}</Text>
 							:
 							<Text style={Styles.onClickText}>{row.stampedeCount}</Text>
 
@@ -287,7 +296,7 @@ export default class Item extends Component {
 	_fabulous(id, index) {
 		if (!this.state.praise && !this.state.down) {
 			// 用户点击赞后更换图片
-			this.setState({praise: true, praiseIcon: Icons.praiseIcon_2});
+			this.setState({praise: true, praiseIcon: Icons.praiseIcon_2, fabulous: this.state.fabulous+1});
 			// 点赞动画
 			Animated.sequence([  //  组合动画 parallel（同时执行）、sequence（顺序执行）、stagger（错峰，其实就是插入了delay的parrllel）和delay（延迟）
 				Animated.spring( //  基础的单次弹跳物理模型
@@ -321,7 +330,7 @@ export default class Item extends Component {
 	_stampede(id, index) {
 		if (!this.state.down && !this.state.praise) {
 			// 用户点击踩后更换图片
-			this.setState({down: true, downIcon: Icons.downIcon_2});
+			this.setState({down: true, downIcon: Icons.downIcon_2, stampede: this.state.stampede+1});
 			// 踩动画
 			Animated.sequence([  //  组合动画 parallel（同时执行）、sequence（顺序执行）、stagger（错峰，其实就是插入了delay的parrllel）和delay（延迟）
 				Animated.spring( //  基础的单次弹跳物理模型
