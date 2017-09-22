@@ -8,4 +8,6 @@ public interface FabulousDao {
 
 	long investFabulous(Map<String, Object> insertMap);
 
+	String queryCommentCount(Long commentId);
+
 }
