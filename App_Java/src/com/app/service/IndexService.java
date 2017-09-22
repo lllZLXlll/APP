@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.controller.common.PageBean;
+import com.app.dao.ArticleCommentDao;
 import com.app.dao.FabulousDao;
 import com.app.dao.SendArticleDao;
+import com.app.dao.StampedeDao;
 import com.app.util.AppUtil;
 
 import net.sf.json.JSONObject;
@@ -25,14 +27,24 @@ public class IndexService {
 	@Autowired
 	private FabulousDao fabulousDao;
 	
+	@Autowired
+	private StampedeDao stampedeDao;
+	
+	@Autowired
+	private ArticleCommentDao articleCommentDao;
+	
 	// 首页数据查询
 	public PageBean queryIndexContent(JSONObject appParams) {
 		Long totalNum = sendArticleDao.queryIndexContentCount();
 		
+		// 用户id
+		Long userId = Long.parseLong(AppUtil.checkUserId(appParams.getString("uid")));
+
 		Long pageNum = Long.parseLong(appParams.getString("pageNum"));
 		Long pageSize = Long.parseLong(appParams.getString("pageSize"));
 		
-		List<Map<String, Object>> page = sendArticleDao.queryIndexContent((pageNum - 1) * pageSize, pageSize);
+		// 如果用户登录了那么根据用户id查询出用户是否对此帖有过赞或踩，如果没有登录则不用查询，暂时查询出来
+		List<Map<String, Object>> page = sendArticleDao.queryIndexContent((pageNum - 1) * pageSize, pageSize, userId);
 		
 		for (Map<String, Object> map : page) {
 			// userId加密
@@ -70,7 +82,8 @@ public class IndexService {
 		long userId = Long.parseLong(AppUtil.checkUserId(appParams.getString("uid")));
 		// 帖子id
 		long articleId = Long.parseLong(appParams.getString("articleId"));
-		String fabulousCountStr =  fabulousDao.queryFabulousCount(articleId);
+		
+		String fabulousCountStr = fabulousDao.queryFabulousCount(articleId);
 		int fabulousCount = 0;
 		if (fabulousCountStr != null && !fabulousCountStr.equals("null") && !fabulousCountStr.equals("")) 
 			fabulousCount = Integer.parseInt(fabulousCountStr);
@@ -79,26 +92,112 @@ public class IndexService {
 		insertMap.put("articleId", articleId);
 		insertMap.put("fabulousCount", fabulousCount + 1);
 		insertMap.put("fabulousDate", new Date());
-		
+		// 向点赞记录表增加一条数据
 		long result = fabulousDao.investFabulous(insertMap);
+		
+		// 把发帖记录表中点赞数量更新
+		result = sendArticleDao.updateArticleFabulousCount(articleId, fabulousCount + 1);
 		
 		if (result <= 0 ) {
 			jsonMap.put("error", "1");
 			jsonMap.put("msg", "点赞失败");
+			return jsonMap;
 		}
+		
 		jsonMap.put("error", "0");
 		jsonMap.put("msg", "点赞成功");
 		return jsonMap;
 	}
 	
 	// 点赞评论，加上同步锁，防止两个人同时点赞时取得相同的数据，或修改相同的数据
-	public synchronized PageBean investFabulousComment(JSONObject appParams) {
+	public synchronized Map<String, Object> investFabulousComment(JSONObject appParams) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
 		// 用户id
 		Long userId = Long.parseLong(AppUtil.checkUserId(appParams.getString("uid")));
 		//　评论id
-		Long commentUserId = Long.parseLong(appParams.getString("commentId"));
+		Long commentId = Long.parseLong(appParams.getString("commentId"));
 		
-		return null;
+		String commentCountStr =  fabulousDao.queryCommentCount(commentId);
+		int commentCount = 0;
+		if (commentCountStr != null && !commentCountStr.equals("null") && !commentCountStr.equals("")) 
+			commentCount = Integer.parseInt(commentCountStr);
+		Map<String, Object> insertMap = new HashMap<String, Object>();
+		insertMap.put("userId", userId);
+		insertMap.put("commentId", commentId);
+		insertMap.put("fabulousCount", commentCount + 1);
+		insertMap.put("fabulousDate", new Date());
+		// 向点赞记录表增加一条数据
+		long result = fabulousDao.investFabulous(insertMap);
+		
+		// 把发帖记录表中点赞数量更新
+		result = sendArticleDao.updateArticleFabulousCount(commentId, commentCount + 1);
+		
+		if (result <= 0 ) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "点赞失败");
+			return jsonMap;
+		}
+		
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "点赞成功");
+		return jsonMap;
+	}
+	
+	// 帖子，踩
+	public synchronized Map<String, Object> investArticleStampede(JSONObject appParams) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		// 用户id
+		Long userId = Long.parseLong(AppUtil.checkUserId(appParams.getString("uid")));
+		//　帖子id
+		Long articleId = Long.parseLong(appParams.getString("articleId"));
+		
+		String articleCountStr = stampedeDao.queryStampedeCount(articleId);
+		int stampedeCount = 0;
+		if (articleCountStr != null && !articleCountStr.equals("null") && !articleCountStr.equals("")) 
+			stampedeCount = Integer.parseInt(articleCountStr);
+		Map<String, Object> insertMap = new HashMap<String, Object>();
+		insertMap.put("userId", userId);
+		insertMap.put("articleId", articleId);
+		insertMap.put("stampedeCount", stampedeCount + 1);
+		insertMap.put("stampedeDate", new Date());
+		// 向点赞记录表增加一条数据
+		long result = stampedeDao.investStampede(insertMap);
+		
+		// 把发帖记录表中点赞数量更新
+		result = sendArticleDao.updateArticleStampedeCount(articleId, stampedeCount + 1);
+		
+		if (result <= 0 ) {
+			jsonMap.put("error", "1");
+			jsonMap.put("msg", "踩失败");
+			return jsonMap;
+		}
+		
+		jsonMap.put("error", "0");
+		jsonMap.put("msg", "踩成功");
+		return jsonMap;
+	}
+
+	public PageBean queryArticleDetails(JSONObject appParams) {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		// 用户id
+		Long userId = Long.parseLong(AppUtil.checkUserId(appParams.getString("uid")));
+		//　帖子id
+		Long articleId = Long.parseLong(appParams.getString("articleId"));
+		
+		Long totalNum = articleCommentDao.queryArticleDetailsCount(articleId);
+		
+		Long pageNum = Long.parseLong(appParams.getString("pageNum"));
+		Long pageSize = Long.parseLong(appParams.getString("pageSize"));
+		
+		// 如果用户登录了那么根据用户id查询出用户是否对此帖有过赞或踩，如果没有登录则不用查询，暂时查询出来
+		List<Map<String, Object>> page = articleCommentDao.queryArticleDetails((pageNum - 1) * pageSize, pageSize, articleId, userId);
+		
+		for (Map<String, Object> map : page) {
+			// userId加密
+			map.put("userId", AppUtil.encryptUserId(map.get("userId")+""));
+		}
+		
+		return new PageBean(pageNum, pageSize, totalNum, page);
 	}
 	
 	

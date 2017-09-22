@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.app.dao.StampedeDao">
+	
+	<select id="queryStampedeCount" resultType="String">
+		SELECT MAX(stampedeCount) FROM t_stampede WHERE articleId = #{0}
+	</select>
+	
+	<insert id="investStampede">
+		INSERT INTO t_stampede (articleId, commentId, userId, stampedeCount, stampedeDate) 
+		VALUES (#{articleId}, #{commentId}, #{userId}, #{stampedeCount}, #{stampedeDate})
+	</insert>
+
+	
+</mapper>
+
+
+
+
+

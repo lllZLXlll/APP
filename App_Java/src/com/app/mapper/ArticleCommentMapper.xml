@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.app.dao.ArticleCommentDao">
+	
+	<select id="queryArticleDetailsCount" resultType="long">
+		SELECT COUNT(id) FROM t_articleComment WHERE articleId = #{0}
+	</select>
+	
+	<select id="queryArticleDetails" resultType="map">
+		SELECT
+		t1.id, t1.userId, t1.articleId, t1.commentContent, t1.commentDate, 
+		t1.fabulousCount, t2.userName, t2.portrait, 
+		(select count(id) from t_articleComment where commentId = t1.id and commentStage = 2) revertCount
+		FROM
+		t_articleComment t1 LEFT JOIN t_user t2 ON t1.userId = t2.id 
+		WHERE
+		t1.articleId = 1 AND t1.commentStage = 1 LIMIT #{0}, #{1} ORDER BY t1.fabulousCount DESC
+	</select>
+	
+</mapper>
+
+
+
+
+

@@ -39,4 +39,18 @@ public class AppIndexController extends BaseController {
 		return indexService.investFabulousArticle(getAppParams());
 	}
 	
+	// 踩
+	@RequestMapping(value = "/stampede")
+	@ResponseBody
+	public Map<String, Object> stampede(){
+		return indexService.investArticleStampede(getAppParams());
+	}
+	
+	// 查看帖子详情中的评论
+	@RequestMapping(value = "/queryArticleDetails")
+	@ResponseBody
+	public PageBean queryArticleDetails(){
+		return indexService.queryArticleDetails(getAppParams());
+	}
+	
 }
