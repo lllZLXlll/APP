@@ -25,6 +25,8 @@ import Request from '../../utils/Request';
 // 存储数据组件
 import Storage from '../../utils/Storage';
 
+import CommentDetails from '../home/commentDetails';
+
 import Styles from '../../style/user/userStyle';
 import {StyleConfig} from '../../style/style';
 import Icons from '../../components/Icons';
@@ -42,17 +44,8 @@ export default class ArticleDetails extends Component {
 			tabTitleMap: [
 	        	{tabTitle: '趣评(6)'},{tabTitle: '最新评论(1.2万)'},{tabTitle: '赞过(3.1万)'},
 	      	],
-	      	// 帖子回复临时数据
-	      	commentData: [
-	      		{userName: '闷骚青年', pariseCount: 15, revertCount: 7, commentContent: '没怎么看懂，看懂的来点个赞，回复一下。',},
-	      		{userName: '楼上儿子', pariseCount: 11, revertCount: 25, commentContent: '这都不懂还怎么玩，一楼滚下来，顶起来！'},
-	      		{userName: '楼下许巍', pariseCount: 5, revertCount: 2, commentContent: '曾梦想仗剑走天涯，最后老老实实成了家，嘀嘀哩哩嘀嘀嘀嘀噔哒。。。'},
-	      		{userName: '在下许巍', pariseCount: 3, revertCount: 6, commentContent: '嘀嘀哩哩嘀嘀嘀嘀噔哒,嘀嘀哩哩嘀嘀嘀嘀哒哒'},
-	      		{userName: '闷骚青年1', pariseCount: 15, revertCount: 7, commentContent: '没怎么看懂，看懂的来点个赞，回复一下。',},
-	      		{userName: '楼上儿子1', pariseCount: 11, revertCount: 25, commentContent: '这都不懂还怎么玩，一楼滚下来，顶起来！'},
-	      		{userName: '楼下许巍1', pariseCount: 5, revertCount: 2, commentContent: '曾梦想仗剑走天涯，最后老老实实成了家，嘀嘀哩哩嘀嘀嘀嘀噔哒。。。'},
-	      		{userName: '在下许巍1', pariseCount: 3, revertCount: 6, commentContent: '嘀嘀哩哩嘀嘀嘀嘀噔哒,嘀嘀哩哩嘀嘀嘀嘀哒哒'},
-	      	],
+	      	// 帖子回复数据
+	      	commentData: [],
 	      	// 点赞临时数据
 	      	praiseData: [
                 {userName: '盖伦',text:  '发布成功，粉丝将收到您的发帖通知！'},
@@ -134,8 +127,22 @@ export default class ArticleDetails extends Component {
 		this.setState({isSelect: index});
 	}
 
+	// 跳转评论详情
+	_toCommentDetails = (id, row, index) => {
+		this.props.navigation.navigate('CommentDetails', {
+			commentId: id,
+			row: row,
+			index: index,
+			_commentfabulous1: this._commentfabulous1,
+		});
+	}
+
 	_getComenItem(row, index) {
-		return	<CommentItem row={row} key={index} />;
+		return	<CommentItem row={row} key={index} index={index} 
+					isShowReverCount={true}
+					_commentfabulous={this._commentfabulous.bind(this)} 
+					_toCommentDetails={this._toCommentDetails}
+				/>;
 	}
 
 	_getPraiseItem(row, index) {
@@ -145,7 +152,7 @@ export default class ArticleDetails extends Component {
                             <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
                         </TouchableOpacity>
                     </View>
-                    <View  style={Styles.FansTableC}>
+                    <View style={Styles.FansTableC}>
                         <View style={Styles.userNameView}>
                             <Text style={[Styles.userNameText, {fontSize: 30/oPx}]}>
                                 {row.userName}
@@ -196,7 +203,7 @@ export default class ArticleDetails extends Component {
 		}
 	}
 
-	// 点赞 
+	// 点赞帖子
 	async _fabulous(id, index) {
 		let data = this.state.data;
 		data.fabulousCount = data.fabulousCount + 1;
@@ -209,7 +216,7 @@ export default class ArticleDetails extends Component {
 			if (data.error == 0) {
 				console.log(data.msg);
 			} else {
-				alert(data.msg);
+				console.log(data.msg);
 			}
 		});
 		
@@ -217,7 +224,42 @@ export default class ArticleDetails extends Component {
 		this.props.navigation.state.params._fabulous(this.props.navigation.state.params.index);
 	}
 
-	// 踩 
+	// 点赞评论
+	async _commentfabulous(id, index) {
+		let commentData = this.state.commentData;
+		let data = commentData[index];
+		data.fabulousCount = data.fabulousCount + 1;
+		data.fabulous = data.fabulousCount;
+		commentData[index] = data;
+		this.setState({
+			commentData: commentData
+		});
+
+		let USER = await Storage.getItem('USER');
+		Request.post('home/comment.do',{uid: USER.UID, commentId: id,},(data)=>{
+			if (data.error == 0) {
+				console.log(data.msg);
+			} else {
+				console.log(data.msg);
+			}
+		});
+	}
+
+	// 评论详情点赞后修改本页面数据
+	_commentfabulous1(index) {
+
+		alert(index)
+		let commentData = this.state.commentData;
+		let data = commentData[index];
+		data.fabulousCount = data.fabulousCount + 1;
+		data.fabulous = data.fabulousCount;
+		commentData[index] = data;
+		this.setState({
+			commentData: commentData
+		});
+	}
+	
+	// 踩帖子
 	async _stampede(id, index) {
 		let data = this.state.data;
 		data.stampedeCount = data.stampedeCount + 1;
@@ -230,7 +272,7 @@ export default class ArticleDetails extends Component {
 			if (data.error == 0) {
 				console.log(data.msg);
 			} else {
-				alert(data.msg);
+				console.log(data.msg);
 			}
 		});
 

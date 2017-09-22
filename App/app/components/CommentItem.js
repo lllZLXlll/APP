@@ -13,6 +13,7 @@ import Icons from './Icons';
 import Styles from '../style/user/userStyle';
 import StyleComponent from '../style/component/componentStyle.js';
 import {StyleConfig} from '../style/style';
+import {ToastShort} from '../utils/Toast'
 let oPx = StyleConfig.oPx;
 
 // 临时图片数据
@@ -21,6 +22,15 @@ const imagesUri = 'https://www.pujinziben.com/upload/banner/2017/9/2017091108374
 export default class CommentItem extends Component{
   constructor(props) {
     super(props);
+  }
+
+  _commentfabulous = () => {
+    if (this.props.row.fabulous <= 0) {
+      this.props._commentfabulous(this.props.row.id, this.props.index);
+    } else {
+      ToastShort('你已赞过', 300);
+    }
+    
   }
 
   render(){
@@ -32,14 +42,31 @@ export default class CommentItem extends Component{
             <View style={[Styles.collectionTopView, {justifyContent: 'center'}]}>
               <Text style={[Styles.textLeft, {color: '#333'}]}>{this.props.row.userName}</Text>
             </View>
+            <View style={Styles.collectionBottomView}>
+              <Text style={[Styles.textLeft, {color: '#999', fontSize: 24/oPx}]}>{this.props.row.commentDate}</Text>
+            </View>
           </View>
-          <View style={[Styles.itemTopRightView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end',}]}>
-            <TouchableOpacity activeOpacity={1} onPress={() => {alert(1)}}>
-              <Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
+          
+          {
+            this.props.row.fabulous > 0
+            ?
+            <TouchableOpacity 
+              style={[Styles.itemTopRightView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end',}]} 
+              activeOpacity={1} onPress={this._commentfabulous}
+            >
+              <Image style={Styles.onClickIcon} source={Icons.praiseIcon_2} />
+              <Text style={[Styles.onClickText, {color: '#ff8200', width: 80/oPx}]}>{this.props.row.fabulousCount}</Text>
             </TouchableOpacity>
-            <Text style={Styles.onClickText}>{this.props.row.fabulousCount}</Text>
-          </View>
-        </View>
+            :
+            <TouchableOpacity 
+              style={[Styles.itemTopRightView, {flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end',}]} 
+              activeOpacity={1} onPress={this._commentfabulous}
+            >
+              <Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
+              <Text style={[Styles.onClickText, {width: 80/oPx}]}>{this.props.row.fabulousCount}</Text>
+            </TouchableOpacity>
+          }    
+        </View>    
 
         <View style={StyleComponent.itemCommentContentView}>
           <View style={StyleComponent.itemCommentImgView}>
@@ -53,12 +80,12 @@ export default class CommentItem extends Component{
             </View>
 
             {
-              this.props.row.revertCount > 0
+              this.props.row.revertCount > 0 && this.props.isShowReverCount
               ?
-              <View style={[Styles.topView, StyleComponent.commentContentBottomView]}>
+              <TouchableOpacity style={[Styles.topView, StyleComponent.commentContentBottomView]} onPress={() => this.props._toCommentDetails(this.props.row.id, JSON.stringify(this.props.row), this.props.index)}>
                 <Text style={StyleComponent.commentRevert} numberOflines={1}>查看{this.props.row.revertCount}条回复</Text>
                 <Image style={StyleComponent.commentArrow} source={Icons.arrow_1} />
-              </View>
+              </TouchableOpacity>
               : 
               null
             }

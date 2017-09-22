@@ -15,6 +15,7 @@ import ImageViewer from './ImageViewer';
 
 import Styles from '../style/user/userStyle';
 import {StyleConfig} from '../style/style';
+import {ToastShort} from '../utils/Toast'
 import Icons from './Icons';
 let oPx = StyleConfig.oPx;
 
@@ -287,9 +288,9 @@ export default class Item extends Component {
 
 	_checkFabulousStampede(row) {
 		if (row.fabulous > 0) {
-			alert('你已赞过');
+			ToastShort('你已赞过', 300);
 		} else {
-			alert('你已踩过');
+			ToastShort('你已踩过', 300);
 		}
 	}
 
@@ -319,9 +320,9 @@ export default class Item extends Component {
 			]).start(() => this.props._fabulous(id, index));// 调用父组件方法请求点赞
 		} else {
 			if (this.state.praise) {
-				alert('你已赞过');
+				ToastShort('你已赞过', 300);
 			} else {
-				alert('你已踩过');
+				ToastShort('你已踩过', 300);
 			}
 		}
 	    
@@ -353,9 +354,9 @@ export default class Item extends Component {
 			]).start(() => this.props._stampede(id, index)); // 调用父组件方法请求踩
 		} else {
 			if (this.state.down) {
-				alert('你已踩过');
+				ToastShort('你已赞过', 300);
 			} else {
-				alert('你已赞过');
+				ToastShort('你已踩过', 300);
 			}
 		}
 	}

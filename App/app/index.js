@@ -41,6 +41,8 @@ import SystemMessage from './resources/message/SystemMessage';
 // 首页
 // 帖子详情
 import ArticleDetails from './resources/home/articleDetails';
+// 评论详情
+import CommentDetails from './resources/home/commentDetails';
 
 
 // 我的
@@ -179,7 +181,17 @@ const App = StackNavigator({
   ArticleDetails: {
     screen: ArticleDetails,
     navigationOptions: ({ navigation }) => ({
-      title: '详情',
+      title: '帖子详情',
+      headerRight: (<Text/>),
+      headerTitleStyle: {
+        alignSelf: 'center',
+      },
+    }),
+  },
+   CommentDetails: {
+    screen: CommentDetails,
+    navigationOptions: ({ navigation }) => ({
+      title: '评论详情',
       headerRight: (<Text/>),
       headerTitleStyle: {
         alignSelf: 'center',
