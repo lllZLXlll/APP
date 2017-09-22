@@ -111,14 +111,14 @@ export default class Index extends Component {
 
 	// 点赞 修改数据库数据
 	async _fabulous(id, index) {
-		// let USER = await Storage.getItem('USER');
-		// Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
-		// 	if (data.error == 0) {
-		// 		console.log(data.msg);
-		// 	} else {
-		// 		alert(data.msg);
-		// 	}
-		// });
+		let USER = await Storage.getItem('USER');
+		Request.post('home/fabulous.do',{uid: USER.UID, articleId: id,},(data)=>{
+			if (data.error == 0) {
+				console.log(data.msg);
+			} else {
+				alert(data.msg);
+			}
+		});
 		
 		this._fabulousUpdatePage(index);
 	}
@@ -128,9 +128,7 @@ export default class Index extends Component {
 		let indexList = this.state.indexList;
 		let data = indexList[index];
 		data.fabulousCount = data.fabulousCount + 1;
-
-		data.fabulous = data.fabulous + 1;
-		
+		data.fabulous = data.fabulousCount;
 		indexList[index] = data;
 		this.setState({
 			indexList: indexList

@@ -307,10 +307,7 @@ export default class Item extends Component {
 					}
 				),
 
-			]).start();
-
-			// 调用父组件方法请求点赞
-			this.props._fabulous(id, index);
+			]).start(() => this.props._fabulous(id, index));// 调用父组件方法请求点赞
 		} else {
 			if (this.state.praise) {
 				alert('你已赞过');
@@ -323,9 +320,9 @@ export default class Item extends Component {
 
 	_stampede(id, index) {
 		if (!this.state.down && !this.state.praise) {
-			// 用户点击赞后更换图片
+			// 用户点击踩后更换图片
 			this.setState({down: true, downIcon: Icons.downIcon_2});
-			// 点赞动画
+			// 踩动画
 			Animated.sequence([  //  组合动画 parallel（同时执行）、sequence（顺序执行）、stagger（错峰，其实就是插入了delay的parrllel）和delay（延迟）
 				Animated.spring( //  基础的单次弹跳物理模型
 					this.state.stampedeValue,
@@ -344,10 +341,7 @@ export default class Item extends Component {
 					}
 				),
 
-			]).start();
-
-			// 调用父组件方法请求点赞
-			this.props._stampede(id, index);
+			]).start(() => this.props._stampede(id, index)); // 调用父组件方法请求踩
 		} else {
 			if (this.state.down) {
 				alert('你已踩过');
