@@ -26,8 +26,8 @@ export default class CommentItem extends Component{
   render(){
     return (
       <View style={[Styles.itemCommentView, StyleComponent.itemCommentView]}>
-        <View style={[Styles.topView, StyleComponent.topView]}>
-          <Image style={Styles.portraitItem} source={Icons.portrait} />
+        <View style={[StyleComponent.topView]}>
+          <Image style={Styles.portraitItem} source={{uri:this.props.row.portrait}} />
           <View style={Styles.collectionRightView}>
             <View style={[Styles.collectionTopView, {justifyContent: 'center'}]}>
               <Text style={[Styles.textLeft, {color: '#333'}]}>{this.props.row.userName}</Text>
@@ -37,13 +37,14 @@ export default class CommentItem extends Component{
             <TouchableOpacity activeOpacity={1} onPress={() => {alert(1)}}>
               <Image style={Styles.onClickIcon} source={Icons.praiseIcon_1} />
             </TouchableOpacity>
-            <Text style={Styles.onClickText}>{this.props.row.pariseCount}</Text>
+            <Text style={Styles.onClickText}>{this.props.row.fabulousCount}</Text>
           </View>
         </View>
 
         <View style={StyleComponent.itemCommentContentView}>
           <View style={StyleComponent.itemCommentImgView}>
-            <Image style={StyleComponent.itemCommentImg} source={{uri: imagesUri}} />
+            {/* 头像下面图片，暂时隐藏，现阶段并没有什么可放的 */}
+            {/*<Image style={StyleComponent.itemCommentImg} source={{uri: imagesUri}} />*/}
           </View>
           
           <View style={StyleComponent.commentContentView}>
@@ -51,10 +52,17 @@ export default class CommentItem extends Component{
               <Text style={[Styles.textLeft, StyleComponent.commentContentText]} numberOflines={5}>{this.props.row.commentContent}</Text>
             </View>
 
-            <View style={[Styles.topView, StyleComponent.commentContentBottomView]}>
-              <Text style={StyleComponent.commentRevert} numberOflines={1}>查看{this.props.row.revertCount}条回复</Text>
-              <Image style={StyleComponent.commentArrow} source={Icons.arrow_1} />
-            </View>
+            {
+              this.props.row.revertCount > 0
+              ?
+              <View style={[Styles.topView, StyleComponent.commentContentBottomView]}>
+                <Text style={StyleComponent.commentRevert} numberOflines={1}>查看{this.props.row.revertCount}条回复</Text>
+                <Image style={StyleComponent.commentArrow} source={Icons.arrow_1} />
+              </View>
+              : 
+              null
+            }
+            
           </View>
         </View>
       </View>

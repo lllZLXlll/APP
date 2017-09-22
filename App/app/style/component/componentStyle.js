@@ -38,15 +38,19 @@ export default Styles = StyleSheet.create({
 		marginTop: 0, 
 		marginBottom: 0, 
 		backgroundColor: '#fff',
+		paddingLeft: 30/oPx,
+		paddingRight: 30/oPx,
+		borderColor: StyleConfig.borderColor, 
+		borderTopWidth: StyleConfig.borderWidth,
 	},
 	topView: {
 		marginTop: 10/oPx, 
 		marginBottom: 5/oPx,
+		flex: 1,
+		flexDirection: 'row',
 	},
 	itemCommentContentView: {
-		flexDirection: 'row', 
-		paddingLeft: 30/oPx, 
-		paddingRight: 30/oPx,
+		flexDirection: 'row',
 	},
 	itemCommentImgView: {
 		width: 70/oPx, 
@@ -62,7 +66,7 @@ export default Styles = StyleSheet.create({
 		marginLeft: 10/oPx,
 	},
 	commentContentTopView: {
-		marginBottom: 10/oPx, 
+		marginBottom: 20/oPx, 
 		paddingLeft: 0/oPx,
 	},
 	commentContentText: {
@@ -74,8 +78,6 @@ export default Styles = StyleSheet.create({
 		paddingBottom: 20/oPx, 
 		alignItems: 'center', 
 		paddingLeft: 0/oPx, 
-		borderColor: StyleConfig.borderColor, 
-		borderBottomWidth: StyleConfig.borderWidth,
 	},
 	commentRevert: {
 		fontSize: 24/oPx, 

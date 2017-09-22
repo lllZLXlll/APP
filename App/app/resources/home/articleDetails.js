@@ -65,7 +65,43 @@ export default class ArticleDetails extends Component {
 			dataIndex: 0,
 			onClickIndex: 0,
 			_onPressMore: this.props._onPressMore,
+
+			// 分页参数
+			pageNum: 1,
+			pageSize: 20,
+			totalPageNum: 0,
 		};
+	}
+
+	componentDidMount(){
+		this._getData();
+	}
+
+	async _getData(pageNum, pageSize) {
+		let USER = await Storage.getItem('USER');
+		// 如果没有值那么就是第一次加载
+		if (!pageNum && !pageSize) {
+			Request.post('home/queryArticleDetails.do',{uid: USER.UID, pageNum: 1, pageSize: 20, articleId: this.state.data.id},(data)=>{
+				console.log(data);
+				this.setState({
+					commentData: data.page,
+					// 总页数
+					totalPageNum: data.totalPageNum,
+				});
+			},(error)=>{
+			    console.log(error);
+			});
+		} else { // 不是第一次加载
+			Request.post('home/queryArticleDetails.do',{uid: USER.UID, pageNum: pageNum, pageSize: pageSize, articleId: this.state.data.id},(data)=>{
+				this.setState({
+					// concat方法把数据追加到原数据后面
+					commentData: this.state.commentData.concat(data.page),
+					pageNum: data.pageNum,
+				});
+			},(error)=>{
+			    console.log(error);
+			});
+		}
 	}
 
 	_getImageViewer = () => {
@@ -208,6 +244,7 @@ export default class ArticleDetails extends Component {
 			<ScrollView style={Styles.view} stickyHeaderIndices={[1]}>
 				<Item row={this.state.data}
 				 	index={0}
+				 	_setDataIndex={this._setDataIndex}
 				 	_fabulous={this._fabulous.bind(this)}
 				 	_stampede={this._stampede.bind(this)}
 				 />
