@@ -110,6 +110,7 @@ export default class CommentDetails extends Component {
 	async _commentfabulous1(id, index) {
 		let row = this.state.row;
 		row.fabulous = row.fabulous + 1;
+		row.fabulousCount = row.fabulous;
 		this.setState({
 			row: row
 		});
@@ -117,13 +118,13 @@ export default class CommentDetails extends Component {
 		this.props.navigation.state.params._commentfabulous1(index);
 
 		let USER = await Storage.getItem('USER');
-		// Request.post('home/comment.do',{uid: USER.UID, commentId: id,},(data)=>{
-		// 	if (data.error == 0) {
-		// 		console.log(data.msg);
-		// 	} else {
-		// 		console.log(data.msg);
-		// 	}
-		// });
+		Request.post('home/comment.do',{uid: USER.UID, commentId: id,},(data)=>{
+			if (data.error == 0) {
+				console.log(data.msg);
+			} else {
+				console.log(data.msg);
+			}
+		});
 	}
 
 	// 加载组件

@@ -246,9 +246,7 @@ export default class ArticleDetails extends Component {
 	}
 
 	// 评论详情点赞后修改本页面数据
-	_commentfabulous1(index) {
-
-		alert(index)
+	_commentfabulous1 = (index) => {
 		let commentData = this.state.commentData;
 		let data = commentData[index];
 		data.fabulousCount = data.fabulousCount + 1;
