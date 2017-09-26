@@ -70,6 +70,7 @@ export default class User extends Component {
 	}
 
 	_getData() {
+		// Storage.clear();
 		Request.post('user/userInfo.do',{uid: 1},(data)=>{
 			// console.log(data);
 			this.setState({userInfoMap: data});

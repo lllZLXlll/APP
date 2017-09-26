@@ -42,7 +42,7 @@ export default class ArticleDetails extends Component {
 			data: JSON.parse(this.props.navigation.state.params.row),
 			// tab切换栏数据
 			tabTitleMap: [
-	        	{tabTitle: '趣评(6)'},{tabTitle: '最新评论(1.2万)'},{tabTitle: '赞过(3.1万)'},
+	        	{tabTitle: '评论'},{tabTitle: '赞过'},
 	      	],
 	      	// 帖子回复数据
 	      	commentData: [],
@@ -72,9 +72,13 @@ export default class ArticleDetails extends Component {
 
 	async _getData(pageNum, pageSize) {
 		let USER = await Storage.getItem('USER');
+		let uid = null;
+		if (USER) {
+			uid = USER.UID;
+		}
 		// 如果没有值那么就是第一次加载
 		if (!pageNum && !pageSize) {
-			Request.post('home/queryArticleDetails.do',{uid: USER.UID, pageNum: 1, pageSize: 20, articleId: this.state.data.id},(data)=>{
+			Request.post('home/queryArticleDetails.do',{uid: uid, pageNum: 1, pageSize: 20, articleId: this.state.data.id},(data)=>{
 				console.log(data);
 				this.setState({
 					commentData: data.page,
@@ -186,11 +190,6 @@ export default class ArticleDetails extends Component {
 	 			});
 				break;
 			case 1:
-				return this.state.commentData.map((row, index) => {
-	 				return	this._getComenItem(row, index);
-	 			});
-				break;
-			case 2:
 				return this.state.praiseData.map((row, index) => {
 	 				return	this._getPraiseItem(row, index);
 	 			});

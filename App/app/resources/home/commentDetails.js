@@ -50,9 +50,13 @@ export default class CommentDetails extends Component {
 
 	async _getData(pageNum, pageSize) {
 		let USER = await Storage.getItem('USER');
+		let uid = null;
+		if (USER) {
+			uid = USER.UID;
+		}
 		// 如果没有值那么就是第一次加载
 		if (!pageNum && !pageSize) {
-			Request.post('home/queryArticleDetailsComment.do',{uid: USER.UID, pageNum: 1, pageSize: 20, commentId: this.props.navigation.state.params.commentId},(data)=>{
+			Request.post('home/queryArticleDetailsComment.do',{uid: uid, pageNum: 1, pageSize: 20, commentId: this.props.navigation.state.params.commentId},(data)=>{
 				console.log(data);
 				this.setState({
 					commentData: data.page,
