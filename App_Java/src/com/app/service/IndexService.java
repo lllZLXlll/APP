@@ -178,7 +178,6 @@ public class IndexService {
 
 	// 查看帖子详情中的评论
 	public PageBean queryArticleDetails(JSONObject appParams) {
-		Map<String, Object> jsonMap = new HashMap<String, Object>();
 		// 用户id
 		Long userId = Long.parseLong(AppUtil.checkUserId(appParams.getString("uid")));
 		// 帖子id
@@ -193,19 +192,28 @@ public class IndexService {
 		List<Map<String, Object>> page = articleCommentDao.queryArticleDetails((pageNum - 1) * pageSize, pageSize,
 				articleId, userId);
 		
-		// 查询该贴子评论数量，赞数量
+		// 查询该贴子评论数量，赞数量 -begin
 		long commentCount = articleCommentDao.queryArticleCommentCount(articleId);
+		String fabulousCountStr = fabulousDao.queryFabulousCount(articleId);
+		int fabulousCount = 0;
+		if (fabulousCountStr != null && !fabulousCountStr.equals("null") && !fabulousCountStr.equals(""))
+			fabulousCount = Integer.parseInt(fabulousCountStr);
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		dataMap.put("articleCommentCount", commentCount);
+		dataMap.put("articleFabulousCount", fabulousCount);
+		// 查询该贴子评论数量，赞数量 -end
 
 		for (Map<String, Object> map : page) {
 			// userId加密
 			map.put("userId", AppUtil.encryptUserId(map.get("userId") + ""));
 		}
-
-		return new PageBean(pageNum, pageSize, totalNum, page);
+		
+		PageBean pageBean = new PageBean(pageNum, pageSize, totalNum, page);
+		pageBean.setDataMap(dataMap);
+		return pageBean;
 	}
 
 	public PageBean queryArticleDetailsComment(JSONObject appParams) {
-		Map<String, Object> jsonMap = new HashMap<String, Object>();
 		// 用户id
 		Long userId = Long.parseLong(AppUtil.checkUserId(appParams.getString("uid")));
 		// 帖子id
