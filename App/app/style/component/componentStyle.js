@@ -46,7 +46,6 @@ export default Styles = StyleSheet.create({
 	topView: {
 		marginTop: 10/oPx, 
 		marginBottom: 5/oPx,
-		flex: 1,
 		flexDirection: 'row',
 	},
 	itemCommentContentView: {
