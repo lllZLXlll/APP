@@ -70,6 +70,13 @@ export default class ArticleDetails extends Component {
 		this._getData();
 	}
 
+	setTabTitleMap = (dataMap) => {
+		let tabTitleMap = this.state.tabTitleMap;
+		tabTitleMap[0].tabTitle = tabTitleMap[0].tabTitle + '(' + dataMap.articleCommentCount + ')';
+		tabTitleMap[1].tabTitle = tabTitleMap[1].tabTitle + '(' + dataMap.articleFabulousCount + ')';
+		return tabTitleMap;
+	}
+
 	async _getData(pageNum, pageSize) {
 		let USER = await Storage.getItem('USER');
 		let uid = null;
@@ -79,21 +86,25 @@ export default class ArticleDetails extends Component {
 		// 如果没有值那么就是第一次加载
 		if (!pageNum && !pageSize) {
 			Request.post('home/queryArticleDetails.do',{uid: uid, pageNum: 1, pageSize: 20, articleId: this.state.data.id},(data)=>{
-				console.log(data);
+				let tabTitleMap = this.setTabTitleMap(data.dataMap);
+				console.log(tabTitleMap);
 				this.setState({
 					commentData: data.page,
 					// 总页数
 					totalPageNum: data.totalPageNum,
+					tabTitleMap: tabTitleMap,
 				});
 			},(error)=>{
 			    console.log(error);
 			});
 		} else { // 不是第一次加载
-			Request.post('home/queryArticleDetails.do',{uid: USER.UID, pageNum: pageNum, pageSize: pageSize, articleId: this.state.data.id},(data)=>{
+			Request.post('home/queryArticleDetails.do',{uid: uid, pageNum: pageNum, pageSize: pageSize, articleId: this.state.data.id},(data)=>{
+				let tabTitleMap = this.setTabTitleMap(data.dataMap);
 				this.setState({
 					// concat方法把数据追加到原数据后面
 					commentData: this.state.commentData.concat(data.page),
 					pageNum: data.pageNum,
+					tabTitleMap: tabTitleMap,
 				});
 			},(error)=>{
 			    console.log(error);
