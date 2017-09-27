@@ -208,5 +208,108 @@ export default Styles = StyleSheet.create({
     linksText: {
         fontSize: 24/oPx,
         color: '#2e87cb'
+    },
+    print: {
+        height: 80/oPx,
+        flexDirection: 'row',
+        backgroundColor: '#dddddd'
+    },
+    inputStyle: {
+        marginTop: 10/oPx,
+        marginBottom: 10/oPx,
+        marginLeft: 30/oPx,
+        marginRight: 10/oPx,
+        flex: 8,
+        backgroundColor: '#ffffff',
+        borderRadius: 7,
+    },
+    sendButtom: {
+        flex: 1,
+        justifyContent:'center',
+        alignItems: 'center',
+        marginTop: 10/oPx,
+        marginBottom: 10/oPx,
+        marginRight: 30/oPx,
+        paddingRight: 10/oPx,
+        paddingLeft: 10/oPx,
+        borderRadius: 7,
+    },
+    sendText: {
+        fontSize: 24/oPx,
+    },
+    sayRecord: {
+        marginRight: 30/oPx,
+        marginLeft: 110/oPx,
+        marginTop: 20/oPx,
+        flexDirection: 'row'
+    },
+    friendRecord: {
+        marginRight: 110/oPx,
+        marginLeft: 30/oPx,
+        marginTop: 20/oPx,
+        flexDirection: 'row'
+    },
+    msgView: {
+        paddingBottom: 10/oPx,
+        paddingLeft: 10/oPx,
+        paddingRight: 10/oPx,
+        paddingTop: 10/oPx,
+        backgroundColor: '#488ae4',
+        borderRadius: 5,
+    },
+    msgView1: {
+        paddingBottom: 10/oPx,
+        paddingLeft: 10/oPx,
+        paddingRight: 10/oPx,
+        paddingTop: 10/oPx,
+        backgroundColor: '#ffffff',
+        borderRadius: 5,
+    },
+    msg: {
+        fontSize: 25/oPx,
+        color: '#ffffff'
+        /*textAlign: 'center',*/
+
+    },
+    msg1: {
+        fontSize: 25/oPx,
+        color: '#000000'
+        /*textAlign: 'center',*/
+
+    },
+    triangle: {
+        width: 0/oPx,
+        height: 0/oPx,
+        backgroundColor: 'transparent',
+        borderStyle: 'solid',
+        borderLeftWidth: 20/oPx,
+        borderRightWidth: 0/oPx,
+        borderBottomWidth: 10/oPx,
+        borderTopWidth: 3/oPx,
+        borderLeftColor: '#488ae4',
+        borderRightColor: 'transparent',
+        borderTopColor: 'transparent',
+        borderBottomColor: 'transparent',
+        alignItems:'flex-end',
+        marginTop: 5/oPx
+    },
+    triangle1: {
+        width: 0/oPx,
+        height: 0/oPx,
+        backgroundColor: 'transparent',
+        borderStyle: 'solid',
+        borderLeftWidth: 0/oPx,
+        borderRightWidth: 20/oPx,
+        borderBottomWidth: 10/oPx,
+        borderTopWidth: 3/oPx,
+        borderLeftColor: 'transparent',
+        borderRightColor: '#ffffff',
+        borderTopColor: 'transparent',
+        borderBottomColor: 'transparent',
+        marginTop: 5/oPx
+    },
+    bubble: {
+        flex: 1,
+        flexDirection: 'row',
     }
 });
