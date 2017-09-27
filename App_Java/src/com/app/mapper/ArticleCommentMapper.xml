@@ -12,14 +12,46 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<select id="queryArticleDetails" resultType="map">
+		SELECT * from (
+			SELECT
+				<if test='param4 != null and param4 != ""'>
+					(select count(id) from t_fabulous where commentId = t1.id and userId = #{3}) fabulous,
+				</if>
+					t1.id, t1.userId, t1.articleId, t1.commentContent, date_format(t1.commentDate, '%m-%d %H:%i') commentDate, 
+					t1.fabulousCount, t2.userName, t2.portrait, 
+					(select count(id) from t_articleComment where commentId = t1.id and commentStage = 2) revertCount
+					FROM
+					t_articleComment t1 LEFT JOIN t_user t2 ON t1.userId = t2.id 
+					WHERE
+					t1.articleId = #{2} AND t1.commentStage = 1 
+		) t ORDER BY t.fabulousCount DESC, t.revertCount DESC, t.commentDate DESC
+		LIMIT #{0}, #{1}
+	</select>
+	
+	<update id="updateArticleCommentFabulousCount">
+		UPDATE t_articleComment SET fabulousCount = #{1} WHERE id = #{0}
+	</update>
+	
+	<select id="queryArticleDetailsCommentCount" resultType="long">
+		SELECT COUNT(id) FROM t_articleComment WHERE commentId = #{0}
+	</select>
+	
+	<select id="queryArticleDetailsComment" resultType="map">
 		SELECT
-		t1.id, t1.userId, t1.articleId, t1.commentContent, t1.commentDate, 
-		t1.fabulousCount, t2.userName, t2.portrait, 
-		(select count(id) from t_articleComment where commentId = t1.id and commentStage = 2) revertCount
+		<if test='param4 != null and param4 != ""'>
+		(select count(id) from t_fabulous where commentId = t1.id and userId = #{3}) fabulous,
+		</if>
+		t1.id, t1.userId, t1.articleId, t1.commentContent, date_format(t1.commentDate, '%m-%d %H:%i') commentDate, 
+		t1.fabulousCount, t2.userName, t2.portrait
 		FROM
 		t_articleComment t1 LEFT JOIN t_user t2 ON t1.userId = t2.id 
 		WHERE
-		t1.articleId = 1 AND t1.commentStage = 1 LIMIT #{0}, #{1} ORDER BY t1.fabulousCount DESC
+		t1.commentId = #{2} AND t1.commentStage in (2, 3)  ORDER BY t1.fabulousCount DESC, t1.commentDate DESC
+		LIMIT #{0}, #{1}
+	</select>
+	
+	<select id="queryArticleCommentCount" resultType="long">
+		SELECT count(id) count from t_articlecomment where articleId = #{0} and commentStage = 1
 	</select>
 	
 </mapper>

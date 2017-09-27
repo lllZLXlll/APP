@@ -32,11 +32,18 @@ public class AppIndexController extends BaseController {
 		return indexService.queryIndexContent(getAppParams());
 	}
 	
-	// 点赞
+	// 点赞 帖子
 	@RequestMapping(value = "/fabulous")
 	@ResponseBody
 	public Map<String, Object> fabulous(){
 		return indexService.investFabulousArticle(getAppParams());
+	}
+	
+	// 点赞 评论
+	@RequestMapping(value = "/comment")
+	@ResponseBody
+	public Map<String, Object> comment(){
+		return indexService.investFabulousComment(getAppParams());
 	}
 	
 	// 踩
@@ -46,11 +53,18 @@ public class AppIndexController extends BaseController {
 		return indexService.investArticleStampede(getAppParams());
 	}
 	
-	// 查看帖子详情中的评论
+	// 查看帖子详情中的评论 1级
 	@RequestMapping(value = "/queryArticleDetails")
 	@ResponseBody
 	public PageBean queryArticleDetails(){
 		return indexService.queryArticleDetails(getAppParams());
+	}
+
+	// 查看帖子详情中的评论的评论 2级
+	@RequestMapping(value = "/queryArticleDetailsComment")
+	@ResponseBody
+	public PageBean queryArticleDetailsComment(){
+		return indexService.queryArticleDetailsComment(getAppParams());
 	}
 	
 }

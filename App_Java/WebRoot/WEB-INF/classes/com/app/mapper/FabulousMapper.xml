@@ -17,7 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</insert>
 	
 	<select id="queryStampedeCount" resultType="String">
-		SELECT MAX(stampedeCount) FROM t_fabulous WHERE commentId = #{0}
+		SELECT MAX(fabulousCount) FROM t_fabulous WHERE commentId = #{0}
 	</select>
 	
 </mapper>

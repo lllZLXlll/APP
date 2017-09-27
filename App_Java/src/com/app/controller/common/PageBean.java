@@ -1,6 +1,7 @@
 package com.app.controller.common;
  
 import java.io.Serializable;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,7 +19,8 @@ public class PageBean implements Serializable {
 	private long totalNum; // 总记录数
 	private long totalPageNum; //总页数
 	private long pageSize; // 每页的记录数
-	private Object page; // 当前页中存放的记录 	
+	private Object page; // 当前页中存放的记录
+	private Map<String, Object> dataMap; // 查询分页数据时，有其他数据需要返回放在此map中
 	
 	
 	public PageBean() {
@@ -30,6 +32,14 @@ public class PageBean implements Serializable {
 		this.totalNum = totalNum;
 		this.pageSize = pageSize;
 		this.page = page;
+	}
+
+	public Map<String, Object> getDataMap() {
+		return dataMap;
+	}
+
+	public void setDataMap(Map<String, Object> dataMap) {
+		this.dataMap = dataMap;
 	}
 
 	public long getPageNum() {
