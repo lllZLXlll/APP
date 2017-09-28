@@ -20,6 +20,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT MAX(fabulousCount) FROM t_fabulous WHERE commentId = #{0}
 	</select>
 	
+	<select id="queryArticlePraises" resultType="map">
+		SELECT id, userName, signature, portrait FROM t_user WHERE id IN (
+			SELECT userId FROM t_fabulous WHERE articleId = #{0} ORDER BY fabulousDate DESC 
+		) LIMIT 0, 50
+	</select>
+	
 </mapper>
 
 

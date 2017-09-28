@@ -1,5 +1,6 @@
 package com.app.controller.app;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -66,5 +67,13 @@ public class AppIndexController extends BaseController {
 	public PageBean queryArticleDetailsComment(){
 		return indexService.queryArticleDetailsComment(getAppParams());
 	}
+	
+	// 按点赞时间倒序查询帖子赞50条
+	@RequestMapping(value = "/queryArticlePraises")
+	@ResponseBody
+	public List<Map<String, Object>> queryArticlePraises(){
+		return indexService.queryArticlePraises(getAppParams());
+	}
+		
 	
 }

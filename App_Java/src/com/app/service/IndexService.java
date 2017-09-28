@@ -236,4 +236,18 @@ public class IndexService {
 		return new PageBean(pageNum, pageSize, totalNum, page);
 	}
 
+	public List<Map<String, Object>> queryArticlePraises(JSONObject appParams) {
+		// 帖子id
+		Long articleId = Long.parseLong(appParams.getString("articleId"));
+		
+		List<Map<String, Object>> list = fabulousDao.queryArticlePraises(articleId);
+		
+		for (Map<String, Object> map : list) {
+			// userId加密
+			map.put("id", AppUtil.encryptUserId(map.get("id") + ""));
+		}
+		
+		return list;
+	}
+
 }
