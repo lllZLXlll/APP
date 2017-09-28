@@ -16,6 +16,8 @@ import ImageViewer from '../../components/ImageViewer';
 import FooterComponent from '../../components/FooterComponent';
 // tab切换组件
 import TabComponent from '../../components/TabComponent';
+// 点赞item组件
+import PraiseItemComponent from '../../components/PraiseItemComponent';
 // 帖子详情中评论item
 import CommentItem from '../../components/CommentItem';
 // Item
@@ -63,11 +65,19 @@ export default class ArticleDetails extends Component {
 			pageNum: 1,
 			pageSize: 20,
 			totalPageNum: 0,
+			isData: false,
 		};
 	}
 
 	componentDidMount(){
 		this._getData();
+	}
+
+	setTabTitleMap = (dataMap) => {
+		let tabTitleMap = this.state.tabTitleMap;
+		tabTitleMap[0].tabTitle = tabTitleMap[0].tabTitle + '(' + dataMap.articleCommentCount + ')';
+		tabTitleMap[1].tabTitle = tabTitleMap[1].tabTitle + '(' + dataMap.articleFabulousCount + ')';
+		return tabTitleMap;
 	}
 
 	async _getData(pageNum, pageSize) {
@@ -79,26 +89,41 @@ export default class ArticleDetails extends Component {
 		// 如果没有值那么就是第一次加载
 		if (!pageNum && !pageSize) {
 			Request.post('home/queryArticleDetails.do',{uid: uid, pageNum: 1, pageSize: 20, articleId: this.state.data.id},(data)=>{
-				console.log(data);
+				let tabTitleMap = this.setTabTitleMap(data.dataMap);
 				this.setState({
 					commentData: data.page,
 					// 总页数
 					totalPageNum: data.totalPageNum,
+					tabTitleMap: tabTitleMap,
+					// 如果总页数等于1直接设置底部底线
+					isData: data.totalPageNum <= 1 ? false : true,
 				});
 			},(error)=>{
 			    console.log(error);
 			});
 		} else { // 不是第一次加载
-			Request.post('home/queryArticleDetails.do',{uid: USER.UID, pageNum: pageNum, pageSize: pageSize, articleId: this.state.data.id},(data)=>{
+			Request.post('home/queryArticleDetails.do',{uid: uid, pageNum: pageNum, pageSize: pageSize, articleId: this.state.data.id},(data)=>{
+				let tabTitleMap = this.setTabTitleMap(data.dataMap);
 				this.setState({
 					// concat方法把数据追加到原数据后面
 					commentData: this.state.commentData.concat(data.page),
 					pageNum: data.pageNum,
+					tabTitleMap: tabTitleMap,
+					isData: data.pageNum >= data.totalPageNum ? false : true,
 				});
 			},(error)=>{
 			    console.log(error);
 			});
 		}
+
+		// 按点赞时间倒序查询50条赞数据
+		Request.post('home/queryArticlePraises.do',{articleId: this.state.data.id},(data)=>{
+			this.setState({
+				praiseData: data,
+			});
+		},(error)=>{
+		    console.log(error);
+		});
 	}
 
 	_getImageViewer = () => {
@@ -150,36 +175,7 @@ export default class ArticleDetails extends Component {
 	}
 
 	_getPraiseItem(row, index) {
-        return <View style={Styles.FansTable} key={index}>
-                    <View style={Styles.FansTableP}>
-                        <TouchableOpacity activeOpacity={0.5}>
-                            <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={Styles.FansTableC}>
-                        <View style={Styles.userNameView}>
-                            <Text style={[Styles.userNameText, {fontSize: 30/oPx}]}>
-                                {row.userName}
-                            </Text>
-                        </View>
-                        <View style={Styles.autographView}>
-                            <Text style={Styles.autographText}>
-                                {row.text}
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{flex: 1, alignItems: 'flex-end', justifyContent: 'center', paddingRight: 30/oPx}} >
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
-                            {
-                                this.state.isClick == index+1
-                                    ?
-                                    <Image style={Styles.fansPraise} source={Icons.praiseIcon_2}/>
-                                    :
-                                    <Image style={Styles.fansPraise} source={Icons.praiseIcon_1}/>
-                            }
-                        </TouchableOpacity>
-                    </View>
-                </View>
+         return  <PraiseItemComponent key={index} row={row} />;
     }
 
 	_getTab = () => {
@@ -200,6 +196,10 @@ export default class ArticleDetails extends Component {
 	 			});
  				break;
 		}
+	}
+
+	_getFooter() {
+		return	<FooterComponent isData={this.state.isData} noDisplay={true} />
 	}
 
 	// 点赞帖子
@@ -296,6 +296,7 @@ export default class ArticleDetails extends Component {
 
 		 		{ this._getTab() }
 		 		
+		 		{ this._getFooter() }
 
 				{ this._getImageViewer() }
 			</ScrollView>

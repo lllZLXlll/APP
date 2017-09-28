@@ -22,11 +22,14 @@ import Styles from '../style/component/componentStyle';
      } else {
         return (
             <View style={Styles.footerView}>
-              <View style={Styles.centerView}>
-                <View style={Styles.threadView}></View>
-                <Text style={[Styles.footerText, {flex: 1}]}>这就是我的底线</Text>
-                <View style={Styles.threadView}></View>
-              </View>
+              {
+                !this.props.noDisplay ?
+                <View style={Styles.centerView}>
+                  <View style={Styles.threadView}></View>
+                    <Text style={[Styles.footerText, {flex: 1}]}>这就是我的底线</Text>
+                  <View style={Styles.threadView}></View>
+                </View> : null
+              }
             </View>
          )
      }

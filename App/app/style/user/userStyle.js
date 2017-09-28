@@ -257,16 +257,17 @@ export default Styles = StyleSheet.create({
         justifyContent: 'center'
 	},
     FansTableC: {
-        marginLeft: 10/oPx,
+        marginLeft: 20/oPx,
 		flex: 1,
+		justifyContent: 'center',
     },
     attentionImage: {
         width: 96/oPx,
         height: 42/oPx,
     },
     fansPortraitImage: {
-        width: 80/oPx,
-        height: 80/oPx,
+        width: 70/oPx,
+        height: 70/oPx,
         marginLeft: 30/oPx
     },
 	noDataView: {
@@ -404,7 +405,7 @@ export default Styles = StyleSheet.create({
 		paddingRight: 30/oPx,
 	},
 	userItemView: {
-		flex: 1,
+		flex: 2,
 		justifyContent: 'center',
 	},
 	userItemLeftText: {
@@ -464,8 +465,8 @@ export default Styles = StyleSheet.create({
     nightModelView: {
         backgroundColor: '#fff',
         height: 70/oPx,
-        marginTop: 50/oPx,
-        marginBottom: 50/oPx,
+        marginTop: 35/oPx,
+        marginBottom: 30/oPx,
         flexDirection: 'row',
         paddingLeft: 30/oPx,
         paddingRight: 30/oPx,
@@ -477,7 +478,7 @@ export default Styles = StyleSheet.create({
         flexDirection: 'row',
         paddingLeft: 30/oPx,
         paddingRight: 30/oPx,
-        marginTop: 50/oPx,
+        marginTop: 30/oPx,
         backgroundColor: '#fff',
     },
     versionsText: {
