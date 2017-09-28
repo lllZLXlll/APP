@@ -257,16 +257,17 @@ export default Styles = StyleSheet.create({
         justifyContent: 'center'
 	},
     FansTableC: {
-        marginLeft: 10/oPx,
+        marginLeft: 20/oPx,
 		flex: 1,
+		justifyContent: 'center',
     },
     attentionImage: {
         width: 96/oPx,
         height: 42/oPx,
     },
     fansPortraitImage: {
-        width: 80/oPx,
-        height: 80/oPx,
+        width: 70/oPx,
+        height: 70/oPx,
         marginLeft: 30/oPx
     },
 	noDataView: {

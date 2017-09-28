@@ -16,6 +16,8 @@ import ImageViewer from '../../components/ImageViewer';
 import FooterComponent from '../../components/FooterComponent';
 // tab切换组件
 import TabComponent from '../../components/TabComponent';
+// 点赞item组件
+import PraiseItemComponent from '../../components/PraiseItemComponent';
 // 帖子详情中评论item
 import CommentItem from '../../components/CommentItem';
 // Item
@@ -161,36 +163,7 @@ export default class ArticleDetails extends Component {
 	}
 
 	_getPraiseItem(row, index) {
-        return <View style={Styles.FansTable} key={index}>
-                    <View style={Styles.FansTableP}>
-                        <TouchableOpacity activeOpacity={0.5}>
-                            <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={Styles.FansTableC}>
-                        <View style={Styles.userNameView}>
-                            <Text style={[Styles.userNameText, {fontSize: 30/oPx}]}>
-                                {row.userName}
-                            </Text>
-                        </View>
-                        <View style={Styles.autographView}>
-                            <Text style={Styles.autographText}>
-                                {row.text}
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{flex: 1, alignItems: 'flex-end', justifyContent: 'center', paddingRight: 30/oPx}} >
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick:index+1})}}>
-                            {
-                                this.state.isClick == index+1
-                                    ?
-                                    <Image style={Styles.fansPraise} source={Icons.praiseIcon_2}/>
-                                    :
-                                    <Image style={Styles.fansPraise} source={Icons.praiseIcon_1}/>
-                            }
-                        </TouchableOpacity>
-                    </View>
-                </View>
+         return  <PraiseItemComponent key={index} row={row} />;
     }
 
 	_getTab = () => {
