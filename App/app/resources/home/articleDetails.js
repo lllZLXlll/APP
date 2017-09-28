@@ -65,6 +65,7 @@ export default class ArticleDetails extends Component {
 			pageNum: 1,
 			pageSize: 20,
 			totalPageNum: 0,
+			isData: false,
 		};
 	}
 
@@ -89,12 +90,13 @@ export default class ArticleDetails extends Component {
 		if (!pageNum && !pageSize) {
 			Request.post('home/queryArticleDetails.do',{uid: uid, pageNum: 1, pageSize: 20, articleId: this.state.data.id},(data)=>{
 				let tabTitleMap = this.setTabTitleMap(data.dataMap);
-				console.log(tabTitleMap);
 				this.setState({
 					commentData: data.page,
 					// 总页数
 					totalPageNum: data.totalPageNum,
 					tabTitleMap: tabTitleMap,
+					// 如果总页数等于1直接设置底部底线
+					isData: data.totalPageNum <= 1 ? false : true,
 				});
 			},(error)=>{
 			    console.log(error);
@@ -107,11 +109,21 @@ export default class ArticleDetails extends Component {
 					commentData: this.state.commentData.concat(data.page),
 					pageNum: data.pageNum,
 					tabTitleMap: tabTitleMap,
+					isData: data.pageNum >= data.totalPageNum ? false : true,
 				});
 			},(error)=>{
 			    console.log(error);
 			});
 		}
+
+		// 按点赞时间倒序查询50条赞数据
+		Request.post('home/queryArticlePraises.do',{articleId: this.state.data.id},(data)=>{
+			this.setState({
+				praiseData: data,
+			});
+		},(error)=>{
+		    console.log(error);
+		});
 	}
 
 	_getImageViewer = () => {
@@ -184,6 +196,10 @@ export default class ArticleDetails extends Component {
 	 			});
  				break;
 		}
+	}
+
+	_getFooter() {
+		return	<FooterComponent isData={this.state.isData} noDisplay={true} />
 	}
 
 	// 点赞帖子
@@ -280,6 +296,7 @@ export default class ArticleDetails extends Component {
 
 		 		{ this._getTab() }
 		 		
+		 		{ this._getFooter() }
 
 				{ this._getImageViewer() }
 			</ScrollView>

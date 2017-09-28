@@ -23,7 +23,7 @@ let oPx = StyleConfig.oPx;
          return <View style={Styles.FansTable}>
                   <View style={Styles.FansTableP}>
                       <TouchableOpacity activeOpacity={0.5}>
-                          <Image style={Styles.fansPortraitImage} source={Icons.portrait} />
+                          <Image style={Styles.fansPortraitImage} source={{uri:row.portrait}} />
                       </TouchableOpacity>
                   </View>
                   <View style={Styles.FansTableC}>
@@ -34,8 +34,8 @@ let oPx = StyleConfig.oPx;
                             </Text>
                         </View>
                         <View style={Styles.autographView}>
-                            <Text style={[Styles.textLeft, {color: '#999', fontSize: 24/oPx}]} numberOfLines={1} >
-                                {row.text}
+                            <Text style={[Styles.textLeft, {color: '#999', fontSize: 24/oPx}]} numberOfLines={1}>
+                                {row.signature}
                             </Text>
                         </View>
                       </View>
