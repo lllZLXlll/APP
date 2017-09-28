@@ -51,6 +51,10 @@ Icons.systemMessage = require('../images/icon/message/msg_2_07.png');
 Icons.trumpet = require('../images/icon/message/trumpet.png');
 //消息提示
 Icons.message = require('../images/icon/message/msgShow.png');
+//聊天窗口背景
+Icons.windowBackGround = require('../images/icon/user/background.jpg');
+//气泡
+Icons.bubble = require('../images/icon/message/1.9.png');
 // -------------我的-------------end
 
 // -------------登录-------------begin

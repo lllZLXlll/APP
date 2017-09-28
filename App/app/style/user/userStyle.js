@@ -405,7 +405,7 @@ export default Styles = StyleSheet.create({
 		paddingRight: 30/oPx,
 	},
 	userItemView: {
-		flex: 1,
+		flex: 2,
 		justifyContent: 'center',
 	},
 	userItemLeftText: {
@@ -465,8 +465,8 @@ export default Styles = StyleSheet.create({
     nightModelView: {
         backgroundColor: '#fff',
         height: 70/oPx,
-        marginTop: 50/oPx,
-        marginBottom: 50/oPx,
+        marginTop: 35/oPx,
+        marginBottom: 30/oPx,
         flexDirection: 'row',
         paddingLeft: 30/oPx,
         paddingRight: 30/oPx,
@@ -478,7 +478,7 @@ export default Styles = StyleSheet.create({
         flexDirection: 'row',
         paddingLeft: 30/oPx,
         paddingRight: 30/oPx,
-        marginTop: 50/oPx,
+        marginTop: 30/oPx,
         backgroundColor: '#fff',
     },
     versionsText: {

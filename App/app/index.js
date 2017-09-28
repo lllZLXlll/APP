@@ -37,6 +37,10 @@ import UserSet from './resources/user/userSet';
 import BlackList from './resources/message/BlackList';
 //系统消息
 import SystemMessage from './resources/message/SystemMessage';
+//聊天窗口
+import MessageWindow from'./resources/message/MessageWindow';
+//好友设置
+import friendSet from'./resources/message/friendSet';
 
 // 首页
 // 帖子详情
@@ -323,6 +327,36 @@ const App = StackNavigator({
             ),
         }),
   },
+  MessageWindow: {
+        screen: MessageWindow,
+        navigationOptions: ({ navigation }) => ({
+            // 是否启用手势关闭屏幕
+            gesturesEnabled: true,
+            headerTitle:`${navigation.state.params.userName}`,
+            headerTitleStyle: {
+                alignSelf: 'center',
+            },
+            headerRight: (
+                <TouchableOpacity activeOpacity={0.6} onPress={() => {navigation.navigate('friendSet')}}>
+                    <Text style={msgStyles.clear}>
+                        设置
+                    </Text>
+                </TouchableOpacity>
+            ),
+        }),
+   },
+    friendSet: {
+        screen: friendSet,
+        navigationOptions: ({ navigation }) => ({
+            // 是否启用手势关闭屏幕
+            title:'设置',
+            gesturesEnabled: true,
+            headerTitleStyle: {
+                alignSelf: 'center',
+            },
+            headerRight: (<Text></Text>),
+        }),
+    },
   
 },{
 	// 让标题随着画面的改变而呈现动画，ios中的默认选项，android设置一样保持动画一致

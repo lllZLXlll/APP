@@ -87,11 +87,10 @@ export default class Message extends Component {
     }
 
     _getTextItem(row, index) {
-        return <View style={Styles.messageTable} key={index}>
+        return <TouchableOpacity activeOpacity={0.5} key={index} onPress={() => {this.props.navigation.navigate('MessageWindow', {userName:row.userName,portrait:Icons.portrait})}}>
+		<View style={Styles.messageTable}>
 			<View style={Styles.messageTableP}>
-				<TouchableOpacity activeOpacity={0.5}>
-					<Image style={Styles.messagePortraitImage} source={Icons.portrait} />
-				</TouchableOpacity>
+				<Image style={Styles.messagePortraitImage} source={Icons.portrait} />
 			</View>
 			<View style={Styles.messageRead}>
                 {
@@ -117,6 +116,7 @@ export default class Message extends Component {
 					</View>
 			</View>
 		</View>
+		</TouchableOpacity>
     }
 
 	render() {
