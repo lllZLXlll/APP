@@ -128,7 +128,9 @@ export default class Article extends Component {
 	}
 
 	_getItem(row, index) {
-		return	<Item row={row} index={index} key={index} _setDataIndex={this._setDataIndex} _toMsgDetails={this.props._toMsgDetails} />
+		return	<Item row={row} index={index} key={index}
+				_setDataIndex={this._setDataIndex}
+				_toMsgDetails={this.props._toMsgDetails} />
 	}
 
 	render() {
@@ -151,6 +153,5 @@ export default class Article extends Component {
 				<View style={Styles.noDataView}><Text style={Styles.noDataText}>暂无记录</Text></View>
 			);
 		}
-		
 	}
 }

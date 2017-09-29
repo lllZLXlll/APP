@@ -43,7 +43,7 @@ export default class MessageWindow extends Component {
                     </View>
                 </View>
                 <View style={{flex: 1}}>
-                    <Image style={{width: 60 / oPx, height: 60 / oPx}}
+                    <Image style={{width: 80 / oPx, height: 80 / oPx}}
                            source={this.props.navigation.state.params.portrait}>
                     </Image>
                 </View>
@@ -51,7 +51,7 @@ export default class MessageWindow extends Component {
         }else{
             return  <View key={index} style={Styles.friendRecord}>
                         <View style={{flex: 1}}>
-                            <Image style={{width:60/oPx, height:60/oPx}} source={this.props.navigation.state.params.portrait}>
+                            <Image style={{width:80/oPx, height:80/oPx}} source={this.props.navigation.state.params.portrait}>
                             </Image>
                         </View>
                         <View style={{flex: 9, marginLeft:20/oPx}}>
@@ -93,11 +93,13 @@ export default class MessageWindow extends Component {
                     {
                         this.state.text == null || this.state.text == ''
                         ?
-                            <View style={[Styles.sendButtom,{backgroundColor: '#d2cfcf'}]}>
-                                <Text style={Styles.sendText}>
-                                    发送
-                                </Text>
-                            </View>
+                            <TouchableOpacity>
+                                <View style={[Styles.sendButtom,{backgroundColor: '#d2cfcf'}]}>
+                                    <Text style={Styles.sendText}>
+                                        发送
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
                         :
                             <TouchableOpacity activeOpacity={0.5} onPress={() => {alert('发送')}}>
                                 <View style={[Styles.sendButtom,{backgroundColor: '#0c8ad2'}]}>
