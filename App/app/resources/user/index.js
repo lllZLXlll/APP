@@ -173,7 +173,7 @@ export default class User extends Component {
 		let tabConent = <Article />;
 		switch(this.state.isSelect) {
 			case 0:
-				tabConent = <Article data={this.state.data_1} _onPressMore={this._onPressMore} />;
+				tabConent = <Article data={this.state.data_1} _onPressMore={this._onPressMore} _toMsgDetails={this._toMsgDetails} />;
 				break;
 			case 1:
 				tabConent = <Comment  _onPressMore={this._onPressMore} />;
@@ -207,6 +207,18 @@ export default class User extends Component {
             console.log(this.state.data_1);
         }
 	}
+
+	// 发帖页面需要方法 -- begin
+    // 跳转帖子详情
+    _toMsgDetails = (index, row) => {
+		alert(1);
+        this.props.navigation.navigate('ArticleDetails', {
+            index: index,
+            row: row,
+        });
+    }
+
+    // 发帖页面需要方法 -- end
 
 	// QQ登录
 	_toQQLogin() {
@@ -260,7 +272,7 @@ export default class User extends Component {
 				>
 					{ this._getPortraitComponent() }
 			 		{ this._getStatisticsComponent() }
-					
+
 					<TabComponent isSelect={this.state.isSelect} tabTitleMap={this.state.tabTitleMap} _setIsSelect={this._setIsSelect} />
 					{ this._getTabConent() }
 

@@ -20,6 +20,10 @@ import Styles from '../../style/user/userStyle';
 import {StyleConfig} from '../../style/style';
 import Icons from '../../components/Icons';
 let oPx = StyleConfig.oPx;
+// 请求组件
+import Request from '../../utils/Request';
+// 存储数据组件
+import Storage from '../../utils/Storage';
 
 
 // 临时图片数据
@@ -34,8 +38,53 @@ export default class Article extends Component {
 			dataIndex: 0,
 			onClickIndex: 0,
 			_onPressMore: this.props._onPressMore,
+
+            // 分页参数
+            pageNum: 1,
+            pageSize: 20,
+            totalPageNum: 0,
 		};
 	}
+
+    // 请求数据
+    componentDidMount(){
+        this._getSendData();
+    }
+
+    async _getSendData(pageNum, pageSize) {
+        let USER = await Storage.getItem('USER');
+        let uid = null;
+        if (USER) {
+            uid = USER.UID;
+        }
+        // 如果没有值那么就是第一次加载
+        if (!pageNum && !pageSize) {
+            Request.post('home/index.do',{uid: uid, pageNum: 1, pageSize: 20},(data)=>{
+            	console.log('----');
+                console.log(data);
+                this.setState({
+                    data: data.page,
+                    // 总页数
+                    totalPageNum: data.totalPageNum,
+                    // 如果总页数等于1直接设置底部底线
+                    isData: data.totalPageNum <= 1 ? false : true,
+                });
+            },(error)=>{
+                console.log(error);
+            });
+        } else { // 不是第一次加载
+            Request.post('home/index.do',{uid: USER.UID, pageNum: pageNum, pageSize: pageSize},(data)=>{
+                this.setState({
+                    // concat方法把数据追加到原数据后面
+                    data: this.state.data.concat(data.page),
+                    pageNum: data.pageNum,
+                    isData: data.pageNum >= data.totalPageNum ? false : true,
+                });
+            },(error)=>{
+                console.log(error);
+            });
+        }
+    }
 
 	_onPressMore = () => {
 		this.state._onPressMore();
@@ -63,11 +112,11 @@ export default class Article extends Component {
 
 	_getImageViewer = () => {
 		return 	<ImageViewer 
-					visible={this.state.isOnClickImage}
-					imageUrls={this.state.data[this.state.dataIndex].images} // 照片路径
-					index={this.state.onClickIndex} // 初始显示第几张
-					onClick={() => { // 图片单击事件
-                        this.setState({isOnClickImage: false});
+						visible={this.state.isOnClickImage}
+						imageUrls={this.state.data[this.state.dataIndex].images} // 照片路径
+						index={this.state.onClickIndex} // 初始显示第几张
+						onClick={() => { // 图片单击事件
+							this.setState({isOnClickImage: false});
                     }}
 				/>;
 	}
@@ -79,7 +128,7 @@ export default class Article extends Component {
 	}
 
 	_getItem(row, index) {
-		return	<Item row={row} index={index} key={index} _setDataIndex={this._setDataIndex} />
+		return	<Item row={row} index={index} key={index} _setDataIndex={this._setDataIndex} _toMsgDetails={this.props._toMsgDetails} />
 	}
 
 	render() {
