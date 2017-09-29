@@ -25,14 +25,15 @@ import Message from './resources/message/index';
 import Send from './resources/send/index';
 import Found from './resources/found/index';
 import User from './resources/user/index';
-import Screen from './resources/home/screen';
+
+import SendArticle from './resources/home/sendArticle';
 import Fans from './resources/user/fans/fans';
 import Focus from './resources/user/fans/focus';
 import Praise from './resources/user/fans/praise';
 import Icons from './components/Icons';
 import Styles from './style/user/userStyle';
-//用户设置
-import UserSet from './resources/user/userSet';
+
+// 消息
 //黑名单
 import BlackList from './resources/message/BlackList';
 //系统消息
@@ -52,9 +53,10 @@ import CommentDetails from './resources/home/commentDetails';
 // 我的
 // 我的-发帖，收藏，评论，访客tab页面
 import Mores from './resources/user/more/mores';
-
 // 用户详情页面
 import UserMore from './resources/user/userMore';
+//用户设置
+import UserSet from './resources/user/userSet';
 
 // 通用网页页面
 import WebView from './components/WebView'
@@ -69,7 +71,7 @@ const icon2 = require('./images/icon/icon_1_1.png');
 const Tab = TabNavigator({
   Home: {
     screen: Home,
-    navigationOptions: {
+    navigationOptions: ({ navigation }) => ({
       headerTitle: '首页', // 设置头部导航栏文字
       tabBarLabel: '首页', // 设置标签栏标签文字
       tabBarIcon: (({ focused }) => {
@@ -80,27 +82,33 @@ const Tab = TabNavigator({
           /> 
         );  
       }),
-    },
+      headerLeft: (<Text/>),
+      headerRight: (
+       <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.navigate('SendArticle')}}>
+         <Text style={msgStyles.blacklistFont}>发帖</Text>
+       </TouchableOpacity>
+      ),
+    }),
   },
   Message: {
     screen: Message,
       navigationOptions: ({ navigation }) => ({
-      headerTitle: '消息',
-      tabBarLabel: '消息',
-      tabBarIcon: (({ focused }) => {
-        return (
-          <Image
-            source={focused ? icon1 : icon2}
-            style={styles.icon}
-          />
-        );  
-      }),
-      headerLeft: (<Text/>),
-      headerRight: (
-       <TouchableOpacity activeOpacity={0.6} onPress={() => {navigation.navigate('BlackList')}}>
-         <Text style={msgStyles.blacklistFont}>黑名单</Text>
-       </TouchableOpacity>
-      ),
+        headerTitle: '消息',
+        tabBarLabel: '消息',
+        tabBarIcon: (({ focused }) => {
+          return (
+            <Image
+              source={focused ? icon1 : icon2}
+              style={styles.icon}
+            />
+          );  
+        }),
+        headerLeft: (<Text/>),
+        headerRight: (
+         <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.navigate('BlackList')}}>
+           <Text style={msgStyles.blacklistFont}>黑名单</Text>
+         </TouchableOpacity>
+        ),
     }),
   },
   Send: {
@@ -139,7 +147,7 @@ const Tab = TabNavigator({
       headerTitle: '我的',
       tabBarLabel: '我的',
       headerRight: (
-          <TouchableOpacity activeOpacity={0.6} onPress={() => {navigation.navigate('UserSet')}}>
+          <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.navigate('UserSet')}}>
             <Image source={Icons.set} style={Styles.set} />
           </TouchableOpacity>
       ),
@@ -167,7 +175,7 @@ const Tab = TabNavigator({
       backgroundColor: '#fff',
     },
   },
-  lazy: false, // 当切换到某选项卡时才进行加载
+  lazy: true, // 当切换到某选项卡时才进行加载
   swipeEnabled: true, // 是否允许在标签之间进行滑动
 });
 
@@ -202,15 +210,25 @@ const App = StackNavigator({
       },
     }),
   },
-  Screen: {
-    screen: Screen,
+  SendArticle: {
+    screen: SendArticle,
     navigationOptions: ({ navigation }) => ({
-      title: '跳转的页面',
-      headerLeft: (<Button title="返回" onPress={() => {navigation.goBack()}} />),
-      headerRight: (<Button title="设置" onPress={() => {alert('设置')}} />),
-	  headerTitleStyle: {
-		  alignSelf: 'center',
-	  },
+      title: '发帖',
+      // headerLeft: (
+      //   <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.goBack()}}>
+      //     <Text style={msgStyles.blacklistFont}>取消</Text>
+      //   </TouchableOpacity>
+      // ),
+      headerRight: (
+        <TouchableOpacity activeOpacity={0.5} onPress={() => {alert('发送')}}>
+          <Text style={msgStyles.blacklistFont}>发送</Text>
+        </TouchableOpacity>
+      ),
+      // 是否启用手势关闭屏幕
+      gesturesEnabled: false,
+  	  headerTitleStyle: {
+  		  alignSelf: 'center',
+  	  },
     }),
   },
   // 通用webview，跳转网页
@@ -225,23 +243,23 @@ const App = StackNavigator({
     }),
 	
   },
-    UserSet: {
-        screen: UserSet,
-        navigationOptions: ({ navigation }) => ({
-            // 是否启用手势关闭屏幕
-            title:'设置',
-            gesturesEnabled: true,
-            headerTitleStyle: {
-                alignSelf: 'center',
-            },
-            headerRight: (<Text></Text>),
-        }),
-    },
-    Fans: {
+  UserSet: {
+      screen: UserSet,
+      navigationOptions: ({ navigation }) => ({
+          // 是否启用手势关闭屏幕
+          title:'设置',
+          gesturesEnabled: true,
+          headerTitleStyle: {
+              alignSelf: 'center',
+          },
+          headerRight: (<Text></Text>),
+      }),
+  },
+  Fans: {
     screen: Fans,
     navigationOptions: ({ navigation }) => ({
-		// 是否启用手势关闭屏幕
-		gesturesEnabled: true,
+  	// 是否启用手势关闭屏幕
+  	gesturesEnabled: true,
         headerTitleStyle: {
             alignSelf: 'center',
         },
@@ -249,47 +267,45 @@ const App = StackNavigator({
     }),
 
   },
+  Focus: {
+      screen: Focus,
+      navigationOptions: ({ navigation }) => ({
+          // 是否启用手势关闭屏幕
+          gesturesEnabled: true,
+          headerTitleStyle: {
+              alignSelf: 'center',
+          },
+          headerRight: (<Text></Text>),
+      }),
 
-    Focus: {
-        screen: Focus,
-        navigationOptions: ({ navigation }) => ({
-            // 是否启用手势关闭屏幕
-            gesturesEnabled: true,
-            headerTitleStyle: {
-                alignSelf: 'center',
-            },
-            headerRight: (<Text></Text>),
-        }),
+  },
+  Praise: {
+      screen: Praise,
+      navigationOptions: ({ navigation }) => ({
+          // 是否启用手势关闭屏幕
+          gesturesEnabled: true,
+          headerTitleStyle: {
+              alignSelf: 'center',
+          },
+          headerRight: (<Text></Text>),
+      }),
 
-    },
+  },
+  BlackList: {
+      screen: BlackList,
+      navigationOptions: ({ navigation }) => ({
+          // 是否启用手势关闭屏幕
+          title: '黑名单',
+          gesturesEnabled: true,
+          headerTitleStyle: {
+              alignSelf: 'center',
+          },
+          headerRight: (<Text></Text>),
+      }),
 
-    Praise: {
-        screen: Praise,
-        navigationOptions: ({ navigation }) => ({
-            // 是否启用手势关闭屏幕
-            gesturesEnabled: true,
-            headerTitleStyle: {
-                alignSelf: 'center',
-            },
-            headerRight: (<Text></Text>),
-        }),
+  },
 
-    },
-    BlackList: {
-        screen: BlackList,
-        navigationOptions: ({ navigation }) => ({
-            // 是否启用手势关闭屏幕
-            title: '黑名单',
-            gesturesEnabled: true,
-            headerTitleStyle: {
-                alignSelf: 'center',
-            },
-            headerRight: (<Text></Text>),
-        }),
-
-    },
-
-    Mores: {
+  Mores: {
     screen: Mores,
     navigationOptions: ({ navigation }) => ({
       // 是否启用手势关闭屏幕
@@ -319,7 +335,7 @@ const App = StackNavigator({
                 alignSelf: 'center',
             },
             headerRight: (
-                <TouchableOpacity activeOpacity={0.6} onPress={() => {alert(1)}}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => {alert(1)}}>
                     <Text style={msgStyles.clear}>
                         清空
                     </Text>
@@ -337,7 +353,7 @@ const App = StackNavigator({
                 alignSelf: 'center',
             },
             headerRight: (
-                <TouchableOpacity activeOpacity={0.6} onPress={() => {navigation.navigate('friendSet')}}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.navigate('friendSet')}}>
                     <Text style={msgStyles.clear}>
                         设置
                     </Text>
@@ -345,18 +361,18 @@ const App = StackNavigator({
             ),
         }),
    },
-    friendSet: {
-        screen: friendSet,
-        navigationOptions: ({ navigation }) => ({
-            // 是否启用手势关闭屏幕
-            title:'设置',
-            gesturesEnabled: true,
-            headerTitleStyle: {
-                alignSelf: 'center',
-            },
-            headerRight: (<Text></Text>),
-        }),
-    },
+  friendSet: {
+      screen: friendSet,
+      navigationOptions: ({ navigation }) => ({
+          // 是否启用手势关闭屏幕
+          title:'设置',
+          gesturesEnabled: true,
+          headerTitleStyle: {
+              alignSelf: 'center',
+          },
+          headerRight: (<Text></Text>),
+      }),
+  },
   
 },{
 	// 让标题随着画面的改变而呈现动画，ios中的默认选项，android设置一样保持动画一致
