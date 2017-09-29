@@ -49,11 +49,7 @@ export default class ArticleDetails extends Component {
 	      	// 帖子回复数据
 	      	commentData: [],
 	      	// 点赞临时数据
-	      	praiseData: [
-                {userName: '盖伦',text:  '发布成功，粉丝将收到您的发帖通知！'},
-                {userName: '进克斯',text:  '发布成功，粉丝将收到您的发帖通知！'},
-                {userName: '拉克丝',text:  '发布成功，粉丝将收到您的发帖通知！'},
-            ],
+	      	praiseData: [],
 	      	// 选中的tab序号0开始
 	      	isSelect: 0,
 			isOnClickImage: false,

@@ -41,7 +41,7 @@ let oPx = StyleConfig.oPx;
                       </View>
                   </View>
 
-                  <View style={{justifyContent: 'center', marginRight: 30/oPx}} >
+                  <View style={{justifyContent: 'center', marginRight: 30/oPx}}>
                       <TouchableOpacity activeOpacity={0.5} onPress={() => {this.setState({isClick: !this.state.isClick})}}>
                           {
                               this.state.isClick
