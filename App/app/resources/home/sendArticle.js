@@ -20,11 +20,25 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {ToastShort} from '../../utils/Toast';
 // 存储数据组件
 import Storage from '../../utils/Storage';
+// 请求组件
+import Request from '../../utils/Request';
 
 import Icons from '../../components/Icons';
 
 export default class SendArticle extends Component {
-	// 导航头部设置
+	constructor(props){
+		super(props);
+		this.state = {
+			// 发帖内容
+			content: '',
+			// 发帖图片 
+			images: [],
+			// 当前可选择的图片数量
+			maxFiles: 9
+		};
+	}
+
+		导航头部设置
 	static navigationOptions = ({ navigation }) => ({
       title: '',
       // headerLeft: (
@@ -43,19 +57,6 @@ export default class SendArticle extends Component {
   		  alignSelf: 'center',
   	  },
     });
-
-
-	constructor(props){
-		super(props);
-		this.state = {
-			// 发帖内容
-			content: '',
-			// 发帖图片 
-			images: [],
-			// 当前可选择的图片数量
-			maxFiles: 9
-		};
-	}
 
 	componentDidMount() {
 		// 想要在导航栏中调用本页面方法，必须设置到navigation中
@@ -142,13 +143,7 @@ export default class SendArticle extends Component {
 	}
 
 	_submit = (uid) => {
-		let params = {
-			uid: uid, 
-			content: this.state.content,
-			images: this.state.images,
-		};
-
-		Request.post('home/sendArticle.do',{params},(data)=>{
+		Request.post('home/sendArticle.do',{uid: uid, content: this.state.content, images: this.state.images},(data)=>{
 			console.log(data);
 			if (data.error == 0) {
 				alert('发帖成功');
