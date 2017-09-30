@@ -14,11 +14,37 @@ import {
 } from 'react-native';
 
 import Styles from '../../style/home/homeStyle';
+//消息样式
+import msgStyles from '../../style/message/messageStyle';
 import ImagePicker from 'react-native-image-crop-picker';
+import {ToastShort} from '../../utils/Toast';
+// 存储数据组件
+import Storage from '../../utils/Storage';
 
 import Icons from '../../components/Icons';
 
 export default class SendArticle extends Component {
+	// 导航头部设置
+	static navigationOptions = ({ navigation }) => ({
+      title: '',
+      // headerLeft: (
+      //   <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.goBack()}}>
+      //     <Text style={msgStyles.blacklistFont}>取消</Text>
+      //   </TouchableOpacity>
+      // ),
+      headerRight: (
+        <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.state.params._checkData()}}>
+          <Text style={msgStyles.blacklistFont}>发送</Text>
+        </TouchableOpacity>
+      ),
+      // 是否启用手势关闭屏幕
+      gesturesEnabled: false,
+  	  headerTitleStyle: {
+  		  alignSelf: 'center',
+  	  },
+    });
+
+
 	constructor(props){
 		super(props);
 		this.state = {
@@ -31,18 +57,21 @@ export default class SendArticle extends Component {
 		};
 	}
 
+	componentDidMount() {
+		// 想要在导航栏中调用本页面方法，必须设置到navigation中
+		this.props.navigation.setParams({_checkData: this._checkData.bind(this)});
+	}
+
 	// 选择图片方法
 	_selectImage = () => {
-		ImagePicker.openPicker({  
+		// 从相册中选择相片
+		ImagePicker.openPicker({
 		  multiple: true , // 是否可多选
 		  maxFiles: this.state.maxFiles, // 最多选择的图片数量仅限ios
 		  includeBase64: true, // 选择的图片转换成base64编码字符串
 		}).then(images => {
-			// 多选的图片返回的images数组
-			let length = images.length;
-			length = 
 			this.setState({
-				images: this.state.images.concat(images),
+				images: this.state.images.concat(images),// 多选的图片返回的images数组
 				maxFiles: this.state.maxFiles - images.length,
 			});
 		  	console.log(images);
@@ -83,6 +112,53 @@ export default class SendArticle extends Component {
 						<Image source={Icons.delImage} style={Styles.delImageIcon} />
 					</TouchableOpacity>
 				</ImageBackground>;
+	}
+
+	// 提交前判断数据是否为空，是否登录
+	async _checkData() {
+		if (this.state.content == '') {
+			ToastShort('内容不能为空', 300);
+			return;
+		}
+		if (this.state.content.length < 10) {
+			ToastShort('别浪费你的才华，多写点吧！', 300);
+			return;
+		}
+		if (this.state.images.length > 9) {
+			ToastShort('最多只能选择九张图片', 300);
+			return;
+		}
+
+		let USER = await Storage.getItem('USER');
+		let uid = null;
+		if (USER) {
+			uid = USER.UID;
+		} else {
+			alert('未登录，跳转登录页面');
+			return;
+		}
+
+		this._submit(uid);
+	}
+
+	_submit = (uid) => {
+		let params = {
+			uid: uid, 
+			content: this.state.content,
+			images: this.state.images,
+		};
+
+		Request.post('home/sendArticle.do',{params},(data)=>{
+			console.log(data);
+			if (data.error == 0) {
+				alert('发帖成功');
+			} else {
+				alert(data.msg);
+			}
+			
+		},(error)=>{
+		    console.log(error);
+		});
 	}
 
 	render() {

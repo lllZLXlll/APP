@@ -39,5 +39,10 @@ export default Styles = StyleSheet.create({
     delImageView: {
         alignItems: 'flex-end',
     },
+    add: {
+        width: 40/oPx,
+        height: 40/oPx,
+        marginRight: 20/oPx,
+    },
     
 });

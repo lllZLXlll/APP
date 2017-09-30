@@ -6,6 +6,7 @@
 let Icons = [];
 
 // -------------首页-------------begin
+Icons.add = require('../images/icon/home/icon_home_add.png');
 Icons.addImage = require('../images/icon/home/icon_home_addImage.png');
 Icons.delImage = require('../images/icon/home/icon_home_delImage.png');
 

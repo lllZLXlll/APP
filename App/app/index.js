@@ -31,7 +31,10 @@ import Fans from './resources/user/fans/fans';
 import Focus from './resources/user/fans/focus';
 import Praise from './resources/user/fans/praise';
 import Icons from './components/Icons';
+// 我的样式
 import Styles from './style/user/userStyle';
+// 首页样式
+import homeStyles from './style/home/homeStyle';
 
 // 消息
 //黑名单
@@ -85,7 +88,7 @@ const Tab = TabNavigator({
       headerLeft: (<Text/>),
       headerRight: (
        <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.navigate('SendArticle')}}>
-         <Text style={msgStyles.blacklistFont}>发帖</Text>
+         <Image source={Icons.add} style={homeStyles.add} />
        </TouchableOpacity>
       ),
     }),
@@ -212,24 +215,7 @@ const App = StackNavigator({
   },
   SendArticle: {
     screen: SendArticle,
-    navigationOptions: ({ navigation }) => ({
-      title: '发帖',
-      // headerLeft: (
-      //   <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.goBack()}}>
-      //     <Text style={msgStyles.blacklistFont}>取消</Text>
-      //   </TouchableOpacity>
-      // ),
-      headerRight: (
-        <TouchableOpacity activeOpacity={0.5} onPress={() => {alert('发送')}}>
-          <Text style={msgStyles.blacklistFont}>发送</Text>
-        </TouchableOpacity>
-      ),
-      // 是否启用手势关闭屏幕
-      gesturesEnabled: false,
-  	  headerTitleStyle: {
-  		  alignSelf: 'center',
-  	  },
-    }),
+    
   },
   // 通用webview，跳转网页
   WebView: {
