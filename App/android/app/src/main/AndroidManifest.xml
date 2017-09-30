@@ -11,6 +11,8 @@
     <!--录音和播放录音-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="22" />

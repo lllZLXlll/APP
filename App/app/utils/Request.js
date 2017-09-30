@@ -2,7 +2,7 @@
  * 请求组件 2017/08/24
  */
 
-let HOST = 'http://192.168.1.122/app/';
+let HOST = 'http://192.168.1.132/app/';
 
 let Request = {
    post : async (url,data,successCallback,failCallback) => {

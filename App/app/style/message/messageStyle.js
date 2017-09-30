@@ -210,32 +210,36 @@ export default Styles = StyleSheet.create({
         color: '#2e87cb'
     },
     print: {
-        height: 80/oPx,
+        height: 100/oPx,
         flexDirection: 'row',
         backgroundColor: '#dddddd'
     },
     inputStyle: {
         marginTop: 10/oPx,
         marginBottom: 10/oPx,
-        marginLeft: 30/oPx,
+        marginLeft: 20/oPx,
         marginRight: 10/oPx,
-        flex: 8,
+        paddingLeft: 15/oPx,
+        paddingRight: 15/oPx,
+        flex: 7,
         backgroundColor: '#ffffff',
         borderRadius: 7,
     },
     sendButtom: {
-        flex: 1,
+        flex: 2,
+        width: 120/oPx,
         justifyContent:'center',
         alignItems: 'center',
         marginTop: 10/oPx,
         marginBottom: 10/oPx,
-        marginRight: 30/oPx,
+        marginRight: 20/oPx,
         paddingRight: 10/oPx,
         paddingLeft: 10/oPx,
         borderRadius: 7,
     },
     sendText: {
-        fontSize: 24/oPx,
+        fontSize: 26/oPx,
+        color: '#ffffff'
     },
     sayRecord: {
         marginRight: 30/oPx,
@@ -266,13 +270,13 @@ export default Styles = StyleSheet.create({
         borderRadius: 5,
     },
     msg: {
-        fontSize: 25/oPx,
+        fontSize: 30/oPx,
         color: '#ffffff'
         /*textAlign: 'center',*/
 
     },
     msg1: {
-        fontSize: 25/oPx,
+        fontSize: 30/oPx,
         color: '#000000'
         /*textAlign: 'center',*/
 
@@ -291,7 +295,7 @@ export default Styles = StyleSheet.create({
         borderTopColor: 'transparent',
         borderBottomColor: 'transparent',
         alignItems:'flex-end',
-        marginTop: 5/oPx
+        marginTop: 10/oPx
     },
     triangle1: {
         width: 0/oPx,
@@ -306,7 +310,7 @@ export default Styles = StyleSheet.create({
         borderRightColor: '#ffffff',
         borderTopColor: 'transparent',
         borderBottomColor: 'transparent',
-        marginTop: 5/oPx
+        marginTop: 10/oPx
     },
     bubble: {
         flex: 1,

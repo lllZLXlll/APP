@@ -87,6 +87,11 @@ export default Styles = StyleSheet.create({
 		height: 20/oPx, 
 		marginLeft: 10/oPx,
 	},
+	revertCommentText: {
+		fontSize: 30/oPx,
+		color: '#2e87cb', 
+		lineHeight: 38/oPx,
+	},
 });
 
 

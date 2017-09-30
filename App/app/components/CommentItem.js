@@ -75,9 +75,21 @@ export default class CommentItem extends Component{
           </View>
           
           <View style={StyleComponent.commentContentView}>
-            <View style={StyleComponent.commentContentTopView}>
-              <Text style={[Styles.textLeft, StyleComponent.commentContentText]} numberOflines={5}>{this.props.row.commentContent}</Text>
-            </View>
+            {
+              this.props.row.commentStage === 3
+              ?
+              <View style={StyleComponent.commentContentTopView}>
+                <Text style={[Styles.textLeft, StyleComponent.commentContentText]}>
+                  回复<Text style={[Styles.textLeft, StyleComponent.revertCommentText]}>{this.props.row.revertUserName}</Text>：
+                  {this.props.row.commentContent}
+                </Text>
+                
+              </View>
+              :
+              <View style={StyleComponent.commentContentTopView}>
+                <Text style={[Styles.textLeft, StyleComponent.commentContentText]}>{this.props.row.commentContent}</Text>
+              </View>
+            }
 
             {
               this.props.row.revertCount > 0 && this.props.isShowReverCount
