@@ -20,5 +20,24 @@ export default Styles = StyleSheet.create({
     textInput: {
         fontSize: 30/oPx,
     },
+    imagesView: {
+        marginTop: 30/oPx,
+        marginLeft: 30/oPx,
+        marginRight: 30/oPx,
+
+    },
+    addImage: {
+        width: 140/oPx,
+        height: 140/oPx,
+        marginRight: 20/oPx,
+    },
+    delImageIcon: {
+        width: 30/oPx,
+        height: 30/oPx,
+
+    },
+    delImageView: {
+        alignItems: 'flex-end',
+    },
     
 });
