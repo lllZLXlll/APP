@@ -1,25 +1,34 @@
 package com.app.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.app.controller.app.AppIndexController;
+import com.app.controller.common.BaseController;
 import com.app.controller.common.PageBean;
 import com.app.dao.ArticleCommentDao;
 import com.app.dao.FabulousDao;
 import com.app.dao.SendArticleDao;
 import com.app.dao.StampedeDao;
 import com.app.util.AppUtil;
+import com.app.util.FileUtils;
+import com.app.util.ServletUtils;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Service
-public class IndexService {
+public class IndexService extends BaseController {
+	public static Log log = LogFactory.getLog(IndexService.class);
 
 	@Autowired
 	private SendArticleDao sendArticleDao;
@@ -191,7 +200,7 @@ public class IndexService {
 		// 如果用户登录了那么根据用户id查询出用户是否对此帖有过赞或踩，如果没有登录则不用查询，暂时查询出来
 		List<Map<String, Object>> page = articleCommentDao.queryArticleDetails((pageNum - 1) * pageSize, pageSize,
 				articleId, userId);
-		
+
 		// 查询该贴子评论数量，赞数量 -begin
 		long commentCount = articleCommentDao.queryArticleCommentCount(articleId);
 		String fabulousCountStr = fabulousDao.queryFabulousCount(articleId);
@@ -207,7 +216,7 @@ public class IndexService {
 			// userId加密
 			map.put("userId", AppUtil.encryptUserId(map.get("userId") + ""));
 		}
-		
+
 		PageBean pageBean = new PageBean(pageNum, pageSize, totalNum, page);
 		pageBean.setDataMap(dataMap);
 		return pageBean;
@@ -225,8 +234,8 @@ public class IndexService {
 		Long pageSize = Long.parseLong(appParams.getString("pageSize"));
 
 		// 如果用户登录了那么根据用户id查询出用户是否对此帖有过赞或踩，如果没有登录则不用查询，暂时查询出来
-		List<Map<String, Object>> page = articleCommentDao.queryArticleDetailsComment((pageNum - 1) * pageSize, pageSize,
-				commentId, userId);
+		List<Map<String, Object>> page = articleCommentDao.queryArticleDetailsComment((pageNum - 1) * pageSize,
+				pageSize, commentId, userId);
 
 		for (Map<String, Object> map : page) {
 			// userId加密
@@ -241,15 +250,79 @@ public class IndexService {
 	public List<Map<String, Object>> queryArticlePraises(JSONObject appParams) {
 		// 帖子id
 		Long articleId = Long.parseLong(appParams.getString("articleId"));
-		
+
 		List<Map<String, Object>> list = fabulousDao.queryArticlePraises(articleId);
-		
+
 		for (Map<String, Object> map : list) {
 			// userId加密
 			map.put("id", AppUtil.encryptUserId(map.get("id") + ""));
 		}
-		
+
 		return list;
+	}
+
+	// 发帖
+	public Map<String, Object> sendArticle(JSONObject appParams) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+
+		// 用户id
+		Long userId = Long.parseLong(AppUtil.checkUserId(appParams.getString("uid")));
+		// 帖子内容
+		String content = appParams.getString("content");
+		// 帖子图片 转换成json数组
+		JSONArray images = appParams.getJSONArray("images");
+
+		// 数据判断
+		// 内容是否少于10个字符
+		if (content.length() < 10) {
+			resultMap.put("error", "1");
+			resultMap.put("msg", "再多写点吧!");
+			return resultMap;
+		}
+
+		// 判断图片是否大于9张
+		if (images.size() > 9) {
+			resultMap.put("error", "2");
+			resultMap.put("msg", "图片不能多于9张");
+			return resultMap;
+		}
+
+		// 每天创建一个文件夹存储用户每天上传的图片
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String realPath = ServletUtils.serverRootDirectory() + "upload/sendArticle/" + sdf.format(new Date());
+		FileUtils.mkdirs(realPath);
+
+		// 保存远程地址图片数组
+		String imageArr[] = new String[images.size()];
+		
+		// 循环json数组取得每个图片json对象
+		for (int i = 0; i < images.size(); i++) {
+			JSONObject imageObj = images.getJSONObject(i);
+			// 图片base64编码
+			String image = imageObj.getString("data");
+			String filename = imageObj.getString("filename");
+			filename = filename.substring(filename.indexOf("."), filename.length());
+			SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmmss");
+			log.info(realPath + "\\" + userId + sdf2.format(new Date()) + filename);
+			String reFileName = userId + sdf2.format(new Date()) + filename;
+
+			// 把图片进行解码，并写出到指定目录
+			AppUtil.GenerateImage(image, realPath + "/" + reFileName);
+			String url = request().getRequestURL().toString();
+			String imgPath = url.substring(0, url.indexOf("/re")) + "/upload/sendArticle/" + sdf.format(new Date())
+					+ "/" + reFileName;
+			log.info("图片上传服务器后地址为：" + imgPath);
+			
+			// 把上传的地址保存到数组中
+			imageArr[i] = imgPath;
+		}
+		
+		// 把内容和图片保存到数据库中
+		未做完
+		
+		resultMap.put("error", "0");
+		resultMap.put("msg", "ok");
+		return resultMap;
 	}
 
 }

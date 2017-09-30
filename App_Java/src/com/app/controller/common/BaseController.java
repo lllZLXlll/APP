@@ -306,7 +306,7 @@ public class BaseController {
 			String body = ConvertUtil.objToStrConvert(buffer.toString());
 			log.info("============URL=============" + request().getRequestURL());
 			log.info("============IP==============" + getRemortIp());
-			log.info("==========请求数据============" + body);
+//			log.info("==========请求数据============" + body);
 			if (body != null) {
 				return JSONObject.fromObject(body);
 			} else {

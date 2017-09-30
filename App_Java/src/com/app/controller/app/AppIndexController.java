@@ -1,5 +1,6 @@
 package com.app.controller.app;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,5 +76,21 @@ public class AppIndexController extends BaseController {
 		return indexService.queryArticlePraises(getAppParams());
 	}
 		
+	// 发帖 appUploadHead
+	@RequestMapping(value = "/sendArticle")
+	@ResponseBody
+	public Map<String, Object> sendArticle(){
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		try {
+			resultMap = indexService.sendArticle(getAppParams());
+		} catch(Exception e) {
+			e.printStackTrace();
+			log.error(e);
+			
+			resultMap.put("error", "-1");
+			resultMap.put("msg", "发布帖子异常");
+		}
+		return resultMap;
+	}
 	
 }
