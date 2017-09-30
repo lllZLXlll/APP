@@ -27,7 +27,7 @@ export default class SendArticle extends Component {
 			// 发帖图片 
 			images: [],
 			// 当前可选择的图片数量
-			maxFiles: 4
+			maxFiles: 9
 		};
 	}
 
@@ -72,7 +72,7 @@ export default class SendArticle extends Component {
 		images.splice(index, 1);
 		this.setState({
 			images: images,
-			maxFiles: this.state.maxFiles + 1,
+			maxFiles: this.state.maxFiles + 1, // 每次删除后，可选择图片数量+1
 		});
 	}
 
@@ -93,7 +93,7 @@ export default class SendArticle extends Component {
 				<View style={Styles.imagesView}>
 					<ScrollView horizontal={true}>
 						{
-							this.state.images.length < 4
+							this.state.images.length < 9
 							?
 							<TouchableOpacity activeOpacity={1} onPress={this._selectImage}>
 								<Image source={Icons.addImage} style={Styles.addImage} />
