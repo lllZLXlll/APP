@@ -5,6 +5,13 @@
 
 let Icons = [];
 
+// -------------首页-------------begin
+Icons.addImage = require('../images/icon/home/icon_home_addImage.png');
+Icons.delImage = require('../images/icon/home/icon_home_delImage.png');
+
+// -------------首页-------------end
+
+
 // -------------我的-------------begin
 // 我的信息
 // 头像
@@ -53,8 +60,6 @@ Icons.trumpet = require('../images/icon/message/trumpet.png');
 Icons.message = require('../images/icon/message/msgShow.png');
 //聊天窗口背景
 Icons.windowBackGround = require('../images/icon/user/background.jpg');
-//气泡
-Icons.bubble = require('../images/icon/message/1.9.png');
 // -------------我的-------------end
 
 // -------------登录-------------begin
