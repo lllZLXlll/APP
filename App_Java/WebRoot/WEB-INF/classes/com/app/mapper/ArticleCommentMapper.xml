@@ -39,12 +39,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="queryArticleDetailsComment" resultType="map">
 		SELECT
 		<if test='param4 != null and param4 != ""'>
-		(select count(id) from t_fabulous where commentId = t1.id and userId = #{3}) fabulous,
+			(select count(id) from t_fabulous where commentId = t1.id and userId = #{3}) fabulous,
 		</if>
 		t1.id, t1.userId, t1.articleId, t1.commentContent, date_format(t1.commentDate, '%m-%d %H:%i') commentDate, 
-		t1.fabulousCount, t2.userName, t2.portrait
+		t1.commentStage, t1.fabulousCount, t2.userName, t2.portrait, t3.userName revertUserName, t3.id revertUserId
 		FROM
 		t_articleComment t1 LEFT JOIN t_user t2 ON t1.userId = t2.id 
+		LEFT JOIN t_user t3 ON t1.commentUserId = t3.id 
 		WHERE
 		t1.commentId = #{2} AND t1.commentStage in (2, 3)  ORDER BY t1.fabulousCount DESC, t1.commentDate DESC
 		LIMIT #{0}, #{1}

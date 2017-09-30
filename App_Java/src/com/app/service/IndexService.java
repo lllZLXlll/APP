@@ -231,6 +231,8 @@ public class IndexService {
 		for (Map<String, Object> map : page) {
 			// userId加密
 			map.put("userId", AppUtil.encryptUserId(map.get("userId") + ""));
+			// 三级回复，被回复的用户id, 前端页面根据回复级数是3判断，显示3级回复的样式 --------------
+			map.put("revertUserId", AppUtil.encryptUserId(map.get("revertUserId") + ""));
 		}
 
 		return new PageBean(pageNum, pageSize, totalNum, page);
