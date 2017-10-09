@@ -11,6 +11,7 @@ import {
 	TextInput,
 	TouchableOpacity,
 	ScrollView,
+	Alert,
 } from 'react-native';
 
 import Styles from '../../style/home/homeStyle';
@@ -31,7 +32,7 @@ export default class SendArticle extends Component {
 		this.state = {
 			// 发帖内容
 			content: '',
-			// 发帖图片 
+			// 发帖图片
 			images: [],
 			// 当前可选择的图片数量
 			maxFiles: 9
@@ -41,11 +42,11 @@ export default class SendArticle extends Component {
 		导航头部设置
 	static navigationOptions = ({ navigation }) => ({
       title: '',
-      // headerLeft: (
-      //   <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.goBack()}}>
-      //     <Text style={msgStyles.blacklistFont}>取消</Text>
-      //   </TouchableOpacity>
-      // ),
+      headerLeft: (
+        <TouchableOpacity style={Styles.goBackStyle} activeOpacity={0.5} onPress={() => {navigation.state.params._goBack()}}>
+          <Text style={[msgStyles.blacklistFont, Styles.textRed]}>取消</Text>
+        </TouchableOpacity>
+      ),
       headerRight: (
         <TouchableOpacity activeOpacity={0.5} onPress={() => {navigation.state.params._checkData()}}>
           <Text style={msgStyles.blacklistFont}>发送</Text>
@@ -58,9 +59,20 @@ export default class SendArticle extends Component {
   	  },
     });
 
-	componentDidMount() {
+	async componentDidMount() {
 		// 想要在导航栏中调用本页面方法，必须设置到navigation中
-		this.props.navigation.setParams({_checkData: this._checkData.bind(this)});
+		this.props.navigation.setParams({
+			_goBack: this._goBack.bind(this), 
+			_checkData: this._checkData.bind(this)
+		});
+
+		let DRAFT = await Storage.getItem('DRAFT');
+		this.setState({
+			content: DRAFT.CONTENT ? DRAFT.CONTENT : '',
+			images: DRAFT.IMAGES ? DRAFT.IMAGES : [],
+			maxFiles: DRAFT.MAXFILES ? DRAFT.MAXFILES : 9
+		});
+
 	}
 
 	// 选择图片方法
@@ -89,7 +101,7 @@ export default class SendArticle extends Component {
 						keyboardType="default"
 						maxLength={300}
 						autoFocus={true}
-					 	onChangeText={(content) => this.setState({content})}
+					 	onChangeText={(content) => this.setState({content: content})}
                    		value={this.state.content}
                     />
 
@@ -113,6 +125,43 @@ export default class SendArticle extends Component {
 						<Image source={Icons.delImage} style={Styles.delImageIcon} />
 					</TouchableOpacity>
 				</ImageBackground>;
+	}
+
+	// 返回首页是否保存草稿
+	_goBack() {
+		// 输入了文字或选择了图片就提示是否保存草稿
+		if (this.state.content != '' || this.state.maxFiles < 9) {
+			Alert.alert(
+                '提示',
+                '未编辑完内容是否保存草稿？',
+                [
+                	{text: '删除', onPress: () => {this._delDraft()}},
+                    {text: '保存', onPress: () => {this._saveDraft()}},
+                ]
+            );
+		} else {
+			this.props.navigation.goBack();
+		}
+	}
+
+	// 保存到草稿
+	_saveDraft = () => {
+		let param = {
+			// 内容
+            CONTENT: this.state.content,
+            // 图片
+            IMAGES: this.state.images,
+            // 可选图片数量
+            MAXFILES: this.state.maxFiles,
+        };
+        Storage.setItem('DRAFT',param);
+        this.props.navigation.goBack();
+	}
+
+	// 删除草稿
+	_delDraft = () => {
+		Storage.clearItem('DRAFT');
+		this.props.navigation.goBack();
 	}
 
 	// 提交前判断数据是否为空，是否登录
@@ -150,7 +199,6 @@ export default class SendArticle extends Component {
 			} else {
 				alert(data.msg);
 			}
-			
 		},(error)=>{
 		    console.log(error);
 		});
@@ -162,16 +210,16 @@ export default class SendArticle extends Component {
 				{ this._getInputCount() }
 				
 				<View style={Styles.imagesView}>
-					<ScrollView horizontal={true}>
-						{
-							this.state.images.length < 9
-							?
-							<TouchableOpacity activeOpacity={1} onPress={this._selectImage}>
-								<Image source={Icons.addImage} style={Styles.addImage} />
-							</TouchableOpacity>
-							: null
-						}
-					 	
+					{
+						this.state.images.length < 9
+						?
+						<TouchableOpacity activeOpacity={1} onPress={this._selectImage}>
+							<Image source={Icons.addImage} style={Styles.addImage} />
+						</TouchableOpacity>
+						: null
+					}
+					{/* keyboardShouldPersistTaps="handled" 此属性让滚动视图子元素第一次点击就获得焦点 */} 	
+					<ScrollView horizontal={true} keyboardShouldPersistTaps="handled">
 						{ 
 							this.state.images.map((row, index) => {
 								return this._getImages(row, index);

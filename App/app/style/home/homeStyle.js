@@ -24,7 +24,7 @@ export default Styles = StyleSheet.create({
         marginTop: 30/oPx,
         marginLeft: 30/oPx,
         marginRight: 30/oPx,
-
+        flexDirection: 'row',
     },
     addImage: {
         width: 140/oPx,
@@ -43,6 +43,12 @@ export default Styles = StyleSheet.create({
         width: 40/oPx,
         height: 40/oPx,
         marginRight: 20/oPx,
+    },
+    goBackStyle: {
+        marginLeft: 30/oPx,
+    },
+    textRed: {
+        color: 'red',
     },
     
 });
